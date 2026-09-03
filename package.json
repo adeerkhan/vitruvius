@@ -17,6 +17,11 @@
   "license": "MIT",
   "type": "module",
   "main": "./.opencode/plugins/vitruvius.mjs",
+  "homepage": "https://github.com/adeerkhan/vitruvius",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/adeerkhan/vitruvius.git"
+  },
   "exports": {
     ".": "./.opencode/plugins/vitruvius.mjs",
     "./server": "./.opencode/plugins/vitruvius.mjs",

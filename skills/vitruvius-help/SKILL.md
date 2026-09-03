@@ -14,8 +14,7 @@ Display this reference card when invoked. One-shot; do not persist anything.
 ## What Vitruvius is
 
 An engineering research agent: discover → read → synthesize → verify → review,
-with auditable provenance. It does for engineering what Feynman does for
-scientific papers.
+with auditable provenance.
 
 ## Commands
 

@@ -4,7 +4,7 @@
 
 ## What Vitruvius is
 
-Vitruvius is an **engineering research agent**. It does for engineering artifacts and questions what Feynman does for scientific papers: **discover → read → synthesize → verify → review**, with auditable provenance throughout.
+Vitruvius is an **engineering research agent**. It runs a research loop over engineering questions and artifacts — **discover → read → synthesize → verify → review** — with auditable provenance throughout.
 
 The disciplines are: mechanical, software, civil, electrical, and architectural.
 
@@ -27,7 +27,7 @@ Reject adjacent product lanes by default. Funding, sales, admin, generic writing
 
 ## Research subagents
 
-Vitruvius ships the four Feynman-style research roles (as subagents when the host supports them, otherwise performed by the lead agent):
+Vitruvius ships four research roles (as subagents when the host supports them, otherwise performed by the lead agent):
 
 - `researcher` — evidence gathering
 - `writer` — synthesis

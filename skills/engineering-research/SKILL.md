@@ -17,7 +17,7 @@ license: MIT
 
 # Engineering Research
 
-Run the Feynman-style research loop for an engineering question or artifact.
+Run the Vitruvius research loop for an engineering question or artifact.
 The discipline skill that dispatched here adds the evidence landscape and
 verification criteria; this skill is the method itself. It applies to all five
 disciplines unchanged.
