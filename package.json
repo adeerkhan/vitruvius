@@ -3,9 +3,12 @@
   "version": "0.1.0",
   "description": "Engineering research agent: discover, read, synthesize, verify, and review engineering knowledge across mechanical, software, civil, electrical, and architectural disciplines.",
   "keywords": [
+    "opencode-plugin",
+    "opencode",
     "pi-package",
     "pi",
     "skills",
+    "agent-skills",
     "vitruvius",
     "engineering",
     "research",
@@ -13,10 +16,17 @@
   ],
   "license": "MIT",
   "type": "module",
-  "main": "./AGENTS.md",
+  "main": "./.opencode/plugins/vitruvius.mjs",
+  "exports": {
+    ".": "./.opencode/plugins/vitruvius.mjs",
+    "./server": "./.opencode/plugins/vitruvius.mjs",
+    "./package.json": "./package.json"
+  },
   "files": [
     "AGENTS.md",
-    "skills/"
+    "skills/",
+    ".opencode/",
+    ".commandcode/"
   ],
   "scripts": {
     "test": "node scripts/validate-skills.mjs"
@@ -24,5 +34,11 @@
   "pi": {
     "extensions": [],
     "skills": ["./skills"]
+  },
+  "commandcode": {
+    "mods": ["./.commandcode/mods/vitruvius.ts"]
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
