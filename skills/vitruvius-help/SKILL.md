@@ -27,6 +27,7 @@ with auditable provenance.
 | `/civil <question>` | Civil / structural engineering research (structures, geotech, transportation, water). |
 | `/electrical <question>` | Electrical / electronics engineering research (power, electronics, controls). |
 | `/architectural <question>` | Architectural research (buildings, facades, building science). |
+| `/skill:scholarly-research <topic>` | Academic literature discovery: OpenAlex, Semantic Scholar, arXiv, alphaXiv. |
 
 ## The shared research method
 

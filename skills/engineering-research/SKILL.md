@@ -108,6 +108,10 @@ If direct search was chosen:
 - Search and fetch sources yourself.
 - Use multiple search terms/angles before drafting. Minimum: 3 distinct
   queries for direct-mode research.
+- When the question is scholarly (papers, prior art, standards research),
+  use the `/skill:scholarly-research` discovery layers: OpenAlex first
+  (keyless REST), then Semantic Scholar / arXiv / alphaXiv fast search, and
+  the host's own web or browser tools when visible.
 - Record the exact search terms used and write notes to
   `outputs/.drafts/<slug>-research-direct.md`.
 - Continue to synthesis.

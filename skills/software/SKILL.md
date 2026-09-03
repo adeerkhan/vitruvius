@@ -26,7 +26,9 @@ domain payload. Do not restate the research loop here.
   document + section when one governs.
 - **Prior art:** public codebases (read the actual code before describing
   it), architectural decision records, well-cited engineering blogs,
-  peer-reviewed systems literature.
+  peer-reviewed systems literature. For papers and academic prior art, use
+  the `/skill:scholarly-research` discovery layers (OpenAlex, Semantic
+  Scholar, arXiv).
 - **Accept with caveats:** established trade press and secondary summaries.
   Deprioritize undated posts, listicles, and social media without primary
   links.

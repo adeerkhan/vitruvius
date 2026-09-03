@@ -31,12 +31,14 @@ Route to the matching discipline skill:
 | `/civil`, civil, structural, geotech, transportation, water | `/skill:civil` | Civil / structural engineering |
 | `/electrical`, electrical, electronics, power, controls | `/skill:electrical` | Electrical / electronics engineering |
 | `/architectural`, architectural, architecture, buildings, facade | `/skill:architectural` | Architecture |
+| (paper / prior-art / citation question) | `/skill:scholarly-research` | Academic literature discovery |
 
 If the user names no discipline, ask which discipline the question belongs to
 before starting. If the user names a discipline, activate that discipline
 skill and follow its payload plus the shared `engineering-research` method.
-If the user invokes a discipline the table does not cover, tell them what the
-five disciplines are.
+If the question is scholarly (a paper, prior art, or "what does the
+literature say"), route to `/skill:scholarly-research`. If the user invokes
+something the table does not cover, tell them what the five disciplines are.
 
 ## Always
 

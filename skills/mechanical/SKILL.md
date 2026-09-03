@@ -24,7 +24,9 @@ domain payload. Do not restate the research loop here.
   handbooks — use only when a direct primary read is possible.
 - **Primary sources:** manufacturer datasheets, bearing/coupling catalogs,
   material property data from the issuing body, patent documents, peer-
-  reviewed journals.
+  reviewed journals. For journal literature use the
+  `/skill:scholarly-research` discovery layers (OpenAlex, Semantic Scholar,
+  arXiv).
 - **Prior art / practice:** documented field failures, failure analyses,
   trade association guidance (e.g. ASME B31, AGMA, NFPA).
 

@@ -5,9 +5,11 @@ description: Engineering research agent — discover, read, synthesize, verify, 
 Activate the matching Vitruvius skill for engineering research. If the
 $ARGUMENTS names a discipline (mechanical, software/software engineering,
 civil/structural, electrical, architectural), run `/skill:<discipline>` with
-the research question. If no discipline is named, ask which of the five
-disciplines the question belongs to, then run that discipline skill. If a
-discipline is named but not one of the five, list the five disciplines.
+the research question. If the question is scholarly (a paper, prior art,
+citations), run `/skill:scholarly-research`. If no discipline is named, ask
+which of the five disciplines the question belongs to, then run that
+discipline skill. If a discipline is named but not one of the five, list the
+five disciplines.
 Follow the integrity rules in AGENTS.md: never fabricate a source, mark
 status honestly (verified / inferred / blocked / unverified), and produce a
 .provenance.md sidecar for every research output.

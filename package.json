@@ -12,6 +12,9 @@
     "vitruvius",
     "engineering",
     "research",
+    "scholarly",
+    "openalex",
+    "alphaxiv",
     "qoder"
   ],
   "license": "MIT",
@@ -29,6 +32,7 @@
   },
   "files": [
     "AGENTS.md",
+    "LICENSE",
     "skills/",
     ".opencode/",
     ".commandcode/"

@@ -18,6 +18,7 @@ const SKILLS: Array<{command: string; description: string; skill: string; hint: 
 	{command: 'civil', description: 'Civil / structural engineering research: buildings, bridges, steel, concrete, geotech, loads', skill: 'civil', hint: '<research question>'},
 	{command: 'electrical', description: 'Electrical / electronics engineering research: power, electronics, controls, EMC', skill: 'electrical', hint: '<research question>'},
 	{command: 'architectural', description: 'Architectural research: building science, facades, codes, performance, precedents', skill: 'architectural', hint: '<research question>'},
+	{command: 'scholarly-research', description: 'Academic literature discovery: OpenAlex, Semantic Scholar, arXiv, alphaXiv', skill: 'scholarly-research', hint: '<topic or paper identifier>'},
 	{command: 'vitruvius-help', description: 'Quick-reference card for all Vitruvius commands and the shared research method', skill: 'vitruvius-help', hint: ''},
 ];
 

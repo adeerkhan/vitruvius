@@ -19,7 +19,7 @@ Vitruvius is an engineering research agent: it runs a **discover → read → sy
 ### Command Code
 
 ```bash
-cmd skills add adeerkhan/vitruvius --global     # install all eight skills (or pick with -s)
+cmd skills add adeerkhan/vitruvius --global     # install all nine skills (or pick with -s)
 cmd mods add adeerkhan/vitruvius                # adds the /vitruvius slash commands
 ```
 
@@ -74,10 +74,34 @@ Review → Deliver**, ending with a `.provenance.md` sidecar.
 
 - `engineering-research` — the shared method: slug + plan artifact, evidence
   table with stable numeric IDs, verifier/reviewer passes, provenance sidecar.
+- `scholarly-research` — free academic-source discovery: OpenAlex, Semantic
+  Scholar, arXiv, and alphaXiv fast search via keyless REST; guidance for
+  host web/browser tools. Used when a question needs papers, prior art, or
+  citation data.
 - `vitruvius` — the dispatcher: routes to the matching discipline.
 - `mechanical`, `software`, `civil`, `electrical`, `architectural` — thin
   discipline lenses carrying only the evidence landscape, verification
   criteria, and deliverable shape for that field.
+
+## Research sources
+
+Vitruvius points research at the best free, verifiable layers for the job:
+
+- **Standards and code** (primary): ASME, ASTM, AISC, ACI, ASCE, IEEE, IEC,
+  UL, IBC — cite standard + section + edition.
+- **Academic literature**: the `scholarly-research` skill uses OpenAlex
+  (primary, keyless), Semantic Scholar, the arXiv API, and alphaXiv fast
+  search — all free REST. Where an agent host exposes web search or a browser
+  tool, Vitruvius uses them for non-academic sources and recency.
+- **Google Scholar** has no official API and blocks automated browsers, so
+  Vitruvius does not scrape it; it uses OpenAlex/Semantic Scholar citation
+  counts instead.
+- **alphaXiv Q&A** (full-text paper chat) needs an alphaXiv account — connect
+  `https://api.alphaxiv.org/mcp/v1` as an MCP server with a bearer key, or use
+  the `alpha` CLI.
+
+A claim is only `verified` when the underlying source was read directly;
+paywalled full texts are cited from metadata and marked `blocked`.
 
 ## The non-negotiables
 
