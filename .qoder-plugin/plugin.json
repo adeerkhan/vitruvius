@@ -1,0 +1,6 @@
+{
+  "name": "vitruvius",
+  "version": "0.1.0",
+  "description": "Engineering research agent: discover, read, synthesize, verify, and review engineering knowledge with auditable provenance.",
+  "skills": "./skills/"
+}

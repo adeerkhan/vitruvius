@@ -19,6 +19,13 @@ const SKILLS: Array<{command: string; description: string; skill: string; hint: 
 	{command: 'electrical', description: 'Electrical / electronics engineering research: power, electronics, controls, EMC', skill: 'electrical', hint: '<research question>'},
 	{command: 'architectural', description: 'Architectural research: building science, facades, codes, performance, precedents', skill: 'architectural', hint: '<research question>'},
 	{command: 'scholarly-research', description: 'Academic literature discovery: OpenAlex, Semantic Scholar, arXiv, alphaXiv', skill: 'scholarly-research', hint: '<topic or paper identifier>'},
+	{command: 'compare', description: 'Compare standards, designs, products, or methods into a source-grounded matrix', skill: 'compare', hint: '<items to compare>'},
+	{command: 'verify', description: 'Verify an engineering claim, number, or calculation against authoritative sources', skill: 'verify', hint: '<claim or calculation>'},
+	{command: 'review', description: 'Severity-graded adversarial review of an engineering artifact', skill: 'review', hint: '<artifact>'},
+	{command: 'audit', description: 'Audit a claim/spec against its implementation (paper-vs-code, spec-vs-design)', skill: 'audit', hint: '<target>'},
+	{command: 'summarize', description: 'Read and condense a standard, spec, datasheet, or paper faithfully', skill: 'summarize', hint: '<document>'},
+	{command: 'eli5', description: 'Plain-language engineering explanation of a concept or standard', skill: 'eli5', hint: '<topic>'},
+	{command: 'artifact-reading', description: 'Anchored reading and extraction from PDFs, datasheets, drawings, specs', skill: 'artifact-reading', hint: '<document>'},
 	{command: 'vitruvius-help', description: 'Quick-reference card for all Vitruvius commands and the shared research method', skill: 'vitruvius-help', hint: ''},
 ];
 

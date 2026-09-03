@@ -28,6 +28,13 @@ with auditable provenance.
 | `/electrical <question>` | Electrical / electronics engineering research (power, electronics, controls). |
 | `/architectural <question>` | Architectural research (buildings, facades, building science). |
 | `/skill:scholarly-research <topic>` | Academic literature discovery: OpenAlex, Semantic Scholar, arXiv, alphaXiv. |
+| `/skill:compare <items>` | Source/standard/design comparison matrix. |
+| `/skill:verify <claim>` | Verdict on a claim/calculation with evidence trail. |
+| `/skill:review <artifact>` | Severity-graded artifact review + revision plan. |
+| `/skill:audit <target>` | Claim-vs-implementation mismatch audit. |
+| `/skill:summarize <doc>` | Faithful structured document digest. |
+| `/skill:eli5 <topic>` | Plain-language engineering explanation. |
+| `/skill:artifact-reading <doc>` | Anchored document reading + extraction. |
 
 ## The shared research method
 

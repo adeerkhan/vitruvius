@@ -1,6 +1,12 @@
-# Vitruvius
+<p align="center">
+  <img src="assets/hero.png" width="820" alt="Vitruvius — the engineering research agent">
+</p>
 
-The engineering research agent. Named for Marcus Vitruvius Pollio, the Roman architect-engineer who wrote *De Architectura* — the first surviving treatise to treat architecture, civil engineering, machines, and materials as one discipline.
+<h1 align="center">Vitruvius</h1>
+
+<p align="center">
+  The engineering research agent. Named for Marcus Vitruvius Pollio, the Roman architect-engineer who wrote <em>De Architectura</em> — the first surviving treatise to treat architecture, civil engineering, machines, and materials as one discipline.
+</p>
 
 Vitruvius is an engineering research agent: it runs a **discover → read → synthesize → verify → review** loop over engineering questions and artifacts, with auditable provenance throughout. Five disciplines, each behind its own command:
 
@@ -19,7 +25,7 @@ Vitruvius is an engineering research agent: it runs a **discover → read → sy
 ### Command Code
 
 ```bash
-cmd skills add adeerkhan/vitruvius --global     # install all nine skills (or pick with -s)
+cmd skills add adeerkhan/vitruvius --global     # install all sixteen skills (or pick with -s)
 cmd mods add adeerkhan/vitruvius                # adds the /vitruvius slash commands
 ```
 
@@ -78,10 +84,18 @@ Review → Deliver**, ending with a `.provenance.md` sidecar.
   Scholar, arXiv, and alphaXiv fast search via keyless REST; guidance for
   host web/browser tools. Used when a question needs papers, prior art, or
   citation data.
-- `vitruvius` — the dispatcher: routes to the matching discipline.
+- `vitruvius` — the dispatcher: routes to the matching discipline or workflow.
 - `mechanical`, `software`, `civil`, `electrical`, `architectural` — thin
   discipline lenses carrying only the evidence landscape, verification
   criteria, and deliverable shape for that field.
+- Workflow skills — named engineering jobs over the shared loop:
+  - `compare` — standards/designs/products into a source-grounded matrix
+  - `verify` — verdict on a claim or calculation with evidence trail
+  - `review` — severity-graded artifact review + revision plan
+  - `audit` — claim-vs-implementation (paper-vs-code, spec-vs-design)
+  - `summarize` — faithful structured digest of a standard/spec/paper
+  - `eli5` — plain-language engineering explanation
+  - `artifact-reading` — anchored reading + extraction from documents
 
 ## Research sources
 
@@ -113,4 +127,6 @@ paywalled full texts are cited from metadata and marked `blocked`.
 
 ## License
 
-MIT
+[MIT](LICENSE)
+
+Copyright (c) 2026 [Adeer Khan](https://github.com/adeerkhan)
