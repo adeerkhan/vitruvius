@@ -1,0 +1,28 @@
+{
+  "name": "vitruvius",
+  "version": "0.1.0",
+  "description": "Engineering research agent: discover, read, synthesize, verify, and review engineering knowledge across mechanical, software, civil, electrical, and architectural disciplines.",
+  "keywords": [
+    "pi-package",
+    "pi",
+    "skills",
+    "vitruvius",
+    "engineering",
+    "research",
+    "qoder"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "main": "./AGENTS.md",
+  "files": [
+    "AGENTS.md",
+    "skills/"
+  ],
+  "scripts": {
+    "test": "node scripts/validate-skills.mjs"
+  },
+  "pi": {
+    "extensions": [],
+    "skills": ["./skills"]
+  }
+}
