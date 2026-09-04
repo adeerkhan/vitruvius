@@ -33,6 +33,7 @@ Route to the matching discipline skill:
 | `/architectural`, architectural, architecture, buildings, facade | `/skill:architectural` | Architecture |
 | (paper / prior-art / citation question) | `/skill:scholarly-research` | Academic literature discovery |
 | (standard / code / provision lookup) | `/skill:standards-lookup` | Engineering standards and codes |
+| (verify / is this right / check this claim) | `/skill:verifier` | Blind Verifier — independent claim verification |
 
 If the user names no discipline, ask which discipline the question belongs to
 before starting. If the user names a discipline, activate that discipline

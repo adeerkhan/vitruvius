@@ -41,7 +41,8 @@
   "scripts": {
     "test": "node scripts/validate-skills.mjs && node scripts/validate-contract.mjs",
     "test:skills": "node scripts/validate-skills.mjs",
-    "test:contract": "node scripts/validate-contract.mjs"
+    "test:contract": "node scripts/validate-contract.mjs",
+    "benchmark": "node scripts/score-benchmark.mjs"
   },
   "pi": {
     "extensions": [],

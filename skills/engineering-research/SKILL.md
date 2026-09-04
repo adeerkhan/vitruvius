@@ -189,64 +189,28 @@ calculation. Remove or downgrade unsupported claims. Mark inferences as
 inferences. **A numeric claim without a unit, sign convention, and source is
 not a claim — it is noise.** Flag it.
 
-## Step 5: Cite
+## Step 5: Verify (Blind Verifier)
 
-If direct search was chosen:
+After the cited brief exists, run the **Blind Verifier** as a subagent with
+FRESH context. This is mandatory for all non-trivial research. The verifier
+receives:
+- The research question
+- The gathered evidence (with source locations)
+- The claimed conclusion
 
-- Do citation yourself. Verify reachable source references.
-- Copy or rewrite `outputs/.drafts/<slug>-draft.md` to
-  `outputs/.drafts/<slug>-cited.md` with inline citations and a Sources
-  section. Do not spawn the `verifier` subagent for simple direct-search runs.
+It does **NOT** receive your reasoning chain — that separation is the point.
+Activate it via `/skill:verifier`. It returns PASS / PARTIAL / BLOCKED with
+an evidence trail and default-FAIL posture (it actively looks for flaws).
 
-If researcher subagents were used, run the `verifier` agent after the draft
-exists. This step is mandatory and must complete before any reviewer runs. Do
-not run `verifier` and `reviewer` in the same parallel `subagent` call.
-
-Citation rules:
-
-- Every factual claim gets at least one citation: "AISC 360-16 §E3 requires a
-  minimum slenderness check [1]."
-- Multiple sources for one claim are fine. No orphan citations; no orphan
-  sources.
-- **Verify meaning, not just topic overlap.** A citation is valid only if the
-  source actually supports the specific number, provision, or conclusion
-  attached to it.
-- For code-backed or quantitative claims, keep the claim only if the
-  supporting artifact or calculation is present in the research files. If a
-  number lacks a traceable source or artifact path, weaken or remove the claim.
-- Remove unsourced factual claims or find them a source. Do not leave
-  unsourced factual claims in a cited brief.
-- Refuse fake certainty. Do not use `verified`, `confirmed`, or `reproduced`
-  unless the evidence actually supports it.
-- Dead/404 source? Search for an alternative (archived version, updated
-  link). If none, remove the source and every claim that depended solely on it.
+If the verifier returns BLOCKED, fix the fatal issues and re-run. If PARTIAL,
+note the qualifications in Open Questions. Do not run the verifier and any
+reviewer in the same parallel subagent call — verify first, then review.
 
 ## Step 6: Review
 
-If direct search was chosen:
-
-- Review the cited draft yourself.
-- Write `outputs/.drafts/<slug>-verification.md` with FATAL / MAJOR / MINOR
-  findings and the checks performed.
-- Fix FATAL issues before delivery. Do not spawn the `reviewer` subagent for
-  simple direct-search runs.
-
-If researcher subagents were used, only after the cited file exists, run the
-`reviewer` agent against it. This is a verification pass, not a peer review:
-flag unsupported claims, logical gaps, single-source critical claims, and
-overstated confidence.
-
-If the reviewer flags FATAL issues, fix them and run one more review pass. Note
-MAJOR issues in Open Questions. Accept MINOR issues.
-
-When applying fixes, use small localized edits for 1–3 simple corrections. For
-section rewrites or more than 3 substantive fixes, read the cited draft and
-write a corrected full file to `outputs/.drafts/<slug>-revised.md`.
-
-After applying any fixes, run an explicit on-disk verification before saying
-the fixes landed (read, grep, diff, or stat proving the old wording is gone
-and the replacement exists). Provenance may only say an issue was fixed when
-this post-edit verification passed.
+After the verifier passes, do a final self-review: check that all PARTIAL
+qualifications are noted in Open Questions, all FATAL issues are fixed, and
+the provenance sidecar is complete.
 
 The final candidate is `outputs/.drafts/<slug>-revised.md` if it exists,
 otherwise `outputs/.drafts/<slug>-cited.md`.
