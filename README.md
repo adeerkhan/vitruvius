@@ -84,6 +84,12 @@ Review → Deliver**, ending with a `.provenance.md` sidecar.
   Scholar, arXiv, and alphaXiv fast search via keyless REST; guidance for
   host web/browser tools. Used when a question needs papers, prior art, or
   citation data.
+- `standards-lookup` — engineering standards and codes: AISC, ACI, ASCE 7,
+  IEEE, NFPA, IBC, Eurocode, and more. Selects the authoritative standard
+  for the domain and jurisdiction, locates the governing section,
+  distinguishes mandatory ("shall") from advisory ("should"), and returns
+  the provision with provenance. Flags paywalled access and resolves
+  conflicts between overlapping standards.
 - `vitruvius` — the dispatcher: routes to the matching discipline or workflow.
 - `mechanical`, `software`, `civil`, `electrical`, `architectural` — thin
   discipline lenses carrying only the evidence landscape, verification

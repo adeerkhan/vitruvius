@@ -28,6 +28,7 @@ with auditable provenance.
 | `/electrical <question>` | Electrical / electronics engineering research (power, electronics, controls). |
 | `/architectural <question>` | Architectural research (buildings, facades, building science). |
 | `/skill:scholarly-research <topic>` | Academic literature discovery: OpenAlex, Semantic Scholar, arXiv, alphaXiv. |
+| `/skill:standards-lookup <standard or topic>` | Engineering standards and codes: AISC, ACI, ASCE, IEEE, NFPA, IBC, Eurocode. |
 | `/skill:compare <items>` | Source/standard/design comparison matrix. |
 | `/skill:verify <claim>` | Verdict on a claim/calculation with evidence trail. |
 | `/skill:review <artifact>` | Severity-graded artifact review + revision plan. |

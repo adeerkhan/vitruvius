@@ -32,12 +32,15 @@ Route to the matching discipline skill:
 | `/electrical`, electrical, electronics, power, controls | `/skill:electrical` | Electrical / electronics engineering |
 | `/architectural`, architectural, architecture, buildings, facade | `/skill:architectural` | Architecture |
 | (paper / prior-art / citation question) | `/skill:scholarly-research` | Academic literature discovery |
+| (standard / code / provision lookup) | `/skill:standards-lookup` | Engineering standards and codes |
 
 If the user names no discipline, ask which discipline the question belongs to
 before starting. If the user names a discipline, activate that discipline
 skill and follow its payload plus the shared `engineering-research` method.
 If the question is scholarly (a paper, prior art, or "what does the
-literature say"), route to `/skill:scholarly-research`.
+literature say"), route to `/skill:scholarly-research`. If the question is a
+standard or code lookup ("what does AISC 360 say", "which ACI 318 section
+governs"), route to `/skill:standards-lookup`.
 
 ## Dispatch — workflow
 

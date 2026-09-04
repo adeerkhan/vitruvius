@@ -19,6 +19,7 @@ const SKILLS: Array<{command: string; description: string; skill: string; hint: 
 	{command: 'electrical', description: 'Electrical / electronics engineering research: power, electronics, controls, EMC', skill: 'electrical', hint: '<research question>'},
 	{command: 'architectural', description: 'Architectural research: building science, facades, codes, performance, precedents', skill: 'architectural', hint: '<research question>'},
 	{command: 'scholarly-research', description: 'Academic literature discovery: OpenAlex, Semantic Scholar, arXiv, alphaXiv', skill: 'scholarly-research', hint: '<topic or paper identifier>'},
+	{command: 'standards-lookup', description: 'Engineering standards and codes: AISC, ACI, ASCE, IEEE, NFPA, IBC, Eurocode', skill: 'standards-lookup', hint: '<standard or topic>'},
 	{command: 'compare', description: 'Compare standards, designs, products, or methods into a source-grounded matrix', skill: 'compare', hint: '<items to compare>'},
 	{command: 'verify', description: 'Verify an engineering claim, number, or calculation against authoritative sources', skill: 'verify', hint: '<claim or calculation>'},
 	{command: 'review', description: 'Severity-graded adversarial review of an engineering artifact', skill: 'review', hint: '<artifact>'},
