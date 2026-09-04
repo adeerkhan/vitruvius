@@ -31,53 +31,21 @@ explicitly.
 
 ## Core Workflow
 
-1. **Define the retrieval contract** — Identify the engineering domain
-   (structural, mechanical, electrical, civil/geotech, fire, materials), the
-   governing jurisdiction (US state, country, or project specification), the
-   limit state or check type (strength, serviceability, stability, fire
-   resistance, seismic), and whether the user needs the exact provision text
-   or a citation is sufficient.
+1. **Select the authoritative standard** — Use the Standard Selection Guide
+   below. Prefer the primary standard for the domain + jurisdiction. Do not
+   fan out across many standards just because they are available.
 
-2. **Select authoritative standard(s)** — Use the Standard Selection Guide
-   below. Prefer the primary standard for the domain + jurisdiction, then add
-   cross-check standards only for conflict resolution or when the project
-   specification references multiple. Do not fan out across many standards
-   just because they are available.
+2. **Locate the governing section** — Engineering standards organize by limit
+   state (flexure, shear, compression, stability, connections). Use the
+   section-lookup patterns in the reference file to navigate. Distinguish
+   mandatory provisions ("shall") from advisory ("should", "may", commentary).
 
-3. **Determine access method** — Each standard has different access
-   constraints. Some have free preview (AISC, ASCE), some require subscription
-   (IEEE Xplore, ACI), some are freely available (Eurocode via national
-   annexes, some NFPA handbooks), and some have no digital access at all.
-   Check the reference file for the selected standard before promising a
-   retrieval.
-
-4. **Locate the governing section** — Engineering standards are organized by
-   limit state and member type. Use the section-lookup patterns in the
-   reference file to navigate: identify the applicable chapter (flexure,
-   shear, compression, stability, connections), then the specific provision.
-   Distinguish mandatory provisions ("shall") from advisory ("should",
-   "may", commentary).
-
-5. **Retrieve or reference the provision** — If free access or preview is
+3. **Return the provision with provenance** — If free access or preview is
    available, retrieve the provision text directly. If paywalled, cite the
-   exact provision with section number, edition, and page (or equivalent)
-   so the user can locate it in their copy. Never paraphrase a "shall"
-   provision — quote it or flag the paraphrase.
-
-6. **Resolve conflicts explicitly** — When two applicable standards give
-   different answers (e.g., AISC vs AASTO for a bridge, or IBC vs ASCE 7 for
-   loads), do not silently pick one. Report both, identify which the project
-   specification designates as governing, and flag the difference.
-
-7. **Return auditable results** — Always return:
-   - The provision text (if retrievable) or exact citation (standard,
-     section, edition, page/equivalent)
-   - The standard's edition/date (standards are version-specific; AISC 360-16
-     differs from 360-22)
-   - Mandatory vs advisory status ("shall" / "should" / commentary)
-   - Warnings about paywall access, jurisdiction limitations, or known
-     differences between editions
-   - If a query returned no applicable provision, say so explicitly
+   exact provision (standard, section, edition, page) so the user can locate
+   it in their copy. Never paraphrase a "shall" provision — quote it or flag
+   the paraphrase. When two applicable standards conflict, report both and
+   identify which the project specification designates as governing.
 
 ## Standard Selection Guide
 
@@ -106,15 +74,8 @@ explicitly.
 | Jurisdiction | Governing framework |
 |---|---|
 | United States (general) | IBC + referenced standards (ASCE 7, AISC 360, ACI 318, NDS, TMS 402) |
-| United States (state-specific) | State amendments to IBC; California (CBC, Caltrans), Texas (TBD), New York (NYC BC), etc. |
-| Canada | NBCC + CSA standards (CSA S16 steel, CSA A23.3 concrete, CSA O86 wood) |
+| United States (state-specific) | State amendments to IBC; California (CBC), Texas, New York City, etc. |
 | Europe | Eurocodes (EN 1990–EN 1999) + National Annexes |
-| United Kingdom | BS EN standards + National Annexes; legacy BS 5950, BS 8110 withdrawn |
-| Australia | AS 4100 (steel), AS 3600 (concrete), AS 1170 (loads) |
-| International project | Project specification designates governing standard set |
-
-When the user does not specify jurisdiction, ask before assuming — a steel
-connection detail that is correct per AISC may not satisfy Eurocode 3.
 
 ## Access Methods
 
@@ -162,37 +123,17 @@ error.
 
 ## Conflict Resolution
 
-When multiple standards apply and give different answers:
-
-1. **Check the project specification first** — it designates the governing
-   standard. Report that.
-2. **If no specification exists** — identify the conflict explicitly: "AISC
-   360-16 §F2.1 requires X, but AASTO LRFD §6.10.1 requires Y for this bridge
-   type. The project specification must designate which governs."
-3. **Never silently pick the more conservative value** — conservatism is a
-   design decision, not a retrieval decision. Report both and let the
-   engineer choose.
-4. **Flag known inter-standard conflicts** — some are well-documented
-   (e.g., ASCE 7 vs Eurocode wind load methods; AISC vs CSA steel design
-   philosophy). Note them.
+When two applicable standards give different answers, do not silently pick
+one — report both and identify which the project specification designates as
+governing. Never silently pick the more conservative value; conservatism is a
+design decision, not a retrieval decision.
 
 ## Section-Lookup Patterns
 
-Engineering standards share a common navigation anatomy. Use these patterns
-to locate provisions:
-
-1. **Identify the limit state** — flexure, shear, axial compression, torsion,
-   stability (buckling), connection, fatigue, fire, serviceability
-   (deflection, vibration, cracking), durability.
-2. **Find the chapter** — standards organize by limit state (AISC 360: Ch.
-   E = compression, F = flexure, G = shear, H = combined, J = connections).
-3. **Find the member type** — rolled shape vs built-up, compact vs
-   noncompact, braced vs unbraced, composite vs non-composite.
-4. **Find the specific provision** — equation number, table, or design aid.
-5. **Check the scope clause** — every chapter has a scope (e.g., "This
-   chapter applies to members with..."). Verify the member falls within it.
-6. **Check exclusions and exceptions** — footnotes and "except" clauses are
-   where governing provisions hide.
+Identify the limit state (flexure, shear, compression, stability,
+connections), then find the chapter and provision in the reference file.
+Check the scope clause and footnotes — "except" clauses are where governing
+provisions hide.
 
 ## Output Format
 
@@ -232,16 +173,10 @@ provisions from memory.
 
 ## Adding New Standards
 
-This skill is designed to grow. Each standard is a self-contained reference
-file in `references/`. To add a new standard:
-
-1. Create `references/<standard-abbrev>.md` following the format of existing
-   files.
-2. Add an entry to the Standard Selection Guide above.
-3. The reference file should include: scope, edition history, access
-   method (free/preview/paywall/API), organization (chapters by limit state),
-   key sections for common checks, mandatory-language conventions, known
-   conflicts with other standards, and jurisdiction notes.
+Each standard is a self-contained reference file in `references/`. To add one:
+create `references/<standard-abbrev>.md` (scope, edition history, access method,
+chapters by limit state, key sections, mandatory-language conventions, known
+conflicts, jurisdiction notes) and add an entry to the Standard Selection Guide.
 
 ## Available Standards
 
@@ -300,60 +235,12 @@ Read the relevant reference file before attempting any lookup.
 | NDS | `references/nds.md` | Free preview / paywalled | Wood design (sawn, GLT, CLT, connections) |
 | TMS 402/602 | `references/tms-402.md` | Paywalled | Masonry structures |
 
-### Software Engineering
-| Standard | Reference File | Access | What it covers |
-|---|---|---|---|
-| ISO/IEC 25010 | `references/software-engineering.md` | Free (OWASP/NIST) / paywalled (ISO, IEEE) | Software quality model, security (OWASP ASVS/Top 10), secure development (NIST SSDF) |
-
-### Electrical
-| Standard | Reference File | Access | What it covers |
-|---|---|---|---|
-| NEC (NFPA 70) | `references/nec.md` | FREE online view (NFPA) | Electrical installation — wiring, overcurrent, grounding, solar, EV, energy storage |
-| IEEE | `references/ieee.md` | Subscription / some free | Power (1547, 519), software, networking (802.3/802.11 free), reliability |
-| NFPA (fire) | `references/nfpa.md` | FREE online view (NFPA) | Life safety (101), fire code (1), sprinklers (13), alarms (72) |
-
-### Mechanical
-| Standard | Reference File | Access | What it covers |
-|---|---|---|---|
-| ASME | `references/asme.md` | Paywalled | Pressure vessels (BPVC), piping (B31.1/31.3), GD&T (Y14.5), elevators (A17.1) |
-
-### Materials and Testing
-| Standard | Reference File | Access | What it covers |
-|---|---|---|---|
-| ASTM | `references/astm.md` | Paywalled (some free) | Material specs (A992, A615, C150), test methods (E8 tensile, E23 impact, C39 concrete) |
-
-### Timber
-| Standard | Reference File | Access | What it covers |
-|---|---|---|---|
-| NDS | `references/nds.md` | Free preview / free companions (SDPWS, WFCM) | Wood design (sawn, GLT, CLT, connections), adjustment factors |
-
-### International
-| Standard | Reference File | Access | What it covers |
-|---|---|---|---|
-| Eurocode | `references/eurocode.md` | Free (varies by country) | European structural standards (EN 1990–1999) + National Annexes |
-
-### Architectural
-| Standard | Reference File | Access | What it covers |
-|---|---|---|---|
-| ADA / ICC A117.1 | `references/architectural.md` | FREE (ADA) / paywalled (ICC A117.1) | Accessibility standards |
-| ASHRAE | `references/architectural.md` | Paywalled | Energy (90.1), ventilation (62.1), thermal comfort (55) |
-| LEED / IgCC | `references/architectural.md` | Paywalled | Green building rating and code |
-
 ## Citing Engineering Standards
 
-Engineering citations follow a specific format. Use this for every provision:
+Format: `[Standard Abbreviation] [Number]-[Edition], §[Section], [Title] ([Publisher], [Year]).`
 
-```
-[Standard Abbreviation] [Number]-[Edition], §[Section], [Title]
-([Publisher], [Year]).
-```
-
-Examples:
-- `AISC 360-22, §F2-1, Flexural Members (AISC, 2022).`
-- `ACI 318-19, §10.3.5, Maximum Flexural Reinforcement (ACI, 2019).`
-- `ASCE 7-22, §26.10, Wind Loads on Main Wind Force Resisting Systems (ASCE, 2022).`
+Example: `AISC 360-22, §F2-1, Flexural Members (AISC, 2022).`
 
 Always cite the edition — provisions change between editions (AISC 360-16 vs
--22 differ in several sections; ACI 318-14 vs -18 had major shear changes).
-When the user references a standard without an edition, ask which one or note
-the assumption.
+-22 differ; ACI 318-14 vs -18 had major shear changes). When the user
+references a standard without an edition, ask which one or note the assumption.

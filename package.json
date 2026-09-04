@@ -39,7 +39,9 @@
     ".commandcode/"
   ],
   "scripts": {
-    "test": "node scripts/validate-skills.mjs"
+    "test": "node scripts/validate-skills.mjs && node scripts/validate-contract.mjs",
+    "test:skills": "node scripts/validate-skills.mjs",
+    "test:contract": "node scripts/validate-contract.mjs"
   },
   "pi": {
     "extensions": [],
