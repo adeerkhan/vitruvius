@@ -11,7 +11,7 @@
  * Usage: node scripts/check-output-quality.mjs <file-or-dir>
  */
 
-import { readFileSync, readdirSync, statSync } from "node:fs";
+import { readFileSync, readdirSync, statSync, existsSync } from "node:fs";
 import { join, basename, extname } from "node:path";
 
 const target = process.argv[2] || "outputs";
