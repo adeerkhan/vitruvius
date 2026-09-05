@@ -28,7 +28,6 @@
   },
   "exports": {
     ".": "./.opencode/plugins/vitruvius.mjs",
-    "./server": "./.opencode/plugins/vitruvius.mjs",
     "./package.json": "./package.json"
   },
   "files": [
@@ -47,7 +46,6 @@
     "benchmark": "node scripts/score-benchmark.mjs"
   },
   "pi": {
-    "extensions": [],
     "skills": ["./skills"]
   },
   "commandcode": {

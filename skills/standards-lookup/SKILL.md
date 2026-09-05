@@ -9,10 +9,6 @@ description: >
   provision with enough provenance that another engineer can verify it. Do NOT
   use for general engineering knowledge that has no specific standard backing.
 argument-hint: "<standard or topic to look up>"
-license: MIT
-metadata:
-  version: "1.0"
-  skill-author: "Vitruvius"
 ---
 
 # Standards Lookup

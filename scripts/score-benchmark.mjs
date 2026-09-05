@@ -110,17 +110,6 @@ function main() {
 		process.exit(1);
 	}
 
-	if (args[0] === '--case') {
-		// Single case mode
-		const caseFile = args[1];
-		const outputFile = args[2];
-		const result = scoreCase(caseFile, dirname(outputFile));
-		if (result) {
-			console.log(JSON.stringify(result, null, 2));
-		}
-		process.exit(result?.correct ? 0 : 1);
-	}
-
 	// Batch mode — score all cases in a results directory
 	const resultsDir = args[0];
 	const casesDir = args[1] || join(process.cwd(), 'tasks', 'benchmark', 'cases', 'civil');

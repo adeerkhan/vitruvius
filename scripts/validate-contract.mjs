@@ -140,7 +140,7 @@ function strayTestProblems(skill) {
   return problems;
 }
 
-function linkProblems(skill, knownSkills) {
+function linkProblems(skill) {
   const problems = [];
   const docs = [join(skill, "SKILL.md")];
   const refsDir = join(skill, "references");
@@ -165,29 +165,24 @@ function linkProblems(skill, knownSkills) {
       for (const m of line.matchAll(INLINE_PATH)) found.add(m[1]);
       for (const m of line.matchAll(MARKDOWN_LINK)) found.add(m[1]);
       for (const rel of found) {
-        if (statSync(join(skill, rel), { throwIfNoEntry: false })) continue;
-        // Accept if another named skill owns it
-        const owners = [...knownSkills].filter(
-          (o) => o !== relative(SKILLS_DIR, skill) && line.includes(o) && statSync(join(SKILLS_DIR, o, rel), { throwIfNoEntry: false }),
-        );
-        if (owners.length) continue;
-        problems.push(
-          `${relative(SKILLS_DIR, skill)}: ${docName}:${i + 1} references \`${rel}\`, which does not exist`,
-        );
+        if (!statSync(join(skill, rel), { throwIfNoEntry: false })) {
+          problems.push(
+            `${relative(SKILLS_DIR, skill)}: ${docName}:${i + 1} references \`${rel}\`, which does not exist`,
+          );
+        }
       }
     }
   }
   return problems;
 }
 
-const knownSkills = allSkillNames();
-const skillDirs = [...knownSkills].map((n) => join(SKILLS_DIR, n));
+const skillDirs = [...allSkillNames()].map((n) => join(SKILLS_DIR, n));
 
 const CHECKS = {
   frontmatter: frontmatterProblems,
   skill_md_length: lengthProblems,
   no_tests_under_skills: strayTestProblems,
-  local_links_resolve: (s) => linkProblems(s, knownSkills),
+  local_links_resolve: linkProblems,
 };
 
 let totalProblems = 0;
