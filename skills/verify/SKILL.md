@@ -7,6 +7,7 @@ description: >
   number, material property, or provision confirmed against a standard,
   datasheet, or primary source. Produces a verdict with the evidence trail.
 argument-hint: "<claim or calculation to verify>"
+allowed-tools: Write Edit Bash Read
 license: MIT
 ---
 

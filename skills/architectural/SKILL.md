@@ -8,6 +8,7 @@ description: >
   to verify an architectural claim. Dispatches to the shared
   engineering-research method with the architectural evidence landscape.
 argument-hint: "<research question>"
+allowed-tools: Write Edit Bash
 license: MIT
 ---
 

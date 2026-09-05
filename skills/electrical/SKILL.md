@@ -8,6 +8,7 @@ description: >
   component's specs. Dispatches to the shared engineering-research method
   with the electrical evidence landscape.
 argument-hint: "<research question>"
+allowed-tools: Write Edit Bash
 license: MIT
 ---
 

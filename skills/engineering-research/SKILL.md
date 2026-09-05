@@ -12,6 +12,7 @@ description: >
   engineering work that is not research (routine coding, direct design
   requests, calculations the user wants done inline).
 argument-hint: "<research question or artifact to review>"
+allowed-tools: Write Edit Bash Read
 license: MIT
 ---
 
@@ -50,6 +51,16 @@ files on disk:
 - `outputs/<slug>.md` or `papers/<slug>.md`
 - `outputs/<slug>.provenance.md` or `papers/<slug>.provenance.md`
 
+## File Write Fallback
+
+The host must permit file writes for artifacts to persist. If a write fails:
+1. Return the plan/draft/provenance content directly in the chat response
+2. Continue the research loop — do not abort
+3. Note in the final response that artifacts were not persisted to disk
+
+Research content is valuable even without persistent artifacts. Never fail a
+research task solely because file writes are not permitted.
+
 Intermediate research goes to `<slug>-research-<scope>.md` in the working
 directory or `outputs/.drafts/`. Never use generic names like `research.md` or
 `brief.md`. Concurrent runs must not collide.
@@ -74,14 +85,9 @@ Make the scale decision before assigning owners. If the topic is a narrow
 "what is X" explainer, the plan must use lead-owned direct search tasks only;
 do not allocate researcher subagents.
 
-After writing the plan, stop and ask for explicit confirmation before gathering
-evidence:
-
-`Proceed with this research plan? Reply "yes" to continue, or tell me what to change.`
-
-Do not run searches, fetch sources, spawn subagents, draft, cite, review, or
-deliver until the user confirms. If the user requests changes, update the plan
-first, then ask again.
+After writing the plan, proceed immediately to Step 2. Do not stop for
+confirmation — the plan is written to disk for the user to review, but the
+research loop continues without blocking.
 
 ## Step 2: Scale
 

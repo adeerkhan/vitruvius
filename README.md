@@ -13,12 +13,12 @@ Vitruvius is an engineering research agent: it runs a **discover → read → sy
 | Command | Discipline |
 |---------|------------|
 | `/vitruvius` | Entry point / discipline dispatcher |
-| `/vitruvius-help` | Quick-reference card |
-| `/mechanical` | Mechanical engineering |
-| `/software` | Software engineering |
-| `/civil` | Civil / structural engineering |
-| `/electrical` | Electrical / electronics engineering |
-| `/architectural` | Architecture |
+| `/vitruvius:help` | Quick-reference card |
+| `/vitruvius:mechanical` | Mechanical engineering |
+| `/vitruvius:software` | Software engineering |
+| `/vitruvius:civil` | Civil / structural engineering |
+| `/vitruvius:electrical` | Electrical / electronics engineering |
+| `/vitruvius:architectural` | Architecture |
 
 ## Install
 
@@ -71,6 +71,19 @@ the skills directory.
 Copy the `skills/` directory into your agent's skills folder (`.claude/skills/`,
 `.commandcode/skills/`, `.agents/skills/`, ...). Every skill is a standard
 `SKILL.md` and needs no manifest.
+
+## File Permissions
+
+Vitruvius research skills write artifacts to `outputs/`. Enable file writes in
+your host:
+
+- **Command Code:** Use `--yolo` flag
+- **OpenCode:** Enabled by default
+- **Cursor:** Auto-allow mode
+- **Other hosts:** See [docs/permissions.md](docs/permissions.md)
+
+Without file write permission, research still runs but artifacts are returned
+in the chat instead of saved to disk.
 
 ## What each skill does
 

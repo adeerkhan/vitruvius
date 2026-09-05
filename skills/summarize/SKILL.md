@@ -8,6 +8,7 @@ description: >
   needs a digestible brief of a dense document. Preserves numbers, units, and
   caveats; never launders uncertainty.
 argument-hint: "<document to summarize>"
+allowed-tools: Write Edit Bash Read
 license: MIT
 ---
 

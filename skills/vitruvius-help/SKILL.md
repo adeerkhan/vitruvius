@@ -20,23 +20,23 @@ with auditable provenance.
 
 | Command | What it does |
 |---------|--------------|
-| `/vitruvius <discipline or question>` | Entry point / dispatcher. Routes to the matching discipline skill. |
-| `/vitruvius-help` | This card. |
-| `/mechanical <question>` | Mechanical engineering research (mech design, thermal, fluids, materials, manufacturing). |
-| `/software <question>` | Software engineering research (code, system design, technical landscape). |
-| `/civil <question>` | Civil / structural engineering research (structures, geotech, transportation, water). |
-| `/electrical <question>` | Electrical / electronics engineering research (power, electronics, controls). |
-| `/architectural <question>` | Architectural research (buildings, facades, building science). |
-| `/skill:scholarly-research <topic>` | Academic literature discovery: OpenAlex, Semantic Scholar, arXiv, alphaXiv. |
-| `/skill:standards-lookup <standard or topic>` | Engineering standards and codes: AISC, ACI, ASCE, IEEE, NFPA, IBC, Eurocode. |
-| `/skill:verifier <claim>` | Blind Verifier — independent subagent checks a claim against evidence (default-FAIL, BLOCKED is legitimate). |
-| `/skill:compare <items>` | Source/standard/design comparison matrix. |
-| `/skill:verify <claim>` | Verdict on a claim/calculation with evidence trail. |
-| `/skill:review <artifact>` | Severity-graded artifact review + revision plan. |
-| `/skill:audit <target>` | Claim-vs-implementation mismatch audit. |
-| `/skill:summarize <doc>` | Faithful structured document digest. |
-| `/skill:eli5 <topic>` | Plain-language engineering explanation. |
-| `/skill:artifact-reading <doc>` | Anchored document reading + extraction. |
+| `/vitruvius <discipline or question>` | Smart dispatcher — routes to discipline or skill automatically. |
+| `/vitruvius:civil <question>` | Civil / structural engineering research (buildings, bridges, steel, concrete, geotech). |
+| `/vitruvius:mechanical <question>` | Mechanical engineering research (design, thermal, fluids, materials). |
+| `/vitruvius:software <question>` | Software engineering research (architecture, frameworks, security). |
+| `/vitruvius:electrical <question>` | Electrical / electronics research (power, controls, EMC). |
+| `/vitruvius:architectural <question>` | Architectural research (building science, facades, codes). |
+| `/vitruvius:verifier <claim>` | Blind Verifier — independent subagent checks claim vs evidence. |
+| `/vitruvius:verify <claim>` | Verify a claim/calculation against authoritative sources. |
+| `/vitruvius:compare <items>` | Source/standard/design comparison matrix. |
+| `/vitruvius:review <artifact>` | Severity-graded artifact review. |
+| `/vitruvius:audit <target>` | Claim-vs-implementation mismatch audit. |
+| `/vitruvius:summarize <doc>` | Faithful structured document digest. |
+| `/vitruvius:eli5 <topic>` | Plain-language engineering explanation. |
+| `/vitruvius:artifact-reading <doc>` | Anchored document reading + extraction. |
+| `/vitruvius:scholarly-research <topic>` | Academic literature discovery (OpenAlex, arXiv, etc.). |
+| `/vitruvius:standards-lookup <standard>` | Engineering standards (AISC, ACI, ASCE, IEEE, Eurocode). |
+| `/vitruvius:help` | This reference card. |
 
 ## The shared research method
 

@@ -8,6 +8,7 @@ description: >
   done. Flags omissions, mismatches, ambiguous defaults, and reproduction
   risks.
 argument-hint: "<what to audit>"
+allowed-tools: Write Edit Bash Read
 license: MIT
 ---
 

@@ -24,39 +24,35 @@ verifying, and synthesizing engineering knowledge into auditable artifacts.
 
 Route to the matching discipline skill:
 
-| User says | Discipline skill | Domain |
-|-----------|------------------|--------|
-| `/mechanical`, mechanical, mech, machine design, thermal, fluids, materials, manufacturing | `/skill:mechanical` | Mechanical engineering |
-| `/software`, software, code, system design, architecture (IT) | `/skill:software` | Software engineering |
-| `/civil`, civil, structural, geotech, transportation, water | `/skill:civil` | Civil / structural engineering |
-| `/electrical`, electrical, electronics, power, controls | `/skill:electrical` | Electrical / electronics engineering |
-| `/architectural`, architectural, architecture, buildings, facade | `/skill:architectural` | Architecture |
-| (paper / prior-art / citation question) | `/skill:scholarly-research` | Academic literature discovery |
-| (standard / code / provision lookup) | `/skill:standards-lookup` | Engineering standards and codes |
-| (verify / is this right / check this claim) | `/skill:verifier` | Blind Verifier — independent claim verification |
+| User says | Command | Domain |
+|-----------|---------|--------|
+| mechanical, mech, machine design, thermal, fluids, materials, manufacturing | `/vitruvius:mechanical` | Mechanical engineering |
+| software, code, system design, architecture (IT) | `/vitruvius:software` | Software engineering |
+| civil, structural, geotech, transportation, water | `/vitruvius:civil` | Civil / structural engineering |
+| electrical, electronics, power, controls | `/vitruvius:electrical` | Electrical / electronics engineering |
+| architectural, architecture, buildings, facade | `/vitruvius:architectural` | Architecture |
+| (paper / prior-art / citation question) | `/vitruvius:scholarly-research` | Academic literature discovery |
+| (standard / code / provision lookup) | `/vitruvius:standards-lookup` | Engineering standards and codes |
+| (verify / is this right / check this claim) | `/vitruvius:verifier` | Blind Verifier — independent claim verification |
 
 If the user names no discipline, ask which discipline the question belongs to
 before starting. If the user names a discipline, activate that discipline
 skill and follow its payload plus the shared `engineering-research` method.
-If the question is scholarly (a paper, prior art, or "what does the
-literature say"), route to `/skill:scholarly-research`. If the question is a
-standard or code lookup ("what does AISC 360 say", "which ACI 318 section
-governs"), route to `/skill:standards-lookup`.
 
 ## Dispatch — workflow
 
 Route by the shape of the request when the user names a job, not a
 discipline:
 
-| User says | Workflow skill | What it does |
-|-----------|----------------|--------------|
-| compare, weigh, choose between, where do X and Y differ | `/skill:compare` | Source/standard/design comparison matrix |
-| is this right, check/verify this claim/calculation, does it meet code | `/skill:verify` | Verdict on a claim or number with evidence trail |
-| review, critique, find weaknesses, pre-submission check | `/skill:review` | Severity-graded artifact review + revision plan |
-| audit, does the code match the paper/spec, consistency check | `/skill:audit` | Claim-vs-implementation mismatch audit |
-| summarize, condense, key requirements of this spec/standard/paper | `/skill:summarize` | Faithful structured document digest |
-| explain like I'm 5, ELI5, simplify this, what does this mean | `/skill:eli5` | Plain-language engineering explanation |
-| read/extract from PDF/datasheet/drawing/spec, answer from a document | `/skill:artifact-reading` | Anchored document reading + extraction |
+| User says | Command | What it does |
+|-----------|---------|--------------|
+| compare, weigh, choose between, where do X and Y differ | `/vitruvius:compare` | Source/standard/design comparison matrix |
+| is this right, check/verify this claim/calculation, does it meet code | `/vitruvius:verify` | Verdict on a claim or number with evidence trail |
+| review, critique, find weaknesses, pre-submission check | `/vitruvius:review` | Severity-graded artifact review |
+| audit, does the code match the paper/spec, consistency check | `/vitruvius:audit` | Claim-vs-implementation mismatch audit |
+| summarize, condense, key requirements of this spec/standard/paper | `/vitruvius:summarize` | Faithful structured document digest |
+| explain like I'm 5, ELI5, simplify this, what does this mean | `/vitruvius:eli5` | Plain-language engineering explanation |
+| read/extract from PDF/datasheet/drawing/spec, answer from a document | `/vitruvius:artifact-reading` | Anchored document reading + extraction |
 
 If the user names a workflow the table does not cover, default to the
 matching discipline skill and the shared `engineering-research` method.
@@ -69,4 +65,4 @@ matching discipline skill and the shared `engineering-research` method.
 - Every research output gets a `.provenance.md` sidecar.
 - The four research roles (`researcher`, `writer`, `verifier`, `reviewer`) are
   performed by subagents when the host supports them, otherwise by you.
-- For a quick-reference card of all commands, activate `/skill:vitruvius-help`.
+- For a quick-reference card of all commands, activate `/vitruvius:help`.

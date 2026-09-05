@@ -7,6 +7,7 @@ description: >
   confidence. Use when the user asks to compare standards, weigh design
   options, choose between products or methods, or see where sources disagree.
 argument-hint: "<what to compare>"
+allowed-tools: Write Edit Bash Read
 license: MIT
 ---
 

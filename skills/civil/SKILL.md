@@ -8,6 +8,7 @@ description: >
   asks to verify a structural claim. Dispatches to the shared
   engineering-research method with the civil evidence landscape.
 argument-hint: "<research question>"
+allowed-tools: Write Edit Bash
 license: MIT
 ---
 

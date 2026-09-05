@@ -8,6 +8,7 @@ description: >
   engineering claim in that domain. Dispatches to the shared
   engineering-research method with the mechanical evidence landscape.
 argument-hint: "<research question>"
+allowed-tools: Write Edit Bash
 license: MIT
 ---
 

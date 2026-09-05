@@ -9,6 +9,7 @@ description: >
   art. Dispatches to the shared engineering-research method with the software
   evidence landscape.
 argument-hint: "<research question>"
+allowed-tools: Write Edit Bash
 license: MIT
 ---
 

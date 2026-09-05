@@ -7,6 +7,7 @@ description: >
   found before something is finalized or submitted. Severity-graded findings
   with a concrete revision plan.
 argument-hint: "<artifact to review>"
+allowed-tools: Write Edit Bash Read
 license: MIT
 ---
 
