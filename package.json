@@ -39,9 +39,11 @@
     ".commandcode/"
   ],
   "scripts": {
-    "test": "node scripts/validate-skills.mjs && node scripts/validate-contract.mjs",
-    "test:skills": "node scripts/validate-skills.mjs",
+    "test": "node scripts/test-skills.mjs && node scripts/validate-skills.mjs && node scripts/validate-contract.mjs && node scripts/validate-artifacts.mjs outputs/ && node scripts/check-output-quality.mjs outputs/",
+    "test:skills": "node scripts/test-skills.mjs && node scripts/validate-skills.mjs",
     "test:contract": "node scripts/validate-contract.mjs",
+    "test:artifacts": "node scripts/validate-artifacts.mjs outputs/",
+    "test:quality": "node scripts/check-output-quality.mjs outputs/",
     "benchmark": "node scripts/score-benchmark.mjs"
   },
   "pi": {

@@ -19,6 +19,8 @@ not a question to research.
 
 ## Workflow
 
+Follow the artifact contract: save findings to `outputs/<slug>-review.md`.
+
 1. **Identify the artifact and its claims** — what is it (design, calc set,
    spec, brief, report), what does it claim, and what standard/code governs it?
 2. **Verify the load-bearing items** — for a design: loads, factors, material

@@ -19,6 +19,8 @@ run it in direct mode unless the claim spans many sources.
 
 ## Workflow
 
+Follow the artifact contract: save verification to `outputs/<slug>-verification.md`.
+
 1. **Restate the claim precisely** — extract the exact number, unit, sign
    convention, and context. A claim without units or a named object (grade,
    part, code section) is not yet verifiable; ask for the missing pieces.

@@ -48,6 +48,8 @@ GET https://api.openalex.org/works?search=<urlencoded terms>&per-page=20&select=
 - Single work by DOI: `GET https://api.openalex.org/works/doi:10.1109/xxx`.
 - `best_oa_location.pdf_url` gives a full-text PDF when open access.
 
+**Search filter rule:** For narrow engineering topics, use `title_and_abstract.search` instead of `fulltext.search` (default). Full-text search returns too many off-topic results for niche queries. Use `fulltext.search` only for broad surveys where precision is less critical.
+
 ### 2. Semantic Scholar — enrichment, keyless
 
 ```

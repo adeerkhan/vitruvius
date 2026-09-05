@@ -19,6 +19,8 @@ act: do not summarize what you have not actually read.
 
 ## Workflow
 
+Follow the artifact contract: save summary to `outputs/<slug>-summary.md`.
+
 1. **Read the whole document** — not just the abstract or first pages. For a
    standard, map its scope, normative references, and the sections that govern
    the question. For a datasheet, read the tables and notes, not just the
