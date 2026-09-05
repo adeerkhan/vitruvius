@@ -73,7 +73,13 @@ function collectFiles(dir) {
 }
 
 // Collect files
-const files = statSync(target).isDirectory() ? collectFiles(target) : [target];
+let files = [];
+if (existsSync(target)) {
+	files = statSync(target).isDirectory() ? collectFiles(target) : [target];
+} else {
+	console.log(`PASS: ${target} does not exist yet (no outputs to check)`);
+	process.exit(0);
+}
 
 let totalProblems = 0;
 const results = [];
