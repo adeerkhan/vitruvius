@@ -302,15 +302,30 @@ paper-style artifacts). Write provenance next to it as `<slug>.provenance.md`:
 - **Sources consulted:** [count and/or list]
 - **Sources accepted:** [count and/or list]
 - **Sources rejected:** [dead, unverifiable, or removed]
-- **Verification:** [PASS / PASS WITH NOTES / BLOCKED]
+- **Verification:** [verified / partial / blocked / failed]
+- **Claims verified:** [count]
+- **Claims partial:** [count — directionally correct but need qualification]
+- **Claims blocked:** [count — source unreachable or unverifiable]
+- **Claims unverified:** [count — default, not yet checked]
 - **Plan:** outputs/.plans/<slug>.md
 - **Research files:** [files used]
 ```
 
+### Verification Labels (F2 — Vitruvius Provenance)
+
+| Label | Meaning | When to use |
+|-------|---------|-------------|
+| **verified** | Source read directly, claim traces to specific §/line | Every load-bearing claim must reach this |
+| **partial** | Directionally correct but needs qualification (edition, jurisdiction, condition) | Source supports general direction but not exact number/scope |
+| **blocked** | Source unreachable (paywall, dead link) or unverifiable | Never guess at contents — cite from metadata |
+| **unverified** | Default state — claim not yet checked | Every claim starts here; sweep at delivery |
+| **inferred** | Logical deduction from verified sources, not directly stated | Mark explicitly as inference, not fact |
+| **failed** | Source contradicts the claim | Fix the claim or find better source |
+
 Before responding, verify on disk that all required artifacts exist. If
-verification could not be completed, set `Verification: BLOCKED` or
-`PASS WITH NOTES` and list the missing checks. Final response should be brief:
-link the final file, the provenance file, and any blocked checks.
+verification could not be completed, set the appropriate label and list the
+missing checks. Final response should be brief: link the final file, the
+provenance file, and any blocked/unverified checks.
 
 ## Evidence Quality
 
@@ -318,6 +333,10 @@ Score all evidence using the tier system defined in
 `references/evidence-quality-tiers.md`. Every critical claim must trace to
 Tier 1 (authoritative) or Tier 2 (reliable) sources. Tier 3 supports but
 does not standalone critical claims. Tier 4 is rejected as primary evidence.
+
+Mark each claim's verification status honestly: `verified`, `partial`,
+`blocked`, `unverified`, `inferred`, or `failed`. Never claim `verified`
+unless the source was read directly and the claim traces to a specific location.
 
 ## Scope and Boundaries
 
