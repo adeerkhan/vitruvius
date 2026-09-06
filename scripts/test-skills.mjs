@@ -112,12 +112,13 @@ function checkSkill(skillDir) {
 		problems.push(`${skillName}: contains personal path (${personalPathMatch[0]})`);
 	}
 
-	// Check references resolve
+	// Check references resolve (skill dir or repo root)
 	const refPattern = /`((?:references|assets|scripts)\/[\w.\-/]+)`/g;
 	let match;
 	while ((match = refPattern.exec(text)) !== null) {
-		const refPath = join(skillDir, match[1]);
-		if (!existsSync(refPath)) {
+		const inSkill = existsSync(join(skillDir, match[1]));
+		const inRoot = existsSync(join(REPO_ROOT, match[1]));
+		if (!inSkill && !inRoot) {
 			problems.push(`${skillName}: broken reference (${match[1]})`);
 		}
 	}

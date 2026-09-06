@@ -7,7 +7,7 @@ description: >
   drives, grid and renewables — or asks to verify an electrical claim or a
   component's specs. Dispatches to the shared engineering-research method
   with the electrical evidence landscape.
-argument-hint: "<research question>"
+argument-hint: "<research question> [--deep | --quick]"
 allowed-tools: Write Edit Bash
 license: MIT
 ---
@@ -50,3 +50,21 @@ domain payload. Do not restate the research loop here.
 Follow the method's artifact contract. In the final artifact, end with a
 **Sources** section citing standard + clause, and datasheet + revision for
 every part value, marking each `verified`, `inferred`, or `blocked`.
+
+## Invocation Flags
+
+Accept `--deep` and `--quick` flags and pass them through to the
+`engineering-research` method. See that skill for flag semantics.
+
+## Gap Detection
+
+If research hits an evidence dead-end — no standard, paper, or dataset
+addresses the question after exhausting the discovery layers — suggest running
+`/gap-analysis electrical <sub-topic>` to formally validate and document the
+gap. Do not invoke gap-analysis automatically; offer it as a next step and
+wait for the user to confirm.
+
+## Scope and Boundaries
+
+- This skill produces research — it does NOT produce final designs or construction documents.
+- **Research-only, not for final engineering sign-off.** Licensed engineers must review and approve any design based on this research.

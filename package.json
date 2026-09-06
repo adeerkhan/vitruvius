@@ -34,15 +34,18 @@
     "AGENTS.md",
     "LICENSE",
     "skills/",
+    "references/",
     ".opencode/",
     ".commandcode/"
   ],
   "scripts": {
-    "test": "node scripts/test-skills.mjs && node scripts/validate-skills.mjs && node scripts/validate-contract.mjs && node scripts/validate-artifacts.mjs outputs/ && node scripts/check-output-quality.mjs outputs/",
+    "test": "node scripts/test-skills.mjs && node scripts/validate-skills.mjs && node scripts/validate-contract.mjs && node scripts/validate-artifacts.mjs outputs/ && node scripts/check-output-quality.mjs outputs/ && node tests/validate-contract/test-contract.mjs && node tests/gap-analysis/test-gap-analysis.mjs",
     "test:skills": "node scripts/test-skills.mjs && node scripts/validate-skills.mjs",
     "test:contract": "node scripts/validate-contract.mjs",
+    "test:contract:unit": "node tests/validate-contract/test-contract.mjs",
     "test:artifacts": "node scripts/validate-artifacts.mjs outputs/",
     "test:quality": "node scripts/check-output-quality.mjs outputs/",
+    "test:gap": "node tests/gap-analysis/test-gap-analysis.mjs",
     "benchmark": "node scripts/score-benchmark.mjs"
   },
   "pi": {

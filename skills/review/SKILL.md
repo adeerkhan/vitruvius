@@ -47,3 +47,8 @@ Save exactly one review to `outputs/<slug>-review.md`:
 
 Do not praise vaguely. Do not predict "approval" — assess revision risk and
 evidence quality.
+
+## Scope and Boundaries
+
+- This skill produces research — it does NOT produce final designs or construction documents.
+- **Research-only, not for final engineering sign-off.** Licensed engineers must review and approve any design based on this research.

@@ -68,9 +68,13 @@ the skills directory.
 
 ### Any Agent Skills host
 
-Copy the `skills/` directory into your agent's skills folder (`.claude/skills/`,
-`.commandcode/skills/`, `.agents/skills/`, ...). Every skill is a standard
-`SKILL.md` and needs no manifest.
+Copy the `skills/` and `references/` directories into your agent's skills folder
+(`.claude/skills/`, `.commandcode/skills/`, `.agents/skills/`, ...). Every skill
+is a standard `SKILL.md` and needs no manifest. The `references/` directory
+contains shared evidence-quality tiers used by research skills.
+
+> **Restart your harness after installing new skills.** The skill catalogue is
+> built at startup; new skills won't be routable until the next session.
 
 ## File Permissions
 
@@ -107,6 +111,14 @@ Review → Deliver**, ending with a `.provenance.md` sidecar.
 - `mechanical`, `software`, `civil`, `electrical`, `architectural` — thin
   discipline lenses carrying only the evidence landscape, verification
   criteria, and deliverable shape for that field.
+- `gap-analysis` — systematic engineering literature gap identification via
+  triangulation (OpenAlex, arXiv, web). Produces structured dossiers with edge
+  papers, evidence tiers, and research questions. Auto-suggested when
+  discipline skills hit evidence dead-ends.
+- `design-alternatives` — generate and compare 3+ engineering approaches with
+  scored trade-off matrices. Presents options, not a single answer.
+- `fmea-brainstorm` — FMEA-style failure mode brainstorming with S/O/D ratings
+  and RPN ranking. Qualitative risk screening, not regulatory submission.
 - Workflow skills — named engineering jobs over the shared loop:
   - `compare` — standards/designs/products into a source-grounded matrix
   - `verify` — verdict on a claim or calculation with evidence trail
@@ -115,6 +127,12 @@ Review → Deliver**, ending with a `.provenance.md` sidecar.
   - `summarize` — faithful structured digest of a standard/spec/paper
   - `eli5` — plain-language engineering explanation
   - `artifact-reading` — anchored reading + extraction from documents
+
+All discipline skills accept `--deep` (force multi-agent + parallel
+verification) and `--quick` (direct search only) flags. The `--deep` flag
+runs 2 independent verifiers for safety-critical claims — if they disagree, a
+third verifier breaks the tie. If a researcher subagent stalls, the lead
+agent supplements with direct search and continues transparently.
 
 ## Research sources
 

@@ -40,3 +40,4 @@ the jargon barrier.
 - An ELI5 of a code provision is not a compliance check. If the user is
   making a real decision, point them to `/skill:verify` or `/skill:review`.
 - Keep the explanation inline unless the user asks to save it.
+- **Research-only, not for final engineering sign-off.** Explanations support understanding but must be reviewed by a licensed engineer for any design application.

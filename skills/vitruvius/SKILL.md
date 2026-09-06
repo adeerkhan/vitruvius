@@ -66,3 +66,8 @@ matching discipline skill and the shared `engineering-research` method.
 - The four research roles (`researcher`, `writer`, `verifier`, `reviewer`) are
   performed by subagents when the host supports them, otherwise by you.
 - For a quick-reference card of all commands, activate `/vitruvius:help`.
+
+## Scope and Boundaries
+
+- Vitruvius produces research — it does NOT produce final designs, construction documents, or implementation guidance.
+- **Research-only, not for final engineering sign-off.** Licensed engineers must review and approve any design based on this research.

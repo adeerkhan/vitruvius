@@ -102,3 +102,9 @@ not as the primary paper index. Do not point a browser at scholar.google.com.
 Write findings as an evidence table with stable numeric IDs (see the
 `engineering-research` method) and end with a numbered Sources section where
 every entry is a DOI, arXiv id, or verified URL.
+
+## Scope and Boundaries
+
+- This skill finds and verifies academic sources — it does NOT produce final designs or implementation guidance.
+- **Research-only, not for final engineering sign-off.** Outputs support engineering research but must be reviewed by a licensed engineer for any design application.
+- Evidence quality: see `references/evidence-quality-tiers.md`.

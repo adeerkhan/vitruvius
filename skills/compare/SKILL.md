@@ -41,3 +41,8 @@ Save exactly one comparison to `outputs/<slug>-comparison.md`, ending with a
 **Sources** section of standard + section, URLs, and artifact paths for every
 row. For each disagreement between sources, state which is newer, which is
 jurisdiction/application-specific, and what a decision-maker should weigh.
+
+## Scope and Boundaries
+
+- This skill produces research — it does NOT produce final designs or construction documents.
+- **Research-only, not for final engineering sign-off.** Licensed engineers must review and approve any design based on this research.

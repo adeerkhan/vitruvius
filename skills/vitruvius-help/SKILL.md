@@ -69,3 +69,8 @@ otherwise the lead agent performs all four.
 
 Say "stop vitruvius" or "normal mode" to stop an active research run. The
 skills remain available to invoke on demand.
+
+## Scope and Boundaries
+
+- Vitruvius produces research — it does NOT produce final designs, construction documents, or implementation guidance.
+- **Research-only, not for final engineering sign-off.** Licensed engineers must review and approve any design based on this research.

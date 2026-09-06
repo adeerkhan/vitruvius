@@ -38,3 +38,8 @@ consistency between two things.
 
 Never conclude "consistent" from a skim. Every claim in the audit's verdict
 must name the exact provision, line, or commit it was checked against.
+
+## Scope and Boundaries
+
+- This skill produces research — it does NOT produce final designs or construction documents.
+- **Research-only, not for final engineering sign-off.** Licensed engineers must review and approve any design based on this research.

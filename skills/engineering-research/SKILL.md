@@ -11,7 +11,7 @@ description: >
   /architectural) dispatch here with their domain payload. Do NOT use for
   engineering work that is not research (routine coding, direct design
   requests, calculations the user wants done inline).
-argument-hint: "<research question or artifact to review>"
+argument-hint: "<research question or artifact to review> [--deep | --quick]"
 allowed-tools: Write Edit Bash Read
 license: MIT
 ---
@@ -22,6 +22,18 @@ Run the Vitruvius research loop for an engineering question or artifact.
 The discipline skill that dispatched here adds the evidence landscape and
 verification criteria; this skill is the method itself. It applies to all five
 disciplines unchanged.
+
+## Invocation Flags
+
+```
+/engineering-research <question> [--deep | --quick]
+```
+
+- **`--deep`**: Force multi-agent mode. Spawns researcher subagents regardless of query complexity. Uses parallel verification lanes for all claims. Use when the user wants comprehensive coverage or the topic is safety-critical.
+- **`--quick`**: Force direct search mode. No subagents, no parallel verification. Lead agent searches and synthesizes alone. Use for simple lookups or when token cost matters.
+- **No flag**: Auto-scale based on query complexity (default behavior — see Step 2 Scale).
+
+Discipline skills pass these flags through to this method.
 
 ## Tool Discipline (Read First)
 
@@ -235,6 +247,24 @@ If the verifier returns BLOCKED, fix the fatal issues and re-run. If PARTIAL,
 note the qualifications in Open Questions. Do not run the verifier and any
 reviewer in the same parallel subagent call — verify first, then review.
 
+### Parallel Verification (Critical Claims)
+
+For claims that are **safety-critical**, **code-backed numbers**, or **structural
+calculations**, run **2 independent verifier subagents** in parallel instead of
+one. Both receive the same evidence and conclusion but work in fresh contexts.
+
+- If both agree (PASS/PARTIAL/BLOCKED): proceed with their verdict.
+- If they disagree: escalate to a 3rd verifier subagent. Majority vote wins.
+- If all three disagree: return BLOCKED with the disagreement documented.
+
+This applies when:
+- `--deep` flag is set (parallel verify all claims)
+- Claim involves life-safety (structural, fire, electrical safety, pressure vessels)
+- Claim cites a specific code provision as the sole basis
+- Numerical result governs a design decision
+
+For routine claims (informational, non-safety), single verifier is sufficient.
+
 ## Step 6: Review
 
 After the verifier passes, do a final self-review: check that all PARTIAL
@@ -281,3 +311,16 @@ Before responding, verify on disk that all required artifacts exist. If
 verification could not be completed, set `Verification: BLOCKED` or
 `PASS WITH NOTES` and list the missing checks. Final response should be brief:
 link the final file, the provenance file, and any blocked checks.
+
+## Evidence Quality
+
+Score all evidence using the tier system defined in
+`references/evidence-quality-tiers.md`. Every critical claim must trace to
+Tier 1 (authoritative) or Tier 2 (reliable) sources. Tier 3 supports but
+does not standalone critical claims. Tier 4 is rejected as primary evidence.
+
+## Scope and Boundaries
+
+- This skill produces research — it does NOT produce final designs, construction documents, or implementation guidance.
+- **Research-only, not for final engineering sign-off.** Outputs are for exploration, comparison, and evidence gathering. Licensed engineers must review and approve any design based on this research.
+- Fail-closed: if evidence is insufficient, mark claims `blocked` rather than guessing.

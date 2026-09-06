@@ -49,3 +49,8 @@ A structured summary. For a standards/spec document, prefer this shape:
 
 Save to `outputs/<slug>-summary.md` when the user wants an artifact; otherwise
 answer inline. Always cite the document (standard + edition, URL, or path).
+
+## Scope and Boundaries
+
+- This skill produces research — it does NOT produce final designs or construction documents.
+- **Research-only, not for final engineering sign-off.** Licensed engineers must review and approve any design based on this research.

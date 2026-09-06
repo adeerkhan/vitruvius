@@ -165,7 +165,9 @@ function linkProblems(skill) {
       for (const m of line.matchAll(INLINE_PATH)) found.add(m[1]);
       for (const m of line.matchAll(MARKDOWN_LINK)) found.add(m[1]);
       for (const rel of found) {
-        if (!statSync(join(skill, rel), { throwIfNoEntry: false })) {
+        const inSkill = statSync(join(skill, rel), { throwIfNoEntry: false });
+        const inRoot = statSync(join(REPO_ROOT, rel), { throwIfNoEntry: false });
+        if (!inSkill && !inRoot) {
           problems.push(
             `${relative(SKILLS_DIR, skill)}: ${docName}:${i + 1} references \`${rel}\`, which does not exist`,
           );

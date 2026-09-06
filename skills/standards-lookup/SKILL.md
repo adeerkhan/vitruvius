@@ -240,3 +240,9 @@ Example: `AISC 360-22, §F2-1, Flexural Members (AISC, 2022).`
 Always cite the edition — provisions change between editions (AISC 360-16 vs
 -22 differ; ACI 318-14 vs -18 had major shear changes). When the user
 references a standard without an edition, ask which one or note the assumption.
+
+## Scope and Boundaries
+
+- This skill retrieves and cites standards provisions — it does NOT produce final designs or construction documents.
+- **Research-only, not for final engineering sign-off.** Retrieved provisions support engineering research but must be reviewed by a licensed engineer for any design application. Standards applicability (jurisdiction, edition, scope) is the user's responsibility.
+- Evidence quality: see `references/evidence-quality-tiers.md`.

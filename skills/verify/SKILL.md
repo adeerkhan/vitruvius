@@ -49,3 +49,8 @@ Save to `outputs/<slug>-verification.md`:
 - what would change the verdict
 
 Never soften a `contradicted` or `blocked` verdict to avoid disappointing.
+
+## Scope and Boundaries
+
+- This skill verifies claims against evidence — it does NOT produce final designs.
+- **Research-only, not for final engineering sign-off.** Verdicts support engineering research but must be reviewed by a licensed engineer for any design application.

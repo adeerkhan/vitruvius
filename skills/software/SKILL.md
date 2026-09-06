@@ -8,7 +8,7 @@ description: >
   audits of a codebase or paper-vs-code claims, API and system design prior
   art. Dispatches to the shared engineering-research method with the software
   evidence landscape.
-argument-hint: "<research question>"
+argument-hint: "<research question> [--deep | --quick]"
 allowed-tools: Write Edit Bash
 license: MIT
 ---
@@ -54,3 +54,21 @@ Follow the method's artifact contract. In the final artifact, end with a
 **Sources** section of URLs (repo, doc, RFC, advisory), each annotated with
 what was checked (e.g. "read §2.3 of the spec" or "verified in commit
 abc1234"), and mark every claim `verified`, `inferred`, or `blocked`.
+
+## Invocation Flags
+
+Accept `--deep` and `--quick` flags and pass them through to the
+`engineering-research` method. See that skill for flag semantics.
+
+## Gap Detection
+
+If research hits an evidence dead-end — no standard, paper, codebase, or
+dataset addresses the question after exhausting the discovery layers — suggest
+running `/gap-analysis software <sub-topic>` to formally validate and document
+the gap. Do not invoke gap-analysis automatically; offer it as a next step and
+wait for the user to confirm.
+
+## Scope and Boundaries
+
+- This skill produces research — it does NOT produce final designs or implementation guidance.
+- **Research-only, not for final engineering sign-off.** Licensed engineers must review and approve any design based on this research.

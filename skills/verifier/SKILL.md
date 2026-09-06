@@ -158,3 +158,8 @@ The `MACHINE_VERDICT` line MUST appear immediately after the `## Verdict` header
 - A numeric claim without a unit, sign convention, and line-pinned source is noise — flag it.
 - When two standards conflict, report both with line-pinned citations. Do not silently pick the less conservative.
 - Independence is your value: if you see a flaw, name it with its exact location, even if the author "obviously meant" the right thing.
+
+## Scope and Boundaries
+
+- This skill verifies claims against evidence — it does NOT produce final designs.
+- **Research-only, not for final engineering sign-off.** Verdicts support engineering research but must be reviewed by a licensed engineer for any design application.

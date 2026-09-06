@@ -61,3 +61,4 @@ failures — answering from one page, from a title, or from memory.
   unreadable and why (paywall, missing page, unreadable scan, binary format).
 - Do not answer from a title, filename, or snippet when a direct read is
   possible — that is the integrity commandment, applied to reading.
+- **Research-only, not for final engineering sign-off.** Outputs support engineering research but must be reviewed by a licensed engineer for any design application.
