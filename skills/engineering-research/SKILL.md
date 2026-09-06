@@ -247,21 +247,63 @@ If the verifier returns BLOCKED, fix the fatal issues and re-run. If PARTIAL,
 note the qualifications in Open Questions. Do not run the verifier and any
 reviewer in the same parallel subagent call — verify first, then review.
 
-### Parallel Verification (Critical Claims)
+### Conditional Escalation (A4 — from Autoprompt L4 pattern)
 
-For claims that are **safety-critical**, **code-backed numbers**, or **structural
-calculations**, run **2 independent verifier subagents** in parallel instead of
-one. Both receive the same evidence and conclusion but work in fresh contexts.
+Verification escalates based on **claim criticality** and **verifier disagreement**.
+Keep the flat agent structure — escalation is conditional, not hierarchical.
 
-- If both agree (PASS/PARTIAL/BLOCKED): proceed with their verdict.
-- If they disagree: escalate to a 3rd verifier subagent. Majority vote wins.
-- If all three disagree: return BLOCKED with the disagreement documented.
+#### Escalation Rules
 
-This applies when:
+| Scenario | Action | Agents |
+|----------|--------|--------|
+| Routine claim (informational) | Single verifier | 1 |
+| Critical claim (safety, code-backed, structural) | Parallel verify | 2 |
+| Verifiers disagree (different verdicts) | Escalate to arbiter | 3 |
+| All three disagree | BLOCKED, document disagreement | — |
+
+#### When to Use 2 Verifiers (Parallel)
+
 - `--deep` flag is set (parallel verify all claims)
 - Claim involves life-safety (structural, fire, electrical safety, pressure vessels)
 - Claim cites a specific code provision as the sole basis
 - Numerical result governs a design decision
+- Cross-discipline claim (spans multiple engineering fields)
+
+#### When to Escalate to 3 Verifiers (Arbiter)
+
+- The first 2 verifiers return **different verdicts** (e.g., one PASS, one BLOCKED)
+- The claim is safety-critical AND the stakes of being wrong are high
+- The evidence is ambiguous or conflicting
+
+#### Arbiter Behavior
+
+The 3rd verifier (arbiter) receives:
+- The original question and evidence
+- The two prior verdicts and their evidence trails
+- Instruction: "Two verifiers disagree. Review both trails and render a majority verdict."
+
+The arbiter does NOT re-research — it adjudicates between the two existing verdicts.
+Majority vote wins. If all three disagree, return BLOCKED with full documentation.
+
+#### Documenting Disagreement
+
+When verifiers disagree, the provenance sidecar must record:
+
+```markdown
+## Verifier Disagreement
+
+- **Verifier 1:** PASS — <brief reason>
+- **Verifier 2:** BLOCKED — <brief reason>
+- **Arbiter:** <verdict> — <brief reason>
+- **Resolution:** <how the disagreement was resolved>
+```
+
+#### Independence Rules
+
+- Every verifier/reviewer MUST be a fresh subagent instance
+- No agent reviews work it authored
+- Concurrent verifiers share no verdict channel
+- Negative verdicts loop back to the lead agent, never sideways
 
 For routine claims (informational, non-safety), single verifier is sufficient.
 

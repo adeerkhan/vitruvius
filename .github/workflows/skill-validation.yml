@@ -1,0 +1,38 @@
+name: Skill Validation
+
+on:
+  pull_request:
+    paths: ["skills/**", "scripts/**", "tests/**"]
+  push:
+    branches: [main]
+    paths: ["skills/**", "scripts/**"]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - run: npm ci
+
+      - name: Structural contract
+        run: npm run test:contract
+
+      - name: Skill structure tests
+        run: npm run test:skills
+
+      - name: Artifact validation
+        run: npm run test:artifacts
+
+      - name: Output quality checks
+        run: npm run test:quality

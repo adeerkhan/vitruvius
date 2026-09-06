@@ -1,0 +1,29 @@
+name: Security Scan
+
+on:
+  pull_request:
+    paths: ["skills/**", "scripts/**"]
+  schedule:
+    - cron: "0 6 * * 1"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+
+      - run: npm ci
+
+      - name: Run security scan
+        run: node scripts/security-scan.mjs
