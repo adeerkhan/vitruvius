@@ -8,54 +8,120 @@
   The engineering research agent. Named for Marcus Vitruvius Pollio, the Roman architect-engineer who wrote <em>De Architectura</em> — the first surviving treatise to treat architecture, civil engineering, machines, and materials as one discipline.
 </p>
 
-Vitruvius is an engineering research agent: it runs a **discover → read → synthesize → verify → review** loop over engineering questions and artifacts, with auditable provenance throughout. Five disciplines, each behind its own command:
+## Why Vitruvius?
+
+Vitruvius is an **engineering research agent** that runs a **discover → read → synthesize → verify → review** loop over engineering questions and artifacts — with auditable provenance throughout.
+
+**5 disciplines. 24 skills. Zero fabricated sources.**
+
+Unlike generic web search, Vitruvius:
+- **Reads sources directly** — never infers from titles or memory
+- **Never fabricates** — every claim traces to a checkable source
+- **Records provenance** — every output has a `.provenance.md` sidecar
+- **Flags uncertainty** — distinguishes `verified`, `inferred`, `blocked`, `unverified`
+
+## Quick Start
+
+```bash
+# Install (Command Code)
+cmd skills add adeerkhan/vitruvius --global
+cmd mods add adeerkhan/vitruvius
+
+# Run your first research query
+/vitruvius:civil "What are the research gaps in steel-concrete composite connections?"
+```
+
+You'll get a structured research brief with evidence table, verification verdict, and provenance sidecar.
+
+## Research Loop
+
+Every Vitruvius skill runs the same shared method:
+
+```
+Plan → Scale → Gather → Draft → Cite → Review → Deliver
+  ↓
+.provenance.md sidecar (source accounting + verification status)
+```
+
+- **Plan** — define key questions, evidence needed, scale decision
+- **Scale** — direct search (simple) or subagent decomposition (complex)
+- **Gather** — read sources directly, record exact provisions
+- **Draft** — synthesize findings with inline citations
+- **Cite** — sweep every claim against sources
+- **Review** — blind verifier checks claim vs evidence (8 adversarial checks)
+- **Deliver** — final output + provenance sidecar
+
+## What's Included
+
+### Discipline Skills
+
+Run the shared research loop with domain-specific evidence landscapes:
 
 | Command | Discipline |
 |---------|------------|
-| `/vitruvius` | Entry point / discipline dispatcher |
-| `/vitruvius:help` | Quick-reference card |
-| `/vitruvius:mechanical` | Mechanical engineering |
-| `/vitruvius:software` | Software engineering |
-| `/vitruvius:civil` | Civil / structural engineering |
-| `/vitruvius:electrical` | Electrical / electronics engineering |
-| `/vitruvius:architectural` | Architecture |
+| `/vitruvius:mechanical` | Mechanical: design, thermal, fluids, materials, manufacturing |
+| `/vitruvius:software` | Software: architecture, frameworks, protocols, security, benchmarks |
+| `/vitruvius:civil` | Civil / structural: buildings, bridges, steel, concrete, geotech, loads |
+| `/vitruvius:electrical` | Electrical / electronics: power, electronics, controls, EMC |
+| `/vitruvius:architectural` | Architectural: building science, facades, codes, performance |
 
-## Install
+### Research Workflow Skills
+
+Named engineering jobs over the shared loop:
+
+| Command | What it does |
+|---------|--------------|
+| `/gap-analysis` | Systematic literature gap identification via triangulation (OpenAlex, arXiv, web) |
+| `/design-alternatives` | Generate and compare 3+ engineering approaches with scored trade-off matrices |
+| `/fmea-brainstorm` | FMEA-style failure mode brainstorming with S/O/D ratings and RPN ranking |
+| `/verifier` | Blind subagent verdict on a claim with evidence trail (8 adversarial checks) |
+| `/compare` | Standards/designs/products into a source-grounded comparison matrix |
+| `/review` | Severity-graded adversarial review of an artifact |
+| `/audit` | Claim-vs-implementation (paper-vs-code, spec-vs-design) |
+| `/summarize` | Faithful structured digest of a standard, spec, or paper |
+| `/eli5` | Plain-language engineering explanation |
+| `/artifact-reading` | Anchored extraction from PDFs, drawings, specs |
+| `/scholarly-research` | Academic literature discovery (OpenAlex, arXiv, Semantic Scholar) |
+| `/standards-lookup` | Engineering standards: AISC, ACI, ASCE, IEEE, Eurocode |
+
+### Application Skills
+
+End-to-end workflows for specific tasks:
+
+| Command | What it does |
+|---------|--------------|
+| `/proposal` | Generate targeted Ph.D./Masters research proposals. Parses position postings, researches professor/lab, identifies gaps, produces humanized proposal with deep fit analysis |
+
+## Choose Your Starting Point
+
+| I want to... | Start here |
+| --- | --- |
+| Research a mechanical engineering question | `/vitruvius:mechanical` |
+| Find research gaps in my field | `/gap-analysis` |
+| Compare design alternatives | `/design-alternatives` |
+| Generate a PhD proposal | `/proposal` |
+| Verify a claim or calculation | `/verifier` |
+| Look up an engineering standard | `/standards-lookup` |
+| Brainstorm failure modes | `/fmea-brainstorm` |
+
+## Installation
 
 ### Command Code
 
 ```bash
-cmd skills add adeerkhan/vitruvius --global     # install all sixteen skills (or pick with -s)
-cmd mods add adeerkhan/vitruvius                # adds the /vitruvius slash commands
+cmd skills add adeerkhan/vitruvius --global     # install all 24 skills
+cmd mods add adeerkhan/vitruvius                # add /vitruvius slash commands
 ```
-
-The skills alone give you `/mechanical`, `/software`, etc. as first-class
-slash commands (and `/skills` lists them). The mod adds the same command
-surface in case a skill name ever collides with a built-in — skills run via
-`/skill:<name>` regardless.
 
 ### OpenCode
 
-Two routes, both from the same repo:
-
-**Run inside the repo** (zero config — OpenCode auto-loads the plugin and skills):
 ```bash
+# Run inside the repo (zero config — auto-loads plugin and skills)
 git clone https://github.com/adeerkhan/vitruvius && cd vitruvius && opencode
-```
 
-**From a checkout, any project** — point `opencode.json` at the plugin file:
-```json
-{ "plugin": ["./path/to/vitruvius/.opencode/plugins/vitruvius.mjs"] }
+# Or point opencode.json at the plugin file:
+# { "plugin": ["./path/to/vitruvius/.opencode/plugins/vitruvius.mjs"] }
 ```
-
-**Via npm** (once published):
-```json
-{ "plugin": ["vitruvius"] }
-```
-
-> Note: a bare `owner/repo` in OpenCode's `plugin` array is treated as an npm
-> package spec, not a GitHub repo — that install path requires publishing to
-> npm. The local-path and clone routes need no publishing.
 
 ### Pi
 
@@ -63,118 +129,107 @@ git clone https://github.com/adeerkhan/vitruvius && cd vitruvius && opencode
 pi install git:github.com/adeerkhan/vitruvius
 ```
 
-Pi reads the `pi` block in `package.json` (`skills: ["./skills"]`) and loads
-the skills directory.
+### Any Agent Skills Host
 
-### Any Agent Skills host
+Copy the `skills/` and `references/` directories into your agent's skills folder:
+- `.claude/skills/` (Claude Code)
+- `.commandcode/skills/` (Command Code)
+- `.agents/skills/` (Agents)
+- `.opencode/skills/` (OpenCode)
 
-Copy the `skills/` and `references/` directories into your agent's skills folder
-(`.claude/skills/`, `.commandcode/skills/`, `.agents/skills/`, ...). Every skill
-is a standard `SKILL.md` and needs no manifest. The `references/` directory
-contains shared evidence-quality tiers used by research skills.
+> **Restart your harness after installing new skills.** The skill catalogue is built at startup; new skills won't be routable until the next session.
 
-> **Restart your harness after installing new skills.** The skill catalogue is
-> built at startup; new skills won't be routable until the next session.
+## Proposal Skill
 
-## File Permissions
+Generate targeted Ph.D./Masters research proposals. The proposal skill parses position postings, researches the professor/lab, identifies lab-specific gaps, and produces a humanized proposal with deep fit analysis.
 
-Vitruvius research skills write artifacts to `outputs/` and `projects/`. Enable
-file writes in your host:
+### Inputs
 
-- **Command Code:** Use `--yolo` flag
-- **OpenCode:** Enabled by default
-- **Cursor:** Auto-allow mode
-- **Other hosts:** See [docs/permissions.md](docs/permissions.md)
+```
+/proposal --posting <path-or-url> --cv <path> [--statement <path>] [--sample <path>]
+```
 
-Without file write permission, research still runs but artifacts are returned
-in the chat instead of saved to disk.
+- `--posting` — Position posting as PDF, image (screenshot), or URL
+- `--cv` — Your CV (PDF)
+- `--statement` — Personal statement (optional, used for voice matching)
+- `--sample` — Separate writing sample (optional, used for voice matching)
 
-## File Inputs (Proposal Skill)
+### CLI vs Desktop
 
-The `/proposal` skill accepts file inputs in both CLI and desktop harnesses:
+The skill works in both CLI and desktop harnesses:
 
-- **CLI:** Provide file paths as arguments (`--posting ./file.pdf --cv ./cv.pdf`)
-- **Desktop apps:** Attach files via the harness UI (drag-and-drop, file picker, @file). The harness makes attached files available as readable paths.
+- **CLI**: Provide file paths as arguments
+- **Desktop apps** (Claude Desktop, Cursor, Windsurf): Attach files via the harness UI. The harness makes attached files available as readable paths.
 
-The skill receives file paths in both cases. Supported input types:
-- **PDF files:** Text-based or scanned (scanned PDFs use LLM vision)
-- **Image files:** PNG, JPG, screenshots of postings
-- **URLs:** Web page postings (fetched via web_fetch)
+### Workflow
 
-## What each skill does
+```
+Position Posting + CV + Statement
+      ↓
+Parse → Research Professor/Lab → Gap Analysis → Verify → Write → Humanize
+      ↓
+binder.md (final output with all appendices)
+```
 
-All discipline skills run the same shared research loop
-(`/skill:engineering-research`): **Plan → Scale → Gather → Draft → Cite →
-Review → Deliver**, ending with a `.provenance.md` sidecar.
+### Output
 
-- `engineering-research` — the shared method: slug + plan artifact, evidence
-  table with stable numeric IDs, verifier/reviewer passes, provenance sidecar.
-- `scholarly-research` — free academic-source discovery: OpenAlex, Semantic
-  Scholar, arXiv, and alphaXiv fast search via keyless REST; guidance for
-  host web/browser tools. Used when a question needs papers, prior art, or
-  citation data.
-- `standards-lookup` — engineering standards and codes: AISC, ACI, ASCE 7,
-  IEEE, NFPA, IBC, Eurocode, and more. Selects the authoritative standard
-  for the domain and jurisdiction, locates the governing section,
-  distinguishes mandatory ("shall") from advisory ("should"), and returns
-  the provision with provenance. Flags paywalled access and resolves
-  conflicts between overlapping standards.
-- `vitruvius` — the dispatcher: routes to the matching discipline or workflow.
-- `mechanical`, `software`, `civil`, `electrical`, `architectural` — thin
-  discipline lenses carrying only the evidence landscape, verification
-  criteria, and deliverable shape for that field.
-- `gap-analysis` — systematic engineering literature gap identification via
-  triangulation (OpenAlex, arXiv, web). Produces structured dossiers with edge
-  papers, evidence tiers, and research questions. Auto-suggested when
-  discipline skills hit evidence dead-ends.
-- `design-alternatives` — generate and compare 3+ engineering approaches with
-  scored trade-off matrices. Presents options, not a single answer.
-- `fmea-brainstorm` — FMEA-style failure mode brainstorming with S/O/D ratings
-  and RPN ranking. Qualitative risk screening, not regulatory submission.
-- Workflow skills — named engineering jobs over the shared loop:
-  - `compare` — standards/designs/products into a source-grounded matrix
-  - `verifier` — blind subagent verdict on a claim with evidence trail (8 adversarial checks)
-  - `review` — severity-graded artifact review + revision plan
-  - `audit` — claim-vs-implementation (paper-vs-code, spec-vs-design)
-  - `summarize` — faithful structured digest of a standard/spec/paper
-  - `eli5` — plain-language engineering explanation
-  - `artifact-reading` — anchored reading + extraction from documents
-- Application skills:
-  - `proposal` — generate targeted Ph.D./Masters research proposals. Parses position postings (PDF/image/URL), researches professor/lab, identifies lab-specific gaps, and produces a humanized proposal with deep fit analysis. Works in both CLI (file paths) and desktop apps (file attachments).
+All artifacts saved to `projects/<your-slug>/`:
+- Structured profile, posting data, professor research
+- Gap analysis dossier (general + lab-specific gaps)
+- Evidence ranking table
+- Verifier verdict
+- Humanized proposal
+- Layered binder with all appendices
 
-All discipline skills accept `--deep` (force multi-agent + parallel
-verification) and `--quick` (direct search only) flags. The `--deep` flag
-runs 2 independent verifiers for safety-critical claims — if they disagree, a
-third verifier breaks the tie. If a researcher subagent stalls, the lead
-agent supplements with direct search and continues transparently.
-
-## Research sources
+## Research Sources
 
 Vitruvius points research at the best free, verifiable layers for the job:
 
-- **Standards and code** (primary): ASME, ASTM, AISC, ACI, ASCE, IEEE, IEC,
-  UL, IBC — cite standard + section + edition.
-- **Academic literature**: the `scholarly-research` skill uses OpenAlex
-  (primary, keyless), Semantic Scholar, the arXiv API, and alphaXiv fast
-  search — all free REST. Where an agent host exposes web search or a browser
-  tool, Vitruvius uses them for non-academic sources and recency.
-- **Google Scholar** has no official API and blocks automated browsers, so
-  Vitruvius does not scrape it; it uses OpenAlex/Semantic Scholar citation
-  counts instead.
-- **alphaXiv Q&A** (full-text paper chat) needs an alphaXiv account — connect
-  `https://api.alphaxiv.org/mcp/v1` as an MCP server with a bearer key, or use
-  the `alpha` CLI.
+- **Standards and code** (primary): ASME, ASTM, AISC, ACI, ASCE, IEEE, IEC, UL, IBC — cite standard + section + edition
+- **Academic literature**: OpenAlex (primary, keyless), Semantic Scholar, arXiv, alphaXiv fast search
+- **Web search**: Used for non-academic sources and recency (when host exposes the tool)
 
-A claim is only `verified` when the underlying source was read directly;
-paywalled full texts are cited from metadata and marked `blocked`.
+**Rejected sources:** Undated blog posts, content aggregators, forum posts without primary links, sources that appear AI-generated.
 
-## The non-negotiables
+**Paywalled sources:** Cited from metadata and marked `blocked` — never guessed at.
 
-- Never fabricate a source. A reference or it didn't happen.
-- Every research output has a `.provenance.md` sidecar.
-- Mark status honestly: `verified`, `inferred`, `blocked`, `unverified`.
-- Read before you summarize. Never infer a code provision or spec value from a
-  title or memory when a direct read is possible.
+## The Non-Negotiables
+
+1. **Never fabricate a source.** Every named standard, code, provision, product, material, project, or dataset must have a verifiable reference.
+2. **Never claim something exists without checking.** Before citing a standard or code section, verify it exists and read the actual provision.
+3. **Never extrapolate details you haven't read.** If you have not fetched and inspected a source, you may note its existence but must not describe its contents, numbers, or claims.
+4. **A reference or it didn't happen.** Every claim in an output must trace to a checkable source: standard + section, URL, artifact path, or calculation.
+5. **Read before you summarize.** Do not infer a code provision, a spec value, or a material property from a title, a snippet, or memory when a direct read is possible.
+6. **Mark status honestly.** Distinguish `verified`, `inferred`, `blocked`, and `unverified`. Never smooth over missing checks.
+
+## FAQ
+
+**How is this different from generic web search?**
+Vitruvius reads sources directly, never fabricates, and records auditable provenance. Generic search returns snippets; Vitruvius returns verified claims with source locations.
+
+**What if a source is paywalled?**
+Cited from search metadata and marked `blocked`. Never guessed at.
+
+**Can I use this for non-engineering research?**
+Designed for engineering, but `/gap-analysis` and `/proposal` work for any field with academic literature.
+
+**How does the proposal skill work?**
+Parses the position posting, researches the professor/lab website and recent papers, identifies lab-specific gaps, and generates a targeted proposal with deep fit analysis. Humanizes the output to match your writing style.
+
+**What disciplines are supported?**
+Mechanical, civil, electrical, software, and architectural engineering.
+
+**How do I verify the agent's claims?**
+Every output includes a `.provenance.md` sidecar recording what was checked and how. Check the verification status labels: `verified`, `partial`, `blocked`, `unverified`.
+
+## Uninstall
+
+| Harness | Command |
+|---------|---------|
+| Command Code | `cmd skills remove vitruvius` + `cmd mods remove vitruvius` |
+| OpenCode | Remove from `opencode.json` or delete checkout |
+| Pi | `pi uninstall vitruvius` |
+| Manual | Delete copied `skills/` and `references/` from agent folder |
 
 ## License
 
