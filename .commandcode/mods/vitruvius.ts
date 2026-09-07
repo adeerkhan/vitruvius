@@ -29,7 +29,6 @@ const COMMANDS: CommandDef[] = [
 
 	// Research workflow skills
 	{command: 'vitruvius:verifier', description: 'Blind Verifier — independent subagent checks claim vs evidence', skill: 'verifier', hint: '<claim>'},
-	{command: 'vitruvius:verify', description: 'Verify a claim, number, or calculation against sources', skill: 'verify', hint: '<claim or calculation>'},
 	{command: 'vitruvius:compare', description: 'Compare items into a source-grounded matrix', skill: 'compare', hint: '<items to compare>'},
 	{command: 'vitruvius:review', description: 'Severity-graded adversarial review of an artifact', skill: 'review', hint: '<artifact>'},
 	{command: 'vitruvius:audit', description: 'Audit claim/spec against implementation', skill: 'audit', hint: '<target>'},
@@ -38,6 +37,9 @@ const COMMANDS: CommandDef[] = [
 	{command: 'vitruvius:artifact-reading', description: 'Anchored extraction from PDFs, drawings, specs', skill: 'artifact-reading', hint: '<document>'},
 	{command: 'vitruvius:scholarly-research', description: 'Academic literature discovery (OpenAlex, arXiv, etc.)', skill: 'scholarly-research', hint: '<topic>'},
 	{command: 'vitruvius:standards-lookup', description: 'Engineering standards: AISC, ACI, ASCE, IEEE, Eurocode', skill: 'standards-lookup', hint: '<standard or topic>'},
+
+	// Application skills
+	{command: 'vitruvius:proposal', description: 'Research Proposal Generator — parse posting + CV, research professor/lab, generate targeted proposal', skill: 'proposal', hint: '--posting <path-or-url> --cv <path> [--statement <path>]'},
 
 	// Help
 	{command: 'vitruvius:help', description: 'Reference card for all Vitruvius commands', skill: 'vitruvius-help', hint: ''},
