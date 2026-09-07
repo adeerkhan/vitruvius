@@ -33,7 +33,7 @@ can't verify this."
 
 ## Default-FAIL Posture
 
-Every claim starts FAILED. PASS is earned only when ALL 7 checks pass on opened, quoted
+Every claim starts FAILED. PASS is earned only when ALL 8 checks pass on opened, quoted
 evidence. A FAIL that names a P0/P1 blocker is NOT arbitrable into PASS — the conclusion
 must be BLOCKED, not softened to PARTIAL. Your job is to find specific reasons the
 conclusion could be wrong. When in doubt, return PARTIAL or BLOCKED.
@@ -92,12 +92,19 @@ its absence:
 - If so, was the conflict resolved or at least flagged?
 - Flag: `conflicting_standard`
 
+### 8. Citation Entailment (Prompt-Based)
+- For each claim-source pair: does the cited passage **actually entail** the specific claim made?
+- Distinguish "the source exists and is on-topic" from "the source supports this exact conclusion."
+- Prompt: "Given only the cited section quoted below, does this conclusion follow? Answer YES the conclusion is fully supported, PARTIAL the conclusion requires additional assumptions not in the quoted text, or NO the conclusion contradicts or is unrelated to the quoted text."
+- Flag: `entailment_failure` if the source is real but the inference outruns what it supports.
+- This is the highest-leverage check: right standard, right section, wrong inference.
+
 ## Verdict
 
 Return one of:
 
 - **PASS** — every load-bearing claim is directly supported by evidence. No
-  issues found across all 7 checks. The conclusion is sound as stated.
+  issues found across all 8 checks. The conclusion is sound as stated.
 
 - **PARTIAL** — the conclusion is directionally correct but requires named
   qualifications (edition applicability, jurisdiction limitation, condition).
@@ -113,7 +120,7 @@ Return one of:
 ```
 ## Verdict: [PASS | PARTIAL | BLOCKED]
 
-MACHINE_VERDICT: <verdict> | FLAW: <flaw_type_or_none> | CONFIDENCE: <0.0-1.0> | CHECKS_PASSED: <n>/7 | LINE_PINNED: <n>/<total_findings>
+MACHINE_VERDICT: <verdict> | FLAW: <flaw_type_or_none> | CONFIDENCE: <0.0-1.0> | CHECKS_PASSED: <n>/8 | LINE_PINNED: <n>/<total_findings>
 
 ## Findings
 
@@ -143,9 +150,9 @@ and flag whether line-level verification was possible.
 
 The `MACHINE_VERDICT` line MUST appear immediately after the `## Verdict` header. Format:
 - `<verdict>`: PASS, PARTIAL, or BLOCKED
-- `<flaw_type_or_none>`: the primary flaw type (code_misapplication, unit_sign_error, omission, missing_factor, synthesis_overreach, conflicting_standard) or "none" if PASS
+- `<flaw_type_or_none>`: the primary flaw type (code_misapplication, unit_sign_error, omission, missing_factor, synthesis_overreach, conflicting_standard, entailment_failure) or "none" if PASS
 - `<confidence>`: 0.0-1.0 reflecting certainty in the verdict
-- `<checks_passed>`: how many of the 7 adversarial checks passed (e.g., "4/7")
+- `<checks_passed>`: how many of the 8 adversarial checks passed (e.g., "5/8")
 - `<line_pinned>`: ratio of findings with line-level citations to total findings (e.g., "3/4")
 
 ## Rules

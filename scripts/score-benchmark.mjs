@@ -9,13 +9,13 @@
  * ground-truth verdicts extracted from benchmark case files.
  *
  * MACHINE_VERDICT format:
- *   MACHINE_VERDICT: <verdict> | FLAW: <flaw> | CONFIDENCE: <n> | CHECKS_PASSED: <n>/7 | LINE_PINNED: <n>/<n>
+ *   MACHINE_VERDICT: <verdict> | FLAW: <flaw> | CONFIDENCE: <n> | CHECKS_PASSED: <n>/8 | LINE_PINNED: <n>/<n>
  */
 
-import { readFileSync, readdirSync, existsSync } from 'node:fs';
+import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
 import { join, basename } from 'node:path';
 
-const VERDICT_PATTERN = /^MACHINE_VERDICT:\s*(PASS|PARTIAL|BLOCKED)\s*\|\s*FLAW:\s*(\S+)\s*\|\s*CONFIDENCE:\s*([\d.]+)\s*\|\s*CHECKS_PASSED:\s*(\d+)\/7\s*\|\s*LINE_PINNED:\s*(\d+)\/(\d+)/i;
+const VERDICT_PATTERN = /^MACHINE_VERDICT:\s*(PASS|PARTIAL|BLOCKED)\s*\|\s*FLAW:\s*(\S+)\s*\|\s*CONFIDENCE:\s*([\d.]+)\s*\|\s*CHECKS_PASSED:\s*(\d+)\/8\s*\|\s*LINE_PINNED:\s*(\d+)\/(\d+)/i;
 
 const GROUND_TRUTH_PATTERN = /\*\*Ground-truth verdict:\*\*\s*(PASS|PARTIAL|BLOCKED)/i;
 const FLAW_TYPE_PATTERN = /\*\*Flaw type:\*\*\s*(\S+)/i;
@@ -106,17 +106,45 @@ function main() {
 		console.error('       node scripts/score-benchmark.mjs --case <case-file> <verifier-output-file>');
 		console.error('');
 		console.error('  results-dir: directory containing verifier output files (*-result.md)');
-		console.error('  cases-dir:   directory containing benchmark case files (default: <repo>/tasks/benchmark/cases/civil)');
+		console.error('  cases-dir:   directory containing benchmark case files (default: <repo>/tasks/benchmark/cases)');
+		console.error('               If cases-dir contains discipline subdirectories, all are scored.');
 		process.exit(1);
 	}
 
-	// Batch mode — score all cases in a results directory
 	const resultsDir = args[0];
-	const casesDir = args[1] || join(process.cwd(), 'tasks', 'benchmark', 'cases', 'civil');
 
-	if (!existsSync(casesDir)) {
-		console.error(`Cases directory not found: ${casesDir}`);
-		console.error('Provide cases-dir as second argument or run from repo root.');
+	// Support both single discipline dir and parent with discipline subdirs
+	let casesDirs = [];
+	if (args[1]) {
+		const specifiedDir = args[1];
+		if (!existsSync(specifiedDir)) {
+			console.error(`Cases directory not found: ${specifiedDir}`);
+			process.exit(1);
+		}
+		// Check if it has discipline subdirectories
+		const subdirs = readdirSync(specifiedDir).filter(d => {
+			try { return statSync(join(specifiedDir, d)).isDirectory(); } catch { return false; }
+		});
+		if (subdirs.length > 0) {
+			casesDirs = subdirs.map(d => join(specifiedDir, d));
+		} else {
+			casesDirs = [specifiedDir];
+		}
+	} else {
+		// Default: scan all discipline directories under tasks/benchmark/cases
+		const defaultCasesDir = join(process.cwd(), 'tasks', 'benchmark', 'cases');
+		if (existsSync(defaultCasesDir)) {
+			casesDirs = readdirSync(defaultCasesDir)
+				.filter(d => {
+					try { return statSync(join(defaultCasesDir, d)).isDirectory(); } catch { return false; }
+				})
+				.map(d => join(defaultCasesDir, d));
+		}
+	}
+
+	if (casesDirs.length === 0) {
+		console.error('No benchmark case directories found.');
+		console.error('Run from repo root or specify cases-dir explicitly.');
 		process.exit(1);
 	}
 
@@ -125,59 +153,94 @@ function main() {
 		process.exit(1);
 	}
 
-	const caseFiles = readdirSync(casesDir)
-		.filter(f => f.endsWith('.md'))
-		.sort();
-
 	console.log(`\nBenchmark Results — ${new Date().toISOString().split('T')[0]}`);
 	console.log('='.repeat(60));
 
-	const results = [];
-	for (const caseFile of caseFiles) {
-		const fullPath = join(casesDir, caseFile);
-		const result = scoreCase(fullPath, resultsDir);
-		if (result) results.push(result);
+	const allResults = [];
+	const disciplineStats = new Map();
+
+	for (const casesDir of casesDirs) {
+		const disciplineName = basename(casesDir);
+		const caseFiles = readdirSync(casesDir)
+			.filter(f => f.endsWith('.md'))
+			.sort();
+
+		if (caseFiles.length === 0) continue;
+
+		console.log(`\n  ${disciplineName} (${caseFiles.length} cases):`);
+		console.log('  ' + '-'.repeat(56));
+
+		const disciplineResults = [];
+		for (const caseFile of caseFiles) {
+			const fullPath = join(casesDir, caseFile);
+			const result = scoreCase(fullPath, resultsDir);
+			if (result) {
+				disciplineResults.push(result);
+				allResults.push(result);
+			}
+		}
+
+		// Per-discipline summary
+		if (disciplineResults.length > 0) {
+			const dCorrect = disciplineResults.filter(r => r.correct).length;
+			const dFalseApprovals = disciplineResults.filter(r => r.falseApproval).length;
+			const dAvgChecks = disciplineResults.reduce((s, r) => s + r.machineVerdict.checksPassed, 0) / disciplineResults.length;
+			console.log(`    Correct: ${dCorrect}/${disciplineResults.length} | False approvals: ${dFalseApprovals} | Avg checks: ${dAvgChecks.toFixed(1)}/8`);
+			disciplineStats.set(disciplineName, { total: disciplineResults.length, correct: dCorrect, falseApprovals: dFalseApprovals });
+		}
+
+		// Per-case results
+		for (const r of disciplineResults) {
+			const status = r.correct ? '✓ CORRECT' : r.falseApproval ? '✗ FALSE APPROVAL' : r.falseBlock ? '✗ FALSE BLOCK' : '✗ WRONG VERDICT';
+			const detail = `expected=${r.groundTruth.verdict} got=${r.machineVerdict.verdict}`;
+			const flaw = r.groundTruth.verdict !== 'PASS' ? ` flaw=${r.machineVerdict.flaw}` : '';
+			const confidence = ` conf=${r.machineVerdict.confidence.toFixed(2)}`;
+			const checks = ` checks=${r.machineVerdict.checksPassed}/8`;
+			const linePinned = ` pinned=${r.machineVerdict.linePinnedNum}/${r.machineVerdict.linePinnedDen}`;
+			console.log(`    ${r.caseName}: ${status} (${detail}${flaw}${confidence}${checks}${linePinned})`);
+		}
 	}
 
-	if (results.length === 0) {
-		console.error('No results to score.');
+	if (allResults.length === 0) {
+		console.error('\nNo results to score.');
 		process.exit(1);
 	}
 
-	// Print per-case results
-	console.log('\nPer-Case Results:');
-	console.log('-'.repeat(60));
-	for (const r of results) {
-		const status = r.correct ? '✓ CORRECT' : r.falseApproval ? '✗ FALSE APPROVAL' : r.falseBlock ? '✗ FALSE BLOCK' : '✗ WRONG VERDICT';
-		const detail = `expected=${r.groundTruth.verdict} got=${r.machineVerdict.verdict}`;
-		const flaw = r.groundTruth.verdict !== 'PASS' ? ` flaw=${r.machineVerdict.flaw}` : '';
-		const confidence = ` conf=${r.machineVerdict.confidence.toFixed(2)}`;
-		const checks = ` checks=${r.machineVerdict.checksPassed}/7`;
-		const linePinned = ` pinned=${r.machineVerdict.linePinnedNum}/${r.machineVerdict.linePinnedDen}`;
-		console.log(`  ${r.caseName}: ${status} (${detail}${flaw}${confidence}${checks}${linePinned})`);
-	}
+	// Overall summary statistics
+	const total = allResults.length;
+	const correct = allResults.filter(r => r.correct).length;
+	const falseApprovals = allResults.filter(r => r.falseApproval).length;
+	const falseBlocks = allResults.filter(r => r.falseBlock).length;
+	const conservativeOvercalls = allResults.filter(r => r.conservativeOvercall).length;
+	const avgConfidence = allResults.reduce((sum, r) => sum + r.machineVerdict.confidence, 0) / total;
+	const avgChecksPassed = allResults.reduce((sum, r) => sum + r.machineVerdict.checksPassed, 0) / total;
+	const totalLinePinned = allResults.reduce((sum, r) => sum + r.machineVerdict.linePinnedNum, 0);
+	const totalFindings = allResults.reduce((sum, r) => sum + r.machineVerdict.linePinnedDen, 0);
 
-	// Summary statistics
-	const total = results.length;
-	const correct = results.filter(r => r.correct).length;
-	const falseApprovals = results.filter(r => r.falseApproval).length;
-	const falseBlocks = results.filter(r => r.falseBlock).length;
-	const conservativeOvercalls = results.filter(r => r.conservativeOvercall).length;
-	const avgConfidence = results.reduce((sum, r) => sum + r.machineVerdict.confidence, 0) / total;
-	const avgChecksPassed = results.reduce((sum, r) => sum + r.machineVerdict.checksPassed, 0) / total;
-	const totalLinePinned = results.reduce((sum, r) => sum + r.machineVerdict.linePinnedNum, 0);
-	const totalFindings = results.reduce((sum, r) => sum + r.machineVerdict.linePinnedDen, 0);
+	// Entailment tracking
+	const entailmentCases = allResults.filter(r => r.groundTruth.flaw === 'entailment_failure');
+	const entailmentCorrect = entailmentCases.filter(r => r.correct).length;
 
-	console.log('\nSummary:');
-	console.log('-'.repeat(60));
+	console.log('\nOverall Summary:');
+	console.log('='.repeat(60));
 	console.log(`  Cases scored:        ${total}`);
 	console.log(`  Correct verdicts:    ${correct}/${total} (${(correct/total*100).toFixed(1)}%)`);
 	console.log(`  False approvals:     ${falseApprovals}/${total} (${(falseApprovals/total*100).toFixed(1)}%)`);
 	console.log(`  False blocks:        ${falseBlocks}/${total} (${(falseBlocks/total*100).toFixed(1)}%)`);
 	console.log(`  Conservative over:   ${conservativeOvercalls}/${total}`);
 	console.log(`  Avg confidence:      ${avgConfidence.toFixed(2)}`);
-	console.log(`  Avg checks passed:   ${avgChecksPassed.toFixed(1)}/7`);
+	console.log(`  Avg checks passed:   ${avgChecksPassed.toFixed(1)}/8`);
 	console.log(`  Line-pinned ratio:   ${totalLinePinned}/${totalFindings}`);
+
+	if (entailmentCases.length > 0) {
+		console.log(`\n  Entailment check (8th): ${entailmentCorrect}/${entailmentCases.length} correct`);
+	}
+
+	console.log('\nPer-Discipline Breakdown:');
+	console.log('-'.repeat(60));
+	for (const [name, stats] of disciplineStats) {
+		console.log(`  ${name.padEnd(15)} ${stats.correct}/${stats.total} correct, ${stats.falseApprovals} false approvals`);
+	}
 
 	// Exit with error if any false approvals
 	process.exit(falseApprovals > 0 ? 1 : 0);
