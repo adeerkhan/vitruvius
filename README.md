@@ -78,8 +78,8 @@ contains shared evidence-quality tiers used by research skills.
 
 ## File Permissions
 
-Vitruvius research skills write artifacts to `outputs/`. Enable file writes in
-your host:
+Vitruvius research skills write artifacts to `outputs/` and `projects/`. Enable
+file writes in your host:
 
 - **Command Code:** Use `--yolo` flag
 - **OpenCode:** Enabled by default
@@ -88,6 +88,18 @@ your host:
 
 Without file write permission, research still runs but artifacts are returned
 in the chat instead of saved to disk.
+
+## File Inputs (Proposal Skill)
+
+The `/proposal` skill accepts file inputs in both CLI and desktop harnesses:
+
+- **CLI:** Provide file paths as arguments (`--posting ./file.pdf --cv ./cv.pdf`)
+- **Desktop apps:** Attach files via the harness UI (drag-and-drop, file picker, @file). The harness makes attached files available as readable paths.
+
+The skill receives file paths in both cases. Supported input types:
+- **PDF files:** Text-based or scanned (scanned PDFs use LLM vision)
+- **Image files:** PNG, JPG, screenshots of postings
+- **URLs:** Web page postings (fetched via web_fetch)
 
 ## What each skill does
 
@@ -121,12 +133,14 @@ Review → Deliver**, ending with a `.provenance.md` sidecar.
   and RPN ranking. Qualitative risk screening, not regulatory submission.
 - Workflow skills — named engineering jobs over the shared loop:
   - `compare` — standards/designs/products into a source-grounded matrix
-  - `verify` — verdict on a claim or calculation with evidence trail
+  - `verifier` — blind subagent verdict on a claim with evidence trail (8 adversarial checks)
   - `review` — severity-graded artifact review + revision plan
   - `audit` — claim-vs-implementation (paper-vs-code, spec-vs-design)
   - `summarize` — faithful structured digest of a standard/spec/paper
   - `eli5` — plain-language engineering explanation
   - `artifact-reading` — anchored reading + extraction from documents
+- Application skills:
+  - `proposal` — generate targeted Ph.D./Masters research proposals. Parses position postings (PDF/image/URL), researches professor/lab, identifies lab-specific gaps, and produces a humanized proposal with deep fit analysis. Works in both CLI (file paths) and desktop apps (file attachments).
 
 All discipline skills accept `--deep` (force multi-agent + parallel
 verification) and `--quick` (direct search only) flags. The `--deep` flag

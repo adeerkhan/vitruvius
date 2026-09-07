@@ -50,6 +50,8 @@ function findMostRecentFile(dir, ext) {
 // Read all artifacts
 const proposalPath = join(projectDir, 'proposal-final.md');
 const profilePath = join(projectDir, 'profile.json');
+const postingPath = join(projectDir, 'posting.json');
+const professorPath = join(projectDir, 'professor-research.json');
 const gapDir = join(projectDir, 'gap-analysis');
 const evidenceDir = join(projectDir, 'evidence-ranking');
 const verifierDir = join(projectDir, 'verifier');
@@ -121,15 +123,25 @@ ${verifierFile ? `\n${extractVerdict(readFileSync(verifierFile, 'utf-8'))}` : ''
 ${JSON.stringify(profile, null, 2)}
 \`\`\`
 
-### Appendix E: Provenance
+### Appendix E: Position Posting
+${postingPath && existsSync(postingPath) ? `[Structured posting data](./posting.json)` : '*Posting data not available*'}
+${postingPath && existsSync(postingPath) ? `\n\`\`\`json\n${JSON.stringify(JSON.parse(readFileSync(postingPath, 'utf-8')), null, 2)}\n\`\`\`` : ''}
+
+### Appendix F: Professor/Lab Research
+${professorPath && existsSync(professorPath) ? `[Professor research](./professor-research.json)` : '*Professor research not available*'}
+${professorPath && existsSync(professorPath) ? `\n\`\`\`json\n${JSON.stringify(JSON.parse(readFileSync(professorPath, 'utf-8')), null, 2)}\n\`\`\`` : ''}
+
+### Appendix G: Provenance
 This proposal was generated using the /proposal skill pipeline:
-1. CV parsed → profile.json
-2. Gap analysis → gap-analysis/
-3. Evidence ranking → evidence-ranking/
-4. Verification → verifier/
-5. Proposal written → proposal-draft.md
-6. Humanized → proposal-final.md
-7. Assembled → binder.md
+1. Position posting parsed → posting.json
+2. Professor/lab researched → professor-research.json
+3. CV parsed → profile.json
+4. Gap analysis → gap-analysis/
+5. Evidence ranking → evidence-ranking/
+6. Verification → verifier/
+7. Proposal written → proposal-draft.md
+8. Humanized → proposal-final.md
+9. Assembled → binder.md
 
 All artifacts saved in: \`projects/${slug}/\`
 `;
@@ -152,7 +164,8 @@ const provenance = `# Provenance: ${slug}
 | Profile | profile.json | ${existsSync(profilePath) ? '✓' : '✗'} |
 | CV Raw Text | cv-raw.txt | ${existsSync(join(projectDir, 'cv-raw.txt')) ? '✓' : '✗'} |
 | Voice Sample | voice-sample.txt | ${existsSync(join(projectDir, 'voice-sample.txt')) ? '✓' : '✗'} |
-| Target Context | target-context.json | ${existsSync(join(projectDir, 'target-context.json')) ? '✓' : '✗'} |
+| Posting | posting.json | ${postingPath && existsSync(postingPath) ? '✓' : '✗'} |
+| Professor Research | professor-research.json | ${professorPath && existsSync(professorPath) ? '✓' : '✗'} |
 | Gap Dossier | gap-analysis/ | ${gapFile ? '✓' : '✗'} |
 | Evidence Table | evidence-ranking/ | ${evidenceFile ? '✓' : '✗'} |
 | Verdict | verifier/ | ${verifierFile ? '✓' : '✗'} |

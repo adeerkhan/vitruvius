@@ -1,13 +1,13 @@
 ---
 name: proposal
 description: >
-  Research Proposal Generator — orchestrates the full pipeline from CV/Personal
-  Statement to a humanized, verified research proposal for Ph.D./Masters
-  applications. Wraps /gap-analysis, /evidence-ranking, /verifier, and /humanizer
-  as isolated subagents. Use when the student invokes /proposal, asks to generate
-  a research statement, or wants to apply for a funded position. Outputs a layered
-  binder with all backing artifacts.
-argument-hint: "<goal-or-topic> [--cv <path>] [--statement <path>] [--sample <path>]"
+  Research Proposal Generator — orchestrates the full pipeline from position
+  posting + CV + Personal Statement to a humanized, verified research proposal
+  for Ph.D./Masters applications. Parses position postings (PDF/image/URL),
+  researches professor/lab, identifies lab-specific gaps, and generates a
+  targeted proposal with deep fit analysis. Wraps /gap-analysis,
+  /evidence-ranking, /verifier, and /humanizer as isolated subagents.
+argument-hint: "[--posting <path-or-url>] [--cv <path>] [--statement <path>] [--sample <path>]"
 allowed-tools: Write Edit Bash Read
 license: MIT
 ---
@@ -15,245 +15,251 @@ license: MIT
 # Research Proposal Generator
 
 Generate a complete research proposal package for Ph.D./Masters applications.
-This skill orchestrates multiple subagents in isolation, verifies outputs, and
-produces a humanized final proposal with full audit trail.
+This skill orchestrates multiple subagents in isolation, verifies outputs,
+produces a humanized final proposal with full audit trail, and targets the
+specific lab/professor from the position posting.
 
 ## Invocation
 
+### CLI
+
 ```
-/proposal <goal-or-topic> [--cv <path>] [--statement <path>] [--sample <path>]
+/proposal --posting <path-or-url> --cv <path> [--statement <path>] [--sample <path>]
 ```
 
-- **goal-or-topic**: research area or specific lab/professor being targeted
-- **--cv**: path to student's CV (PDF)
-- **--statement**: path to personal statement (optional, used for voice matching)
-- **--sample**: path to separate writing sample (optional, used for voice matching)
+- **`--posting`**: Position posting as PDF file, image file (screenshot), or URL
+- **`--cv`**: Path to student's CV (PDF)
+- **`--statement`**: Path to personal statement (optional, used for voice matching)
+- **`--sample`**: Path to separate writing sample (optional, used for voice matching)
+
+### Desktop Apps (Claude Desktop, Cursor, Windsurf, etc.)
+
+Attach files through the harness UI (drag-and-drop, file picker, or @file reference). The harness makes attached files available as paths. Then invoke:
+
+```
+/proposal --posting <attached-path> --cv <attached-path> [--statement <attached-path>]
+```
+
+The skill receives file paths in both cases — it does not matter whether the files came from CLI arguments or desktop attachments. The harness is responsible for making attached files accessible at readable paths.
+
+**Examples:**
+- **CLI**: `/proposal --posting ./posting.pdf --cv ./cv.pdf --statement ./statement.pdf`
+- **Claude Desktop**: Attach `posting.pdf`, `cv.pdf`, `statement.pdf` → `/proposal --posting /tmp/claude-xyz/posting.pdf --cv /tmp/claude-xyz/cv.pdf`
+- **Cursor**: `@posting.pdf @cv.pdf` → skill receives resolved paths
 
 ## Workflow (Execute in Order)
 
 ### Phase 0 — Intake & Context Engineering (LLM executes, logs to provenance)
 
+**0a. Existing Intake**
 1. **Create project folder**: `projects/<student-slug>/`
    ```bash
    node skills/proposal/scripts/init-project.mjs <student-slug>
    ```
+2. **Parse CV PDF** → `cv-raw.txt` → LLM structures → `profile.json`
+3. **Parse Personal Statement** → voice sample candidate
+4. **Voice Sample**: `--sample` > `--statement` > default neutral voice
 
-2. **Parse CV PDF** → raw text:
-   ```bash
-   node skills/proposal/scripts/parse-cv.mjs <student-slug> <cv-path.pdf>
-   ```
-   This saves raw text to `cv-raw.txt`. Then **LLM structures** this into:
-   - Education (degrees, institutions, dates)
-   - Research experience (projects, labs, durations)
-   - Publications (titles, venues, DOIs if available)
-   - Skills (technical, languages, tools)
-   - Awards/honors
-   - Target research interests (if stated)
-   Save structured profile to `projects/<student-slug>/profile.json`
+**0b. Parse Position Posting (NEW)**
+```bash
+node skills/proposal/scripts/parse-posting.mjs <slug> <posting-path-or-url>
+```
+- Detects input type: URL, PDF, or image
+- URL: saves placeholder, LLM fetches with web_fetch
+- PDF: extracts text with pdf-parse (or flags for vision if scanned)
+- Image: saves placeholder, LLM extracts with vision
+- LLM structures raw text into `posting.json`:
+  ```json
+  {
+    "professor": { "name": "...", "title": "...", "email": "..." },
+    "university": "Georgia Tech",
+    "department": "School of Building Construction",
+    "lab": { "name": "...", "url": "..." },
+    "position": { "type": "PhD", "funding": "...", "start": "Spring 2027" },
+    "research": { "areas": ["..."], "keywords": ["..."], "description": "..." },
+    "requirements": { "required": ["..."], "preferred": ["..."] },
+    "contact": { "email": "...", "url": "..." },
+    "deadline": "...",
+    "raw_text": "..."
+  }
+  ```
 
-3. **Parse Personal Statement** (if provided):
-   - Save as voice sample candidate (used in Phase 5)
-   - Extract stated research interests, career goals
+**0c. Research Professor/Lab (NEW)**
+```bash
+node skills/proposal/scripts/research-professor.mjs <slug>
+```
+- Generates search plan in `professor-search-plan.txt`
+- LLM executes web searches:
+  - "[professor] [university] lab research"
+  - "[professor] recent papers 2024 2025 2026"
+  - "[lab name] projects"
+  - Fetches lab website if found
+- LLM saves structured research to `professor-research.json`:
+  ```json
+  {
+    "professor": { "name": "...", "title": "...", "profile_url": "..." },
+    "lab": { "name": "...", "url": "...", "description": "...", "members": [...] },
+    "recent_papers": [{ "title": "...", "year": 2024, "doi": "...", "key_contribution": "..." }],
+    "research_focus": ["..."],
+    "ongoing_projects": ["..."],
+    "sources_consulted": ["..."]
+  }
+  ```
 
-4. **Voice Sample** (for humanizer):
-   - If `--sample` provided → use as voice sample
-   - Else if personal statement provided → use as voice sample
-   - Else → note "no voice sample, using default neutral voice"
-   - Save to `projects/<student-slug>/voice-sample.txt`
-   - **Do NOT search web for student writing** — student provides all materials
+**0d. Provenance**
+Log all inputs, extractions, and research queries to `phase-0-provenance.md`
 
-5. **Load target lab/professor context** (if specified):
-   - Search web for lab website, recent publications
-   - Extract research focus, ongoing projects, stated open problems
-   - Save to `projects/<student-slug>/target-context.json`
+### Phase 1 — Gap Analysis (STRICT Isolation, Enhanced)
 
-**Phase 0 Provenance**: Log all inputs (CV path, statement path, sample path) and outputs (profile.json, voice-sample.txt, target-context.json) to `projects/<student-slug>/phase-0-provenance.md`
-
-### Phase 1 — Gap Analysis (STRICT Isolation)
+**Before dispatching:** LLM reads `posting.json` and `professor-research.json` (if they exist). Extracts:
+- Research areas and keywords from posting
+- Professor's recent papers and research focus from professor-research
+- Lab's ongoing projects and techniques
 
 **Dispatch `/gap-analysis` as isolated subagent** — **fresh context, receives ONLY:**
-- Research goal/topic (string)
+- Research goal/topic (extracted from posting/professor research)
 - Discipline (inferred or asked)
 - `--deep` flag
+- Text summary of lab research context (extracted from files, not file paths)
 
-**Does NOT receive:** student CV, personal statement, target context, or any prior reasoning.
+**Does NOT receive:** file paths, student CV, personal statement, or any prior reasoning.
+
+**Gap analysis produces:**
+- **General gaps**: Field-level research gaps (as before)
+- **Lab-specific gaps**: Gaps aligned with the lab's ongoing work
+  - Areas where lab has active projects but unresolved questions
+  - Techniques the lab uses but hasn't applied to new problems
+  - Adjacent areas the lab could expand into
 
 Outputs saved to `projects/<student-slug>/gap-analysis/`:
-- `<slug>.md` — gap dossier
+- `<slug>.md` — gap dossier (general + lab-specific)
 - `<slug>.provenance.md` — provenance sidecar
 
-**Non-negotiable boundaries for gap-analysis subagent:**
-- NEVER fabricate a DOI. Verify every DOI via https://doi.org/<doi> before writing.
-- NEVER invent a statistic. If a source says "high accuracy," quote "high accuracy," not "95%."
-- NEVER present an inferred claim as validated. Mark all inferences as `[inferred]`.
-- Every gap claim MUST have a direct quote from a cited source.
-- If a source cannot be verified via doi.org, DROP it or flag as "verified via citing-chain only."
-
-**Phase 1 Provenance**: Subagent logs all search queries, hit counts, and DOI verification results to `<slug>.provenance.md`.
+**Non-negotiable boundaries:**
+- NEVER fabricate a DOI. Verify via https://doi.org/<doi> before writing.
+- NEVER invent a statistic. Quote sources as-is.
+- NEVER present inferred claims as validated. Mark `[inferred]`.
+- NEVER fabricate lab details. If not found in research, mark "not found".
 
 ### Phase 2 — Evidence Ranking (STRICT Isolation)
 
-**Dispatch `/evidence-ranking` as isolated subagent** — **fresh context, receives ONLY:**
+**Dispatch `/evidence-ranking` — receives ONLY:**
 - Path to gap dossier file
-- Path to gap provenance file (source list)
+- Path to gap provenance file
 
-**Does NOT receive:** student CV, personal statement, target context, or any prior reasoning.
-
-Outputs saved to `projects/<student-slug>/evidence-ranking/`:
-- `<slug>.md` — scored evidence table
-
-**Non-negotiable boundaries:**
-- NEVER fabricate a citation count. Verify via OpenAlex API if claiming "X cites."
-- NEVER assign Tier 1 unless the source is a standard/code or has >500 cites with direct gap relevance.
-- Tier 4 sources MUST be flagged as "rejected for primary use."
-
-**Phase 2 Provenance**: Subagent logs all tier assignments and scoring rationale to `<slug>.md`.
+Output: `evidence-ranking/<slug>.md`
 
 ### Phase 3 — Verification (STRICT Isolation)
 
-**Dispatch `/verifier` as isolated subagent** — **fresh context, receives ONLY:**
+**Dispatch `/verifier` — receives ONLY:**
 - Research question (string)
 - Path to evidence items file
-- Path to claimed conclusion file (the 4 gaps)
+- Path to claimed conclusion file
 
-**Does NOT receive:** gap-analysis reasoning, student CV, personal statement, or proposal draft.
+Output: `verifier/<slug>-verdict.md`
 
-Outputs saved to `projects/<student-slug>/verifier/`:
-- `<slug>-verdict.md` — verifier verdict
+**If PARTIAL or BLOCKED:** Fix named issues, re-verify until PASS.
 
-**If verdict is PARTIAL or BLOCKED:**
-1. Read the named flaws
-2. Fix ONLY the named issues (do not rewrite the entire dossier)
-3. Re-run `/verifier` on the corrected conclusion
-4. Repeat until PASS or acceptable PARTIAL (no critical flaws)
+### Phase 4 — Proposal Writing (STRICT Isolation, Enhanced)
 
-**Phase 3 Provenance**: Verdict file includes MACHINE_VERDICT line with all check results.
+**File availability:**
+- **Required:** `profile.json` (from CV), gap dossier, evidence table
+- **Optional:** `posting.json` (from `--posting`), `professor-research.json` (from web research)
 
-### Phase 4 — Proposal Writing (STRICT Isolation)
+**Dispatch proposal writer — receives ONLY:**
+- Path to student profile (profile.json) — REQUIRED
+- Path to verified gap dossier — REQUIRED
+- Path to evidence table — REQUIRED
+- Path to posting.json (if exists) — OPTIONAL
+- Path to professor-research.json (if exists) — OPTIONAL
 
-**Dispatch proposal writer subagent** — **fresh context, receives ONLY:**
-- Path to student profile (profile.json)
-- Path to verified gap dossier (from Phase 1, corrected)
-- Path to evidence table (from Phase 2)
-- Path to target lab context (target-context.json, if any)
+**If optional files missing:** Proposal adapts — general field proposal without lab-specific fit section. Still functional, less targeted.
 
-**Does NOT receive:** gap-analysis reasoning, verifier deliberation, or any prior subagent context.
+**Proposal structure (adapts to available files):**
 
-**Proposal structure (1-2 pages narrative):**
-
-```
+```markdown
 # Research Proposal: [Specific Topic]
+**Target:** [Professor Name or "Engineering Research"], [University or "Target Institution"]
+**Position:** [PhD/MS] starting [Date or "Fall 2027"]
 
 ## Motivation
-[Why this matters — connect to safety/economic/societal stakes. Use student's
-own experience from CV to ground this.]
+[Field-level motivation, grounded in student's CV experience]
 
 ## Research Gaps
-[State 3-4 gaps concisely, each with a cited source. Reference the detailed
-gap analysis in Appendix A.]
+### General Gaps
+[2-3 field-level gaps with citations]
+
+### Lab-Specific Opportunities (IF posting.json + professor-research.json available)
+[1-2 gaps aligned with professor's recent work, referencing specific papers]
 
 ## Proposed Research
-[3-5 concrete research questions, each mapping to a gap. Show how the student's
-background positions them to tackle these.]
+[3-5 research questions mapping to gaps]
 
-## Fit with [Lab/Professor Name]
-[Specific connections to the target lab's work. Reference their recent papers.]
+## Fit with [Professor]'s Lab (IF posting.json + professor-research.json available)
+### Research Alignment
+[How student's background connects to lab's trajectory]
+
+### Specific Contributions
+[Projects student could contribute to, based on lab's ongoing work]
+
+### Skills Match
+[How student's skills (from CV) match position requirements]
 
 ## References
-[Key citations — full references in Appendix B]
+[Key citations]
 ```
 
-Save to `projects/<student-slug>/proposal-draft.md`
+**If posting.json missing:** Skip "Lab-Specific Opportunities" and "Fit with Lab" sections. Proposal is still complete — just field-level targeting.
+
+Save to `proposal-draft.md`
 
 ### Phase 5 — Humanization (STRICT Isolation)
 
-**Dispatch `/humanizer` as isolated subagent** — **fresh context, receives ONLY:**
-- Path to proposal draft (proposal-draft.md)
-- Path to voice sample (voice-sample.txt, if available — else note "use default neutral voice")
+**Dispatch `/humanizer` — receives ONLY:**
+- Path to proposal draft
+- Path to voice sample (if available)
 
-**Does NOT receive:** gap dossier, evidence table, verifier verdict, student CV, or any prior reasoning.
+**Scope:** Final proposal only. Leave gap analysis, evidence table, verifier as technical docs.
 
-**Humanizer scope:** Final proposal only (Phase 4 output). Leave gap analysis,
-evidence table, and verifier verdict as technical reference documents.
-
-**Voice matching:** If voice sample exists, humanizer matches:
-- Sentence length variation
-- Word choice patterns
-- Punctuation habits (dashes, semicolons)
-- Openings and transitions
-
-Save to `projects/<student-slug>/proposal-final.md`
-
-**Phase 5 Provenance**: Log voice sample source (provided file vs default) and humanizer patterns applied to `phase-5-provenance.md`.
+Save to `proposal-final.md`
 
 ### Phase 6 — Binder Assembly
 
-**Create the final binder** — layered document:
+Create layered binder with all appendices:
 
 ```
 # Research Proposal: [Topic]
-**Student:** [Name from CV]
-**Target:** [Lab/Professor/School]
-**Date:** [Today]
-**Slug:** [student-slug]
-
----
+**Student:** [Name]
+**Target:** [Professor], [University]
+**Position:** [PhD/MS] starting [Date]
 
 ## Executive Summary
-[Copy of humanized proposal — this is the primary document the student submits]
+[Humanized proposal]
 
 ## Appendices
-
 ### Appendix A: Gap Analysis
-[Link to gap-analysis/<slug>.md]
-
 ### Appendix B: Evidence Ranking
-[Link to evidence-ranking/<slug>.md]
-
 ### Appendix C: Verdict
-[Link to verifier/<slug>-verdict.md]
-
 ### Appendix D: Researcher Profile
-[Link to profile.json]
-
-### Appendix E: Provenance
-[Link to gap-analysis/<slug>.provenance.md]
+### Appendix E: Position Posting (posting.json)
+### Appendix F: Professor Research (professor-research.json)
+### Appendix G: Provenance
 ```
 
-Save to `projects/<student-slug>/binder.md`
-
-Also save a provenance sidecar to `projects/<student-slug>/binder.provenance.md`
-documenting every subagent dispatch, all sources accessed, and all artifacts
-generated.
-
-## Non-Negotiable Boundaries (Apply to All Subagents)
-
-1. **NEVER fabricate a DOI.** Verify via https://doi.org/<doi> before writing.
-   Unresolvable DOI → drop the source or flag as "citing-chain only."
-
-2. **NEVER invent a statistic.** "High accuracy" in a source stays "high accuracy"
-   in the output. No converting qualitative to quantitative without evidence.
-
-3. **NEVER present an inferred claim as validated.** Use `[inferred]` tag.
-   Confidence levels must reflect evidence quality.
-
-4. **NEVER let the verifier see the author's reasoning.** Independence is the
-   entire point.
-
-5. **NEVER skip the humanization step.** Raw LLM output goes through /humanizer.
-
-6. **NEVER let subagents share verdict channels.** Concurrent reviewers must not
-   see each other's outputs before reporting.
+Save to `binder.md` + `binder.provenance.md`
 
 ## Output Artifacts
 
 ```
 projects/<student-slug>/
 ├── profile.json                    # Structured CV extraction
-├── voice-sample.txt               # Writing sample (or note if none found)
-├── target-context.json            # Target lab/professor context (if specified)
+├── voice-sample.txt               # Writing sample (or default note)
+├── posting.json                   # Structured position posting data
+├── posting-raw.txt                # Raw text from posting
+├── professor-research.json        # Professor/lab web research
+├── professor-search-plan.txt      # Search queries used
 ├── gap-analysis/
-│   ├── <slug>.md                  # Gap dossier
+│   ├── <slug>.md                  # Gap dossier (general + lab-specific)
 │   └── <slug>.provenance.md       # Provenance sidecar
 ├── evidence-ranking/
 │   └── <slug>.md                  # Scored evidence table
@@ -265,15 +271,25 @@ projects/<student-slug>/
 └── binder.provenance.md           # Full audit trail
 ```
 
+## Non-Negotiable Boundaries (All Subagents)
+
+1. **NEVER fabricate a DOI.** Verify via https://doi.org/<doi> before writing.
+2. **NEVER invent a statistic.** Quote sources as-is.
+3. **NEVER present inferred claims as validated.** Mark `[inferred]`.
+4. **NEVER let the verifier see the author's reasoning.**
+5. **NEVER skip the humanization step.**
+6. **NEVER let subagents share verdict channels.**
+7. **NEVER fabricate professor details.** If not found, mark "not found".
+8. **NEVER claim to read unfetched papers.** Mark paywalled sources `blocked`.
+9. **NEVER invent lab projects.** Only state what research found.
+10. **ALWAYS distinguish** posting claims vs. web research findings.
+
 ## Scope and Boundaries
 
 - This skill generates research proposals for academic applications.
-- **Research-only, not for final submission without student review.** The student
-  MUST review, fact-check, and personalize the output before submission.
-- The agent does not guarantee admission. It guarantees a structured, verified,
-  humanized proposal with full provenance.
-- Fail-closed: if any phase fails, stop and report the blocker. Do not proceed
-  with unverified claims.
+- **Research-only, not for final submission without student review.**
+- The agent does not guarantee admission. It guarantees a structured, verified, humanized proposal with full provenance.
+- Fail-closed: if any phase fails, stop and report the blocker.
 
 ## What to Steal from Reference Systems
 
@@ -284,3 +300,4 @@ projects/<student-slug>/
 | Voice matching | humanizer | Matches student's own writing style |
 | Receipts reconciliation | autoprompt-skill | Every search/query logged in provenance |
 | Ledger-first audit | feynman | binder.provenance.md records every action |
+| Claim-vs-diff verification | autoprompt-skill | Verifier maps every claim to source line |
