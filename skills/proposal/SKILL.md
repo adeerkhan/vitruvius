@@ -287,9 +287,10 @@ projects/<student-slug>/
 ## Scope and Boundaries
 
 - This skill generates research proposals for academic applications.
-- **Research-only, not for final submission without student review.**
+- **research-only, not for final submission without student review.** The student MUST review, fact-check, and personalize the output before submission.
 - The agent does not guarantee admission. It guarantees a structured, verified, humanized proposal with full provenance.
 - Fail-closed: if any phase fails, stop and report the blocker.
+- **Not for final engineering sign-off.** This is an academic application tool, not an engineering design tool.
 
 ## What to Steal from Reference Systems
 
