@@ -1,6 +1,7 @@
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
+import { readYamlFrontmatter, parseFrontmatterEntries } from "./yaml-frontmatter.mjs";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const REPO_ROOT = join(__dirname, "..");
@@ -24,22 +25,6 @@ const PERSONAL_PATH = /\/mnt\/[a-z]\/Users|home|Users\/(?![<\$<]|\$\{?)([\w.-]+)
 const IMPERSONAL_ACCOUNTS = new Set([
   "user", "username", "you", "me", "youruser", "your-user", "name", "runner",
 ]);
-
-function readYamlFrontmatter(text) {
-  if (!text.startsWith("---\n")) return null;
-  const end = text.indexOf("\n---", 3);
-  if (end === -1) return null;
-  return text.slice(4, end);
-}
-
-function parseFrontmatterEntries(frontmatter) {
-  const entries = [];
-  for (const line of frontmatter.split("\n")) {
-    const match = line.match(/^([A-Za-z][A-Za-z0-9_-]*):(.*)$/);
-    if (match) entries.push([match[1], match[2].trim()]);
-  }
-  return entries;
-}
 
 function allSkillNames() {
   const names = new Set();

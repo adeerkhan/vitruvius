@@ -15,6 +15,7 @@
 import { readFileSync, readdirSync, statSync, existsSync } from "node:fs";
 import { join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
+import { readYamlFrontmatter, parseFrontmatter } from "./yaml-frontmatter.mjs";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const REPO_ROOT = join(__dirname, "..");
@@ -44,22 +45,6 @@ const ARTIFACT_PATHS = [
 ];
 
 const SLUG_PATTERN = /slug|lowercase.*hyphen|hyphenat/;
-
-function readYamlFrontmatter(text) {
-	if (!text.startsWith("---\n")) return null;
-	const end = text.indexOf("\n---", 3);
-	if (end === -1) return null;
-	return text.slice(4, end);
-}
-
-function parseFrontmatter(frontmatter) {
-	const entries = {};
-	for (const line of frontmatter.split("\n")) {
-		const match = line.match(/^([A-Za-z][A-Za-z0-9_-]*):\s*(.*)$/);
-		if (match) entries[match[1]] = match[2].trim();
-	}
-	return entries;
-}
 
 function checkSkill(skillDir) {
 	const problems = [];
