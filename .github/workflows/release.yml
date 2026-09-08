@@ -21,8 +21,6 @@ jobs:
           node-version: "22"
           registry-url: "https://registry.npmjs.org"
 
-      - run: npm ci
-
       - name: Run full test suite
         run: npm test
 

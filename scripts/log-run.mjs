@@ -15,7 +15,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { readFileSync } from "node:fs";
 
-const __dirname = dirname(fileURLToPath(new.meta.url));
+const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = join(__dirname, "..");
 const RUNS_DIR = join(REPO_ROOT, ".runs");
 

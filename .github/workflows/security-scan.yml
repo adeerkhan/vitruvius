@@ -23,7 +23,5 @@ jobs:
         with:
           node-version: "22"
 
-      - run: npm ci
-
       - name: Run security scan
         run: node scripts/security-scan.mjs

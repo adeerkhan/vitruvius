@@ -75,6 +75,11 @@ To minimize API turns and context pressure:
    - Third pass: verify + provenance (5-8 turns)
    - Total target: 15-20 turns (not 25+)
 
+5. **Token budget awareness**
+   - See `references/token-budgets.md` for per-skill budgets
+   - Default to quick/direct mode unless user asks for comprehensive
+   - If approaching 80% of budget, deliver partial output with explanation
+
 ## Required Artifacts
 
 Derive a short **slug** from the topic: lowercase, hyphenated, no filler
@@ -141,6 +146,36 @@ Use subagents only when decomposition clearly helps:
 - Direct comparison of 2–3 items: 2 `researcher` subagents
 - Broad survey or multi-faceted question: 3–4 `researcher` subagents
 - Complex multi-domain research: 4–6 `researcher` subagents
+
+### Parallel Fan-Out (T2)
+
+When dispatching multiple independent skills, run them in parallel:
+
+**Parallel pattern:**
+```
+Dispatch skill A and skill B simultaneously
+  → Both run at the same time
+  → Merge results when both complete
+```
+
+**When to use parallel:**
+- Gap analysis + evidence ranking (independent outputs)
+- Multiple researcher subagents on different topics
+- Discipline skills on different domains
+
+**When NOT to use parallel:**
+- Sequential dependencies (verifier needs evidence first)
+- Skills that share state or context
+- When token budget is constrained
+
+**Example:**
+```
+/gap-analysis civil FRP-bonding
+/evidence-ranking "FRP bonding in civil structures"
+
+→ Dispatch both simultaneously
+→ Merge: gaps inform evidence priorities
+```
 
 ## Step 3: Gather Evidence
 

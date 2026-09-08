@@ -21,9 +21,6 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: "22"
-          cache: "npm"
-
-      - run: npm ci
 
       - name: Structural contract
         run: npm run test:contract
