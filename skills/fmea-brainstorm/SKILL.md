@@ -18,6 +18,17 @@ Systematically identify and rank failure modes for an engineering system or
 component. This skill is for brainstorming and qualitative risk screening,
 not quantitative failure analysis.
 
+## Workflow
+
+```mermaid
+flowchart LR
+    Input["System Description"] --> Identify["Identify Failure Modes"]
+    Identify --> Rate["Rate S/O/D"]
+    Rate --> RPN["Calculate RPN"]
+    RPN --> Rank["Rank by Risk"]
+    Rank --> Output["Failure Mode Table"]
+```
+
 ## Invocation
 
 ```

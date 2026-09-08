@@ -20,6 +20,16 @@ Run a systematic literature gap analysis for an engineering sub-topic. This
 skill wraps `scholarly-research` for source discovery and adds the gap-validation
 methodology on top.
 
+## Workflow
+
+```mermaid
+flowchart LR
+    Input["Discipline + Sub-topic"] --> Search["Narrow-Query Search"]
+    Search --> Triangulate["Triangulate Sources"]
+    Triangulate --> Validate["Validate Gap Signal"]
+    Validate --> Dossier["Gap Dossier + Provenance"]
+```
+
 ## Invocation
 
 ```
@@ -114,6 +124,18 @@ this repository. Required sections:
 Write the dossier to `outputs/gap-analysis/<slug>.md` and a provenance sidecar
 to `outputs/gap-analysis/<slug>.provenance.md`.
 
+### Quality Gate (mandatory before returning)
+
+Self-check the output. If any check fails, retry once with feedback:
+
+1. **Gap count** — at least 3 distinct gaps identified. If < 3, re-search with broader terms.
+2. **Source count** — at least 4 key papers referenced. If < 4, expand search to additional databases.
+3. **Triangulation** — at least 2 source tiers represented (e.g., OpenAlex + arXiv). If only 1, search missing tier.
+4. **Research questions** — at least 3 concrete, answerable questions. If < 3, refine gap analysis.
+5. **Confidence justification** — Confidence level has explicit justification. If missing, add reasoning.
+
+**Retry logic:** If quality gate fails, re-run the search phase once with the specific failure as feedback. If it fails again, return the best output with a `PARTIAL` confidence and list the unresolved issues in provenance.
+
 ## Scope and Boundaries
 
 - This skill identifies gaps — it does **not** fill them. For filling gaps,
@@ -122,3 +144,5 @@ to `outputs/gap-analysis/<slug>.provenance.md`.
 - Fail-closed: if triangulation cannot be completed, mark the gap `unverified`
   rather than claiming it exists.
 - Never fabricate a gap. If the literature adequately covers the topic, say so.
+- When a source is paywalled or unreachable, cite from metadata and mark `blocked`.
+  See `references/blocked-access-policy.md` for the full rules.

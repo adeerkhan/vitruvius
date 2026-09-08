@@ -43,7 +43,8 @@ Discipline skills pass these flags through to this method.
 - Prefer official standards portals, code body text, primary vendor
   documentation, and primary data over secondary summaries.
 - When a source is paywalled or unreachable, cite it from search metadata and
-  mark full-text access as `blocked` instead of guessing at its contents.
+  mark full-text access as `blocked` instead of guessing at its contents. See
+  `references/blocked-access-policy.md` for the full rules.
 - To ask the user a question, write plain chat text and wait. Do not invent
   tool names for asking questions.
 
@@ -313,16 +314,26 @@ After the verifier passes, do a final self-review: check that all PARTIAL
 qualifications are noted in Open Questions, all FATAL issues are fixed, and
 the provenance sidecar is complete.
 
-## Step 6.5: Post-Edit Verification Audit
+## Step 6.5: Post-Edit Verification Audit (MANDATORY)
 
-After the verifier passes and before delivery, run an adversarial citation audit:
+After the verifier passes and before delivery, run an adversarial citation audit.
+THIS STEP IS MANDATORY — do not skip.
 
 1. **Scan every numeric claim** — does it map to a source with section + line?
 2. **Scan every standard citation** — does the section actually say what's claimed?
 3. **Remove or downgrade unsupported claims** — if a claim can't be traced, find a source or remove it
 4. **Verify meaning, not just topic overlap** — citation valid only if source supports the specific number/quote/conclusion
 5. **Refuse fake certainty** — never use "verified"/"confirmed" unless evidence exists
-6. **If evidence is paywalled**, mark `blocked` — never guess at contents
+6. **If evidence is paywalled**, mark `blocked` — never guess at contents. See
+   `references/blocked-access-policy.md` for the full rules.
+
+**Quality Gate (mandatory before delivering):**
+1. **Claim coverage** — ≥80% of claims are `verified` or `partial`. If < 80%, re-search unverified claims.
+2. **Line pinning** — ≥80% of findings are line-pinned to specific §/line. If < 80%, re-read sources.
+3. **No fabrication** — zero claims marked `verified` without direct source read. If any found, downgrade to `unverified`.
+4. **Provenance complete** — provenance sidecar lists all sources consulted, accepted, and rejected. If incomplete, update.
+
+**Retry logic:** If quality gate fails, fix the specific failures and re-run the audit. If it fails again, deliver with `Verification: PARTIAL` and list all unresolved issues in the provenance sidecar.
 
 This is the Feynman post-edit verification pattern. The goal: every claim in the
 final output traces to a checkable source. If verification could not be completed,

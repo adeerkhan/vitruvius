@@ -31,6 +31,9 @@ depends on scraping a site that blocks agents.
   Scholar citation counts instead, and say which source the count came from.
 - Never invent a citation. Every claim maps to a fetched source: DOI, arXiv
   id, or URL you actually retrieved.
+- When a source is paywalled or unreachable, cite from search metadata and
+  mark full-text access as `blocked`. See `references/blocked-access-policy.md`
+  for the full rules.
 
 ## Discovery layers (in priority order)
 

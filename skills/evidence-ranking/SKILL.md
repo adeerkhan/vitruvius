@@ -15,6 +15,17 @@ license: MIT
 
 Score and rank engineering evidence using the tier system from `references/evidence-quality-tiers.md`. This skill provides transparent, auditable evidence scoring — never a black-box "relevance" score.
 
+## Workflow
+
+```mermaid
+flowchart LR
+    Input["Evidence Items"] --> Identify["Identify Sources"]
+    Identify --> Score["Score on Criteria"]
+    Score --> Tier["Assign Tier"]
+    Tier --> Conflicts["Flag Conflicts"]
+    Conflicts --> Output["Ranked Table + Rationale"]
+```
+
 ## Invocation
 
 ```
@@ -27,21 +38,9 @@ Optionally provide a list of sources to rank. If none provided, use `scholarly-r
 
 1. **Identify evidence items** — from user input or scholarly-research discovery. Each item needs: title, authors, year, venue, DOI/URL, and a brief summary of the claim it supports.
 
-2. **Score each source on engineering-specific criteria** (from `references/evidence-quality-tiers.md`):
+2. **Score each source** using the criteria in `references/evidence-ranking-methodology.md`.
 
-   | Criterion | Weight | What to assess |
-   |-----------|--------|----------------|
-   | **Source tier** | High | Standard (Tier 1) > peer-reviewed journal (Tier 2) > conference/preprint (Tier 3) > vendor/weak (Tier 4) |
-   | **Methodology** | High | Experimental data > validated models > surveys > opinions |
-   | **Citation authority** | Medium | Cited by standards, referenced in code commentaries, or high citation count (>50 for engineering) |
-   | **Reproducibility** | Medium | Open data, open code, explicit methods enable re-verification |
-   | **Recency** | Low | Within 10 years for fast fields (software, AI); 20+ years acceptable for slow fields (structural, geotech) |
-
-3. **Assign tier and confidence**:
-   - **Tier 1 (Authoritative):** Score 9-10 — governs engineering practice
-   - **Tier 2 (Reliable):** Score 7-8 — solid primary evidence
-   - **Tier 3 (Supporting):** Score 4-6 — useful for context, not standalone
-   - **Tier 4 (Weak):** Score 1-3 — rejected as primary evidence
+3. **Assign tier and confidence** — see `references/evidence-ranking-methodology.md`.
 
 4. **Flag conflicts** — when sources disagree, identify the conflict, note which is newer, which is jurisdiction-specific, and what a decision-maker should weigh.
 
@@ -94,6 +93,18 @@ Save to `outputs/evidence-ranking/<slug>.md`:
 - **Overall:** Strong / Moderate / Weak
 - **Recommendation:** <what the evidence supports, with qualifications>
 ```
+
+### Quality Gate (mandatory before returning)
+
+Self-check the output. If any check fails, retry once with feedback:
+
+1. **Source count** — at least 5 sources ranked. If < 5, expand search.
+2. **Tier distribution** — at least 2 tiers represented. If all Tier 4, re-search with better terms.
+3. **Scoring rationale** — each source has explicit scoring rationale. If missing, add reasoning.
+4. **Conflict identification** — conflicts between sources are flagged. If none found but sources disagree, re-analyze.
+5. **Evidence strength** — overall strength is stated with justification. If missing, add reasoning.
+
+**Retry logic:** If quality gate fails, re-run the ranking once with the specific failure as feedback. If it fails again, return the best output with a `Weak` evidence strength and list the unresolved issues.
 
 ## Scope and Boundaries
 

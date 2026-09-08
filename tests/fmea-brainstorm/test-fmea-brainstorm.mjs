@@ -11,18 +11,13 @@ import {
   hasMethodologyPhases,
   hasS7Boundary,
   lineCountUnder,
-  assert,
+  check,
   readSkillMd,
 } from "../_contract/contract.mjs";
 
 const SKILL = "fmea-brainstorm";
 let passed = 0;
 let failed = 0;
-
-function check(result) {
-  if (result) passed++;
-  else failed++;
-}
 
 console.log(`\n[Test] ${SKILL} — structure`);
 
@@ -46,19 +41,19 @@ const text = readSkillMd(SKILL);
 
 console.log(`\n[Test] ${SKILL} — FMEA-specific`);
 
-check(assert(text.includes("Severity"), `${SKILL}: defines Severity rating`));
-check(assert(text.includes("Occurrence"), `${SKILL}: defines Occurrence rating`));
-check(assert(text.includes("Detection"), `${SKILL}: defines Detection rating`));
-check(assert(text.includes("RPN"), `${SKILL}: calculates Risk Priority Number`));
-check(assert(text.includes("Critical") && text.includes("200"), `${SKILL}: defines Critical threshold (RPN>=200)`));
+check(check(text.includes("Severity"), `${SKILL}: defines Severity rating`));
+check(check(text.includes("Occurrence"), `${SKILL}: defines Occurrence rating`));
+check(check(text.includes("Detection"), `${SKILL}: defines Detection rating`));
+check(check(text.includes("RPN"), `${SKILL}: calculates Risk Priority Number`));
+check(check(text.includes("Critical") && text.includes("200"), `${SKILL}: defines Critical threshold (RPN>=200)`));
 
 console.log(`\n[Test] ${SKILL} — boundaries`);
 
-check(assert(
+check(check(
   text.includes("qualitative") || text.includes("brainstorming"),
   `${SKILL}: states it is qualitative, not quantitative`,
 ));
-check(assert(
+check(check(
   text.includes("not a formal FMEA"),
   `${SKILL}: clarifies it is not for regulatory submission`,
 ));

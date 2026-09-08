@@ -7,7 +7,7 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { assert } from "../_contract/contract.mjs";
+import { check } from "../_contract/contract.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = join(__dirname, "..", "..");
@@ -15,16 +15,6 @@ const OUTPUTS_DIR = join(REPO_ROOT, "outputs", "evidence-ranking");
 
 let passed = 0;
 let failed = 0;
-
-function check(condition, message) {
-  if (condition) {
-    passed++;
-    console.log(`  PASS: ${message}`);
-  } else {
-    failed++;
-    console.error(`  FAIL: ${message}`);
-  }
-}
 
 console.log("\n[Test] evidence-ranking — behavioral");
 

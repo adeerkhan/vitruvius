@@ -13,7 +13,7 @@ import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseMachineVerdict, parseGroundTruth } from "../../scripts/verifier-parser.mjs";
-import { assert } from "../_contract/contract.mjs";
+import { check } from "../_contract/contract.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = join(__dirname, "..", "..");
@@ -22,16 +22,6 @@ const RESULTS_DIR = join(REPO_ROOT, "tasks", "benchmark", "results");
 
 let passed = 0;
 let failed = 0;
-
-function check(condition, message) {
-  if (condition) {
-    passed++;
-    console.log(`  PASS: ${message}`);
-  } else {
-    failed++;
-    console.error(`  FAIL: ${message}`);
-  }
-}
 
 console.log("\n[Test] verifier — adversarial benchmark");
 

@@ -32,7 +32,7 @@ export function readFrontmatter(skillName) {
   return fm;
 }
 
-export function assert(condition, message) {
+export function check(condition, message) {
   if (condition) {
     console.log(`  PASS: ${message}`);
     return true;
@@ -44,15 +44,15 @@ export function assert(condition, message) {
 
 export function hasFrontmatter(skillName) {
   const fm = readFrontmatter(skillName);
-  return assert(fm !== null, `${skillName}: has frontmatter`);
+  return check(fm !== null, `${skillName}: has frontmatter`);
 }
 
 export function hasRequiredFields(skillName) {
   const fm = readFrontmatter(skillName);
   if (!fm) return false;
   let ok = true;
-  ok = assert(fm.name === skillName, `${skillName}: name matches directory`) && ok;
-  ok = assert(fm.description, `${skillName}: has description`) && ok;
+  ok = check(fm.name === skillName, `${skillName}: name matches directory`) && ok;
+  ok = check(fm.description, `${skillName}: has description`) && ok;
   return ok;
 }
 
@@ -60,14 +60,14 @@ export function hasSection(skillName, heading) {
   const text = readSkillMd(skillName);
   if (!text) return false;
   const pattern = new RegExp(`^##\\s+${heading}`, "m");
-  return assert(pattern.test(text), `${skillName}: has "## ${heading}" section`);
+  return check(pattern.test(text), `${skillName}: has "## ${heading}" section`);
 }
 
 export function hasMethodologyPhases(skillName, count) {
   const text = readSkillMd(skillName);
   if (!text) return false;
   const phases = text.match(/###\s+Step\s+\d+|###\s+Phase\s+\d+|\d+\.\s+\*\*/g);
-  return assert(
+  return check(
     phases && phases.length >= count,
     `${skillName}: has ${count}+ methodology phases (found ${phases ? phases.length : 0})`,
   );
@@ -76,7 +76,7 @@ export function hasMethodologyPhases(skillName, count) {
 export function hasS7Boundary(skillName) {
   const text = readSkillMd(skillName);
   if (!text) return false;
-  return assert(
+  return check(
     text.includes("research-only") || text.includes("not for final engineering"),
     `${skillName}: has S7 boundary language`,
   );
@@ -86,7 +86,7 @@ export function lineCountUnder(skillName, max) {
   const text = readSkillMd(skillName);
   if (!text) return false;
   const lines = text.split("\n").length;
-  return assert(lines <= max, `${skillName}: ${lines} lines (limit ${max})`);
+  return check(lines <= max, `${skillName}: ${lines} lines (limit ${max})`);
 }
 
 export function allSkillNames() {

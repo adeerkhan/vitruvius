@@ -17,6 +17,17 @@ license: MIT
 
 Verify a claim, calculation, or design statement against authoritative sources.
 
+## Workflow
+
+```mermaid
+flowchart LR
+    Input["Claim + Evidence"] --> Parse["Restate Claim"]
+    Parse --> Source["Find Governing Source"]
+    Source --> Read["Read Directly"]
+    Read --> Checks["8 Adversarial Checks"]
+    Checks --> Verdict["PASS / PARTIAL / BLOCKED"]
+```
+
 ## Invocation
 
 ```
@@ -73,12 +84,22 @@ as the honest verdict. BLOCKED is a legitimate outcome, not a failure. Stay in t
 loop and resolve every open question through evidence — NEVER yield to the user with "I
 can't verify this."
 
+See `references/blocked-access-policy.md` for the full blocked-access rules.
+
 ### Default-FAIL Posture
 
 Every claim starts FAILED. PASS is earned only when ALL 8 checks pass on opened, quoted
 evidence. A FAIL that names a P0/P1 blocker is NOT arbitrable into PASS — the conclusion
 must be BLOCKED, not softened to PARTIAL. Your job is to find specific reasons the
 conclusion could be wrong. When in doubt, return PARTIAL or BLOCKED.
+
+**Quality Gate (mandatory before returning):**
+1. Count CHECKS_PASSED — if < 6/8, verdict MUST be BLOCKED or PARTIAL
+2. Count LINE_PINNED ratio — if < 80% of findings are line-pinned, verdict MUST be PARTIAL or BLOCKED
+3. If FLAW is `synthesis_overreach` or `entailment_failure`, verdict CANNOT be PASS
+4. If confidence < 0.7, verdict CANNOT be PASS
+
+If quality gate fails, return BLOCKED with the specific gate failures listed.
 
 ### Adversarial Protocol (8 Checks)
 

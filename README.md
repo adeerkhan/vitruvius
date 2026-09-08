@@ -100,6 +100,29 @@ End-to-end workflows for specific tasks:
 | Look up an engineering standard | `/standards-lookup` |
 | Brainstorm failure modes | `/fmea-brainstorm` |
 
+## Quick Reference
+
+| You type | What happens |
+|----------|--------------|
+| `/mechanical "research question"` | Runs research loop with mechanical engineering evidence landscape |
+| `/software "research question"` | Runs research loop with software engineering evidence landscape |
+| `/civil "research question"` | Runs research loop with civil/structural evidence landscape |
+| `/electrical "research question"` | Runs research loop with electrical/electronics evidence landscape |
+| `/architectural "research question"` | Runs research loop with architectural evidence landscape |
+| `/gap-analysis civil FRP-bonding` | Finds research gaps via OpenAlex + arXiv triangulation |
+| `/design-alternatives "problem"` | Compares 3+ engineering approaches with scored trade-off matrix |
+| `/fmea-brainstorm "system"` | Brainstorms failure modes with S/O/D ratings and RPN ranking |
+| `/verifier "claim"` | Verifies a claim against authoritative sources (blind subagent) |
+| `/compare "A vs B"` | Source/standard/design comparison matrix |
+| `/review <artifact>` | Severity-graded adversarial review |
+| `/audit <code-vs-paper>` | Claim-vs-implementation mismatch audit |
+| `/summarize <document>` | Faithful structured digest of a standard, spec, or paper |
+| `/eli5 "topic"` | Plain-language engineering explanation |
+| `/artifact-reading <file>` | Anchored extraction from PDFs, drawings, specs |
+| `/scholarly-research "topic"` | Academic literature discovery (OpenAlex, arXiv, Semantic Scholar) |
+| `/standards-lookup AISC 360` | Looks up AISC 360 provisions by section |
+| `/proposal --posting X --cv Y` | Generates full PhD proposal with gap analysis + verification |
+
 ## Installation
 
 ### Claude Code
@@ -242,23 +265,41 @@ Vitruvius points research at the best free, verifiable layers for the job:
 
 ## FAQ
 
-**How is this different from generic web search?**
+<details>
+<summary><strong>How is this different from generic web search?</strong></summary>
+
 Vitruvius reads sources directly, never fabricates, and records auditable provenance. Generic search returns snippets; Vitruvius returns verified claims with source locations.
+</details>
 
-**What if a source is paywalled?**
-Cited from search metadata and marked `blocked`. Never guessed at.
+<details>
+<summary><strong>What if a source is paywalled?</strong></summary>
 
-**Can I use this for non-engineering research?**
+Cited from search metadata and marked `blocked`. Never guessed at. See [Blocked Access Policy](references/blocked-access-policy.md) for details.
+</details>
+
+<details>
+<summary><strong>Can I use this for non-engineering research?</strong></summary>
+
 Designed for engineering, but `/gap-analysis` and `/proposal` work for any field with academic literature.
+</details>
 
-**How does the proposal skill work?**
+<details>
+<summary><strong>How does the proposal skill work?</strong></summary>
+
 Parses the position posting, researches the professor/lab website and recent papers, identifies lab-specific gaps, and generates a targeted proposal with deep fit analysis. Humanizes the output to match your writing style.
+</details>
 
-**What disciplines are supported?**
+<details>
+<summary><strong>What disciplines are supported?</strong></summary>
+
 Mechanical, civil, electrical, software, and architectural engineering.
+</details>
 
-**How do I verify the agent's claims?**
+<details>
+<summary><strong>How do I verify the agent's claims?</strong></summary>
+
 Every output includes a `.provenance.md` sidecar recording what was checked and how. Check the verification status labels: `verified`, `partial`, `blocked`, `unverified`.
+</details>
 
 ## Uninstall
 

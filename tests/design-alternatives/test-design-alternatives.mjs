@@ -11,17 +11,12 @@ import {
   hasMethodologyPhases,
   hasS7Boundary,
   lineCountUnder,
-  assert,
+  check,
 } from "../_contract/contract.mjs";
 
 const SKILL = "design-alternatives";
 let passed = 0;
 let failed = 0;
-
-function check(result) {
-  if (result) passed++;
-  else failed++;
-}
 
 console.log(`\n[Test] ${SKILL} — structure`);
 
@@ -45,17 +40,17 @@ console.log(`\n[Test] ${SKILL} — output format`);
 
 import { readSkillMd } from "../_contract/contract.mjs";
 const text = readSkillMd(SKILL);
-check(assert(text.includes("Inline Summary"), `${SKILL}: defines inline summary`));
-check(assert(text.includes("Full Analysis"), `${SKILL}: defines full analysis`));
-check(assert(text.includes("outputs/design-alternatives/"), `${SKILL}: specifies output path`));
+check(check(text.includes("Inline Summary"), `${SKILL}: defines inline summary`));
+check(check(text.includes("Full Analysis"), `${SKILL}: defines full analysis`));
+check(check(text.includes("outputs/design-alternatives/"), `${SKILL}: specifies output path`));
 
 console.log(`\n[Test] ${SKILL} — boundaries`);
 
-check(assert(
+check(check(
   text.includes("does NOT produce final designs"),
   `${SKILL}: states it does not produce final designs`,
 ));
-check(assert(
+check(check(
   text.includes("trade-offs"),
   `${SKILL}: emphasizes trade-offs over single answer`,
 ));

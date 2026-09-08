@@ -17,6 +17,17 @@ Generate structured engineering design alternatives and compare them against
 the problem constraints. This skill is for exploration and comparison, not
 final design.
 
+## Workflow
+
+```mermaid
+flowchart LR
+    Input["Problem + Constraints"] --> Generate["Generate 3+ Alternatives"]
+    Generate --> Criteria["Define Criteria"]
+    Criteria --> Score["Score Each Alternative"]
+    Score --> Matrix["Comparison Matrix"]
+    Matrix --> Recommend["Ranked Recommendation"]
+```
+
 ## Invocation
 
 ```
