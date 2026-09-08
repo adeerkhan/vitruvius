@@ -24,7 +24,7 @@
  *   }
  */
 
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync, readdirSync, rmSync } from 'node:fs';
 import { join, dirname, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
@@ -113,9 +113,6 @@ function extractWithMarker(filePath) {
   }
 
   // Read marker output
-  const { readdirSync, readFileSync, existsSync } = require('node:fs');
-  const { join } = require('node:path');
-
   if (!existsSync(tmpDir)) {
     throw new Error('Marker output directory not created');
   }
@@ -131,7 +128,6 @@ function extractWithMarker(filePath) {
 
   // Clean up temp directory
   try {
-    const { rmSync } = require('node:fs');
     rmSync(tmpDir, { recursive: true, force: true });
   } catch {
     // ignore cleanup errors

@@ -8,11 +8,13 @@
   The engineering research agent. Named for Marcus Vitruvius Pollio, the Roman architect-engineer who wrote <em>De Architectura</em> — the first surviving treatise to treat architecture, civil engineering, machines, and materials as one discipline.
 </p>
 
+<p align="center">
+  <strong>5 disciplines. 24 skills. Zero fabricated sources.</strong>
+</p>
+
 ## Why Vitruvius?
 
 Vitruvius is an **engineering research agent** that runs a **discover → read → synthesize → verify → review** loop over engineering questions and artifacts — with auditable provenance throughout.
-
-**5 disciplines. 24 skills. Zero fabricated sources.**
 
 Unlike generic web search, Vitruvius:
 - **Reads sources directly** — never infers from titles or memory
@@ -20,36 +22,30 @@ Unlike generic web search, Vitruvius:
 - **Records provenance** — every output has a `.provenance.md` sidecar
 - **Flags uncertainty** — distinguishes `verified`, `inferred`, `blocked`, `unverified`
 
-## Quick Start
-
-```bash
-# Install (Command Code)
-cmd skills add adeerkhan/vitruvius --global
-cmd mods add adeerkhan/vitruvius
-
-# Run your first research query
-/vitruvius:civil "What are the research gaps in steel-concrete composite connections?"
-```
-
-You'll get a structured research brief with evidence table, verification verdict, and provenance sidecar.
-
 ## Research Loop
 
 Every Vitruvius skill runs the same shared method:
 
-```
-Plan → Scale → Gather → Draft → Cite → Review → Deliver
-  ↓
-.provenance.md sidecar (source accounting + verification status)
+```mermaid
+flowchart LR
+    Plan --> Scale
+    Scale --> Gather
+    Gather --> Draft
+    Draft --> Cite
+    Cite --> Review
+    Review --> Deliver
+    Deliver --> Provenance[".provenance.md"]
 ```
 
-- **Plan** — define key questions, evidence needed, scale decision
-- **Scale** — direct search (simple) or subagent decomposition (complex)
-- **Gather** — read sources directly, record exact provisions
-- **Draft** — synthesize findings with inline citations
-- **Cite** — sweep every claim against sources
-- **Review** — blind verifier checks claim vs evidence (8 adversarial checks)
-- **Deliver** — final output + provenance sidecar
+| Phase | What happens |
+|-------|--------------|
+| **Plan** | Define key questions, evidence needed, scale decision |
+| **Scale** | Direct search (simple) or subagent decomposition (complex) |
+| **Gather** | Read sources directly, record exact provisions |
+| **Draft** | Synthesize findings with inline citations |
+| **Cite** | Sweep every claim against sources |
+| **Review** | Blind verifier checks claim vs evidence (8 adversarial checks) |
+| **Deliver** | Final output + provenance sidecar |
 
 ## What's Included
 
@@ -59,11 +55,11 @@ Run the shared research loop with domain-specific evidence landscapes:
 
 | Command | Discipline |
 |---------|------------|
-| `/vitruvius:mechanical` | Mechanical: design, thermal, fluids, materials, manufacturing |
-| `/vitruvius:software` | Software: architecture, frameworks, protocols, security, benchmarks |
-| `/vitruvius:civil` | Civil / structural: buildings, bridges, steel, concrete, geotech, loads |
-| `/vitruvius:electrical` | Electrical / electronics: power, electronics, controls, EMC |
-| `/vitruvius:architectural` | Architectural: building science, facades, codes, performance |
+| `/mechanical` | Mechanical: design, thermal, fluids, materials, manufacturing |
+| `/software` | Software: architecture, frameworks, protocols, security, benchmarks |
+| `/civil` | Civil / structural: buildings, bridges, steel, concrete, geotech, loads |
+| `/electrical` | Electrical / electronics: power, electronics, controls, EMC |
+| `/architectural` | Architectural: building science, facades, codes, performance |
 
 ### Research Workflow Skills
 
@@ -96,7 +92,7 @@ End-to-end workflows for specific tasks:
 
 | I want to... | Start here |
 | --- | --- |
-| Research a mechanical engineering question | `/vitruvius:mechanical` |
+| Research a mechanical engineering question | `/mechanical` |
 | Find research gaps in my field | `/gap-analysis` |
 | Compare design alternatives | `/design-alternatives` |
 | Generate a PhD proposal | `/proposal` |
@@ -106,11 +102,39 @@ End-to-end workflows for specific tasks:
 
 ## Installation
 
+### Claude Code
+
+```bash
+# Install via npx (recommended)
+npx skills add adeerkhan/vitruvius
+
+# Or copy manually
+git clone https://github.com/adeerkhan/vitruvius ~/.claude/skills/vitruvius
+```
+
+### Cursor
+
+```bash
+# Copy skills to Cursor's skills folder
+cp -r skills/ ~/.cursor/skills/vitruvius
+cp -r references/ ~/.cursor/skills/vitruvius/references
+```
+
+### Codex
+
+```bash
+# Install via npx
+npx skills add adeerkhan/vitruvius --agent codex
+
+# Or copy manually
+cp -r skills/ ~/.codex/skills/vitruvius
+```
+
 ### Command Code
 
 ```bash
 cmd skills add adeerkhan/vitruvius --global     # install all 24 skills
-cmd mods add adeerkhan/vitruvius                # add /vitruvius slash commands
+cmd mods add adeerkhan/vitruvius                # add slash commands
 ```
 
 ### OpenCode
@@ -136,24 +160,10 @@ Copy the `skills/` and `references/` directories into your agent's skills folder
 - `.commandcode/skills/` (Command Code)
 - `.agents/skills/` (Agents)
 - `.opencode/skills/` (OpenCode)
+- `.cursor/skills/` (Cursor)
+- `.codex/skills/` (Codex)
 
 > **Restart your harness after installing new skills.** The skill catalogue is built at startup; new skills won't be routable until the next session.
-
-## PDF Extraction (Optional)
-
-For best PDF extraction quality (including scanned PDFs), install marker:
-
-```bash
-pip install marker-pdf
-```
-
-Without marker, the skill falls back to `pdf-parse` (basic text extraction) and LLM vision (last resort for scanned PDFs).
-
-| Method | Quality | OCR Support | Install |
-|--------|---------|-------------|---------|
-| marker | ✅ Best | ✅ Yes | `pip install marker-pdf` |
-| pdf-parse | ⚠️ Basic | ❌ No | `npm install pdf-parse` |
-| LLM vision | ⚠️ Slow | ✅ Yes | Built-in |
 
 ## Proposal Skill
 
@@ -179,12 +189,24 @@ The skill works in both CLI and desktop harnesses:
 
 ### Workflow
 
-```
-Position Posting + CV + Statement
-      ↓
-Parse → Research Professor/Lab → Gap Analysis → Verify → Write → Humanize
-      ↓
-binder.md (final output with all appendices)
+```mermaid
+flowchart TD
+    Input["Position Posting + CV + Statement"]
+    Parse["Parse & Extract"]
+    Research["Research Professor/Lab"]
+    Gap["Gap Analysis"]
+    Verify["Verify Claims"]
+    Write["Write Proposal"]
+    Humanize["Humanize Voice"]
+    Binder["binder.md + appendices"]
+
+    Input --> Parse
+    Parse --> Research
+    Research --> Gap
+    Gap --> Verify
+    Verify --> Write
+    Write --> Humanize
+    Humanize --> Binder
 ```
 
 ### Output
@@ -242,6 +264,9 @@ Every output includes a `.provenance.md` sidecar recording what was checked and 
 
 | Harness | Command |
 |---------|---------|
+| Claude Code | `rm -rf ~/.claude/skills/vitruvius` |
+| Cursor | `rm -rf ~/.cursor/skills/vitruvius` |
+| Codex | `rm -rf ~/.codex/skills/vitruvius` |
 | Command Code | `cmd skills remove vitruvius` + `cmd mods remove vitruvius` |
 | OpenCode | Remove from `opencode.json` or delete checkout |
 | Pi | `pi uninstall vitruvius` |

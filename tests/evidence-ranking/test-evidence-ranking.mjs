@@ -7,6 +7,7 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { assert } from "../_contract/contract.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = join(__dirname, "..", "..");
@@ -33,9 +34,9 @@ try {
   const files = readdirSync(OUTPUTS_DIR).filter((f) => f.endsWith(".md"));
   for (const f of files) {
     const path = join(OUTPUTS_DIR, f);
-    const stat = readFileSync(path, "utf-8");
-    if (stat.length > latestTime) {
-      latestTime = stat.length;
+    const content = readFileSync(path, "utf-8");
+    if (content.length > latestTime) {
+      latestTime = content.length;
       latestFile = path;
     }
   }

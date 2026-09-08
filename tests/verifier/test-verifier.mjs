@@ -12,6 +12,8 @@
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { parseMachineVerdict, parseGroundTruth } from "../../scripts/verifier-parser.mjs";
+import { assert } from "../_contract/contract.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = join(__dirname, "..", "..");
@@ -29,38 +31,6 @@ function check(condition, message) {
     failed++;
     console.error(`  FAIL: ${message}`);
   }
-}
-
-const GROUND_TRUTH_PATTERN = /\*\*Ground-truth verdict:\*\*\s*(PASS|PARTIAL|BLOCKED)/i;
-const FLAW_TYPE_PATTERN = /\*\*Flaw type:\*\*\s*(\S+)/i;
-const VERDICT_PATTERN = /^MACHINE_VERDICT:\s*(PASS|PARTIAL|BLOCKED)\s*\|\s*FLAW:\s*(\S+)\s*\|\s*CONFIDENCE:\s*([\d.]+)\s*\|\s*CHECKS_PASSED:\s*(\d+)\/8\s*\|\s*LINE_PINNED:\s*(\d+)\/(\d+)/i;
-
-function parseGroundTruth(content) {
-  const verdictMatch = content.match(GROUND_TRUTH_PATTERN);
-  const flawMatch = content.match(FLAW_TYPE_PATTERN);
-  if (!verdictMatch) return null;
-  return {
-    verdict: verdictMatch[1].toUpperCase(),
-    flaw: flawMatch ? flawMatch[1].trim() : "none",
-  };
-}
-
-function parseMachineVerdict(content) {
-  const lines = content.split("\n");
-  for (const line of lines) {
-    const match = line.match(VERDICT_PATTERN);
-    if (match) {
-      return {
-        verdict: match[1].toUpperCase(),
-        flaw: match[2].trim(),
-        confidence: parseFloat(match[3]),
-        checksPassed: parseInt(match[4], 10),
-        linePinnedNum: parseInt(match[5], 10),
-        linePinnedDen: parseInt(match[6], 10),
-      };
-    }
-  }
-  return null;
 }
 
 console.log("\n[Test] verifier — adversarial benchmark");

@@ -82,17 +82,6 @@ export function hasS7Boundary(skillName) {
   );
 }
 
-export function hasFixtures(skillName) {
-  const fixturesDir = join(REPO_ROOT, "tests", skillName);
-  let hasFixtures = false;
-  try {
-    hasFixtures = statSync(fixturesDir).isDirectory();
-  } catch {
-    // no fixtures dir
-  }
-  return assert(hasFixtures, `${skillName}: has tests/${skillName}/ fixtures`);
-}
-
 export function lineCountUnder(skillName, max) {
   const text = readSkillMd(skillName);
   if (!text) return false;
@@ -108,10 +97,4 @@ export function allSkillNames() {
       return false;
     }
   });
-}
-
-export function loadFixture(skillName, filename) {
-  const path = join(REPO_ROOT, "tests", skillName, filename);
-  if (!existsSync(path)) return null;
-  return readFileSync(path, "utf-8");
 }

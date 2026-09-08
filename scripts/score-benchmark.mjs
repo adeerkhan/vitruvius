@@ -14,35 +14,7 @@
 
 import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
 import { join, basename } from 'node:path';
-
-const VERDICT_PATTERN = /^MACHINE_VERDICT:\s*(PASS|PARTIAL|BLOCKED)\s*\|\s*FLAW:\s*(\S+)\s*\|\s*CONFIDENCE:\s*([\d.]+)\s*\|\s*CHECKS_PASSED:\s*(\d+)\/8\s*\|\s*LINE_PINNED:\s*(\d+)\/(\d+)/i;
-
-const GROUND_TRUTH_PATTERN = /\*\*Ground-truth verdict:\*\*\s*(PASS|PARTIAL|BLOCKED)/i;
-const FLAW_TYPE_PATTERN = /\*\*Flaw type:\*\*\s*(\S+)/i;
-
-function parseMachineVerdict(line) {
-	const match = line.match(VERDICT_PATTERN);
-	if (!match) return null;
-	return {
-		verdict: match[1].toUpperCase(),
-		flaw: match[2].trim(),
-		confidence: parseFloat(match[3]),
-		checksPassed: parseInt(match[4], 10),
-		linePinnedNum: parseInt(match[5], 10),
-		linePinnedDen: parseInt(match[6], 10),
-	};
-}
-
-function parseGroundTruth(caseFile) {
-	const content = readFileSync(caseFile, 'utf-8');
-	const verdictMatch = content.match(GROUND_TRUTH_PATTERN);
-	const flawMatch = content.match(FLAW_TYPE_PATTERN);
-	if (!verdictMatch) return null;
-	return {
-		verdict: verdictMatch[1].toUpperCase(),
-		flaw: flawMatch ? flawMatch[1].trim() : 'none',
-	};
-}
+import { parseMachineVerdict, parseGroundTruth } from './verifier-parser.mjs';
 
 function scoreCase(caseFile, outputDir) {
 	const caseName = basename(caseFile, '.md');
@@ -242,9 +214,8 @@ function main() {
 		console.log(`  ${name.padEnd(15)} ${stats.correct}/${stats.total} correct, ${stats.falseApprovals} false approvals`);
 	}
 
-	// Exit with error if any false approvals
-	process.exit(falseApprovals > 0 ? 1 : 0);
+  // Exit with error if any false approvals
+  process.exit(falseApprovals > 0 ? 1 : 0);
 }
 
-import { dirname } from 'node:path';
 main();

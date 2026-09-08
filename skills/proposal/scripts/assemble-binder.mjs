@@ -16,7 +16,7 @@
  *   - binder.provenance.md (audit trail)
  */
 
-import { readFileSync, writeFileSync, existsSync, readdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync, readdirSync, statSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -39,7 +39,6 @@ if (!existsSync(projectDir)) {
 // Helper to find the most recent file by extension in a directory
 function findMostRecentFile(dir, ext) {
   if (!existsSync(dir)) return null;
-  const { statSync } = require('node:fs');
   const files = readdirSync(dir)
     .filter(f => f.endsWith(ext))
     .map(f => ({ path: join(dir, f), mtime: statSync(join(dir, f)).mtimeMs }))
@@ -78,7 +77,22 @@ if (missing.length > 0) {
 
 // Read content
 const proposal = readFileSync(proposalPath, 'utf-8');
-const profile = JSON.parse(readFileSync(profilePath, 'utf-8'));
+let profile;
+try {
+  profile = JSON.parse(readFileSync(profilePath, 'utf-8'));
+} catch (err) {
+  console.error(`Failed to parse profile.json: ${err.message}`);
+  process.exit(1);
+}
+
+// Helper to safely read JSON files
+function readJsonSafe(filePath) {
+  try {
+    return JSON.parse(readFileSync(filePath, 'utf-8'));
+  } catch {
+    return null;
+  }
+}
 
 const gapFile = findMostRecentFile(gapDir, '.md');
 const evidenceFile = findMostRecentFile(evidenceDir, '.md');
@@ -125,11 +139,11 @@ ${JSON.stringify(profile, null, 2)}
 
 ### Appendix E: Position Posting
 ${postingPath && existsSync(postingPath) ? `[Structured posting data](./posting.json)` : '*Posting data not available*'}
-${postingPath && existsSync(postingPath) ? `\n\`\`\`json\n${JSON.stringify(JSON.parse(readFileSync(postingPath, 'utf-8')), null, 2)}\n\`\`\`` : ''}
+${postingPath && existsSync(postingPath) ? `\n\`\`\`json\n${JSON.stringify(readJsonSafe(postingPath), null, 2)}\n\`\`\`` : ''}
 
 ### Appendix F: Professor/Lab Research
 ${professorPath && existsSync(professorPath) ? `[Professor research](./professor-research.json)` : '*Professor research not available*'}
-${professorPath && existsSync(professorPath) ? `\n\`\`\`json\n${JSON.stringify(JSON.parse(readFileSync(professorPath, 'utf-8')), null, 2)}\n\`\`\`` : ''}
+${professorPath && existsSync(professorPath) ? `\n\`\`\`json\n${JSON.stringify(readJsonSafe(professorPath), null, 2)}\n\`\`\`` : ''}
 
 ### Appendix G: Provenance
 This proposal was generated using the /proposal skill pipeline:

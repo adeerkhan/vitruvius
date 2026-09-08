@@ -5,6 +5,8 @@
  * Used by test-skills.mjs and validate-contract.mjs.
  */
 
+import { readFileSync } from "node:fs";
+
 /**
  * Extract raw frontmatter string from Markdown text.
  * Returns null if no valid frontmatter block found.
@@ -40,21 +42,4 @@ export function parseFrontmatter(frontmatter) {
     if (match) entries[match[1]] = match[2].trim();
   }
   return entries;
-}
-
-/**
- * Read a Markdown file and return its frontmatter as an object.
- * Returns null if file missing or no frontmatter.
- */
-export function readFrontmatterFromFile(filePath) {
-  const { readFileSync } = require("node:fs");
-  let text;
-  try {
-    text = readFileSync(filePath, "utf-8");
-  } catch {
-    return null;
-  }
-  const raw = readYamlFrontmatter(text);
-  if (!raw) return null;
-  return parseFrontmatter(raw);
 }
