@@ -49,26 +49,31 @@ The skill receives file paths in both cases — it does not matter whether the f
 
 ## Workflow (Execute in Order)
 
-### Phase 0 — Intake & Context Engineering (LLM executes, logs to provenance)
+### Phase 0 — Intake & Context Engineering
 
-**0a. Existing Intake**
-1. **Create project folder**: `projects/<student-slug>/`
-   ```bash
-   node skills/proposal/scripts/init-project.mjs <student-slug>
-   ```
-2. **Parse CV PDF** → `cv-raw.txt` → LLM structures → `profile.json`
-3. **Parse Personal Statement** → voice sample candidate
-4. **Voice Sample**: `--sample` > `--statement` > default neutral voice
-
-**0b. Parse Position Posting (NEW)**
+**0a. Create Project Folder**
 ```bash
-node skills/proposal/scripts/parse-posting.mjs <slug> <posting-path-or-url>
+node skills/proposal/scripts/init-project.mjs <student-slug>
 ```
-- Detects input type: URL, PDF, or image
-- URL: saves placeholder, LLM fetches with web_fetch
-- PDF: extracts text with pdf-parse (or flags for vision if scanned)
-- Image: saves placeholder, LLM extracts with vision
-- LLM structures raw text into `posting.json`:
+
+**0b. Parse Documents (STRICT Isolation via Artifact-Reading Subagent)**
+
+Dispatch `/skill:artifact-reading` as isolated subagent — **fresh context, receives ONLY:**
+- Path to position posting (if `--posting` provided)
+- Path to CV (if `--cv` provided)
+- Path to personal statement (if `--statement` provided)
+- Path to writing sample (if `--sample` provided)
+
+**Does NOT receive:** any prior reasoning, target context, or other project files.
+
+Artifact-reading subagent:
+1. For each file, runs `node scripts/extract-document.mjs <path>`
+2. Extracts structured content (markdown, pages, method used)
+3. If method is `vision`, uses LLM vision to extract text
+4. Returns structured content with sections and provenance
+
+**Output saved by subagent:**
+- `posting.json` — structured position posting data:
   ```json
   {
     "professor": { "name": "...", "title": "...", "email": "..." },
@@ -83,6 +88,12 @@ node skills/proposal/scripts/parse-posting.mjs <slug> <posting-path-or-url>
     "raw_text": "..."
   }
   ```
+- `profile.json` — structured CV data
+- `voice-sample.txt` — writing sample for humanizer
+
+**0c. Voice Sample**
+- `--sample` > `--statement` > default neutral voice
+- Save to `voice-sample.txt`
 
 **0c. Research Professor/Lab (NEW)**
 ```bash

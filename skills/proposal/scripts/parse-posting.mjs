@@ -1,26 +1,26 @@
 /**
- * parse-posting.mjs — Extract structured data from position posting.
+ * parse-posting.mjs — Extract text from position posting (PDF/image/URL).
+ *
+ * DEPRECATED: Use artifact-reading subagent instead.
+ * This script is kept for backward compatibility and direct usage.
  *
  * Usage:
  *   node skills/proposal/scripts/parse-posting.mjs <slug> <posting-path-or-url>
- *
- * Input types:
- *   - PDF file (text-based or scanned)
- *   - Image file (PNG, JPG)
- *   - URL (web page)
  *
  * Output:
  *   projects/<slug>/posting-raw.txt (raw extracted text)
  *   projects/<slug>/posting.json (structured data — written by LLM)
  *
  * Note: This script extracts raw text. The LLM structures it into JSON.
+ * For full document parsing with structure extraction, use artifact-reading subagent.
  */
 
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { join, dirname, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { spawnSync } from 'node:child_process';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const REPO_ROOT = join(__dirname, '..', '..', '..');
 
 const slug = process.argv[2];
@@ -29,6 +29,8 @@ const postingInput = process.argv[3];
 if (!slug || !postingInput) {
   console.error('Usage: node skills/proposal/scripts/parse-posting.mjs <slug> <posting-path-or-url>');
   console.error('  posting: PDF file, image file, or URL');
+  console.error('');
+  console.error('NOTE: For full document parsing, use artifact-reading subagent instead.');
   process.exit(1);
 }
 
@@ -61,7 +63,6 @@ if (isURL(postingInput)) {
   console.log('Use web_fetch to get content, then save to posting-raw.txt');
   console.log('The LLM will structure it into posting.json');
 
-  // Write a placeholder with instructions
   writeFileSync(rawPath, `# Position Posting (URL)
 # Source: ${postingInput}
 # Status: FETCH REQUIRED
@@ -86,7 +87,6 @@ if (!existsSync(postingInput)) {
 if (isImage(postingInput)) {
   console.log(`Image detected: ${postingInput}`);
   console.log('Image requires LLM vision extraction.');
-  console.log('The LLM will read the image and extract structured data.');
 
   writeFileSync(rawPath, `# Position Posting (Image)
 # Source: ${postingInput}
@@ -102,53 +102,52 @@ if (isImage(postingInput)) {
   process.exit(0);
 }
 
-// Handle PDF input
+// Handle PDF input — use extract-document.mjs
 if (isPDF(postingInput)) {
   console.log(`PDF detected: ${postingInput}`);
+  console.log('Using extract-document.mjs for robust extraction...');
 
-  let pdfText = '';
-  try {
-    const pdfParse = (await import('pdf-parse')).default;
-    const pdfBuffer = readFileSync(postingInput);
-    const pdfData = await pdfParse(pdfBuffer);
-    pdfText = pdfData.text;
-    console.log(`Extracted ${pdfText.length} characters (${pdfData.numpages} pages)`);
-  } catch (err) {
-    console.error('pdf-parse not installed. Install with: npm install pdf-parse');
-    console.error('Falling back to raw buffer read.');
+  const extractScript = join(REPO_ROOT, 'scripts', 'extract-document.mjs');
+  const result = spawnSync('node', [extractScript, postingInput, '--json'], {
+    encoding: 'utf-8',
+    timeout: 120000,
+  });
 
-    const pdfBuffer = readFileSync(postingInput);
-    pdfText = pdfBuffer.toString('utf-8');
+  if (result.status !== 0) {
+    console.error('Extraction failed:', result.stderr || result.error?.message);
+    console.error('Falling back to placeholder.');
 
-    // Check for scanned PDF
-    const sample = pdfText.slice(0, 1000);
-    const nonPrintable = (sample.match(/[^\x20-\x7E\n\r\t]/g) || []).length;
-    const ratio = nonPrintable / sample.length;
-
-    if (ratio > 0.3) {
-      console.error('');
-      console.error('⚠️  WARNING: PDF appears to be scanned or image-based.');
-      console.error(`   Non-printable character ratio: ${(ratio * 100).toFixed(0)}%`);
-      console.error('   LLM vision extraction required.');
-      console.error('');
-
-      writeFileSync(rawPath, `# Position Posting (Scanned PDF)
+    writeFileSync(rawPath, `# Position Posting (PDF - Extraction Failed)
 # Source: ${postingInput}
-# Status: VISION EXTRACTION REQUIRED
+# Status: MANUAL EXTRACTION REQUIRED
+# Error: ${result.stderr || 'Unknown error'}
 
 # Instructions for /proposal skill:
 # 1. Use read_file to load the PDF: ${postingInput}
-# 2. Extract all text from the scanned PDF
+# 2. Extract all text from the PDF
 # 3. Save raw text to this file (posting-raw.txt)
 # 4. Structure the data and save to posting.json
 `);
-      console.log(`Placeholder saved to: ${rawPath}`);
-      process.exit(0);
-    }
+    process.exit(1);
+  }
+
+  // Parse the JSON result
+  let extractionResult;
+  try {
+    extractionResult = JSON.parse(result.stdout);
+  } catch {
+    console.error('Failed to parse extraction result');
+    process.exit(1);
   }
 
   // Save raw text
-  writeFileSync(rawPath, pdfText);
+  writeFileSync(rawPath, extractionResult.markdown || extractionResult.text || '');
+
+  console.log(`Method: ${extractionResult.method}`);
+  console.log(`Pages: ${extractionResult.pages}`);
+  if (extractionResult.warnings.length > 0) {
+    console.log(`Warnings: ${extractionResult.warnings.join(', ')}`);
+  }
   console.log(`Raw text saved to: ${rawPath}`);
   console.log('Next: LLM structures this into posting.json');
   process.exit(0);

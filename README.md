@@ -139,6 +139,22 @@ Copy the `skills/` and `references/` directories into your agent's skills folder
 
 > **Restart your harness after installing new skills.** The skill catalogue is built at startup; new skills won't be routable until the next session.
 
+## PDF Extraction (Optional)
+
+For best PDF extraction quality (including scanned PDFs), install marker:
+
+```bash
+pip install marker-pdf
+```
+
+Without marker, the skill falls back to `pdf-parse` (basic text extraction) and LLM vision (last resort for scanned PDFs).
+
+| Method | Quality | OCR Support | Install |
+|--------|---------|-------------|---------|
+| marker | ✅ Best | ✅ Yes | `pip install marker-pdf` |
+| pdf-parse | ⚠️ Basic | ❌ No | `npm install pdf-parse` |
+| LLM vision | ⚠️ Slow | ✅ Yes | Built-in |
+
 ## Proposal Skill
 
 Generate targeted Ph.D./Masters research proposals. The proposal skill parses position postings, researches the professor/lab, identifies lab-specific gaps, and produces a humanized proposal with deep fit analysis.

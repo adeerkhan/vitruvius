@@ -55,6 +55,48 @@ failures — answering from one page, from a title, or from memory.
 - **Specification**: scope, referenced documents, requirement clauses, and the
   verification method each requirement is measured against.
 
+## Subagent Dispatch Mode
+
+When dispatched as an isolated subagent for document parsing (e.g., by `/proposal`):
+
+1. **Receive file paths** — one or more document paths to parse
+2. **Extract content** — for each file, run:
+   ```bash
+   node scripts/extract-document.mjs <file-path>
+   ```
+3. **Parse the JSON result** — extract:
+   - `markdown` — full document content in markdown format
+   - `pages` — page count
+   - `method` — extraction method used (marker, pdf-parse, vision)
+   - `warnings` — any quality issues (OCR used, scanned PDF, etc.)
+4. **Return structured content** with:
+   - Full text (markdown format)
+   - Page count
+   - Extraction method used
+   - Source locations for key sections (page numbers)
+   - Warnings and quality notes
+5. **Record provenance** — document what was extracted, how, and any limitations
+
+**Output format for subagent return:**
+```json
+{
+  "source": "path/to/file.pdf",
+  "method": "marker",
+  "pages": 5,
+  "content": "full markdown content...",
+  "sections": [
+    {"title": "Research Areas", "page": 1, "text": "..."},
+    {"title": "Requirements", "page": 2, "text": "..."}
+  ],
+  "warnings": []
+}
+```
+
+**If extraction method is `vision`:**
+- Use `read_file` to load the document
+- Extract text using LLM vision
+- Return same structured format with `method: "vision"`
+
 ## Boundaries
 
 - Never fill a gap you could not read. Mark it `blocked` and say what was

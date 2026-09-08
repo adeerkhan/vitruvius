@@ -1,20 +1,24 @@
 /**
  * parse-cv.mjs — Extract structured profile from CV PDF.
  *
+ * DEPRECATED: Use artifact-reading subagent instead.
+ * This script is kept for backward compatibility and direct usage.
+ *
  * Usage:
  *   node skills/proposal/scripts/parse-cv.mjs <student-slug> <cv-path.pdf>
  *
  * Outputs:
- *   projects/<student-slug>/profile.json
+ *   projects/<student-slug>/cv-raw.txt
  *
  * Note: This script extracts raw text from the PDF. The LLM-based
- * structuring happens in the /proposal skill itself (Phase 0).
+ * structuring happens in the artifact-reading subagent (Phase 0b).
  * This script just handles PDF → text conversion.
  */
 
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { spawnSync } from 'node:child_process';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = join(__dirname, '..', '..', '..');
@@ -39,46 +43,45 @@ if (!existsSync(cvPath)) {
   process.exit(1);
 }
 
-// Try to use pdf-parse if available, otherwise use a fallback
-let pdfText = '';
+// Use extract-document.mjs for robust extraction
+console.log(`Extracting CV: ${cvPath}`);
 
-try {
-  // Dynamic import — pdf-parse may not be installed
-  const pdfParse = (await import('pdf-parse')).default;
-  const cvBuffer = readFileSync(cvPath);
-  const pdfData = await pdfParse(cvBuffer);
-  pdfText = pdfData.text;
-  console.log(`Extracted ${pdfText.length} characters from CV (${pdfData.numpages} pages)`);
-} catch (err) {
-  console.error('pdf-parse not installed. Install with: npm install pdf-parse');
-  console.error('Falling back to raw buffer read (limited).');
+const extractScript = join(REPO_ROOT, 'scripts', 'extract-document.mjs');
+const result = spawnSync('node', [extractScript, cvPath, '--json'], {
+  encoding: 'utf-8',
+  timeout: 120000,
+});
+
+if (result.status !== 0) {
+  console.error('Extraction failed:', result.stderr || result.error?.message);
+  console.error('Falling back to raw buffer read.');
 
   // Fallback: read as text (works for text-based PDFs, fails for scanned)
   const cvBuffer = readFileSync(cvPath);
-  pdfText = cvBuffer.toString('utf-8');
+  const cvText = cvBuffer.toString('utf-8');
 
-  // Check for scanned PDF (high ratio of non-printable chars)
-  const sample = pdfText.slice(0, 1000);
-  const nonPrintable = (sample.match(/[^\x20-\x7E\n\r\t]/g) || []).length;
-  const ratio = nonPrintable / sample.length;
+  const rawPath = join(projectDir, 'cv-raw.txt');
+  writeFileSync(rawPath, cvText);
+  console.log(`Read ${cvText.length} bytes (may contain binary data)`);
+  process.exit(0);
+}
 
-  if (ratio > 0.3) {
-    console.error('');
-    console.error('⚠️  WARNING: PDF appears to be scanned or image-based.');
-    console.error(`   Non-printable character ratio: ${(ratio * 100).toFixed(0)}% (threshold: 30%)`);
-    console.error('   The extracted text may be garbled or empty.');
-    console.error('   Consider: (1) using a text-based PDF, (2) running OCR first, or (3) installing pdf-parse.');
-    console.error('');
-  }
-
-  console.log(`Read ${pdfText.length} bytes (may contain binary data)`);
+// Parse the JSON result
+let extractionResult;
+try {
+  extractionResult = JSON.parse(result.stdout);
+} catch {
+  console.error('Failed to parse extraction result');
+  process.exit(1);
 }
 
 // Save raw text for LLM processing
 const rawPath = join(projectDir, 'cv-raw.txt');
-writeFileSync(rawPath, pdfText);
-console.log(`Saved raw CV text to: ${rawPath}`);
+writeFileSync(rawPath, extractionResult.markdown || extractionResult.text || '');
 
-// Output instructions for next step
-console.log('\nNext: The /proposal skill will structure this into profile.json');
-console.log('Raw text is ready for LLM extraction.');
+console.log(`Method: ${extractionResult.method}`);
+console.log(`Pages: ${extractionResult.pages}`);
+if (extractionResult.warnings.length > 0) {
+  console.log(`Warnings: ${extractionResult.warnings.join(', ')}`);
+}
+console.log(`Raw CV text saved to: ${rawPath}`);
