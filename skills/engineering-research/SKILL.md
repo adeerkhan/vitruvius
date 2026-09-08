@@ -144,6 +144,18 @@ Use subagents only when decomposition clearly helps:
 
 ## Step 3: Gather Evidence
 
+### Increment Checklist (complete before moving to Step 4)
+
+- [ ] At least 3 distinct search queries run
+- [ ] At least 5 sources found and evaluated
+- [ ] At least 2 source tiers represented (Tier 1-2 preferred)
+- [ ] All numeric claims have units and sign conventions
+- [ ] All standard citations include section + edition
+- [ ] No sources appear AI-generated or undated
+- [ ] Search terms recorded in research notes
+
+If any checkbox is unchecked, continue searching before drafting.
+
 If direct search was chosen:
 
 - Skip researcher spawning entirely.
@@ -362,6 +374,26 @@ paper-style artifacts). Write provenance next to it as `<slug>.provenance.md`:
 - **Claims unverified:** [count — default, not yet checked]
 - **Plan:** outputs/.plans/<slug>.md
 - **Research files:** [files used]
+```
+
+Generate a ledger entry (JSON) and log it:
+
+```json
+{
+  "skill": "engineering-research",
+  "topic": "<slug>",
+  "discipline": "<discipline>",
+  "verdict": "<verified/partial/blocked/failed>",
+  "sources_consulted": <count>,
+  "claims_verified": <count>,
+  "claims_blocked": <count>
+}
+```
+
+Pipe the entry through the logger:
+
+```bash
+echo '<ledger_json>' | node scripts/log-run.mjs
 ```
 
 ### Verification Labels (F2 — Vitruvius Provenance)

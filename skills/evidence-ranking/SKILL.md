@@ -36,6 +36,16 @@ Optionally provide a list of sources to rank. If none provided, use `scholarly-r
 
 ## Methodology
 
+### Increment Checklist (complete before Output)
+
+- [ ] At least 5 evidence items identified
+- [ ] Each item scored on all 5 criteria (source tier, methodology, citation authority, reproducibility, recency)
+- [ ] Tier assigned to each item (1-4)
+- [ ] Conflicts between sources identified
+- [ ] Evidence strength stated with justification
+
+If any checkbox is unchecked, complete the missing work before writing output.
+
 1. **Identify evidence items** — from user input or scholarly-research discovery. Each item needs: title, authors, year, venue, DOI/URL, and a brief summary of the claim it supports.
 
 2. **Score each source** using the criteria in `references/evidence-ranking-methodology.md`.
