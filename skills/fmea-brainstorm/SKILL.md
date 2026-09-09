@@ -9,7 +9,9 @@ description: >
   requiring quantitative probability data or regulatory submission.
 argument-hint: "<system or component description>"
 allowed-tools: Write Edit Bash Read
-license: MIT
+license: MITmetadata:
+  version: "0.1.0"
+
 ---
 
 # FMEA Brainstorm

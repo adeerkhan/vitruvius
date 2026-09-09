@@ -18,7 +18,8 @@ import { parseMachineVerdict, parseGroundTruth } from './verifier-parser.mjs';
 
 function scoreCase(caseFile, outputDir) {
 	const caseName = basename(caseFile, '.md');
-	const groundTruth = parseGroundTruth(caseFile);
+	const caseContent = readFileSync(caseFile, 'utf-8');
+	const groundTruth = parseGroundTruth(caseContent);
 	if (!groundTruth) {
 		console.error(`  ${caseName}: ERROR — no ground truth found`);
 		return null;

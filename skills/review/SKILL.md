@@ -8,7 +8,9 @@ description: >
   with a concrete revision plan.
 argument-hint: "<artifact to review>"
 allowed-tools: Write Edit Bash Read
-license: MIT
+license: MITmetadata:
+  version: "0.1.0"
+
 ---
 
 # Engineering Artifact Review

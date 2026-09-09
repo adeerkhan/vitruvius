@@ -9,7 +9,9 @@ description: >
   identifies issues, it does not sign off.
 argument-hint: "<artifact to review>"
 allowed-tools: Write Edit Bash Read
-license: MIT
+license: MITmetadata:
+  version: "0.1.0"
+
 ---
 
 # Engineering Peer Review

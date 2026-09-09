@@ -9,7 +9,9 @@ description: >
   search) and host-tool guidance. Do NOT use for standards/code research that
   has no scholarly layer.
 argument-hint: "<topic or paper identifier>"
-license: MIT
+license: MITmetadata:
+  version: "0.1.0"
+
 ---
 
 # Scholarly Research

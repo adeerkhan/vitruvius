@@ -5,6 +5,9 @@ description: >
   research method. One-shot display, not a persistent mode. Trigger:
   /vitruvius-help, "vitruvius help", "what vitruvius commands", "how do I use
   vitruvius".
+license: MIT
+metadata:
+  version: "0.1.0"
 ---
 
 # Vitruvius Help

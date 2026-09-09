@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/hero.png" width="820" alt="Vitruvius — the engineering research agent">
+  <img src="assets/hero.jpg" width="820" alt="Vitruvius — the engineering research agent">
 </p>
 
 <h1 align="center">Vitruvius</h1>
@@ -9,7 +9,11 @@
 </p>
 
 <p align="center">
-  <strong>5 disciplines. 24 skills. Zero fabricated sources.</strong>
+  <strong>5 disciplines. 24 skills. Blind verification with a scored benchmark.</strong>
+</p>
+
+<p align="center">
+  Verifier benchmark (20 adversarial cases, 5 disciplines): 65% correct verdicts, 0 false blocks, 2 false approvals — <a href="tasks/benchmark/RESULTS.md">published numbers</a>, not claims.
 </p>
 
 ## Why Vitruvius?
@@ -19,8 +23,9 @@ Vitruvius is an **engineering research agent** that runs a **discover → read �
 Unlike generic web search, Vitruvius:
 - **Reads sources directly** — never infers from titles or memory
 - **Never fabricates** — every claim traces to a checkable source
-- **Records provenance** — every output has a `.provenance.md` sidecar
+- **Records provenance** — every output has a schema-validated `.provenance.md` sidecar
 - **Flags uncertainty** — distinguishes `verified`, `inferred`, `blocked`, `unverified`
+- **Is measured** — the verifier runs against a scored adversarial benchmark; the numbers are published even when unflattering
 
 ## Research Loop
 

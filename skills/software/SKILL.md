@@ -10,7 +10,9 @@ description: >
   evidence landscape.
 argument-hint: "<research question> [--deep | --quick]"
 allowed-tools: Write Edit Bash
-license: MIT
+license: MITmetadata:
+  version: "0.1.0"
+
 ---
 
 # Software Engineering Research

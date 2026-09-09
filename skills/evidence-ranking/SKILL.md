@@ -8,7 +8,9 @@ description: >
   for final source selection — this skill scores evidence, the human decides.
 argument-hint: "<research question or evidence list>"
 allowed-tools: Write Edit Bash Read
-license: MIT
+license: MITmetadata:
+  version: "0.1.0"
+
 ---
 
 # Evidence Ranking

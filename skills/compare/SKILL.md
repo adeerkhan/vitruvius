@@ -8,7 +8,9 @@ description: >
   options, choose between products or methods, or see where sources disagree.
 argument-hint: "<what to compare>"
 allowed-tools: Write Edit Bash Read
-license: MIT
+license: MITmetadata:
+  version: "0.1.0"
+
 ---
 
 # Engineering Source Comparison

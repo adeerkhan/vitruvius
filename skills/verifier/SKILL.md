@@ -7,10 +7,16 @@ description: >
   fresh context, receives only question + evidence + conclusion, NO author
   reasoning. Blind mode is default for research outputs. Produces PASS /
   PARTIAL / BLOCKED with evidence trail. Default-FAIL: the verifier must find
-  specific reasons the conclusion could be wrong; PASS must be earned.
+  specific reasons the conclusion could be wrong; PASS must be earned. Use
+  when the user asks "is this right", "check this claim/calculation", or
+  wants a verdict on a specific number — locating a provision without
+  judging it is standards-lookup, weighing design options is
+  design-alternatives.
 argument-hint: "<claim or calculation> [--direct | --blind]"
-allowed-tools: Write Edit Bash Read
-license: MIT
+allowed-tools: Read Grep Glob Bash
+license: MITmetadata:
+  version: "0.1.0"
+
 ---
 
 # Engineering Verifier
@@ -62,7 +68,8 @@ Use when the user asks a focused verification question.
 
 ### Output (Direct)
 
-Save to `outputs/<slug>-verification.md`:
+Return the verification report in chat (the lead or user persists it to
+`outputs/<slug>-verification.md` — the verifier itself is read-only):
 
 - the claim as restated
 - the governing source (standard + section + edition, or URL/artifact)
@@ -131,9 +138,15 @@ Run these checks in order. For each, cite the specific evidence item or note its
 - Does the math hold?
 - Flag: `calculation_error`
 
-#### 6. Source-to-Claim Fidelity (Line-Pinned)
+#### 6. Source-to-Claim Fidelity (Line-Pinned, Bidirectional)
 - Pin each claim to a specific line in the source evidence.
 - Does the cited source actually support the specific claim at that line?
+- **No orphan citations:** every claim's citation maps to a listed source.
+- **No orphan sources:** every listed source is cited by at least one claim,
+  or explicitly marked "context only".
+- **Artifact sweep:** every number, figure, and table traces to a source,
+  research note, or raw artifact. Untraceable → remove or flag; a number
+  without provenance is noise, not evidence.
 - Flag: `synthesis_overreach` if conclusion outruns what sources support.
 
 #### 7. Conflict Check
@@ -176,6 +189,9 @@ MACHINE_VERDICT: <verdict> | FLAW: <flaw_type_or_none> | CONFIDENCE: <0.0-1.0> |
 - **NEVER present inferred claims as validated.** Mark `[inferred]`.
 - **NEVER let the blind verifier see the author's reasoning.**
 - **NEVER soften a BLOCKED into PARTIAL.**
+- **NEVER modify the artifact under review.** The verifier is a judge, not a
+  fixer — dispatch with read-only tools (no Write/Edit). Canonical role
+  definition: `agents/verifier.md`.
 
 ## Scope and Boundaries
 

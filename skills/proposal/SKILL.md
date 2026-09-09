@@ -6,10 +6,12 @@ description: >
   for Ph.D./Masters applications. Parses position postings (PDF/image/URL),
   researches professor/lab, identifies lab-specific gaps, and generates a
   targeted proposal with deep fit analysis. Wraps /gap-analysis,
-  /evidence-ranking, /verifier, and /humanizer as isolated subagents.
+  /evidence-ranking, /verifier as isolated subagents.
 argument-hint: "[--posting <path-or-url>] [--cv <path>] [--statement <path>] [--sample <path>]"
 allowed-tools: Write Edit Bash Read
-license: MIT
+license: MITmetadata:
+  version: "0.1.0"
+
 ---
 
 # Research Proposal Generator
@@ -226,7 +228,9 @@ Save to `proposal-draft.md`
 
 ### Phase 5 — Humanization (STRICT Isolation)
 
-**Dispatch `/humanizer` — receives ONLY:**
+**Dispatch a fresh isolated subagent (no skill exists for this — the lead
+performs the rewrite itself only if subagent dispatch is unavailable) with a
+plain-language tone pass prompt that receives ONLY:**
 - Path to proposal draft
 - Path to voice sample (if available)
 
@@ -309,7 +313,7 @@ projects/<student-slug>/
 |---------|--------|----------------------|
 | Subagent isolation | autoprompt-skill | Each phase runs in fresh context, hands off via files |
 | Non-negotiable boundaries | scientific-agent-skills | Hard "NEVER" rules enforced at every phase |
-| Voice matching | humanizer | Matches student's own writing style |
+| Voice matching | isolated tone-pass subagent | Matches student's own writing style |
 | Receipts reconciliation | autoprompt-skill | Every search/query logged in provenance |
 | Ledger-first audit | feynman | binder.provenance.md records every action |
 | Claim-vs-diff verification | autoprompt-skill | Verifier maps every claim to source line |

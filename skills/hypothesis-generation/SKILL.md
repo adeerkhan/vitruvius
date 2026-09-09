@@ -10,7 +10,9 @@ description: >
   selects.
 argument-hint: "<engineering observation or phenomenon>"
 allowed-tools: Write Edit Bash Read
-license: MIT
+license: MITmetadata:
+  version: "0.1.0"
+
 ---
 
 # Hypothesis Generation

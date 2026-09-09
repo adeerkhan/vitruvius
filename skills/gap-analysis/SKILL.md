@@ -8,10 +8,11 @@ description: >
   scholarly-research skill for source discovery and adds gap-specific
   methodology: narrow-query hit thresholds, cross-source triangulation, and
   structured dossier output. Do NOT use for non-engineering literature surveys
-  or when the user already has a specific gap in mind and wants it filled.
-argument-hint: "<discipline> <sub-topic> [--deep | --quick]"
+  or when the user already has a specific gap in mind and wants it filled.argument-hint: "<discipline> <sub-topic> [--deep | --quick]"
 allowed-tools: Write Edit Bash Read
-license: MIT
+license: MITmetadata:
+  version: "0.1.0"
+
 ---
 
 # Gap Analysis

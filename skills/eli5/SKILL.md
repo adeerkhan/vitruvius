@@ -7,7 +7,9 @@ description: >
   explanation of a technical/engineering topic, wants jargon removed, or asks
   what something technically dense actually means.
 argument-hint: "<engineering topic>"
-license: MIT
+license: MITmetadata:
+  version: "0.1.0"
+
 ---
 
 # Engineering Explain Like I'm 5

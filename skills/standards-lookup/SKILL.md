@@ -6,9 +6,14 @@ description: >
   provision from AISC, ACI, ASCE, IEEE, NFPA, ASME, AASTO, Eurocode, IBC, or
   other engineering standard. Selects the authoritative standard, locates the
   section, resolves conflicts between overlapping standards, and returns the
-  provision with enough provenance that another engineer can verify it. Do NOT
-  use for general engineering knowledge that has no specific standard backing.
+  provision with enough provenance that another engineer can verify it. Use
+  when locating and citing a provision is the job — judging whether a
+  provision supports a conclusion belongs to the verifier. Do NOT use for
+  general engineering knowledge that has no specific standard backing.
 argument-hint: "<standard or topic to look up>"
+license: MIT
+metadata:
+  version: "0.1.0"
 ---
 
 # Standards Lookup

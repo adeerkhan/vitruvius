@@ -48,14 +48,15 @@ If the answer to (1) is vague or (2) is "yes", reject the proposal.
 
 ## Research subagents
 
-Vitruvius ships four research roles (as subagents when the host supports them, otherwise performed by the lead agent):
+Vitruvius ships research roles (as subagents when the host supports them, otherwise performed by the lead agent):
 
-- `researcher` — evidence gathering
-- `writer` — synthesis
-- `verifier` — citations + source verification
-- `reviewer` — adversarial review
+- `researcher` - evidence gathering
+- `writer` - synthesis
+- `verifier` - citations + source verification (read-only: no Write/Edit — a judge, not a fixer)
+- `reviewer` - adversarial review (read-only: reports findings, never repairs)
+- `arbiter` - adjudicates verifier disagreement (no re-research)
 
-The source of truth for their behavior is `skills/engineering-research/SKILL.md` and its agent definitions. Do not duplicate those prompts in this file.
+The source of truth for their behavior is the canonical role definitions in `agents/` (`agents/researcher.md`, `agents/verifier.md`, `agents/reviewer.md`, `agents/arbiter.md`, `agents/writer.md`) and `skills/engineering-research/SKILL.md`. Do not duplicate those prompts in this file. OpenCode host adapters live in `.opencode/agent/` as thin copies.
 
 ## Integrity commandments (apply to every agent, every run)
 
@@ -80,12 +81,14 @@ The source of truth for their behavior is `skills/engineering-research/SKILL.md`
 Every skill's `SKILL.md` frontmatter MUST conform to the structural contract enforced by `scripts/validate-contract.mjs`:
 
 - **Allowed fields:** `name`, `description`, `license`, `compatibility`, `allowed-tools`, `argument-hint`, `metadata`. Anything else goes under `metadata`.
-- **Required fields:** `name`, `description`.
+- **Required fields:** `name`, `description`, `metadata.version`.
+- **Version bump discipline (N7):** any behavioral change to a skill MUST bump its `metadata.version` in the same change.
 - **Name matches directory:** The `name` field must equal the skill's directory name (e.g., `skills/gap-analysis/SKILL.md` has `name: gap-analysis`).
 - **allowed-tools format:** Space-separated string, no commas or arrays (e.g., `allowed-tools: Write Edit Bash`).
 - **Length limit:** SKILL.md must be ≤ 500 lines.
 - **No stray tests:** Tests belong in `tests/<skill-name>/`, not inside the skill directory.
-- **Local links resolve:** Any `references/`, `assets/`, or `scripts/` path referenced in the skill must exist on disk.
+- **Local links resolve:** Any `references/`, `assets/`, `scripts/`, or `agents/` path referenced in the skill must exist on disk.
+- **Skill references resolve:** Every `/skill-name` mentioned in a SKILL.md must be an actual skill in `skills/` (validated).
 
 ### Validation steps
 

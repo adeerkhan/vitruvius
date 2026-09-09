@@ -63,6 +63,9 @@ function collectFiles(dir) {
 		for (const entry of readdirSync(dir, { withFileTypes: true })) {
 			const fullPath = join(dir, entry.name);
 			if (entry.isDirectory()) {
+				// Hidden dirs (.plans, .drafts, .archive) are working/backup space,
+				// not checked artifacts
+				if (entry.name.startsWith(".")) continue;
 				files.push(...collectFiles(fullPath));
 			} else if (entry.isFile() && extname(entry.name) === ".md") {
 				files.push(fullPath);

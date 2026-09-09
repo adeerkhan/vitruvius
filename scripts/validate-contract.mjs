@@ -18,8 +18,14 @@ const ALLOWED_FRONTMATTER_FIELDS = new Set([
   "metadata",
 ]);
 
-const INLINE_PATH = /`((?:assets|references|scripts)\/[\w.\-/]+)`/g;
-const MARKDOWN_LINK = /\]\(((?:assets|references|scripts)\/[\w.\-/]+)\)/g;
+const INLINE_PATH = /`((?:assets|references|scripts|agents)\/[\w.\-/]+)`/g;
+const MARKDOWN_LINK = /\]\(((?:assets|references|scripts|agents)\/[\w.\-/]+)\)/g;
+// A skill mention: `/name` preceded by start/whitespace/backtick/bullet —
+// not a file-path segment (`./posting.pdf`, `/tmp/x`), not a URL path
+// (`/graph/v1/...` — followed by another `/`), not `§/line` shorthand.
+const SKILL_MENTION = /(?<=^|\s|`|[*\[(])\/([a-z][a-z0-9-]{2,})\b(?!\/)/g;
+const SKILL_MENTION_ALLOWED_PREFIX = new Set(["skill"]);
+const URL_SPAN = /https?:\/\/\S+/g;
 const PERSONAL_PATH = /\/mnt\/[a-z]\/Users|home|Users\/(?![<\$<]|\$\{?)([\w.-]+)\//g;
 
 const IMPERSONAL_ACCOUNTS = new Set([
@@ -85,6 +91,15 @@ function frontmatterProblems(skill) {
   if (values["allowed-tools"] && /[,[]/.test(values["allowed-tools"])) {
     problems.push(
       `${relative(SKILLS_DIR, skill)}: allowed-tools must be a space-separated string`,
+    );
+  }
+
+  // metadata.version is required (bump-on-change discipline lives in AGENTS.md)
+  const fmText = readFileSync(join(skill, "SKILL.md"), "utf-8").split("\n---", 2)[0];
+  const versionMatch = fmText.match(/^\s+version:\s*[\"']?([\w.-]+)/m);
+  if (!versionMatch) {
+    problems.push(
+      `${relative(SKILLS_DIR, skill)}: frontmatter missing \`metadata.version\` (expected a nested \`version:\` under \`metadata:\`)`,
     );
   }
 
@@ -163,13 +178,42 @@ function linkProblems(skill) {
   return problems;
 }
 
+function skillMentionProblems(skill, knownSkills) {
+  const problems = [];
+  const skillName = relative(SKILLS_DIR, skill);
+  let text;
+  try {
+    text = readFileSync(join(skill, "SKILL.md"), "utf-8");
+  } catch {
+    return problems;
+  }
+  // Strip inline code spans — `/verifier` inside backticks is what we want,
+  // but fenced blocks may contain shell paths like /usr/bin. Strip fences,
+  // keep inline code (that's where invocations live).
+  const noFences = text.replace(/```[\s\S]*?```/g, "");
+  for (const [i, rawLine] of noFences.split("\n").entries()) {
+    const line = rawLine.replace(URL_SPAN, "");
+    for (const m of line.matchAll(SKILL_MENTION)) {
+      const name = m[1];
+      if (knownSkills.has(name)) continue;
+      if (SKILL_MENTION_ALLOWED_PREFIX.has(name)) continue;
+      problems.push(
+        `${skillName}: SKILL.md:${i + 1} mentions \`/${name}\`, which is not a skill in skills/`,
+      );
+    }
+  }
+  return problems;
+}
+
 const skillDirs = [...allSkillNames()].map((n) => join(SKILLS_DIR, n));
+const knownSkills = new Set(skillDirs.map((s) => relative(SKILLS_DIR, s)));
 
 const CHECKS = {
   frontmatter: frontmatterProblems,
   skill_md_length: lengthProblems,
   no_tests_under_skills: strayTestProblems,
   local_links_resolve: linkProblems,
+  skill_references_resolve: (skill) => skillMentionProblems(skill, knownSkills),
 };
 
 let totalProblems = 0;

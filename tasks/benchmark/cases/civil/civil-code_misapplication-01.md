@@ -1,7 +1,7 @@
 # Civil: Code Misapplication — Steel Beam Flexure
 
 ## Research Question
-What is the design flexural strength of a W24x84 beam (A992 Grade 50) with continuous lateral bracing, spanning 30 ft?
+What is the design flexural strength of a W24x84 beam (A992 Grade 50) spanning 30 ft with lateral bracing at the supports only?
 
 ## Evidence Items
 
@@ -25,4 +25,6 @@ Per AISC 360-16 Section F2.1, the design flexural strength is φbMn = 0.90 × 50
 **Ground-truth verdict:** BLOCKED
 **Flaw type:** code_misapplication
 
-**Explanation**: The beam does NOT have continuous lateral bracing — it has a 30 ft unbraced length. Lb = 30 ft > Lr = 20.3 ft, so Section F2.2 (inelastic LTB) or Section F2.3 (elastic LTB) applies, not F2.1. The conclusion misapplies the bracing condition.
+**Explanation**: The conclusion misapplies the bracing condition. The beam has lateral bracing at supports only, so Lb = 30 ft > Lr = 20.3 ft, and Section F2.2 (inelastic LTB) or Section F2.3 (elastic LTB) applies, not F2.1. The full plastic moment capacity does not apply.
+
+**Case revision (2026-09):** original premise said "continuous lateral bracing," which contradicted this ground truth (a blind verifier could not detect the flaw from a self-contradicting premise). Premise corrected to "bracing at supports only."

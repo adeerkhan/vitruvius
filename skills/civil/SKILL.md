@@ -9,7 +9,9 @@ description: >
   engineering-research method with the civil evidence landscape.
 argument-hint: "<research question> [--deep | --quick]"
 allowed-tools: Write Edit Bash
-license: MIT
+license: MITmetadata:
+  version: "0.1.0"
+
 ---
 
 # Civil / Structural Engineering Research

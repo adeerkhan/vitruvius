@@ -3,3 +3,5 @@ node_modules/
 outputs/
 ref/
 .runs/
+.test-archive/
+tasks/benchmark/results/

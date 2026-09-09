@@ -8,6 +8,7 @@
 import { readFileSync, existsSync, readdirSync, statSync } from "node:fs";
 import { join, dirname, relative } from "node:path";
 import { fileURLToPath } from "node:url";
+import { readYamlFrontmatter, parseFrontmatter } from "../../scripts/yaml-frontmatter.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = join(__dirname, "..", "..");
@@ -21,15 +22,14 @@ export function readSkillMd(skillName) {
 
 export function readFrontmatter(skillName) {
   const text = readSkillMd(skillName);
-  if (!text || !text.startsWith("---\n")) return null;
-  const end = text.indexOf("\n---", 3);
-  if (end === -1) return null;
-  const fm = {};
-  for (const line of text.slice(4, end).split("\n")) {
-    const m = line.match(/^([A-Za-z][A-Za-z0-9_-]*):\s*(.*)$/);
-    if (m) fm[m[1]] = m[2].trim().replace(/^["']|["']$/g, "");
+  if (!text) return null;
+  const raw = readYamlFrontmatter(text);
+  if (raw === null) return null;
+  const parsed = parseFrontmatter(raw);
+  for (const k of Object.keys(parsed)) {
+    parsed[k] = parsed[k].replace(/^["']|["']$/g, "");
   }
-  return fm;
+  return parsed;
 }
 
 export function check(condition, message) {

@@ -11,7 +11,9 @@ description: >
   engineering-research method. Do NOT use for non-engineering research or for
   routine (non-research) engineering work.
 argument-hint: "<discipline or research question>"
-license: MIT
+license: MITmetadata:
+  version: "0.1.0"
+
 ---
 
 # Vitruvius

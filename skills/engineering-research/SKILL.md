@@ -13,7 +13,9 @@ description: >
   requests, calculations the user wants done inline).
 argument-hint: "<research question or artifact to review> [--deep | --quick]"
 allowed-tools: Write Edit Bash Read
-license: MIT
+license: MITmetadata:
+  version: "0.1.0"
+
 ---
 
 # Engineering Research
@@ -112,6 +114,20 @@ sidecar. Never end with chat-only output after plan approval.
 
 ## Step 1: Plan
 
+### Input Gate (all must hold before proceeding)
+
+1. The request is a research question, artifact review, or verification task —
+   not routine coding, a direct design request, or an inline calculation the
+   user wants performed.
+2. The question is stated specifically enough to derive a slug and evidence
+   needs. If it is too vague, ask ONE clarifying question, then proceed.
+3. The user's jurisdiction/edition context is known or the run will mark
+   edition-sensitive claims `partial`.
+4. File writes are available OR the File Write Fallback below is acceptable.
+
+If any gate fails, resolve it before writing the plan. Do not silently
+degrade — note the gate resolution in the plan's Decision log.
+
 Create `outputs/.plans/<slug>.md` immediately. The plan must include:
 
 - Key questions
@@ -208,6 +224,9 @@ If direct search was chosen:
 If subagents were chosen:
 
 - Write a per-researcher brief first (e.g. `outputs/.plans/<slug>-T1.md`).
+  Researcher subagents are dispatched from the canonical role definition in
+  `agents/researcher.md`; they write findings to their output file and return
+  a one-line summary.
 - Keep tool-call JSON small and valid; do not place multi-paragraph
   instructions inside the `subagent` JSON.
 - Always set `failFast: false`.
@@ -281,15 +300,17 @@ not a claim — it is noise.** Flag it.
 ## Step 5: Verify (Blind Verifier)
 
 After the cited brief exists, run the **Blind Verifier** as a subagent with
-FRESH context. This is mandatory for all non-trivial research. The verifier
-receives:
+FRESH context. This is mandatory for all non-trivial research. The role's
+canonical definition is `agents/verifier.md` — dispatch it with that file's
+content as the subagent prompt. The verifier receives:
 - The research question
 - The gathered evidence (with source locations)
 - The claimed conclusion
 
 It does **NOT** receive your reasoning chain — that separation is the point.
-Activate it via `/skill:verifier`. It returns PASS / PARTIAL / BLOCKED with
-an evidence trail and default-FAIL posture (it actively looks for flaws).
+It must have NO write/edit capability: the verifier reports, it never repairs.
+It returns PASS / PARTIAL / BLOCKED with an evidence trail and default-FAIL
+posture (it actively looks for flaws).
 
 If the verifier returns BLOCKED, fix the fatal issues and re-run. If PARTIAL,
 note the qualifications in Open Questions. Do not run the verifier and any
@@ -325,7 +346,7 @@ Keep the flat agent structure — escalation is conditional, not hierarchical.
 
 #### Arbiter Behavior
 
-The 3rd verifier (arbiter) receives:
+The 3rd verifier (arbiter) is dispatched from `agents/arbiter.md` and receives:
 - The original question and evidence
 - The two prior verdicts and their evidence trails
 - Instruction: "Two verifiers disagree. Review both trails and render a majority verdict."

@@ -9,7 +9,9 @@ description: >
   risks.
 argument-hint: "<what to audit>"
 allowed-tools: Write Edit Bash Read
-license: MIT
+license: MITmetadata:
+  version: "0.1.0"
+
 ---
 
 # Engineering Audit

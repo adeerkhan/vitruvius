@@ -8,7 +8,9 @@ description: >
   Do NOT use for single-solution design requests or routine calculations.
 argument-hint: "<problem statement with constraints>"
 allowed-tools: Write Edit Bash Read
-license: MIT
+license: MITmetadata:
+  version: "0.1.0"
+
 ---
 
 # Design Alternatives

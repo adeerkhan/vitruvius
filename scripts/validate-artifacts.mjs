@@ -63,17 +63,58 @@ function validateDraft(filePath) {
 	return problems;
 }
 
+// Verification labels — the 6-label F2 schema
+const VERIFICATION_LABELS = new Set([
+	"verified", "partial", "blocked", "unverified", "inferred", "failed",
+]);
+
 function validateProvenance(filePath) {
 	const problems = [];
 	const text = readFileSync(filePath, "utf-8");
 	const filename = basename(filePath);
 
-	// Check required fields
-	const requiredFields = ["Date", "Sources consulted", "Verification"];
+	// Required scalar fields
+	const requiredFields = ["Date", "Sources consulted", "Sources accepted", "Verification"];
 	for (const field of requiredFields) {
 		if (!text.includes(field)) {
-			problems.push(`${filename}: missing ${field}`);
+			problems.push(`${filename}: missing \`${field}\``);
 		}
+	}
+
+	// Verification verdict must use the 6-label schema
+	const verdictMatch = text.match(/\*\*Verification:\*\*\s*(\S+)/);
+	if (verdictMatch && !VERIFICATION_LABELS.has(verdictMatch[1].toLowerCase())) {
+		problems.push(
+			`${filename}: Verification value \`${verdictMatch[1]}\` is not one of ${[...VERIFICATION_LABELS].join("/")}`,
+		);
+	}
+
+	// Claim counts: at least one labeled claim count must be present
+	const claimCounts = [...text.matchAll(/\*\*Claims (\w+):\*\*\s*(\d+)/g)];
+	if (claimCounts.length === 0) {
+		problems.push(`${filename}: no \`Claims <label>:\` counts found (6-label schema requires them)`);
+	} else {
+		for (const [, label, count] of claimCounts) {
+			if (!VERIFICATION_LABELS.has(label.toLowerCase())) {
+				problems.push(`${filename}: claim label \`${label}\` is not one of ${[...VERIFICATION_LABELS].join("/")}`);
+			}
+			if (Number.isNaN(parseInt(count, 10))) {
+				problems.push(`${filename}: claim count for \`${label}\` is not a number`);
+			}
+		}
+		// Every claim must have a status: the sum of labeled counts must be >= 1
+		// and a run with zero verified+partial+inferred counts cannot claim success.
+		const sumLabeled = claimCounts
+			.filter(([, label]) => VERIFICATION_LABELS.has(label.toLowerCase()))
+			.reduce((s, [, , c]) => s + parseInt(c, 10), 0);
+		if (sumLabeled === 0 && !/Verification:\*\*\s*(BLOCKED|failed)/i.test(text)) {
+			problems.push(`${filename}: zero labeled claims but verdict is not BLOCKED/failed`);
+		}
+	}
+
+	// Provenance must point at its plan or say why there isn't one
+	if (!text.includes("Plan") && !text.includes("plan")) {
+		problems.push(`${filename}: missing Plan reference`);
 	}
 
 	return problems;
