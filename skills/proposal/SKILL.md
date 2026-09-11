@@ -9,7 +9,8 @@ description: >
   /evidence-ranking, /verifier as isolated subagents.
 argument-hint: "[--posting <path-or-url>] [--cv <path>] [--statement <path>] [--sample <path>]"
 allowed-tools: Write Edit Bash Read
-license: MITmetadata:
+license: MIT
+metadata:
   version: "0.1.0"
 
 ---

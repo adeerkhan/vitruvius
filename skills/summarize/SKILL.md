@@ -9,7 +9,8 @@ description: >
   caveats; never launders uncertainty.
 argument-hint: "<document to summarize>"
 allowed-tools: Write Edit Bash Read
-license: MITmetadata:
+license: MIT
+metadata:
   version: "0.1.0"
 
 ---

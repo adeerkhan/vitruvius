@@ -1,0 +1,5 @@
+# routing misses (rank-1), last run 2026-09-11: 16/20
+standards-lookup <- "what does ACI 318 say about the reduction factor for post-tensioned tendons" (got scholarly-research)
+gap-analysis <- "find research gaps in FRP bonding literature for civil structures" (got civil)
+design-alternatives <- "compare three design alternatives for this pressure vessel closure" (got compare)
+verifier <- "check my claimed weld size against the code requirement" (got audit)

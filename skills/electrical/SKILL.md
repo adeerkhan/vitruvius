@@ -9,7 +9,8 @@ description: >
   with the electrical evidence landscape.
 argument-hint: "<research question> [--deep | --quick]"
 allowed-tools: Write Edit Bash
-license: MITmetadata:
+license: MIT
+metadata:
   version: "0.1.0"
 
 ---

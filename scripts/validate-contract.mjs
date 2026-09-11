@@ -67,6 +67,18 @@ function frontmatterProblems(skill) {
   const entries = parseFrontmatterEntries(frontmatter);
   const keys = entries.map(([k]) => k);
 
+  // Values must be single clean tokens; a value containing a colon means two
+  // keys were merged onto one line (e.g. "license: MITmetadata:"), which the
+  // line-based parser silently swallows.
+  for (const [key, value] of entries) {
+    if (key === "description" || key === "compatibility") continue; // free text
+    if (value.includes(":") || /^\s/.test(value)) {
+      problems.push(
+        `${relative(SKILLS_DIR, skill)}: frontmatter key \`${key}\` has a malformed value \`${value}\` — likely two keys merged onto one line`,
+      );
+    }
+  }
+
   for (const key of keys) {
     if (!ALLOWED_FRONTMATTER_FIELDS.has(key)) {
       problems.push(

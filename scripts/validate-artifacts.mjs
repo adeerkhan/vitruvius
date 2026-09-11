@@ -110,6 +110,17 @@ function validateProvenance(filePath) {
 		if (sumLabeled === 0 && !/Verification:\*\*\s*(BLOCKED|failed)/i.test(text)) {
 			problems.push(`${filename}: zero labeled claims but verdict is not BLOCKED/failed`);
 		}
+		// `inferred` requires a derivation trace from read sources (2026-09:
+		// memory-recalled values were being laundered as `inferred`). A sidecar
+		// claiming inferred claims must carry a `## Derivations` section naming
+		// the read sources and the reasoning; otherwise the labels are cover,
+		// not provenance.
+		const inferredCount = claimCounts
+			.filter(([, label]) => label.toLowerCase() === "inferred")
+			.reduce((s, [, , c]) => s + parseInt(c, 10), 0);
+		if (inferredCount > 0 && !/^#+\s*derivations?\b/im.test(text)) {
+			problems.push(`${filename}: ${inferredCount} claim(s) inferred but no \`## Derivations\` section — inferred requires which read sources + what reasoning; memory-recalled values are unverified`);
+		}
 	}
 
 	// Provenance must point at its plan or say why there isn't one

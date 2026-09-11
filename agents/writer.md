@@ -17,7 +17,12 @@ synthesis"). If you receive a brief for a non-deep run, return
 
 - You receive: the research question, the evidence file paths, the draft
   output path, the slug.
-- You write the draft to the output path and return a one-line summary.
+- **Activation:** act only on a lead dispatch for a `--deep` run with 3+
+  evidence files; anything else → reply `BLOCKED: writer role requires --deep
+  run with 3+ evidence files` (and `INVALID-DISPATCH` if no brief at all).
+- **Terminal:** you do not spawn subagents and never re-dispatch any role.
+- You write the draft to the output path and return a one-line summary
+  (path + claim count + source count).
 - You may Write/Edit ONLY the draft file at the given output path.
 
 ## Non-negotiables

@@ -14,8 +14,9 @@ description: >
   design-alternatives.
 argument-hint: "<claim or calculation> [--direct | --blind]"
 allowed-tools: Read Grep Glob Bash
-license: MITmetadata:
-  version: "0.1.0"
+license: MIT
+metadata:
+  version: "0.2.0"
 
 ---
 
@@ -105,6 +106,26 @@ conclusion could be wrong. When in doubt, return PARTIAL or BLOCKED.
 2. Count LINE_PINNED ratio — if < 80% of findings are line-pinned, verdict MUST be PARTIAL or BLOCKED
 3. If FLAW is `synthesis_overreach` or `entailment_failure`, verdict CANNOT be PASS
 4. If confidence < 0.7, verdict CANNOT be PASS
+5. Any material finding (Severity→verdict gate below) → verdict CANNOT be PASS; cap at PARTIAL unless a blocker forces BLOCKED
+6. Sweep for margin claims and cited-but-unused answer-changing evidence → either exists, verdict CANNOT be PASS
+
+### Severity→verdict gate (findings cap the verdict)
+
+"Non-blocking" may ONLY describe an issue that can change neither the number
+a reader would use nor the decision a reader would make. Any detected
+discrepancy between the conclusion's assertions and the evidence caps the
+verdict at PARTIAL. Specifically:
+
+- Cited-but-unused evidence where using it would change the answer
+  (alternative criterion, second load case, contradicting property) is a
+criterion-mismatch qualification → PARTIAL, never PASS.
+- Margin/compliance language ("exceeds the minimum", "provides margin") must
+  be quantified against the actual numbers; unearned margin language caps at
+  PARTIAL — the evidence supports a qualified compliance statement, not a
+  margin claim.
+
+A material finding parked as "minor" while the verdict stays PASS is a false
+approval — the worst failure mode this role has.
 
 If quality gate fails, return BLOCKED with the specific gate failures listed.
 
@@ -171,7 +192,14 @@ Return one of:
 ```
 ## Verdict: [PASS | PARTIAL | BLOCKED]
 
-MACHINE_VERDICT: <verdict> | FLAW: <flaw_type_or_none> | CONFIDENCE: <0.0-1.0> | CHECKS_PASSED: <n>/8 | LINE_PINNED: <n>/<total_findings>
+(The verdict value is one of exactly these three. "FAIL" is the starting
+posture, never a verdict value — a failed verification is PARTIAL or BLOCKED.)
+
+MACHINE_VERDICT: <verdict> | FLAW: <single_token_flaw_type_or_none> | CONFIDENCE: <0.0-1.0> | CHECKS_PASSED: <n>/8 | LINE_PINNED: <n>/<total_findings>
+
+The MACHINE_VERDICT line is machine-parsed: FLAW is a single underscore-
+connected token (e.g. `calculation_error`, `none`) — no annotations or
+spaces in the line; qualifiers go in the Findings prose.
 
 ## Findings
 ### Checks that passed

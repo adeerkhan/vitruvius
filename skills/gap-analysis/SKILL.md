@@ -10,7 +10,8 @@ description: >
   structured dossier output. Do NOT use for non-engineering literature surveys
   or when the user already has a specific gap in mind and wants it filled.argument-hint: "<discipline> <sub-topic> [--deep | --quick]"
 allowed-tools: Write Edit Bash Read
-license: MITmetadata:
+license: MIT
+metadata:
   version: "0.1.0"
 
 ---

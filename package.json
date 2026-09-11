@@ -53,7 +53,7 @@
     "test:design": "node tests/design-alternatives/test-design-alternatives.mjs",
     "test:fmea": "node tests/fmea-brainstorm/test-fmea-brainstorm.mjs",
     "test:verifier": "node tests/verifier/test-verifier.mjs",
-    "benchmark": "node scripts/score-benchmark.mjs",
+    "benchmark": "node scripts/score-benchmark.mjs tasks/benchmark/results tasks/benchmark/cases",
     "test:routing": "node tests/routing/eval-routing.mjs"
   },
   "pi": {

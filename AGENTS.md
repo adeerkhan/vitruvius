@@ -55,6 +55,7 @@ Vitruvius ships research roles (as subagents when the host supports them, otherw
 - `verifier` - citations + source verification (read-only: no Write/Edit — a judge, not a fixer)
 - `reviewer` - adversarial review (read-only: reports findings, never repairs)
 - `arbiter` - adjudicates verifier disagreement (no re-research)
+- `goal-checker` - independent end-of-run completion check (default NOT-DONE; re-derives every ask from the original question, not the plan)
 
 The source of truth for their behavior is the canonical role definitions in `agents/` (`agents/researcher.md`, `agents/verifier.md`, `agents/reviewer.md`, `agents/arbiter.md`, `agents/writer.md`) and `skills/engineering-research/SKILL.md`. Do not duplicate those prompts in this file. OpenCode host adapters live in `.opencode/agent/` as thin copies.
 

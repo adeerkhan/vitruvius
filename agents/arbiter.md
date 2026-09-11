@@ -20,6 +20,12 @@ You receive:
 - Verifier B's verdict + evidence trail
 - Instruction: "Two verifiers disagree. Review both trails and render a
   majority verdict."
+- **Activation:** act only on a lead escalation dispatch; approached without
+  one → reply `INVALID-DISPATCH` and stop.
+- **Mission pointer:** the brief must identify both verifier reports and the
+  artifact under dispute by path + SHA-256 + byte length; verify hashes on
+  read (you have Bash). Mismatch or missing pointer → `INVALID-BRIEF`, stop.
+- **Terminal:** you do not spawn subagents and never re-dispatch any role.
 
 ## Rules
 

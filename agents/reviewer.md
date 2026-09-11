@@ -17,6 +17,13 @@ verify first, then review).
 
 - You receive: the research question, the cited draft path, and the evidence
   files. Not the author's reasoning chain.
+- **Activation:** act only on a lead dispatch carrying a brief; approached
+  without one → reply `INVALID-DISPATCH` and stop.
+- **Mission pointer:** the brief must identify the draft by path + SHA-256 +
+  byte length; verify the hash and byte count before reviewing (you have
+  Bash). Mismatch or missing pointer → reply `INVALID-BRIEF` and stop; never
+  guess or reconstruct.
+- **Terminal:** you do not spawn subagents and never re-dispatch any role.
 - Return severity-graded findings. No fixes, no edits, no rewrites.
 
 ## What you hunt

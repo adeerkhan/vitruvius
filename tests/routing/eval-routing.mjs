@@ -11,7 +11,7 @@
  * Exit 1 on any collision or routing miss.
  */
 
-import { readFileSync, readdirSync, statSync } from "node:fs";
+import { readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -137,6 +137,10 @@ const routingCases = [
   { prompt: "find prior academic work on retraction-aware paper ranking", skill: "scholarly-research" },
   { prompt: "check my claimed weld size against the code requirement", skill: "verifier" },
   { prompt: "research wind loading on long-span bridges for my survey", skill: "civil" },
+  { prompt: "research bearing selection and power transmission for my gearbox design", skill: "mechanical" },
+  { prompt: "research motor drives and power systems for this grid-tied installation", skill: "electrical" },
+  { prompt: "research facade and enclosure systems for my building science survey", skill: "architectural" },
+  { prompt: "investigate the technical landscape and architecture options for this software system", skill: "software" },
 ];
 
 const idf = new Map();
@@ -159,6 +163,7 @@ const skillVecs = skills.map((s) => ({ name: s.name, v: tfidfVec(s.tokens) }));
 
 console.log("\nCheck 2 — prompt routing (rank-1 must hit labeled skill):");
 let hits = 0;
+const misses = [];
 for (const c of routingCases) {
   const qv = tfidfVec(tokenize(c.prompt));
   const ranked = skillVecs
@@ -168,10 +173,17 @@ for (const c of routingCases) {
   const ok = top.name === c.skill;
   if (ok) hits++;
   else {
+    misses.push(`${c.skill} <- "${c.prompt}" (got ${top.name})`);
     console.log(`  MISS: "${c.prompt.slice(0, 50)}..." → got ${top.name}, want ${c.skill}`);
   }
 }
 console.log(`  rank-1: ${hits}/${routingCases.length}`);
+
+// Persist misses so run-over-run drift is visible in git diff.
+writeFileSync(
+  join(__dirname, "last-misses.txt"),
+  `# routing misses (rank-1), last run ${new Date().toISOString().split("T")[0]}: ${hits}/${routingCases.length}\n${misses.length ? misses.join("\n") + "\n" : ""}`,
+);
 
 // Baseline floor (2026-09 first measured run: 12/16). Raise only with a
 // recorded better run and sharpened descriptions — never lower.

@@ -8,7 +8,8 @@ description: >
   on more than one page or section. Teaches the agent HOW to read this stuff:
   parse, anchor to locations, cross-check, and record provenance.
 argument-hint: "<document(s) to read>"
-license: MITmetadata:
+license: MIT
+metadata:
   version: "0.1.0"
 
 ---

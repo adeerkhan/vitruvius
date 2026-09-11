@@ -9,7 +9,8 @@ description: >
   requiring quantitative probability data or regulatory submission.
 argument-hint: "<system or component description>"
 allowed-tools: Write Edit Bash Read
-license: MITmetadata:
+license: MIT
+metadata:
   version: "0.1.0"
 
 ---

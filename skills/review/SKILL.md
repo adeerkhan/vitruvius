@@ -8,7 +8,8 @@ description: >
   with a concrete revision plan.
 argument-hint: "<artifact to review>"
 allowed-tools: Write Edit Bash Read
-license: MITmetadata:
+license: MIT
+metadata:
   version: "0.1.0"
 
 ---

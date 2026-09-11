@@ -5,3 +5,5 @@ ref/
 .runs/
 .test-archive/
 tasks/benchmark/results/
+tasks/benchmark/*results*/
+docs/

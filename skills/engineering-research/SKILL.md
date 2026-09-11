@@ -13,8 +13,9 @@ description: >
   requests, calculations the user wants done inline).
 argument-hint: "<research question or artifact to review> [--deep | --quick]"
 allowed-tools: Write Edit Bash Read
-license: MITmetadata:
-  version: "0.1.0"
+license: MIT
+metadata:
+  version: "0.2.0"
 
 ---
 
@@ -56,31 +57,11 @@ tool calls that create the plan artifact.
 
 ## Context Management
 
-To minimize API turns and context pressure:
-
-1. **Write research notes to disk AFTER each search batch**
-   - Don't accumulate search results in working memory
-   - Extract what you need, write to `outputs/.drafts/<slug>-research-<scope>.md`, move on
-
-2. **Read plans before continuing**
-   - After interruption, re-read `outputs/.plans/<slug>.md` to restore context
-   - Re-read your own research notes before drafting
-
-3. **Bounded web searches**
-   - Maximum 3-5 search queries per research phase
-   - Extract findings to disk, then search again if needed
-   - Don't loop on search — if 3 queries don't find it, mark `blocked`
-
-4. **Progressive refinement**
-   - First pass: plan + key sources (5-8 turns)
-   - Second pass: draft from notes (5-8 turns)
-   - Third pass: verify + provenance (5-8 turns)
-   - Total target: 15-20 turns (not 25+)
-
-5. **Token budget awareness**
-   - See `references/token-budgets.md` for per-skill budgets
-   - Default to quick/direct mode unless user asks for comprehensive
-   - If approaching 80% of budget, deliver partial output with explanation
+Write research notes to disk after each search batch (extract findings to
+`outputs/.drafts/<slug>-research-<scope>.md`, don't accumulate in working
+memory). Bounded searches: 3–5 queries per phase, then extract to disk and
+re-search; 3 failed queries = mark `blocked`. Re-read plans and notes after
+interruption. Full practice: `references/context-management.md`.
 
 ## Required Artifacts
 
@@ -412,6 +393,24 @@ otherwise `outputs/.drafts/<slug>-cited.md`.
 
 ## Step 7: Deliver
 
+### GOAL-CHECK gate (mandatory before copying to `outputs/`)
+
+Dispatch the `goal-checker` role (`agents/goal-checker.md`) with: the original
+research question verbatim, the final candidate path (+ SHA-256 + byte count),
+the provenance sidecar path, and the plan path. In `--quick` mode, run the
+tri-axis check inline in the same format and say so in the provenance notes.
+
+Default NOT-DONE: every ask re-derived from the original question must be
+delivered (`scope=pass prompt=pass flaws=0`, non-empty `ran=`). Any NOT-DONE
+goes back to the responsible step to repair the named items only — retain all
+accepted evidence and verifier results; do not redo the run. A second
+NOT-DONE on the same axis: deliver honestly with the unmet asks listed, never
+silently. Record in the provenance notes:
+
+```
+GOAL-CHECK: E2E: scope=<pass|gap> prompt=<pass|gap> flaws=<n> ran=<phrase>
+```
+
 Copy the final candidate to `outputs/<slug>.md` (or `papers/<slug>.md` for
 paper-style artifacts). Write provenance next to it as `<slug>.provenance.md`:
 
@@ -460,7 +459,7 @@ echo '<ledger_json>' | node scripts/log-run.mjs
 | **partial** | Directionally correct but needs qualification (edition, jurisdiction, condition) | Source supports general direction but not exact number/scope |
 | **blocked** | Source unreachable (paywall, dead link) or unverifiable | Never guess at contents — cite from metadata |
 | **unverified** | Default state — claim not yet checked | Every claim starts here; sweep at delivery |
-| **inferred** | Logical deduction from verified sources, not directly stated | Mark explicitly as inference, not fact |
+| **inferred** | Logical deduction from **read** sources with a stated derivation trace | Mark explicitly as inference, not fact. `inferred` REQUIRES a derivation: which read sources + what reasoning. A value recalled from memory or training — however "typical" — is never `inferred`; it is `unverified` (or omitted). Industry-typical numeric ranges without a cited source are `unverified` |
 | **failed** | Source contradicts the claim | Fix the claim or find better source |
 
 Before responding, verify on disk that all required artifacts exist. If
