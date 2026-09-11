@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync, statSync } from "node:fs";
+import { readdirSync, readFileSync, statSync, existsSync } from "node:fs";
 import { join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 import { readYamlFrontmatter, parseFrontmatterEntries } from "./yaml-frontmatter.mjs";
@@ -254,6 +254,24 @@ try {
 for (const required of ["name", "version", "description", "license"]) {
   if (!pkg[required]) {
     console.error(`FAIL: package.json missing \`${required}\``);
+    process.exit(1);
+  }
+}
+
+// Plugin manifest version must match package.json (single release version;
+// skill-level versions are per-skill metadata, per AGENTS.md N7)
+const manifestPath = join(REPO_ROOT, ".claude-plugin", "plugin.json");
+if (existsSync(manifestPath)) {
+  try {
+    const manifest = JSON.parse(readFileSync(manifestPath, "utf-8"));
+    if (manifest.version !== pkg.version) {
+      console.error(
+        `FAIL: .claude-plugin/plugin.json version ${manifest.version} does not match package.json version ${pkg.version} — bump both together`,
+      );
+      process.exit(1);
+    }
+  } catch {
+    console.error("FAIL: .claude-plugin/plugin.json invalid JSON");
     process.exit(1);
   }
 }

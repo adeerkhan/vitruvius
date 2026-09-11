@@ -22,7 +22,13 @@ The endurance limit is Se = 2.70(160)^(-0.265) × 0.879 × 0.814 × 0.5(160) = 0
 
 ---
 
-**Ground-truth verdict:** PASS
-**Flaw type:** none
+**Ground-truth verdict:** PARTIAL
+**Flaw type:** calculation_error
 
-**Explanation**: The calculation is correct. The Marin factors are properly applied, the stress is correctly computed, and the conclusion that infinite life applies (σ < Se) is sound. This is a PASS case to test false block rate.
+**Case revision (2026-09, Run 2 post-analysis):** original ground truth said
+PASS ("the calculation is correct") while the claimed conclusion states
+ka = 2.70(160)^(-0.265) = 0.897 — not reproducible from the stated formula
+and input (160^-0.265 ≈ 0.261, so ka ≈ 0.704, Se ≈ 40.3 ksi). The Run 2
+verifier's re-derivation catch was CORRECT; the ground truth was wrong.
+Revised to PARTIAL: the infinite-life verdict is robust (5.1 ksi << 40.3
+ksi), but the artifact carries a wrong Se value a reader would carry forward.

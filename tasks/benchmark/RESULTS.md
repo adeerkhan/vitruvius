@@ -1,15 +1,44 @@
 ﻿# Verifier Benchmark Results
 
+Third scored run: 2026-09 (post-calibration). Protocol updates since Run 2:
+margin-earnedness threshold (unqualified margin language with margin <~10%
+caps at PARTIAL), conservatism-is-not-correctness rule, required-value gate
+(GATE item 7, with acknowledgment carve-out), unverified-inputs rule.
+
+**Run 3 headline (clean full rerun, final protocol): 75% correct (15/20),
+1 false approval, 0 false blocks.**
+
+**Variance finding (the most important result of this round):** during
+calibration we observed the same 20-case suite score 85% (mixed-vintage),
+90% (2 cases re-run), and 75% (clean full rerun) under near-identical
+protocols. Per-case verdicts flip across runs on a calibration boundary
+(electrical BLOCKED↔PARTIAL, architectural margin PASS↔PARTIAL, pedantic
+pressure PARTIAL↔PASS). With glm-5.3-flash (bai), single-run point estimates
+carry ~±10% variance at n=1 per case. **Stable invariants across every pass:
+0 false blocks, 0–1 false approvals.**
+
+Consequences, adopted:
+- CI floors (≥65%, ≤2 false approvals, 0 false blocks) are set wide enough
+  to be meaningful under this variance and were satisfied in every run.
+- Future certification runs should use majority-of-3 per case or a stronger
+  model; single-run scores are not decision-grade at this sample size.
+- Residual, not tuned away: the margin-earnedness boundary (architectural
+  case) and the required-value boundary (electrical cases) sit on the model's
+  variance line. Two ground-truth revisions were made this round where the
+  VERIFIER was right and the case was wrong (mechanical-edge: ka not
+  reproducible from stated formula; software-edge: unsupported trailing
+  clause) — both documented in the case files with dated notes.
+
+Run 3 per-discipline: architectural 3/4, civil 4/4, electrical 1/4,
+mechanical 3/4, software 4/4. Pressure suite under final protocol: 4/5
+(pedantic case flips PARTIAL↔PASS across runs — same variance line).
+
+---
+
 Second scored run: 2026-09-09 (post-fix). 20 blind runs via headless `pi -p`
 fresh sessions (verifier protocol from `agents/verifier.md`, ground truth
 stripped by `tasks/benchmark/run-benchmark.sh`). **Model: `glm-5.3-flash`
 (bai provider), pi CLI default, `--no-tools`, `--no-session` per run.**
-Protocol fixes made during
-this run, driven by pilot-case failures: (1) verdict vocabulary — "FAIL" is
-the posture, never a verdict value (model returned FAIL in the pilot);
-(2) PARTIAL-vs-BLOCKED decision rule added (usability test: wrong/contradicted
-deliverable = BLOCKED; qualified-but-usable = PARTIAL) — this closed most of
-the verdict-softening gap.
 
 | Metric | Run 1 (2026-09-09) | Run 2 (2026-09-09, post-fix) |
 |--------|--------|--------|

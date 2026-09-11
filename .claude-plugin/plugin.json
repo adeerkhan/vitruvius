@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "vitruvius",
+  "description": "The engineering research agent: discover, read, synthesize, verify, review — with blind verification, a scored benchmark, and auditable provenance.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Adeer Khan",
+    "url": "https://github.com/adeerkhan"
+  },
+  "homepage": "https://github.com/adeerkhan/vitruvius",
+  "repository": "https://github.com/adeerkhan/vitruvius",
+  "license": "MIT",
+  "keywords": [
+    "engineering",
+    "research",
+    "verification",
+    "provenance",
+    "civil",
+    "mechanical",
+    "electrical",
+    "architectural",
+    "software"
+  ],
+  "skills": [
+    "./skills"
+  ]
+}

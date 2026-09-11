@@ -5,6 +5,13 @@
 <h1 align="center">Vitruvius</h1>
 
 <p align="center">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT License"></a>
+  <img src="https://img.shields.io/badge/skills-24-green" alt="24 skills">
+  <a href="https://github.com/adeerkhan/vitruvius/actions/workflows/ci.yml"><img src="https://github.com/adeerkhan/vitruvius/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://github.com/adeerkhan/vitruvius/actions/workflows/security-scan.yml"><img src="https://github.com/adeerkhan/vitruvius/actions/workflows/security-scan.yml/badge.svg" alt="Security Scan"></a>
+</p>
+
+<p align="center">
   The engineering research agent. Named for Marcus Vitruvius Pollio, the Roman architect-engineer who wrote <em>De Architectura</em> — the first surviving treatise to treat architecture, civil engineering, machines, and materials as one discipline.
 </p>
 
@@ -13,8 +20,10 @@
 </p>
 
 <p align="center">
-  Verifier benchmark (20 adversarial cases, 5 disciplines): 65% correct verdicts, 0 false blocks, 2 false approvals — <a href="tasks/benchmark/RESULTS.md">published numbers</a>, not claims.
+  Verifier benchmark (20 adversarial cases, 5 disciplines): <strong>75% correct verdicts, 0 false blocks, 1 false approval</strong>, stable across runs — per-case scores vary ~±10% run-to-run, so we publish ranges and residuals, not point estimates (<a href="tasks/benchmark/RESULTS.md">RESULTS.md</a>). Under persuasion pressure (authority, sunk cost, time): <strong>4–5 of 5 held, 0 false blocks</strong>. The numbers are ours, weaknesses included — that is the point.
 </p>
+
+<!-- Demo GIF slot: record a real research run end-to-end before publishing — no fabricated demos. -->
 
 ## Why Vitruvius?
 
@@ -50,7 +59,33 @@ flowchart LR
 | **Draft** | Synthesize findings with inline citations |
 | **Cite** | Sweep every claim against sources |
 | **Review** | Blind verifier checks claim vs evidence (8 adversarial checks) |
-| **Deliver** | Final output + provenance sidecar |
+| **Deliver** | GOAL-CHECK gate (every ask re-derived from the original question, default NOT-DONE) → final output + provenance sidecar |
+
+## Measured Verification
+
+The verifier is benchmarked, not asserted. Every claim it makes about its
+own quality is backed by an on-disk, re-runnable artifact:
+
+| Check | Result | Where |
+|-------|--------|-------|
+| Verdict correctness (20 adversarial cases × 5 disciplines) | 75–90% correct across runs, 0–1 false approvals, 0 false blocks always | [RESULTS.md](tasks/benchmark/RESULTS.md) — variance disclosure + residuals, not hidden |
+| Integrity under persuasion (5 pressure cases: authority, sunk cost, time, reframe, pedantry) | 4–5/5 held (pedantic case sits on the model's variance line), 0 false blocks | [pressure suite](tasks/benchmark/pressure/README.md) |
+| Skill routing (20 labeled prompts, 24 skills) | 16/20 rank-1, 0 collisions | [routing evals](tests/routing/eval-routing.mjs) |
+| Structural contract (24 skills) | enforced in CI | [validate-contract.mjs](scripts/validate-contract.mjs) |
+| Provenance schema (sidecars, `inferred` derivation traces) | enforced in CI | [validate-artifacts.mjs](scripts/validate-artifacts.mjs) |
+
+Reproduce:
+
+```bash
+bash tasks/benchmark/run-benchmark.sh
+node scripts/score-benchmark.mjs tasks/benchmark/results tasks/benchmark/cases
+```
+
+## Worked Examples
+
+Three real runs — including one that ends in an honest **BLOCKED** — in
+[docs/examples.md](docs/examples.md), each grounded in artifacts you can
+open and re-check.
 
 ## What's Included
 

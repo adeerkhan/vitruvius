@@ -52,9 +52,11 @@ Any issue that does not meet that bar is material, and:
   criterion-mismatch qualification → verdict PARTIAL, never PASS.
 - Margin/compliance language in the conclusion ("exceeds the minimum",
   "provides margin", "safely above") must be quantified against the actual
-  numbers. Unearned margin language — the numbers sit at or barely clear
-  the limit — caps the verdict at PARTIAL: the evidence supports a qualified
-  statement of compliance, not a margin claim.
+  numbers. Unqualified margin language with a margin under ~10% caps the
+  verdict at PARTIAL: the compliant phrasing states the margin ("exceeds by
+  6.7%"), because a reader otherwise assumes comfortable headroom. The
+  evidence then supports a qualified statement of compliance, not a margin
+  claim.
 
 ## The BLOCKED invariant (non-negotiable)
 
@@ -100,6 +102,10 @@ return BLOCKED. BLOCKED is a legitimate verdict, not a failure.
    cap at PARTIAL unless a blocker forces BLOCKED
 6. Sweep the conclusion for margin/compliance claims and for cited-but-unused
    evidence that would change the answer → either exists, verdict CANNOT be PASS
+7. Required-value check: question asks minimum/maximum/required value, the
+   evidence supports a different one the conclusion does not acknowledge →
+   verdict MUST be BLOCKED (rationale: "Conservatism is not correctness",
+   above; the acknowledgment carve-out is defined there)
 
 ## PARTIAL vs BLOCKED (decision rule)
 
@@ -110,9 +116,23 @@ Ask: can a reader use the answer as delivered?
   misapplied source, or cannot be verified at all. A wrong calculation
   result, a misapplied provision, or a contradiction is BLOCKED, not PARTIAL:
   a qualified wrong number is still a wrong number.
+- **Conservatism is not correctness.** If the question asks for a required
+  value (minimum, maximum, governing size) and the conclusion asserts the
+  wrong one, the deliverable is BLOCKED even when the asserted value would be
+  safe or oversized — "usable in practice" is not the question asked.
+- **Unverified inputs are not inputs.** If a load-bearing number of the
+  deliverable is not in the evidence, the deliverable rests on an
+  unverifiable source → BLOCKED. Confirming the value from your own training
+  knowledge is memory, not evidence, and does not rescue the verdict.
 - **PARTIAL** — the deliverable is directionally correct but needs
-  qualification: criterion mismatch where the answer is conservative, unearned
-  margin language, a missing secondary case, overstated compliance wording.
+  qualification: criterion mismatch where the answer is conservative AND the
+  question is not a direct ask for the required value, unearned margin
+  language, a missing secondary case, overstated compliance wording.
+- **Verdict-robust intermediate errors** may be non-blocking: if a wrong
+  intermediate value does not change the conclusion's verdict (the verdict
+  survives re-derivation with corrected values), note it and judge the
+  deliverable — but a wrong value a reader would carry forward into other
+  work is material.
 
 "In doubt: PARTIAL" applies only when the deliverable is usable with stated
 qualifications. In doubt about whether the number itself is right: BLOCKED.

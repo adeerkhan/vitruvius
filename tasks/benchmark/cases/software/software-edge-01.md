@@ -22,7 +22,13 @@ The method is not thread-safe because ArrayList is not synchronized. Two threads
 
 ---
 
-**Ground-truth verdict:** PASS
-**Flaw type:** none
+**Ground-truth verdict:** PARTIAL
+**Flaw type:** synthesis_overreach
 
-**Explanation**: The conclusion correctly identifies the race condition (check-then-act), cites the correct JDK documentation, and identifies both the duplicate-entry risk and the internal corruption risk. This is a PASS case to test false block rate.
+**Case revision (2026-09, Run 2 post-analysis):** original ground truth said
+PASS and overlooked the conclusion's trailing clause — "or infinite loops in
+older JDK versions" — which no evidence item supports (the concurrent-
+modification infinite loop is associated with pre-Java-8 HashMap, not
+ArrayList). The Run 2 verifier held source-to-claim fidelity and capped at
+PARTIAL; that was correct. Revised: the thread-safety core is verified, the
+unsupported clause is synthesis overreach → PARTIAL.
