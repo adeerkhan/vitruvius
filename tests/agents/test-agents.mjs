@@ -29,7 +29,7 @@ function read(p) {
   return existsSync(p) ? readFileSync(p, "utf-8") : null;
 }
 
-const ROLES = ["researcher", "writer", "verifier", "reviewer", "arbiter", "goal-checker"];
+const ROLES = ["researcher", "writer", "verifier", "reviewer", "arbiter", "goal-checker", "habit"];
 
 // --- 1. Canonical agent files exist with N11 contracts ---
 for (const role of ROLES) {
@@ -50,6 +50,7 @@ const judgeToolBounds = {
   reviewer: /NO Write, NO Edit/i,
   arbiter: /NO Write, NO Edit/i,
   "goal-checker": /NO Write, NO Edit/i,
+  habit: /NO Write, NO Edit/i,
 };
 for (const [role, pattern] of Object.entries(judgeToolBounds)) {
   const text = read(join(AGENTS_DIR, `${role}.md`)) ?? "";

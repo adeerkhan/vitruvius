@@ -56,8 +56,9 @@ Vitruvius ships research roles (as subagents when the host supports them, otherw
 - `reviewer` - adversarial review (read-only: reports findings, never repairs)
 - `arbiter` - adjudicates verifier disagreement (no re-research)
 - `goal-checker` - independent end-of-run completion check (default NOT-DONE; re-derives every ask from the original question, not the plan)
+- `habit` - durable research-preference extraction (read-only, abstention-first; proposes compact candidates, never applies them)
 
-The source of truth for their behavior is the canonical role definitions in `agents/` (`agents/researcher.md`, `agents/verifier.md`, `agents/reviewer.md`, `agents/arbiter.md`, `agents/writer.md`) and `skills/engineering-research/SKILL.md`. Do not duplicate those prompts in this file. OpenCode host adapters live in `.opencode/agent/` as thin copies.
+The source of truth for their behavior is the canonical role definitions in `agents/` (`agents/researcher.md`, `agents/verifier.md`, `agents/reviewer.md`, `agents/arbiter.md`, `agents/writer.md`, `agents/habit.md`) and `skills/engineering-research/SKILL.md`. Do not duplicate those prompts in this file. OpenCode host adapters live in `.opencode/agent/` as thin copies.
 
 ## Integrity commandments (apply to every agent, every run)
 
@@ -120,6 +121,7 @@ When modifying an existing skill:
 - Verification: `<slug>-verification.md`
 - Final output: `outputs/<slug>.md` or `papers/<slug>.md`
 - Provenance: `<slug>.provenance.md` (next to the final output)
+- Habit ledger: `outputs/.habits/<slug>.json` plus `.provenance.md` sidecar (never an `AGENTS.md` write)
 
 Never use generic names like `research.md`, `draft.md`, or `brief.md`. Concurrent runs must not collide.
 

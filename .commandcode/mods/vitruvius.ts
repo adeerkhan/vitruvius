@@ -119,6 +119,12 @@ export const commands = [
   },
 
   {
+    name: "habit",
+    description: "Capture durable research preferences from a run (read-only, review-gated)",
+    argumentHint: "[--scope <discipline>] [--window <n>]",
+  },
+
+  {
     name: "proposal",
     description: "Generate targeted Ph.D./Masters research proposals with gap analysis + verification",
     argumentHint: "--posting <path-or-url> --cv <path> [--statement <path>] [--sample <path>]",

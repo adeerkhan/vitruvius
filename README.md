@@ -6,7 +6,7 @@
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT License"></a>
-  <img src="https://img.shields.io/badge/skills-24-green" alt="24 skills">
+  <img src="https://img.shields.io/badge/skills-25-green" alt="25 skills">
   <a href="https://github.com/adeerkhan/vitruvius/actions/workflows/ci.yml"><img src="https://github.com/adeerkhan/vitruvius/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <a href="https://github.com/adeerkhan/vitruvius/actions/workflows/security-scan.yml"><img src="https://github.com/adeerkhan/vitruvius/actions/workflows/security-scan.yml/badge.svg" alt="Security Scan"></a>
 </p>
@@ -16,7 +16,7 @@
 </p>
 
 <p align="center">
-  <strong>5 disciplines. 24 skills. Blind verification with a scored benchmark.</strong>
+  <strong>5 disciplines. 25 skills. Blind verification with a scored benchmark.</strong>
 </p>
 
 <p align="center">
@@ -70,8 +70,8 @@ own quality is backed by an on-disk, re-runnable artifact:
 |-------|--------|-------|
 | Verdict correctness (20 adversarial cases × 5 disciplines) | 75–90% correct across runs, 0–1 false approvals, 0 false blocks always | [RESULTS.md](tasks/benchmark/RESULTS.md) — variance disclosure + residuals, not hidden |
 | Integrity under persuasion (5 pressure cases: authority, sunk cost, time, reframe, pedantry) | 4–5/5 held (pedantic case sits on the model's variance line), 0 false blocks | [pressure suite](tasks/benchmark/pressure/README.md) |
-| Skill routing (20 labeled prompts, 24 skills) | 16/20 rank-1, 0 collisions | [routing evals](tests/routing/eval-routing.mjs) |
-| Structural contract (24 skills) | enforced in CI | [validate-contract.mjs](scripts/validate-contract.mjs) |
+| Skill routing (20 labeled prompts, 25 skills) | 16/20 rank-1, 0 collisions | [routing evals](tests/routing/eval-routing.mjs) |
+| Structural contract (25 skills) | enforced in CI | [validate-contract.mjs](scripts/validate-contract.mjs) |
 | Provenance schema (sidecars, `inferred` derivation traces) | enforced in CI | [validate-artifacts.mjs](scripts/validate-artifacts.mjs) |
 
 Reproduce:
@@ -119,6 +119,7 @@ Named engineering jobs over the shared loop:
 | `/artifact-reading` | Anchored extraction from PDFs, drawings, specs |
 | `/scholarly-research` | Academic literature discovery (OpenAlex, arXiv, Semantic Scholar) |
 | `/standards-lookup` | Engineering standards: AISC, ACI, ASCE, IEEE, Eurocode |
+| `/habit` | Capture durable research preferences from a run (read-only, review-gated) |
 
 ### Application Skills
 
@@ -196,7 +197,7 @@ cp -r skills/ ~/.codex/skills/vitruvius
 ### Command Code
 
 ```bash
-cmd skills add adeerkhan/vitruvius --global     # install all 24 skills
+cmd skills add adeerkhan/vitruvius --global     # install all 25 skills
 cmd mods add adeerkhan/vitruvius                # add slash commands
 ```
 

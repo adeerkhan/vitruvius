@@ -124,6 +124,12 @@ export const commands = [
     category: "workflow",
   },
   {
+    name: "habit",
+    description: "Capture durable research preferences from a run (read-only, review-gated)",
+    argumentHint: "[--scope <discipline>] [--window <n>]",
+    category: "workflow",
+  },
+  {
     name: "proposal",
     description: "Generate targeted Ph.D./Masters research proposals with gap analysis + verification",
     argumentHint: "--posting <path-or-url> --cv <path> [--statement <path>] [--sample <path>]",
