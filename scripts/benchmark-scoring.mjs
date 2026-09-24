@@ -11,7 +11,7 @@ import {
   readdirSync,
   statSync,
 } from "node:fs";
-import { basename, join } from "node:path";
+import { basename, dirname, join, resolve } from "node:path";
 import { parseGroundTruth, parseMachineVerdict } from "./verifier-parser.mjs";
 
 const RESULT_SUFFIX = "-result.md";
@@ -40,8 +40,8 @@ function readVerdictLines(content) {
   const verdicts = [];
   const malformed = [];
   for (const line of content.split(/\r?\n/)) {
-    if (!line.includes("MACHINE_VERDICT")) continue;
-    const parsed = /^\s*#*\s*MACHINE_VERDICT:/.test(line)
+    if (!line.toUpperCase().includes("MACHINE_VERDICT")) continue;
+    const parsed = /^\s*#*\s*MACHINE_VERDICT:/i.test(line)
       ? parseMachineVerdict(line)
       : null;
     if (parsed) verdicts.push(parsed);
@@ -120,6 +120,15 @@ export function scoreBenchmark({ casesDir, resultsDir }) {
         .filter((file) => file.endsWith(RESULT_SUFFIX))
         .sort()
     : [];
+  const nestedResultFiles = existsSync(resultsDir)
+    ? walkMarkdown(resultsDir).filter((file) => basename(file).endsWith(RESULT_SUFFIX) && dirname(file) !== resolve(resultsDir))
+    : [];
+
+  if (nestedResultFiles.length > 0) {
+    for (const file of nestedResultFiles) {
+      errors.push(`NESTED RESULT: ${file}`);
+    }
+  }
 
   if (caseFiles.length === 0) {
     errors.push(`NO CASES: ${casesDir}`);
@@ -168,6 +177,7 @@ export function scoreBenchmark({ casesDir, resultsDir }) {
     total: caseFiles.length,
     scored: results.length,
     correct: results.filter((result) => result.correct).length,
+    flawMatches: results.filter((result) => result.flawMatch).length,
     falseApprovals: results.filter((result) => result.falseApproval).length,
     falseBlocks: results.filter((result) => result.falseBlock).length,
     conservativeOvercalls: results.filter((result) => result.conservativeOvercall).length,

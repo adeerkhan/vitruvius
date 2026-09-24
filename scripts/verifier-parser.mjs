@@ -21,6 +21,9 @@ export function parseMachineVerdict(line) {
   if (
     confidence < 0 ||
     confidence > 1 ||
+    !Number.isSafeInteger(checksPassed) ||
+    !Number.isSafeInteger(linePinnedNum) ||
+    !Number.isSafeInteger(linePinnedDen) ||
     checksPassed < 0 ||
     checksPassed > 8 ||
     linePinnedNum < 0 ||
@@ -48,11 +51,11 @@ export function parseMachineVerdict(line) {
 }
 
 export function parseGroundTruth(content) {
-  const verdictMatch = content.match(GROUND_TRUTH_PATTERN);
-  const flawMatch = content.match(FLAW_TYPE_PATTERN);
-  if (!verdictMatch || !flawMatch) return null;
+  const verdictMatches = [...content.matchAll(new RegExp(GROUND_TRUTH_PATTERN.source, "gim"))];
+  const flawMatches = [...content.matchAll(new RegExp(FLAW_TYPE_PATTERN.source, "gim"))];
+  if (verdictMatches.length !== 1 || flawMatches.length !== 1) return null;
   return {
-    verdict: verdictMatch[1].toUpperCase(),
-    flaw: flawMatch[1].trim(),
+    verdict: verdictMatches[0][1].toUpperCase(),
+    flaw: flawMatches[0][1].trim(),
   };
 }

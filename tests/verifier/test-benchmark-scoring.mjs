@@ -169,5 +169,48 @@ for (const root of tempRoots) rmSync(root, { recursive: true, force: true });
   assert.match(report.errors.join("\\n"), /MALFORMED VERDICT: semantic-01/);
 }
 
+{
+  const { casesDir, resultsDir } = fixture();
+  writeFileSync(join(casesDir, "lowercase-01.md"), makeCase("lowercase-01", "PASS"));
+  writeFileSync(
+    join(resultsDir, "lowercase-01-result.md"),
+    `${makeResult("PASS")}machine_verdict: PASS | FLAW: none | CONFIDENCE: 0.9 | CHECKS_PASSED: 8/8 | LINE_PINNED: 1/1\n`,
+  );
+  const report = scoreBenchmark({ casesDir: join(casesDir, ".."), resultsDir });
+  assert.match(report.errors.join("\\n"), /(MALFORMED|DUPLICATE) VERDICT: lowercase-01/);
+}
+
+{
+  const { casesDir, resultsDir } = fixture();
+  writeFileSync(
+    join(casesDir, "duplicate-truth-01.md"),
+    `${makeCase("duplicate-truth-01", "PASS")}\n**Ground-truth verdict:** BLOCKED\n**Flaw type:** omission\n`,
+  );
+  writeFileSync(join(resultsDir, "duplicate-truth-01-result.md"), makeResult("PASS"));
+  const report = scoreBenchmark({ casesDir: join(casesDir, ".."), resultsDir });
+  assert.match(report.errors.join("\\n"), /INVALID GROUND TRUTH: duplicate-truth-01/);
+}
+
+{
+  const { casesDir, resultsDir } = fixture();
+  writeFileSync(join(casesDir, "huge-01.md"), makeCase("huge-01", "PASS"));
+  writeFileSync(
+    join(resultsDir, "huge-01-result.md"),
+    "MACHINE_VERDICT: PASS | FLAW: none | CONFIDENCE: 0.9 | CHECKS_PASSED: 8/8 | LINE_PINNED: 9007199254740993/9007199254740992\n",
+  );
+  const report = scoreBenchmark({ casesDir: join(casesDir, ".."), resultsDir });
+  assert.match(report.errors.join("\\n"), /MALFORMED VERDICT: huge-01/);
+}
+
+{
+  const { casesDir, resultsDir } = fixture();
+  writeFileSync(join(casesDir, "nested-01.md"), makeCase("nested-01", "PASS"));
+  const nested = join(resultsDir, "nested");
+  mkdirSync(nested, { recursive: true });
+  writeFileSync(join(nested, "nested-01-result.md"), makeResult("PASS"));
+  const report = scoreBenchmark({ casesDir: join(casesDir, ".."), resultsDir });
+  assert.match(report.errors.join("\\n"), /NESTED RESULT|UNKNOWN RESULT/);
+}
+
 for (const root of tempRoots) rmSync(root, { recursive: true, force: true });
 console.log("PASS: benchmark scoring classification and integrity contracts");

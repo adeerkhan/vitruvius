@@ -52,6 +52,7 @@ function printReport(report) {
   console.log(`  Cases expected:      ${summary.total}`);
   console.log(`  Cases scored:        ${summary.scored}`);
   console.log(`  Correct verdicts:    ${summary.correct}/${summary.scored} (${accuracy.toFixed(1)}%)`);
+  console.log(`  Flaw-type matches:   ${summary.flawMatches}/${summary.scored}`);
   console.log(`  False approvals:     ${summary.falseApprovals}`);
   console.log(`  False blocks:        ${summary.falseBlocks}`);
   console.log(`  Conservative over:   ${summary.conservativeOvercalls}`);

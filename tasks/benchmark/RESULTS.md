@@ -3,7 +3,7 @@
 ## B0 control update — 2026-09-24
 
 - The adversarial suite contains 20 cases across five disciplines; five additional deterministic PASS **scoring fixtures** live under `tasks/benchmark/controls/`. They exercise the parser/scorer and are not independent verifier runs.
-- The checked-in adversarial results score 15/20 (75%) with 1 false approval, 0 false blocks, and 1 conservative overcall. The PASS scoring fixtures score 5/5; this is parser/scorer coverage, not a verifier capability claim.
+- The checked-in adversarial results score 15/20 (75%) by verdict, with 1 false approval, 0 false blocks, and 1 conservative overcall. Flaw-type accuracy is reported separately and is not folded into the verdict score. The PASS scoring fixtures score 5/5; this is parser/scorer coverage, not a verifier capability claim.
 - `scripts/score-benchmark.mjs` now uses `scripts/benchmark-scoring.mjs` and fails closed on missing, malformed, duplicate, or unknown result files. The default command reports quality residuals without turning a known model residual into a completeness failure; `--strict-quality` is the explicit quality gate.
 - These remain single-run measurements. Majority-of-three certification is still open.
 

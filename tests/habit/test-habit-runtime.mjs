@@ -216,6 +216,57 @@ function validReport(value) {
 }
 
 {
+  const forged = ledger({
+    approval: {
+      status: "approved",
+      approvedBy: "assistant",
+      approvedAt: T1,
+      candidateIds: ["h1"],
+    },
+  });
+  forged.c[0].status = "approved";
+  assert.match(validReport(forged).errors.join("\\n"), /approvedBy.*user|approval.*user/i);
+}
+
+{
+  const noEventStore = {
+    schema: "habit-store.v1",
+    rules: [{
+      id: "h1",
+      t: "Cite sections.",
+      d: "",
+      e: ["u1"],
+      scope: "research",
+      sourceRun: "fixture-run",
+      status: "active",
+      activatedAt: T1,
+      expiresAt: null,
+    }],
+    events: [],
+  };
+  assert.throws(() => loadHabits(noEventStore, { now: T1 }), /activation event|store/i);
+}
+
+{
+  const duplicateEvidenceStore = {
+    schema: "habit-store.v1",
+    rules: [{
+      id: "h1",
+      t: "Cite sections.",
+      d: "",
+      e: ["u1", "u1"],
+      scope: "research",
+      sourceRun: "fixture-run",
+      status: "active",
+      activatedAt: T1,
+      expiresAt: null,
+    }],
+    events: [{ action: "activated", id: "h1", by: "user", at: T1 }],
+  };
+  assert.throws(() => loadHabits(duplicateEvidenceStore, { now: T1 }), /evidence|store/i);
+}
+
+{
   const unsafeStore = {
     schema: "habit-store.v1",
     rules: [{

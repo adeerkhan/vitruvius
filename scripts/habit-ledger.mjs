@@ -213,6 +213,8 @@ export function validateLedger(ledger, { now = new Date() } = {}) {
   }
   if (typeof ledger.scope !== "string" || ledger.scope.length < 1 || ledger.scope.length > 80) {
     errors.push("scope must be 1-80 characters");
+  } else if (containsSecret(ledger.scope)) {
+    errors.push("secret pattern in scope");
   }
   if (!isDate(ledger.createdAt)) errors.push("createdAt must be an ISO date");
   if (ledger.expiresAt !== undefined && ledger.expiresAt !== null && !isDate(ledger.expiresAt)) {
@@ -238,6 +240,10 @@ export function validateLedger(ledger, { now = new Date() } = {}) {
       }
       if (typeof approval.approvedBy !== "string" || approval.approvedBy.length < 1) {
         errors.push("approval.approvedBy is required");
+      } else if (approval.approvedBy !== "user") {
+        errors.push("approval.approvedBy must be user");
+      } else if (containsSecret(approval.approvedBy)) {
+        errors.push("secret pattern in approval.approvedBy");
       }
       if (!isDate(approval.approvedAt)) errors.push("approval.approvedAt must be an ISO date");
       if (!Array.isArray(approval.candidateIds) || approval.candidateIds.length < 1) {
@@ -303,7 +309,7 @@ function ensureValidStore(store) {
     if (containsSecret(rule.t) || containsSecret(rule.d)) throw new Error(`secret pattern in store rule ${rule.id}`);
     if (typeof rule.scope !== "string" || rule.scope.length < 1 || rule.scope.length > 80) throw new Error("invalid store rule scope");
     if (typeof rule.sourceRun !== "string" || !SLUG_PATTERN.test(rule.sourceRun)) throw new Error("invalid store source run");
-    if (!Array.isArray(rule.e) || rule.e.length < 1 || rule.e.length > 3 || rule.e.some((id) => typeof id !== "string" || !ID_PATTERN.test(id))) {
+    if (!Array.isArray(rule.e) || rule.e.length < 1 || rule.e.length > 3 || rule.e.some((id) => typeof id !== "string" || !ID_PATTERN.test(id)) || new Set(rule.e).size !== rule.e.length) {
       throw new Error("invalid store evidence");
     }
     if (!isDate(rule.activatedAt)) throw new Error(`invalid activatedAt for store rule ${rule.id}`);
@@ -320,6 +326,7 @@ function ensureValidStore(store) {
     }
   }
   const eventKeys = new Set();
+  const activatedIds = new Set();
   const ruleById = new Map(store.rules.map((rule) => [rule.id, rule]));
   for (const event of store.events) {
     if (!event || !STORE_ACTIONS.has(event.action) || typeof event.id !== "string" || !ID_PATTERN.test(event.id) || !isDate(event.at)) {
@@ -330,6 +337,7 @@ function ensureValidStore(store) {
     eventKeys.add(eventKey);
     const rule = ruleById.get(event.id);
     if (!rule) throw new Error(`habit store event references unknown rule: ${event.id}`);
+    if (event.action === "activated") activatedIds.add(event.id);
     if (event.action === "superseded" && (rule.status !== "superseded" || rule.supersededBy !== event.by || rule.supersededAt !== event.at)) {
       throw new Error(`invalid supersession event for ${event.id}`);
     }
@@ -339,6 +347,9 @@ function ensureValidStore(store) {
     if (event.action === "activated" && (typeof event.by !== "string" || event.by.length < 1)) {
       throw new Error(`activated event lacks actor for ${event.id}`);
     }
+  }
+  for (const rule of store.rules) {
+    if (!activatedIds.has(rule.id)) throw new Error(`store rule ${rule.id} lacks activation event`);
   }
 }
 
@@ -607,7 +618,7 @@ function sidecarForLedger(ledgerPath) {
   return ledgerPath.replace(/\.json$/i, ".provenance.md");
 }
 
-function assertLedgerSidecar(ledgerPath) {
+function assertLedgerSidecar(ledgerPath, ledger) {
   if (!/\.json$/i.test(ledgerPath)) throw new Error("ledger path must end in .json for sidecar pairing");
   const sidecarPath = sidecarForLedger(ledgerPath);
   if (!existsSync(sidecarPath)) throw new Error(`missing provenance sidecar: ${sidecarPath}`);
@@ -615,6 +626,14 @@ function assertLedgerSidecar(ledgerPath) {
   const text = readFileSync(sidecarPath, "utf-8");
   if (!/^## Verification\s*$/im.test(text) || !/^## Sources\s*$/im.test(text)) {
     throw new Error(`provenance sidecar must contain Verification and Sources sections: ${sidecarPath}`);
+  }
+  if (!new RegExp(`run:\\s*${ledger.run}\\b`, "i").test(text)) {
+    throw new Error(`provenance sidecar is not bound to ledger run ${ledger.run}`);
+  }
+  for (const id of ledger.approval?.candidateIds ?? []) {
+    if (!new RegExp(`\\b${id}\\b`, "i").test(text)) {
+      throw new Error(`provenance sidecar omits approved candidate ${id}`);
+    }
   }
 }
 
@@ -674,8 +693,8 @@ function runCli(argv) {
     if (positional.length !== 1) return usage(), 1;
     const ledgerPath = resolve(positional[0]);
     assertProjectLocal(ledgerPath, projectRoot);
-    assertLedgerSidecar(ledgerPath);
     const ledger = readJson(ledgerPath);
+    assertLedgerSidecar(ledgerPath, ledger);
     const next = withStoreLock(storePath, () => {
       const store = existsSync(storePath) ? readJson(storePath) : emptyStore();
       const activated = activateLedger(ledger, store, { now: options.at });

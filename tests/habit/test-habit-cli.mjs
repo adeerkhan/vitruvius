@@ -63,7 +63,7 @@ function run(args) {
   const missingSidecar = run(["activate", ledgerPath, "--store", storePath, "--at", at]);
   assert.notEqual(missingSidecar.status, 0);
   assert.match(missingSidecar.stderr, /provenance|sidecar/i);
-  writeFileSync(join(temp, "ledger.provenance.md"), "# Provenance\n\n## Sources\n- fixture window\n\n## Verification\nverified fixture\n");
+  writeFileSync(join(temp, "ledger.provenance.md"), "# Provenance\n\nrun: cli-fixture\n\n## Sources\n- fixture window; candidate h1\n\n## Verification\nverified fixture\n");
 }
 {
   writeFileSync(`${storePath}.lock`, "held\n");
