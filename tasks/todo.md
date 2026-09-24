@@ -31,6 +31,13 @@
 - [x] Proposal test/npm wiring and execution claims
 - [x] R0 checkpoint
 
+## Phase 5: L1
+
+- [x] Repair run logger and define `run.v1` contract
+- [x] Add logger lifecycle/failure tests
+- [x] Wire logger tests into `npm test`
+- [x] L1 checkpoint
+
 ## Checkpoints
 
 - After Phase 1: all benchmark cases and controls are accounted for; missing verdicts fail.

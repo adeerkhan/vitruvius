@@ -75,6 +75,16 @@ Implement two bounded P0 slices: B0 makes verifier benchmark scoring complete, d
 
 - [x] Proposal/document execution is runnable for supported local text intake, PDF/URL/image boundaries fail closed, and copied-skill execution is covered; full downstream proposal research remains an agent workflow, not a claim of deterministic generation.
 
+## Phase 5: L1 run ledger
+
+- [x] Repair `scripts/log-run.mjs` and define a minimal `run.v1` JSONL contract.
+- [x] Add focused valid/invalid/duplicate/isolation tests and wire them into `npm test`.
+- [x] Verify the logger with a temporary runs directory and preserve the existing default `.runs/` behavior.
+
+### Checkpoint: L1
+
+- [x] A real run can be appended as valid JSONL with a generated stable ID and timestamp; invalid input and duplicate IDs fail closed.
+
 ## Open Questions
 
 - Whether to promote the project-local Habit store to a user-scoped home-directory store later; defer until a real cross-project need is demonstrated.

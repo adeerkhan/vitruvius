@@ -15,7 +15,7 @@ argument-hint: "<research question or artifact to review> [--deep | --quick]"
 allowed-tools: Write Edit Bash Read
 license: MIT
 metadata:
-  version: "0.2.0"
+  version: "0.2.1"
 
 ---
 
@@ -438,6 +438,7 @@ Generate a ledger entry (JSON) and log it:
   "skill": "engineering-research",
   "topic": "<slug>",
   "discipline": "<discipline>",
+  "status": "completed",
   "verdict": "<verified/partial/blocked/failed>",
   "sources_consulted": <count>,
   "claims_verified": <count>,
@@ -445,11 +446,13 @@ Generate a ledger entry (JSON) and log it:
 }
 ```
 
-Pipe the entry through the logger:
+Pipe the entry through the logger; `run.v1` adds the stable `run_id` and UTC `timestamp`:
 
 ```bash
-echo '<ledger_json>' | node scripts/log-run.mjs
+echo '<ledger_json>' | node <engineering-research-skill-root>/scripts/log-run.mjs
 ```
+
+The skill-local wrapper is self-contained and defaults `.runs/` to the active project working directory; a repository checkout may use the compatibility command `node scripts/log-run.mjs`, which preserves the checkout-local default unless an override is supplied. Set `VITRUVIUS_PROJECT_ROOT` when the active project is not the command's working directory. Concurrent writes wait briefly for a ledger lock; an interrupted process leaves the lock in place and later writes fail closed until an operator verifies it is safe to remove `.log-run.lock`.
 
 ### Verification Labels (F2 — Vitruvius Provenance)
 
