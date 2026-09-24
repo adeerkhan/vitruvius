@@ -48,6 +48,22 @@ function validReport(value) {
 }
 
 {
+  const overBound = ledger();
+  overBound.window[0].text = "x".repeat(2001);
+  assert.match(validReport(overBound).errors.join("\\n"), /window text too long/i);
+}
+
+{
+  const tooManyCandidates = ledger({
+    c: Array.from({ length: 21 }, (_, index) => ({
+      ...ledger().c[0],
+      id: `h${index + 1}`,
+    })),
+  });
+  assert.match(validReport(tooManyCandidates).errors.join("\\n"), /at most 20/i);
+}
+
+{
   const assistantEvidence = ledger();
   assistantEvidence.c[0].e = ["a1"];
   assert.match(validReport(assistantEvidence).errors.join("\n"), /user/i);
@@ -74,6 +90,13 @@ function validReport(value) {
 }
 
 {
+  assert.throws(
+    () => approveCandidates(ledger(), ["h1"], { approvedBy: "assistant", approvedAt: T1 }),
+    /user|approval/i,
+  );
+}
+
+{
   const approved = approveCandidates(ledger(), ["h1"], {
     approvedBy: "user",
     approvedAt: T1,
@@ -90,6 +113,7 @@ function validReport(value) {
   const context = loadHabits(store, { scope: "research", now: T1 });
   assert.equal(context.length, 1);
   assert.equal(context[0].t, "Cite section numbers.");
+  assert.equal(loadHabits(store, { scope: "civil", now: T1 }).length, 0);
 }
 
 {

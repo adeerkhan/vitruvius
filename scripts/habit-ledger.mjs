@@ -368,13 +368,13 @@ function setApproval(ledger, ids, status, actor, at) {
 
 export function approveCandidates(ledger, ids, { approvedBy, approvedAt = new Date().toISOString() } = {}) {
   if (!Array.isArray(ids) || ids.length === 0) throw new Error("at least one candidate id is required");
-  if (typeof approvedBy !== "string" || approvedBy.length < 1) throw new Error("approvedBy is required");
+  if (approvedBy !== "user") throw new Error("approvedBy must be user for explicit human approval");
   return setApproval(ledger, ids, "approved", approvedBy, approvedAt);
 }
 
 export function rejectCandidates(ledger, ids, { actor, at = new Date().toISOString() } = {}) {
   if (!Array.isArray(ids) || ids.length === 0) throw new Error("at least one candidate id is required");
-  if (typeof actor !== "string" || actor.length < 1) throw new Error("actor is required");
+  if (actor !== "user") throw new Error("actor must be user for explicit human review");
   return setApproval(ledger, ids, "rejected", actor, at);
 }
 
@@ -599,8 +599,8 @@ function usage() {
   console.error("Usage: node scripts/habit-ledger.mjs <validate|approve|reject|activate|load|revoke|redact|redact-file> ...");
 }
 
-function defaultStore() {
-  return process.env.VITRUVIUS_HABIT_STORE || join(process.cwd(), "outputs", ".habits", "active.json");
+function defaultStore(projectRoot) {
+  return process.env.VITRUVIUS_HABIT_STORE || join(projectRoot, "outputs", ".habits", "active.json");
 }
 
 function sidecarForLedger(ledgerPath) {
@@ -624,7 +624,7 @@ function runCli(argv) {
   const options = parseOptions(rest);
   const positional = options.positional;
   const projectRoot = resolve(options.root || process.env.VITRUVIUS_PROJECT_ROOT || process.cwd());
-  const storePath = resolve(options.store || defaultStore());
+  const storePath = resolve(options.store || defaultStore(projectRoot));
 
   if (command === "validate") {
     if (positional.length !== 1) return usage(), 1;

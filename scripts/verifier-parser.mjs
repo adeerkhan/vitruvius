@@ -50,9 +50,9 @@ export function parseMachineVerdict(line) {
 export function parseGroundTruth(content) {
   const verdictMatch = content.match(GROUND_TRUTH_PATTERN);
   const flawMatch = content.match(FLAW_TYPE_PATTERN);
-  if (!verdictMatch) return null;
+  if (!verdictMatch || !flawMatch) return null;
   return {
     verdict: verdictMatch[1].toUpperCase(),
-    flaw: flawMatch ? flawMatch[1].trim() : "none",
+    flaw: flawMatch[1].trim(),
   };
 }
