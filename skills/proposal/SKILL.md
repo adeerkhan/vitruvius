@@ -1,26 +1,25 @@
 ---
 name: proposal
 description: >
-  Research Proposal Generator — orchestrates the full pipeline from position
-  posting + CV + Personal Statement to a humanized, verified research proposal
-  for Ph.D./Masters applications. Parses position postings (PDF/image/URL),
-  researches professor/lab, identifies lab-specific gaps, and generates a
-  targeted proposal with deep fit analysis. Wraps /gap-analysis,
-  /evidence-ranking, /verifier as isolated subagents.
+  Research Proposal Generator — an intended pipeline from position posting + CV
+  + Personal Statement to a humanized research proposal for Ph.D./Masters
+  applications. Parses position postings (PDF/image/URL), researches
+  professor/lab, identifies lab-specific gaps, and generates a targeted proposal
+  with deep fit analysis. Parser/document execution is currently scaffolded with
+  known dependency and syntax gaps; do not treat a run as complete without
+  checking the execution artifacts. Wraps /gap-analysis, /evidence-ranking, and
+  /verifier as isolated subagents.
 argument-hint: "[--posting <path-or-url>] [--cv <path>] [--statement <path>] [--sample <path>]"
 allowed-tools: Write Edit Bash Read
 license: MIT
 metadata:
-  version: "0.1.0"
+  version: "0.1.1"
 
 ---
 
 # Research Proposal Generator
 
-Generate a complete research proposal package for Ph.D./Masters applications.
-This skill orchestrates multiple subagents in isolation, verifies outputs,
-produces a humanized final proposal with full audit trail, and targets the
-specific lab/professor from the position posting.
+The intended workflow generates a research proposal package for Ph.D./Masters applications. It orchestrates multiple subagents in isolation, verifies outputs, produces a humanized final proposal with an audit trail, and targets the specific lab/professor from the position posting. The current parser/document implementation is scaffolded with known dependency and syntax gaps; stop with a blocker when an execution check fails.
 
 ## Invocation
 
@@ -61,6 +60,8 @@ node skills/proposal/scripts/init-project.mjs <student-slug>
 
 **0b. Parse Documents (STRICT Isolation via Artifact-Reading Subagent)**
 
+> **Execution gate:** the current `scripts/extract-document.mjs` path has a known syntax/dependency gap. Run the focused checks before proceeding; if parsing fails, stop and report `BLOCKED` rather than emitting a complete proposal.
+
 Dispatch `/skill:artifact-reading` as isolated subagent — **fresh context, receives ONLY:**
 - Path to position posting (if `--posting` provided)
 - Path to CV (if `--cv` provided)
@@ -70,7 +71,7 @@ Dispatch `/skill:artifact-reading` as isolated subagent — **fresh context, rec
 **Does NOT receive:** any prior reasoning, target context, or other project files.
 
 Artifact-reading subagent:
-1. For each file, runs `node scripts/extract-document.mjs <path>`
+1. For each file, runs `node scripts/extract-document.mjs <path>` only after the execution gate above passes
 2. Extracts structured content (markdown, pages, method used)
 3. If method is `vision`, uses LLM vision to extract text
 4. Returns structured content with sections and provenance
@@ -223,7 +224,7 @@ Output: `verifier/<slug>-verdict.md`
 [Key citations]
 ```
 
-**If posting.json missing:** Skip "Lab-Specific Opportunities" and "Fit with Lab" sections. Proposal is still complete — just field-level targeting.
+**If posting.json is missing:** skip "Lab-Specific Opportunities" and "Fit with Lab" sections, label the result as a field-level draft, and do not call it a complete proposal.
 
 Save to `proposal-draft.md`
 
@@ -304,7 +305,7 @@ projects/<student-slug>/
 
 - This skill generates research proposals for academic applications.
 - **research-only, not for final submission without student review.** The student MUST review, fact-check, and personalize the output before submission.
-- The agent does not guarantee admission. It guarantees a structured, verified, humanized proposal with full provenance.
+- The agent does not guarantee admission. When all required phases pass, it produces a structured, humanized proposal with provenance; the current parser/document path must be checked before treating the package as complete.
 - Fail-closed: if any phase fails, stop and report the blocker.
 - **Not for final engineering sign-off.** This is an academic application tool, not an engineering design tool.
 

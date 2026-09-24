@@ -20,7 +20,7 @@
 </p>
 
 <p align="center">
-  Verifier benchmark (20 adversarial cases, 5 disciplines): <strong>75% correct verdicts, 0 false blocks, 1 false approval</strong>, stable across runs — per-case scores vary ~±10% run-to-run, so we publish ranges and residuals, not point estimates (<a href="tasks/benchmark/RESULTS.md">RESULTS.md</a>). Under persuasion pressure (authority, sunk cost, time): <strong>4–5 of 5 held, 0 false blocks</strong>. The numbers are ours, weaknesses included — that is the point.
+  Verifier benchmark (20 adversarial cases + 5 deterministic PASS scoring fixtures, 5 disciplines): the latest checked-in adversarial run reports <strong>75% correct verdicts, 1 false approval, 0 false blocks, and 1 conservative overcall</strong>; the scoring fixtures score <strong>5/5</strong>. The scorer now fails closed on missing, malformed, duplicate, or unknown results. Per-case variance remains material, so these are reported measurements, not certification (<a href="tasks/benchmark/RESULTS.md">RESULTS.md</a>). The latest pressure artifact reports <strong>4/5 held with one false approval</strong>; no false-block guarantee is claimed. The numbers are ours, weaknesses included — that is the point.
 </p>
 
 <!-- Demo GIF slot: record a real research run end-to-end before publishing — no fabricated demos. -->
@@ -32,9 +32,10 @@ Vitruvius is an **engineering research agent** that runs a **discover → read �
 Unlike generic web search, Vitruvius:
 - **Reads sources directly** — never infers from titles or memory
 - **Never fabricates** — every claim traces to a checkable source
-- **Records provenance** — every output has a schema-validated `.provenance.md` sidecar
+- **Records provenance** — research outputs are intended to have schema-validated `.provenance.md` sidecars; the current validator covers selected root/plan/draft paths, while nested and method-specific sidecars remain a known gap
 - **Flags uncertainty** — distinguishes `verified`, `inferred`, `blocked`, `unverified`
-- **Is measured** — the verifier runs against a scored adversarial benchmark; the numbers are published even when unflattering
+- **Is measured** — the verifier runs against a scored adversarial benchmark plus deterministic PASS controls; the numbers are published even when unflattering
+- **Learns deliberately** — Habit captures only explicit, user-approved research preferences in a project-local store; it never silently rewrites agent instructions
 
 ## Research Loop
 
@@ -63,22 +64,30 @@ flowchart LR
 
 ## Measured Verification
 
-The verifier is benchmarked, not asserted. Every claim it makes about its
-own quality is backed by an on-disk, re-runnable artifact:
+The verifier is benchmarked, not asserted. Its checked-in results are on-disk, re-runnable artifacts with known control and variance limitations:
 
 | Check | Result | Where |
 |-------|--------|-------|
-| Verdict correctness (20 adversarial cases × 5 disciplines) | 75–90% correct across runs, 0–1 false approvals, 0 false blocks always | [RESULTS.md](tasks/benchmark/RESULTS.md) — variance disclosure + residuals, not hidden |
-| Integrity under persuasion (5 pressure cases: authority, sunk cost, time, reframe, pedantry) | 4–5/5 held (pedantic case sits on the model's variance line), 0 false blocks | [pressure suite](tasks/benchmark/pressure/README.md) |
+| Verdict correctness (20 adversarial cases × 5 disciplines) | Latest checked-in run: 75% correct, 1 false approval, 0 false blocks, 1 conservative overcall; flaw-type accuracy is reported separately; variance is material | [RESULTS.md](tasks/benchmark/RESULTS.md) — residuals and limitations, not hidden |
+| PASS scoring fixtures (5 disciplines) | 5/5 parser/scorer fixtures; these are not independent verifier runs | [control cases](tasks/benchmark/controls/cases) |
+| Benchmark integrity | Missing, malformed, duplicate, and unknown result files fail closed | [benchmark scorer](scripts/benchmark-scoring.mjs) |
+| Integrity under persuasion (5 pressure cases: authority, sunk cost, time, reframe, pedantry) | Latest artifact: 4/5 held with one false approval; no false-block guarantee is claimed | [pressure suite](tasks/benchmark/pressure/README.md) |
 | Skill routing (20 labeled prompts, 25 skills) | 16/20 rank-1, 0 collisions | [routing evals](tests/routing/eval-routing.mjs) |
 | Structural contract (25 skills) | enforced in CI | [validate-contract.mjs](scripts/validate-contract.mjs) |
-| Provenance schema (sidecars, `inferred` derivation traces) | enforced in CI | [validate-artifacts.mjs](scripts/validate-artifacts.mjs) |
+| Provenance schema (selected sidecars, `inferred` derivation traces) | enforced for selected root/plan/draft paths in CI; nested closure remains pending | [validate-artifacts.mjs](scripts/validate-artifacts.mjs) |
 
 Reproduce:
 
 ```bash
+# Run fresh blind cases; the runner exits nonzero if any expected verdict is missing
 bash tasks/benchmark/run-benchmark.sh
+
+# Score checked-in results and deterministic PASS controls
 node scripts/score-benchmark.mjs tasks/benchmark/results tasks/benchmark/cases
+node scripts/score-benchmark.mjs tasks/benchmark/controls/results tasks/benchmark/controls/cases
+
+# Optional certification gate: also fail on any false approval or false block
+node scripts/score-benchmark.mjs --strict-quality tasks/benchmark/results tasks/benchmark/cases
 ```
 
 ## Worked Examples
@@ -119,7 +128,36 @@ Named engineering jobs over the shared loop:
 | `/artifact-reading` | Anchored extraction from PDFs, drawings, specs |
 | `/scholarly-research` | Academic literature discovery (OpenAlex, arXiv, Semantic Scholar) |
 | `/standards-lookup` | Engineering standards: AISC, ACI, ASCE, IEEE, Eurocode |
-| `/habit` | Capture durable research preferences from a run (read-only, review-gated) |
+| `/habit` | Extract explicit research preferences, validate them, and activate only human-approved rules in a project-local store |
+
+## Habit Learning
+
+Habit is an explicit, review-gated preference loop for research conventions—not passive memory and not model training:
+
+1. `/habit` captures a bounded run window and asks the read-only habit role for candidates.
+2. The lead validates user-only evidence, stable ids, scope, expiry, duplicates, and secret redaction.
+3. The user approves or rejects candidates explicitly.
+4. Approved rules enter the project-local `outputs/.habits/active.json` store.
+5. A later unrelated run can load scoped rules with `node scripts/habit-ledger.mjs load --scope <scope>`.
+6. Rules expire, can be superseded through an explicit relationship, and can be revoked without deleting the audit trail.
+
+The store contains the rule and evidence ids, not the raw transcript window. Habit never scans messages automatically, never writes `AGENTS.md`, and never creates a hidden cross-project memory store. The ledger and activation require provenance sidecars.
+
+Useful commands:
+
+```bash
+node scripts/habit-ledger.mjs redact-file <brief> --output <brief>
+node scripts/habit-ledger.mjs validate <ledger>
+node scripts/habit-ledger.mjs approve <ledger> --id h1 --by user
+node scripts/habit-ledger.mjs activate <ledger> --store outputs/.habits/active.json
+node scripts/habit-ledger.mjs load --scope research
+node scripts/habit-ledger.mjs revoke --store outputs/.habits/active.json --id h1
+```
+
+Activation requires the ledger’s colocated `.provenance.md` sidecar. The CLI
+refuses paths outside the project root and refuses to write `AGENTS.md`.
+
+The default store is project-local and ignored with `outputs/`; pass an explicit `--store` when a different project-local location is intended.
 
 ### Application Skills
 
@@ -127,7 +165,7 @@ End-to-end workflows for specific tasks:
 
 | Command | What it does |
 |---------|--------------|
-| `/proposal` | Generate targeted Ph.D./Masters research proposals. Parses position postings, researches professor/lab, identifies gaps, produces humanized proposal with deep fit analysis |
+| `/proposal` | Intended targeted Ph.D./Masters proposal workflow; parser/document execution is currently scaffolded with known dependency and syntax gaps (see the current audit roadmap) |
 
 ## Choose Your Starting Point
 
@@ -162,7 +200,8 @@ End-to-end workflows for specific tasks:
 | `/artifact-reading <file>` | Anchored extraction from PDFs, drawings, specs |
 | `/scholarly-research "topic"` | Academic literature discovery (OpenAlex, arXiv, Semantic Scholar) |
 | `/standards-lookup AISC 360` | Looks up AISC 360 provisions by section |
-| `/proposal --posting X --cv Y` | Generates full PhD proposal with gap analysis + verification |
+| `/habit` | Extracts explicit research preferences for validation and human approval |
+| `/proposal --posting X --cv Y` | Intended PhD-proposal workflow; parser/document execution is currently scaffolded with known gaps |
 
 ## Installation
 
@@ -219,7 +258,7 @@ pi install git:github.com/adeerkhan/vitruvius
 
 ### Any Agent Skills Host
 
-Copy the `skills/` and `references/` directories into your agent's skills folder:
+Copy the `skills/` and `references/` directories, plus the Habit helper at `scripts/habit-ledger.mjs`, into your agent's skills folder while preserving the `scripts/habit-ledger.mjs` path:
 - `.claude/skills/` (Claude Code)
 - `.commandcode/skills/` (Command Code)
 - `.agents/skills/` (Agents)
@@ -231,7 +270,7 @@ Copy the `skills/` and `references/` directories into your agent's skills folder
 
 ## Proposal Skill
 
-Generate targeted Ph.D./Masters research proposals. The proposal skill parses position postings, researches the professor/lab, identifies lab-specific gaps, and produces a humanized proposal with deep fit analysis.
+The intended proposal workflow generates targeted Ph.D./Masters research proposals by parsing position postings, researching the professor/lab, identifying lab-specific gaps, and producing a humanized proposal with deep fit analysis. Parser/document execution is currently scaffolded with known dependency and syntax gaps; see the current audit roadmap before treating it as fully runnable.
 
 ### Inputs
 
@@ -246,7 +285,7 @@ Generate targeted Ph.D./Masters research proposals. The proposal skill parses po
 
 ### CLI vs Desktop
 
-The skill works in both CLI and desktop harnesses:
+The intended proposal workflow is designed for CLI and desktop harnesses, but its parser/document execution currently has known dependency and syntax gaps:
 
 - **CLI**: Provide file paths as arguments
 - **Desktop apps** (Claude Desktop, Cursor, Windsurf): Attach files via the harness UI. The harness makes attached files available as readable paths.
@@ -327,7 +366,7 @@ Designed for engineering, but `/gap-analysis` and `/proposal` work for any field
 <details>
 <summary><strong>How does the proposal skill work?</strong></summary>
 
-Parses the position posting, researches the professor/lab website and recent papers, identifies lab-specific gaps, and generates a targeted proposal with deep fit analysis. Humanizes the output to match your writing style.
+The intended workflow parses the position posting, researches the professor/lab website and recent papers, identifies lab-specific gaps, and generates a targeted proposal with deep fit analysis. Humanizes the output to match your writing style. Parser/document execution is currently scaffolded with known gaps.
 </details>
 
 <details>
@@ -339,7 +378,7 @@ Mechanical, civil, electrical, software, and architectural engineering.
 <details>
 <summary><strong>How do I verify the agent's claims?</strong></summary>
 
-Every output includes a `.provenance.md` sidecar recording what was checked and how. Check the verification status labels: `verified`, `partial`, `blocked`, `unverified`.
+Research outputs are intended to include a `.provenance.md` sidecar recording what was checked and how; the current validator covers selected root/plan/draft paths, while nested and method-specific sidecars remain a known gap. Check the verification status labels: `verified`, `partial`, `blocked`, `unverified`.
 </details>
 
 ## Uninstall
@@ -353,6 +392,7 @@ Every output includes a `.provenance.md` sidecar recording what was checked and 
 | OpenCode | Remove from `opencode.json` or delete checkout |
 | Pi | `pi uninstall vitruvius` |
 | Manual | Delete copied `skills/` and `references/` from agent folder |
+| Habit data | Delete the project-local `outputs/.habits/active.json` store if you want to remove activated preferences |
 
 ## License
 

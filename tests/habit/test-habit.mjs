@@ -82,6 +82,9 @@ if (skill) {
   assert(/## Quality gate/.test(skill), "skill: has a Quality gate section");
   assert(/{"c":\[\]}/.test(skill), "skill: documents the abstention literal");
   assert(/never write `AGENTS\.md`|never an `AGENTS\.md` write/i.test(skill), "skill: no AGENTS.md auto-write");
+  assert(/## Ledger format/.test(skill), "skill: documents the ledger format");
+  assert(/"version":\s*1/.test(skill), "skill: ledger version pinned");
+  assert(/"window":/.test(skill), "skill: ledger carries the transcript window");
   assert(/lead-only/i.test(skill) && /read-only tools/i.test(skill), "skill: Write is lead-only, subagent read-only");
 }
 allPassed = hasS7Boundary("habit") && allPassed;
