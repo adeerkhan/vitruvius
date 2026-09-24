@@ -193,6 +193,14 @@ for (const root of tempRoots) rmSync(root, { recursive: true, force: true });
 
 {
   const { casesDir, resultsDir } = fixture();
+  writeFileSync(join(casesDir, "inconsistent-truth-01.md"), makeCase("inconsistent-truth-01", "PASS").replace("**Flaw type:** none", "**Flaw type:** omission"));
+  writeFileSync(join(resultsDir, "inconsistent-truth-01-result.md"), makeResult("PASS"));
+  const report = scoreBenchmark({ casesDir: join(casesDir, ".."), resultsDir });
+  assert.match(report.errors.join("\\n"), /INVALID GROUND TRUTH: inconsistent-truth-01/);
+}
+
+{
+  const { casesDir, resultsDir } = fixture();
   writeFileSync(join(casesDir, "huge-01.md"), makeCase("huge-01", "PASS"));
   writeFileSync(
     join(resultsDir, "huge-01-result.md"),

@@ -54,8 +54,8 @@ export function parseGroundTruth(content) {
   const verdictMatches = [...content.matchAll(new RegExp(GROUND_TRUTH_PATTERN.source, "gim"))];
   const flawMatches = [...content.matchAll(new RegExp(FLAW_TYPE_PATTERN.source, "gim"))];
   if (verdictMatches.length !== 1 || flawMatches.length !== 1) return null;
-  return {
-    verdict: verdictMatches[0][1].toUpperCase(),
-    flaw: flawMatches[0][1].trim(),
-  };
+  const verdict = verdictMatches[0][1].toUpperCase();
+  const flaw = flawMatches[0][1].trim().toLowerCase();
+  if ((verdict === "PASS" && flaw !== "none") || (verdict !== "PASS" && flaw === "none")) return null;
+  return { verdict, flaw };
 }

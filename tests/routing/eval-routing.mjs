@@ -179,11 +179,24 @@ for (const c of routingCases) {
 }
 console.log(`  rank-1: ${hits}/${routingCases.length}`);
 
-// Persist misses so run-over-run drift is visible in git diff.
-writeFileSync(
-  join(__dirname, "last-misses.txt"),
-  `# routing misses (rank-1), last run ${new Date().toISOString().split("T")[0]}: ${hits}/${routingCases.length}\n${misses.length ? misses.join("\n") + "\n" : ""}`,
-);
+// Persist misses so run-over-run drift is visible in git diff. Do not rewrite
+// an unchanged miss list merely because the calendar date changed.
+const missPath = join(__dirname, "last-misses.txt");
+const missBody = misses.length ? `${misses.join("\n")}\n` : "";
+let writeMisses = true;
+try {
+  const current = readFileSync(missPath, "utf-8");
+  const currentBody = current.replace(/^# routing misses[^\n]*\n/, "");
+  writeMisses = currentBody !== missBody;
+} catch {
+  // First run: create the artifact.
+}
+if (writeMisses) {
+  writeFileSync(
+    missPath,
+    `# routing misses (rank-1), last run ${new Date().toISOString().split("T")[0]}: ${hits}/${routingCases.length}\n${missBody}`,
+  );
+}
 
 // Baseline floor (2026-09 first measured run: 12/16). Raise only with a
 // recorded better run and sharpened descriptions — never lower.
