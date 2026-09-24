@@ -6,4 +6,9 @@ ref/
 .test-archive/
 tasks/benchmark/results/
 tasks/benchmark/*results*/
+!tasks/benchmark/results/
+!tasks/benchmark/results/*.md
+!tasks/benchmark/controls/results/
+!tasks/benchmark/controls/results/*.md
+tasks/benchmark/results/.err-*.log
 docs/

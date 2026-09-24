@@ -12,6 +12,18 @@ else
 	OUT="tasks/benchmark/$(basename "$CASES")-results"
 fi
 mkdir -p "$OUT"
+expected=0
+for f in "$CASES"/*/*.md "$CASES"/*.md; do
+	[ -f "$f" ] || continue
+	name=$(basename "$f" .md)
+	[ "$name" = "README" ] && continue
+	if [ -n "$FILTER" ] && [[ "$name" != *"$FILTER"* ]]; then continue; fi
+	expected=$((expected+1))
+done
+if [ "$expected" -eq 0 ]; then
+	echo "INCOMPLETE: filter matched no benchmark cases" >&2
+	exit 1
+fi
 count=0
 for f in "$CASES"/*/*.md "$CASES"/*.md; do
 	[ -f "$f" ] || continue
@@ -27,17 +39,25 @@ for f in "$CASES"/*/*.md "$CASES"/*.md; do
 		exit 1
 	fi
 	echo "--- running $name"
-	pi -p --no-session --no-tools \
+	if ! pi -p --no-session --no-tools \
 		--append-system-prompt agents/verifier.md \
 		"Blind verification dispatch. Verify the claimed conclusion below against its evidence items, following your verifier protocol. Ground truth is not provided. Return your report in your Output format, including the MACHINE_VERDICT line. Case:
 
 $(cat "$OUT/.blind-$name.md")" \
-		> "$OUT/$name-result.md" 2>"$OUT/.err-$name.log"
-	if grep -q "MACHINE_VERDICT" "$OUT/$name-result.md"; then
+		> "$OUT/$name-result.md" 2>"$OUT/.err-$name.log"; then
+		echo "    PROCESS FAILED (see $OUT/.err-$name.log)"
+		rm -f "$OUT/.blind-$name.md"
+		exit 1
+	fi
+	if node scripts/score-benchmark.mjs --case "$f" "$OUT/$name-result.md" >/dev/null; then
 		count=$((count+1)); echo "    ok"
 	else
-		echo "    NO MACHINE_VERDICT (see $OUT/.err-$name.log)"
+		echo "    INVALID MACHINE_VERDICT (see $OUT/.err-$name.log)"
 	fi
 	rm -f "$OUT/.blind-$name.md"
 done
 echo "scored runs with MACHINE_VERDICT: $count"
+if [ "$count" -ne "$expected" ]; then
+	echo "INCOMPLETE: expected $expected runs, scored $count" >&2
+	exit 1
+fi
