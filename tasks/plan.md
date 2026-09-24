@@ -1,8 +1,8 @@
-# Implementation Plan: Benchmark Controls and Habit Learning
+# Implementation Plan: Reliability Slices (B0, H1, R0, L1)
 
 ## Overview
 
-Implement two bounded P0 slices: B0 makes verifier benchmark scoring complete, deterministic, and fail-closed; H1 turns the Habit proposal contract into a validated, explicitly approved, locally activated lifecycle. Update the README only after executable behavior and tests exist.
+Implement bounded P0 reliability slices: B0 makes verifier benchmark scoring complete, deterministic, and fail-closed; H1 turns the Habit proposal contract into a validated, explicitly approved, locally activated lifecycle; R0 makes proposal/document intake and binder gates executable at the supported local boundary; L1 adds a tested run ledger with stable identity. Update public claims only after executable behavior and tests exist.
 
 ## Architecture Decisions
 

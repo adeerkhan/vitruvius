@@ -1,4 +1,4 @@
-# B0 + H1 Implementation Checklist
+# B0 + H1 + R0 + L1 Implementation Checklist
 
 ## Phase 1: B0
 
@@ -20,7 +20,7 @@
 
 - [x] Bump Habit skill version and update workflow docs
 - [x] Update README benchmark and Habit sections
-- [x] Update audit map/report/provenance
+- [x] Update audit map/report/provenance through L1
 - [x] Full verification and independent review
 
 ## Phase 4: R0
