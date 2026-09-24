@@ -13,7 +13,7 @@ description: >
 argument-hint: "<discipline or research question>"
 license: MIT
 metadata:
-  version: "0.1.0"
+  version: "0.1.1"
 
 ---
 
@@ -66,9 +66,8 @@ matching discipline skill and the shared `engineering-research` method.
   claim something exists without checking, read before you summarize, mark
   status honestly.
 - Every research output gets a `.provenance.md` sidecar.
-- The four research roles (`researcher`, `writer`, `verifier`, `reviewer`) are
-  performed by subagents when the host supports them, otherwise by you.
-- For a quick-reference card of all commands, activate `/vitruvius:help`.
+- The seven canonical roles (`researcher`, `writer`, `verifier`, `reviewer`, `arbiter`, `goal-checker`, and `habit`) are performed by subagents when the host supports them, otherwise by you.
+- For a quick-reference card of all commands, activate `/vitruvius-help`.
 
 ## Scope and Boundaries
 

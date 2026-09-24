@@ -16,7 +16,7 @@ Regenerated from the adapters on disk, 2026-09.
 | Codex | `skills/`, `AGENTS.md` (native) | `npx skills add adeerkhan/vitruvius --agent codex` |
 | Command Code | `.commandcode/mods/vitruvius.ts`, `skills/` | `cmd skills add adeerkhan/vitruvius` + `cmd mods add adeerkhan/vitruvius` |
 | Cursor | `skills/` copied to `~/.cursor/skills/vitruvius` | manual copy (see README) |
-| OpenCode | `opencode.json`, `.opencode/plugins/vitruvius.mjs`, `.opencode/agent/` (6 role adapters), `.opencode/command/` | zero config inside the repo, or point `opencode.json` at the plugin |
+| OpenCode | `opencode.json`, `.opencode/plugins/vitruvius.mjs`, `.opencode/agent/` (7 role adapters), `.opencode/command/` | zero config inside the repo, or point `opencode.json` at the plugin |
 | Pi | skills as a package | `pi install git:github.com/adeerkhan/vitruvius` |
 
 ## Adapter Discipline

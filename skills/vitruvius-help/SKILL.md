@@ -7,7 +7,7 @@ description: >
   vitruvius".
 license: MIT
 metadata:
-  version: "0.1.0"
+  version: "0.1.1"
 ---
 
 # Vitruvius Help
@@ -39,7 +39,7 @@ with auditable provenance.
 | `/vitruvius:artifact-reading <doc>` | Anchored document reading + extraction. |
 | `/vitruvius:scholarly-research <topic>` | Academic literature discovery (OpenAlex, arXiv, etc.). |
 | `/vitruvius:standards-lookup <standard>` | Engineering standards (AISC, ACI, ASCE, IEEE, Eurocode). |
-| `/vitruvius:help` | This reference card. |
+| `/vitruvius-help` | This reference card. |
 
 ## The shared research method
 
@@ -55,9 +55,11 @@ Every discipline skill runs the same loop (`/skill:engineering-research`):
 6. **Review** — adversarial verification pass; fix FATAL issues.
 7. **Deliver** — final file plus `.provenance.md` sidecar.
 
-Four research roles: `researcher` (gather), `writer` (synthesize), `verifier`
-(cite + verify), `reviewer` (critique). Subagents when the host supports them,
-otherwise the lead agent performs all four.
+Seven canonical roles: `researcher` (gather), `writer` (synthesize),
+`verifier` (cite + verify), `reviewer` (critique), `arbiter` (adjudicates
+verifier disagreement), `goal-checker` (independent completion check), and
+`habit` (read-only preference extraction). Subagents when the host supports
+them, otherwise the lead agent performs the applicable role work.
 
 ## Non-negotiables
 
