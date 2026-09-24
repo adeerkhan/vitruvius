@@ -186,7 +186,7 @@ const missBody = misses.length ? `${misses.join("\n")}\n` : "";
 let writeMisses = true;
 try {
   const current = readFileSync(missPath, "utf-8");
-  const currentBody = current.replace(/^# routing misses[^\n]*\n/, "");
+  const currentBody = current.replace(/^# routing misses[^\n]*\n/, "").replace(/\r\n/g, "\n");
   writeMisses = currentBody !== missBody;
 } catch {
   // First run: create the artifact.
