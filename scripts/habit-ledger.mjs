@@ -308,6 +308,7 @@ function ensureValidStore(store) {
     if (typeof rule.d !== "string" || rule.d.length > 400) throw new Error("invalid store rule details");
     if (containsSecret(rule.t) || containsSecret(rule.d)) throw new Error(`secret pattern in store rule ${rule.id}`);
     if (typeof rule.scope !== "string" || rule.scope.length < 1 || rule.scope.length > 80) throw new Error("invalid store rule scope");
+    if (containsSecret(rule.scope)) throw new Error(`secret pattern in store scope ${rule.id}`);
     if (typeof rule.sourceRun !== "string" || !SLUG_PATTERN.test(rule.sourceRun)) throw new Error("invalid store source run");
     if (!Array.isArray(rule.e) || rule.e.length < 1 || rule.e.length > 3 || rule.e.some((id) => typeof id !== "string" || !ID_PATTERN.test(id)) || new Set(rule.e).size !== rule.e.length) {
       throw new Error("invalid store evidence");
@@ -344,12 +345,25 @@ function ensureValidStore(store) {
     if (event.action === "revoked" && (rule.status !== "revoked" || rule.revokedAt !== event.at)) {
       throw new Error(`invalid revocation event for ${event.id}`);
     }
-    if (event.action === "activated" && (typeof event.by !== "string" || event.by.length < 1)) {
-      throw new Error(`activated event lacks actor for ${event.id}`);
+    if (event.action === "activated" && event.by !== "user") {
+      throw new Error(`activated event must be approved by user for ${event.id}`);
+    }
+    if (event.action === "revoked" && event.by !== "user") {
+      throw new Error(`revoked event must be approved by user for ${event.id}`);
     }
   }
   for (const rule of store.rules) {
+    const ruleEvents = store.events.filter((event) => event.id === rule.id);
     if (!activatedIds.has(rule.id)) throw new Error(`store rule ${rule.id} lacks activation event`);
+    if (rule.status === "revoked" && !ruleEvents.some((event) => event.action === "revoked")) {
+      throw new Error(`revoked rule ${rule.id} lacks revocation event`);
+    }
+    if (rule.status === "superseded" && !ruleEvents.some((event) => event.action === "superseded")) {
+      throw new Error(`superseded rule ${rule.id} lacks supersession event`);
+    }
+    if (rule.status === "active" && ruleEvents.some((event) => event.action === "revoked" || event.action === "superseded")) {
+      throw new Error(`active rule ${rule.id} has a terminal lifecycle event`);
+    }
   }
 }
 
@@ -484,7 +498,7 @@ export function revokeHabit(store, id, { now = new Date() } = {}) {
   if (rule.status !== "active") throw new Error(`habit ${id} is not active`);
   rule.status = "revoked";
   rule.revokedAt = at;
-  next.events.push({ action: "revoked", id, at });
+  next.events.push({ action: "revoked", id, by: "user", at });
   ensureValidStore(next);
   return next;
 }
@@ -540,6 +554,7 @@ export function writeJsonAtomic(path, value, options = {}) {
 
 export function withStoreLock(storePath, callback, { projectRoot = process.cwd() } = {}) {
   const target = resolve(storePath);
+  assertProjectLocal(target, projectRoot);
   assertProjectLocal(`${target}.lock`, projectRoot);
   mkdirSync(dirname(target), { recursive: true });
   const lockPath = `${target}.lock`;
@@ -624,8 +639,11 @@ function assertLedgerSidecar(ledgerPath, ledger) {
   if (!existsSync(sidecarPath)) throw new Error(`missing provenance sidecar: ${sidecarPath}`);
   if (lstatSync(sidecarPath).isSymbolicLink()) throw new Error(`provenance sidecar must not be a symbolic link: ${sidecarPath}`);
   const text = readFileSync(sidecarPath, "utf-8");
-  if (!/^## Verification\s*$/im.test(text) || !/^## Sources\s*$/im.test(text)) {
-    throw new Error(`provenance sidecar must contain Verification and Sources sections: ${sidecarPath}`);
+  if (!/^## Verification\s*$/im.test(text) || !/^## Sources\s*$/im.test(text) || !/^## Approval\s*$/im.test(text)) {
+    throw new Error(`provenance sidecar must contain Sources, Verification, and Approval sections: ${sidecarPath}`);
+  }
+  if (!/approvedBy\s*:\s*user\b/i.test(text)) {
+    throw new Error(`provenance sidecar lacks explicit user approval: ${sidecarPath}`);
   }
   if (!new RegExp(`run:\\s*${ledger.run}\\b`, "i").test(text)) {
     throw new Error(`provenance sidecar is not bound to ledger run ${ledger.run}`);

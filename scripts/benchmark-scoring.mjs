@@ -113,6 +113,8 @@ export function scoreCase(caseFile, resultFile) {
 }
 
 export function scoreBenchmark({ casesDir, resultsDir }) {
+  casesDir = resolve(casesDir);
+  resultsDir = resolve(resultsDir);
   const errors = [];
   const caseFiles = walkMarkdown(casesDir);
   const resultFiles = existsSync(resultsDir)

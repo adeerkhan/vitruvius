@@ -1,7 +1,7 @@
 import { strict as assert } from "node:assert";
 import { spawnSync } from "node:child_process";
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 import { tmpdir } from "node:os";
 import { scoreBenchmark } from "../../scripts/benchmark-scoring.mjs";
@@ -112,6 +112,12 @@ function fixture() {
   writeFileSync(join(casesDir, "two.md"), makeCase("two", "PASS"));
   writeFileSync(join(resultsDir, "one-result.md"), makeResult("PASS"));
 
+  const report = scoreBenchmark({
+    casesDir: relative(process.cwd(), parentCasesDir),
+    resultsDir: relative(process.cwd(), resultsDir),
+  });
+  assert.equal(report.errors.filter((error) => error.includes("NESTED RESULT")).length, 0);
+
   const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
   const cli = join(repoRoot, "scripts", "score-benchmark.mjs");
   const result = spawnSync(process.execPath, [cli, resultsDir, parentCasesDir], {
@@ -189,6 +195,17 @@ for (const root of tempRoots) rmSync(root, { recursive: true, force: true });
   writeFileSync(join(resultsDir, "duplicate-truth-01-result.md"), makeResult("PASS"));
   const report = scoreBenchmark({ casesDir: join(casesDir, ".."), resultsDir });
   assert.match(report.errors.join("\\n"), /INVALID GROUND TRUTH: duplicate-truth-01/);
+}
+
+{
+  const { casesDir, resultsDir } = fixture();
+  writeFileSync(
+    join(casesDir, "bad-marker-01.md"),
+    `${makeCase("bad-marker-01", "PASS")}**Ground-truth verdict:** PASSING\n**Flaw type:** banana\n`,
+  );
+  writeFileSync(join(resultsDir, "bad-marker-01-result.md"), makeResult("PASS"));
+  const report = scoreBenchmark({ casesDir: join(casesDir, ".."), resultsDir });
+  assert.match(report.errors.join("\\n"), /INVALID GROUND TRUTH: bad-marker-01/);
 }
 
 {

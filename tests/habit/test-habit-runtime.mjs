@@ -267,6 +267,64 @@ function validReport(value) {
 }
 
 {
+  const scopeSecretStore = {
+    schema: "habit-store.v1",
+    rules: [{
+      id: "h1",
+      t: "Cite sections.",
+      d: "",
+      e: ["u1"],
+      scope: "api_key=sk_live_1234567890",
+      sourceRun: "fixture-run",
+      status: "active",
+      activatedAt: T1,
+      expiresAt: null,
+    }],
+    events: [{ action: "activated", id: "h1", by: "user", at: T1 }],
+  };
+  assert.throws(() => loadHabits(scopeSecretStore, { now: T1 }), /scope|secret|store/i);
+}
+
+{
+  const assistantEventStore = {
+    schema: "habit-store.v1",
+    rules: [{
+      id: "h1",
+      t: "Cite sections.",
+      d: "",
+      e: ["u1"],
+      scope: "research",
+      sourceRun: "fixture-run",
+      status: "active",
+      activatedAt: T1,
+      expiresAt: null,
+    }],
+    events: [{ action: "activated", id: "h1", by: "assistant", at: T1 }],
+  };
+  assert.throws(() => loadHabits(assistantEventStore, { now: T1 }), /user|event|store/i);
+}
+
+{
+  const revokedWithoutEvent = {
+    schema: "habit-store.v1",
+    rules: [{
+      id: "h1",
+      t: "Cite sections.",
+      d: "",
+      e: ["u1"],
+      scope: "research",
+      sourceRun: "fixture-run",
+      status: "revoked",
+      activatedAt: T1,
+      revokedAt: T1,
+      expiresAt: null,
+    }],
+    events: [{ action: "activated", id: "h1", by: "user", at: T1 }],
+  };
+  assert.throws(() => loadHabits(revokedWithoutEvent, { now: T1 }), /revocation event|store/i);
+}
+
+{
   const unsafeStore = {
     schema: "habit-store.v1",
     rules: [{

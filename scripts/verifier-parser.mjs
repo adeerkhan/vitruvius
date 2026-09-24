@@ -5,10 +5,21 @@
  * numeric ranges are valid. Partial or decorated lines are integrity errors.
  */
 
-export const VERDICT_PATTERN = /^\s*#*\s*MACHINE_VERDICT:\s*(PASS|PARTIAL|BLOCKED)\s*\|\s*FLAW:\s*([A-Za-z0-9_-]+)\s*\|\s*CONFIDENCE:\s*(0(?:\.\d+)?|1(?:\.0+)?)\s*\|\s*CHECKS_PASSED:\s*([0-8])\/8\s*\|\s*LINE_PINNED:\s*(\d+)\/([1-9]\d*)\s*$/i;
+export const VERDICT_PATTERN = /^\s*#*\s*MACHINE_VERDICT:\s*(PASS|PARTIAL|BLOCKED)\s*\|\s*FLAW:\s*([A-Za-z0-9_-]+)\s*\|\s*CONFIDENCE:\s*(0(?:\.\d+)?|1(?:\.0+)?)\s*\|\s*CHECKS_PASSED:\s*([0-8])\/8\s*\|\s*LINE_PINNED:\s*(\d+)\/([1-9]\d*)\s*$/;
 
 export const GROUND_TRUTH_PATTERN = /\*\*Ground-truth verdict:\*\*\s*(PASS|PARTIAL|BLOCKED)\s*$/im;
 export const FLAW_TYPE_PATTERN = /\*\*Flaw type:\*\*\s*(\S+)\s*$/im;
+const GROUND_TRUTH_FLAWS = new Set([
+  "none",
+  "code_misapplication",
+  "synthesis_overreach",
+  "omission",
+  "calculation_error",
+  "unit_sign_error",
+  "entailment_failure",
+]);
+const GROUND_TRUTH_MARKER = /\*\*Ground-truth verdict:\*\*/gi;
+const FLAW_MARKER = /\*\*Flaw type:\*\*/gi;
 
 export function parseMachineVerdict(line) {
   if (typeof line !== "string") return null;
@@ -51,11 +62,15 @@ export function parseMachineVerdict(line) {
 }
 
 export function parseGroundTruth(content) {
+  const groundTruthMarkerCount = [...content.matchAll(new RegExp(GROUND_TRUTH_MARKER.source, "gi"))].length;
+  const flawMarkerCount = [...content.matchAll(new RegExp(FLAW_MARKER.source, "gi"))].length;
+  if (groundTruthMarkerCount !== 1 || flawMarkerCount !== 1) return null;
   const verdictMatches = [...content.matchAll(new RegExp(GROUND_TRUTH_PATTERN.source, "gim"))];
   const flawMatches = [...content.matchAll(new RegExp(FLAW_TYPE_PATTERN.source, "gim"))];
   if (verdictMatches.length !== 1 || flawMatches.length !== 1) return null;
   const verdict = verdictMatches[0][1].toUpperCase();
   const flaw = flawMatches[0][1].trim().toLowerCase();
+  if (!GROUND_TRUTH_FLAWS.has(flaw)) return null;
   if ((verdict === "PASS" && flaw !== "none") || (verdict !== "PASS" && flaw === "none")) return null;
   return { verdict, flaw };
 }
