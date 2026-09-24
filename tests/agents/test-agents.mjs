@@ -91,7 +91,15 @@ check(
 );
 for (const role of ROLES) {
   const adapter = read(join(ADAPTERS_DIR, `${role}.md`));
-  check(`opencode adapter for ${role} points at canonical file`, adapter !== null && adapter.includes(`agents/${role}.md`));
+  const operative = new RegExp(
+    `^\\s*\\d+\\.\\s+Read the file \`?agents/${role}\\.md\`? from the repo root and follow it exactly\\.$`,
+  );
+  check(
+    `opencode adapter for ${role} has an exact operative path`,
+    adapter !== null &&
+      adapter.split(/\r?\n/).some((line) => operative.test(line)) &&
+      !/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/.test(adapter),
+  );
 }
 
 // --- Report ---

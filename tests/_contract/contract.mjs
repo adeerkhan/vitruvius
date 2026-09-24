@@ -38,7 +38,7 @@ export function check(condition, message) {
     return true;
   } else {
     console.error(`  FAIL: ${message}`);
-    return false;
+    throw new Error(`Assertion failed: ${message}`);
   }
 }
 
