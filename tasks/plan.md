@@ -44,7 +44,7 @@ Implement two bounded P0 slices: B0 makes verifier benchmark scoring complete, d
 
 ### Phase 3: Documentation and release-facing truth
 
-- [ ] Task 5: Update Habit skill, README, audit map, and provenance.
+- [x] Task 5: Update Habit skill, README, audit map, and provenance.
   - Acceptance: versions are bumped for behavioral skill changes; README distinguishes proposal from executable lifecycle and reports benchmark controls honestly; current limitations and commands are reproducible.
   - Verification: contract validation, focused tests, full `npm test`, artifact validation, and an independent read-only review pass.
 

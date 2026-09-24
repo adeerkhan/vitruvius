@@ -18,10 +18,10 @@
 
 ## Phase 3: Documentation
 
-- [ ] Bump Habit skill version and update workflow docs
-- [ ] Update README benchmark and Habit sections
-- [ ] Update audit map/report/provenance
-- [ ] Full verification and independent review
+- [x] Bump Habit skill version and update workflow docs
+- [x] Update README benchmark and Habit sections
+- [x] Update audit map/report/provenance
+- [x] Full verification and independent review
 
 ## Checkpoints
 
