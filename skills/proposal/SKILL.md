@@ -3,36 +3,37 @@ name: proposal
 description: >
   Research Proposal Generator — an intended pipeline from position posting + CV
   + Personal Statement to a humanized research proposal for Ph.D./Masters
-  applications. Parses position postings (PDF/image/URL), researches
-  professor/lab, identifies lab-specific gaps, and generates a targeted proposal
-  with deep fit analysis. Parser/document execution is currently scaffolded with
-  known dependency and syntax gaps; do not treat a run as complete without
-  checking the execution artifacts. Wraps /gap-analysis, /evidence-ranking, and
-  /verifier as isolated subagents.
-argument-hint: "[--posting <path-or-url>] [--cv <path>] [--statement <path>] [--sample <path>]"
+  applications. Local text/Markdown/JSON intake is executable; PDF extraction
+  uses optional tooling and URL/image inputs require an explicitly recorded
+  fetch or transcription before intake. The workflow researches professor/lab, identifies
+  lab-specific gaps, and generates a targeted proposal with deep fit analysis.
+  Wraps /gap-analysis, /evidence-ranking, and /verifier as isolated subagents.
+argument-hint: "[--posting <path>] [--cv <path>] [--statement <path>] [--sample <path>]"
 allowed-tools: Write Edit Bash Read
 license: MIT
 metadata:
-  version: "0.1.1"
+  version: "0.1.8"
 
 ---
 
 # Research Proposal Generator
 
-The intended workflow generates a research proposal package for Ph.D./Masters applications. It orchestrates multiple subagents in isolation, verifies outputs, produces a humanized final proposal with an audit trail, and targets the specific lab/professor from the position posting. The current parser/document implementation is scaffolded with known dependency and syntax gaps; stop with a blocker when an execution check fails.
+The intended workflow generates a research proposal package for Ph.D./Masters applications. Local text/Markdown/JSON intake is executable; PDF extraction uses the optional `pdf-parse` dependency, while URL/image inputs require an explicitly recorded fetch or transcription before intake. The parser commands record raw intake and provenance; an isolated research step must verify and structure profile/posting fields before downstream work. The workflow orchestrates isolated subagents, verifies outputs, produces a humanized final proposal with an audit trail, and targets the specific lab/professor from the posting. Stop with a blocker when an execution check fails.
 
 ## Invocation
 
 ### CLI
 
 ```
-/proposal --posting <path-or-url> --cv <path> [--statement <path>] [--sample <path>]
+/proposal --posting <path> --cv <path> [--statement <path>] [--sample <path>]
 ```
 
-- **`--posting`**: Position posting as PDF file, image file (screenshot), or URL
-- **`--cv`**: Path to student's CV (PDF)
+- **`--posting`**: Local text/Markdown/JSON or text-layer PDF path. Fetch URLs and transcribe images explicitly before intake; they are not deterministic parser inputs.
+- **`--cv`**: Local text/Markdown/JSON or text-layer PDF path
 - **`--statement`**: Path to personal statement (optional, used for voice matching)
 - **`--sample`**: Path to separate writing sample (optional, used for voice matching)
+
+The parser scripts write `projects/<slug>/` beneath the active working directory. Set `VITRUVIUS_PROJECT_ROOT` when the active project workspace is elsewhere. When a host copies only this skill, run the scripts from the copied skill directory or adapt the displayed checkout paths; the proposal runtime is self-contained.
 
 ### Desktop Apps (Claude Desktop, Cursor, Windsurf, etc.)
 
@@ -60,7 +61,7 @@ node skills/proposal/scripts/init-project.mjs <student-slug>
 
 **0b. Parse Documents (STRICT Isolation via Artifact-Reading Subagent)**
 
-> **Execution gate:** the current `scripts/extract-document.mjs` path has a known syntax/dependency gap. Run the focused checks before proceeding; if parsing fails, stop and report `BLOCKED` rather than emitting a complete proposal.
+> **Execution gate:** local text/Markdown/JSON paths are supported. PDF extraction uses optional `pdf-parse`; scanned/unsupported/image/URL inputs are blocked until explicitly transcribed/read. `parse-posting.mjs` and `parse-cv.mjs` intentionally produce raw intake (`structured: false`) and an append-only phase-0 provenance ledger. Stop and report `BLOCKED` until an isolated step verifies and writes the structured fields (`structured: true`); never treat raw intake as a complete profile or posting.
 
 Dispatch `/skill:artifact-reading` as isolated subagent — **fresh context, receives ONLY:**
 - Path to position posting (if `--posting` provided)
@@ -71,15 +72,24 @@ Dispatch `/skill:artifact-reading` as isolated subagent — **fresh context, rec
 **Does NOT receive:** any prior reasoning, target context, or other project files.
 
 Artifact-reading subagent:
-1. For each file, runs `node scripts/extract-document.mjs <path>` only after the execution gate above passes
+1. For each file, run `node <proposal-skill-root>/scripts/extract-document.mjs <path>` after the execution gate passes. In a repository checkout, the equivalent compatibility command is `node scripts/extract-document.mjs <path>`; the local wrapper is self-contained.
 2. Extracts structured content (markdown, pages, method used)
-3. If method is `vision`, uses LLM vision to extract text
+3. If method is `vision`, deterministic proposal intake stops; a separate, explicit LLM read may transcribe the document, but that transcription must be saved as a new text artifact and provenance entry before re-running intake
 4. Returns structured content with sections and provenance
 
-**Output saved by subagent:**
-- `posting.json` — structured position posting data:
+All downstream phase artifacts (gap dossier/provenance, evidence table, verifier verdict, proposal draft, and proposal final) must include the current `RUN_INPUT_SHA256: <lineage_id>` from `run-manifest.json`; the binder rejects mixed-generation artifacts.
+
+The deterministic parser commands are an intake boundary, not a field extractor:
+- `node skills/proposal/scripts/parse-posting.mjs <slug> <local-path>`
+- `node skills/proposal/scripts/parse-cv.mjs <slug> <local-path>`
+They fail closed for empty, URL, image, or unsupported extraction paths, preserve blocked attempts, and never invent identity fields. Each raw artifact carries source/raw byte counts and SHA-256 digests plus an `unverified` marker. The isolated artifact-reading step must verify the digests against `phase-0-provenance.md`, enrich the fields, set `verification.status: verified`, then run `node skills/proposal/scripts/register-structured.mjs <slug>` before Phase 1. Registration records structured digests and a new lineage; changing intake archives downstream artifacts.
+
+**Output saved by subagent (after raw intake and verification):**
+- `posting.json` — structured position posting data (the deterministic parser initially writes `structured: false`; the subagent must set verified fields and `structured: true`):
   ```json
   {
+    "status": "parsed",
+    "structured": true,
     "professor": { "name": "...", "title": "...", "email": "..." },
     "university": "Georgia Tech",
     "department": "School of Building Construction",
@@ -92,7 +102,7 @@ Artifact-reading subagent:
     "raw_text": "..."
   }
   ```
-- `profile.json` — structured CV data
+- `profile.json` — structured CV data (`status: parsed`, `structured: true`; raw intake is not sufficient)
 - `voice-sample.txt` — writing sample for humanizer
 
 **0c. Voice Sample**
@@ -112,21 +122,27 @@ node skills/proposal/scripts/research-professor.mjs <slug>
 - LLM saves structured research to `professor-research.json`:
   ```json
   {
+    "status": "parsed",
+    "structured": true,
+    "input_lineage": "<run-manifest.lineage_id>",
     "professor": { "name": "...", "title": "...", "profile_url": "..." },
     "lab": { "name": "...", "url": "...", "description": "...", "members": [...] },
     "recent_papers": [{ "title": "...", "year": 2024, "doi": "...", "key_contribution": "..." }],
     "research_focus": ["..."],
     "ongoing_projects": ["..."],
-    "sources_consulted": ["..."]
+    "sources_consulted": ["..."],
+    "search_plan_sha256": "<sha256 of professor-search-plan.txt>",
+    "provenance": "phase-0-provenance.md",
+    "verification": { "status": "verified", "provenance": "phase-0-provenance.md" }
   }
   ```
 
 **0d. Provenance**
-Log all inputs, extractions, and research queries to `phase-0-provenance.md`
+Log all inputs, extraction methods, statuses, hashes, and research queries to `phase-0-provenance.md`. The parser appends each attempt; never replace a prior source record.
 
 ### Phase 1 — Gap Analysis (STRICT Isolation, Enhanced)
 
-**Before dispatching:** LLM reads `posting.json` and `professor-research.json` (if they exist). Extracts:
+**Before dispatching:** LLM reads `posting.json` and `professor-research.json` only when they are marked `structured: true` and supported by provenance. If they are raw or blocked, stop with `BLOCKED`. Extracts:
 - Research areas and keywords from posting
 - Professor's recent papers and research focus from professor-research
 - Lab's ongoing projects and techniques
@@ -263,16 +279,20 @@ Create layered binder with all appendices:
 ### Appendix G: Provenance
 ```
 
-Save to `binder.md` + `binder.provenance.md`
+The `verification` object is a provenance assertion, not authentication; a host with stronger identity controls should bind it to the approver. Binder assembly is fail-closed: it requires non-empty phase artifacts, digest-bound structured profile/posting fields, a recorded phase-0 source ledger, an explicit voice sample or neutral baseline, the complete verifier output contract with exactly one `PASS` verdict, and no blocked retry sidecar. Intake or research changes archive downstream artifacts. Save to `binder.md` + `binder.provenance.md` only after all gates pass.
 
 ## Output Artifacts
 
 ```
 projects/<student-slug>/
-├── profile.json                    # Structured CV extraction
-├── voice-sample.txt               # Writing sample (or default note)
-├── posting.json                   # Structured position posting data
+├── profile.json                    # Raw intake, then verified structured CV data
+├── voice-sample.txt               # Writing sample (or explicit neutral baseline)
+├── posting.json                   # Raw intake, then verified structured posting data
 ├── posting-raw.txt                # Raw text from posting
+├── cv-raw.txt                     # Raw text from CV
+├── phase-0-provenance.md          # Append-only intake/extraction ledger
+├── run-manifest.json              # Current intake generation/lineage
+├── *.blocked                      # Failed retry sidecars, when present
 ├── professor-research.json        # Professor/lab web research
 ├── professor-search-plan.txt      # Search queries used
 ├── gap-analysis/

@@ -10,7 +10,7 @@ description: >
 argument-hint: "<document(s) to read>"
 license: MIT
 metadata:
-  version: "0.1.0"
+  version: "0.1.2"
 
 ---
 
@@ -70,8 +70,8 @@ When dispatched as an isolated subagent for document parsing (e.g., by `/proposa
 3. **Parse the JSON result** — extract:
    - `markdown` — full document content in markdown format
    - `pages` — page count
-   - `method` — extraction method used (marker, pdf-parse, vision)
-   - `warnings` — any quality issues (OCR used, scanned PDF, etc.)
+   - `method` — extraction method used (text, pdf-parse, vision)
+   - `warnings` — any quality issues (scanned PDF, missing optional dependency, etc.)
 4. **Return structured content** with:
    - Full text (markdown format)
    - Page count
@@ -84,7 +84,7 @@ When dispatched as an isolated subagent for document parsing (e.g., by `/proposa
 ```json
 {
   "source": "path/to/file.pdf",
-  "method": "marker",
+  "method": "pdf-parse",
   "pages": 5,
   "content": "full markdown content...",
   "sections": [
@@ -95,10 +95,7 @@ When dispatched as an isolated subagent for document parsing (e.g., by `/proposa
 }
 ```
 
-**If extraction method is `vision`:**
-- Use `read_file` to load the document
-- Extract text using LLM vision
-- Return same structured format with `method: "vision"`
+**If extraction method is `vision`:** general artifact-reading may use the host's explicit `read_file` or vision capability, but `/proposal` deterministic intake must stop and require a separately recorded text transcription; it must not silently feed vision output into the binder.
 
 ## Boundaries
 

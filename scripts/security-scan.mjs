@@ -10,13 +10,14 @@
  * - __import__ usage (availability probes OK)
  */
 
-import { readFileSync, readdirSync, statSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const REPO_ROOT = join(__dirname, "..");
 const SKILLS_DIR = join(REPO_ROOT, "skills");
+const SCRIPTS_DIR = join(REPO_ROOT, "scripts");
 
 const SECRET_PATTERNS = [
   /sk-[a-zA-Z0-9]{48}/,            // OpenAI keys
@@ -28,10 +29,12 @@ const SECRET_PATTERNS = [
   /["'][A-Za-z0-9_]*API_KEY["']\s*[:=]\s*["'][^"']+["']/i,
 ];
 
+const CHILD_PROCESS_PATTERN = /\bchild_process\b/;
+
 const DANGEROUS_CALLS = [
   /\beval\s*\(/,
   /\bexec\s*\(/,
-  /\bchild_process\b/,
+  CHILD_PROCESS_PATTERN,
   /\bos\.system\s*\(/,
   /\bsubprocess\.run\s*\(/,
   /\bRuntime\.eval\b/,
@@ -137,15 +140,14 @@ function walkDir(dir, fn) {
 }
 
 // Run scan
-console.log("Scanning skills for security issues...\n");
+console.log("Scanning skills and shipped proposal runtime scripts for security issues...\n");
 
 const allProblems = [];
-for (const skill of readdirSync(SKILLS_DIR)) {
-  const skillDir = join(SKILLS_DIR, skill);
-  if (!statSync(skillDir).isDirectory()) continue;
-
-  allProblems.push(...walkDir(skillDir, scanFile));
-  allProblems.push(...walkDir(skillDir, (f) => scanPersonalPaths(f)));
+allProblems.push(...walkDir(SKILLS_DIR, scanFile));
+allProblems.push(...walkDir(SKILLS_DIR, (f) => scanPersonalPaths(f)));
+for (const runtimeFile of [join(SCRIPTS_DIR, 'extract-document.mjs'), join(SCRIPTS_DIR, 'verifier-parser.mjs')]) {
+  allProblems.push(...scanFile(runtimeFile));
+  allProblems.push(...scanPersonalPaths(runtimeFile));
 }
 
 // Deduplicate

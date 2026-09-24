@@ -165,7 +165,7 @@ End-to-end workflows for specific tasks:
 
 | Command | What it does |
 |---------|--------------|
-| `/proposal` | Intended targeted Ph.D./Masters proposal workflow; parser/document execution is currently scaffolded with known dependency and syntax gaps (see the current audit roadmap) |
+| `/proposal` | Intended targeted Ph.D./Masters proposal workflow; local text intake is executable, PDF extraction uses optional tooling, and URL/image inputs require explicit recorded fetch/transcription |
 
 ## Choose Your Starting Point
 
@@ -201,7 +201,7 @@ End-to-end workflows for specific tasks:
 | `/scholarly-research "topic"` | Academic literature discovery (OpenAlex, arXiv, Semantic Scholar) |
 | `/standards-lookup AISC 360` | Looks up AISC 360 provisions by section |
 | `/habit` | Extracts explicit research preferences for validation and human approval |
-| `/proposal --posting X --cv Y` | Intended PhD-proposal workflow; parser/document execution is currently scaffolded with known gaps |
+| `/proposal --posting X --cv Y` | Intended PhD-proposal workflow; local text intake is executable, PDF extraction uses optional tooling, and URL/image inputs require explicit recorded fetch/transcription |
 
 ## Installation
 
@@ -258,7 +258,7 @@ pi install git:github.com/adeerkhan/vitruvius
 
 ### Any Agent Skills Host
 
-Copy the `skills/` and `references/` directories, plus the Habit helper at `scripts/habit-ledger.mjs`, into your agent's skills folder while preserving the `scripts/habit-ledger.mjs` path:
+Copy the `skills/` and `references/` directories into your agent's skills folder. The proposal skill carries its own parser runtime; copy `scripts/habit-ledger.mjs` as well when using the Habit CLI, and `scripts/extract-document.mjs` when using the standalone artifact-reading command. Preserve repository-relative paths when copying helpers:
 - `.claude/skills/` (Claude Code)
 - `.commandcode/skills/` (Command Code)
 - `.agents/skills/` (Agents)
@@ -266,26 +266,28 @@ Copy the `skills/` and `references/` directories, plus the Habit helper at `scri
 - `.cursor/skills/` (Cursor)
 - `.codex/skills/` (Codex)
 
+Proposal scripts write under the active working directory by default. Set `VITRUVIUS_PROJECT_ROOT` when the project workspace differs from that directory; the proposal skill remains self-contained when only `skills/proposal/` is copied.
+
 > **Restart your harness after installing new skills.** The skill catalogue is built at startup; new skills won't be routable until the next session.
 
 ## Proposal Skill
 
-The intended proposal workflow generates targeted Ph.D./Masters research proposals by parsing position postings, researching the professor/lab, identifying lab-specific gaps, and producing a humanized proposal with deep fit analysis. Parser/document execution is currently scaffolded with known dependency and syntax gaps; see the current audit roadmap before treating it as fully runnable.
+The intended proposal workflow generates targeted Ph.D./Masters research proposals by parsing position postings, researching the professor/lab, identifying lab-specific gaps, and producing a humanized proposal with deep fit analysis. The deterministic parser commands provide local text/Markdown/JSON intake and auditable extraction records; an isolated research step must verify and structure those fields before downstream work. PDF extraction uses optional tooling, while URLs and images require an explicit, recorded fetch/transcription before they can enter intake.
 
 ### Inputs
 
 ```
-/proposal --posting <path-or-url> --cv <path> [--statement <path>] [--sample <path>]
+/proposal --posting <path> --cv <path> [--statement <path>] [--sample <path>]
 ```
 
-- `--posting` — Position posting as PDF, image (screenshot), or URL
-- `--cv` — Your CV (PDF)
+- `--posting` — Local text/Markdown/JSON or text-layer PDF path; fetch URLs and transcribe images explicitly first
+- `--cv` — Local text/Markdown/JSON or text-layer PDF path
 - `--statement` — Personal statement (optional, used for voice matching)
 - `--sample` — Separate writing sample (optional, used for voice matching)
 
 ### CLI vs Desktop
 
-The intended proposal workflow is designed for CLI and desktop harnesses, but its parser/document execution currently has known dependency and syntax gaps:
+The intended proposal workflow is designed for CLI and desktop harnesses. Local text/Markdown/JSON paths are executable; PDF extraction uses optional tooling. URLs and images must be fetched/transcribed explicitly and recorded before intake:
 
 - **CLI**: Provide file paths as arguments
 - **Desktop apps** (Claude Desktop, Cursor, Windsurf): Attach files via the harness UI. The harness makes attached files available as readable paths.
@@ -315,11 +317,13 @@ flowchart TD
 ### Output
 
 All artifacts saved to `projects/<your-slug>/`:
-- Structured profile, posting data, professor research
-- Gap analysis dossier (general + lab-specific gaps)
+- Raw intake text and a phase-0 provenance ledger with source/intake digests; structured profile/posting fields are added only after verification and are bound to those digests
+- A run manifest/lineage marker prevents stale phase artifacts from being assembled together
+- Professor research, when the posting is sufficiently structured
+- Gap analysis dossier (general + lab-specific gaps) with provenance
 - Evidence ranking table
-- Verifier verdict
-- Humanized proposal
+- Verifier verdict (binder assembly requires `PASS`)
+- Humanized proposal and explicit voice-sample/baseline record
 - Layered binder with all appendices
 
 ## Research Sources
@@ -366,7 +370,7 @@ Designed for engineering, but `/gap-analysis` and `/proposal` work for any field
 <details>
 <summary><strong>How does the proposal skill work?</strong></summary>
 
-The intended workflow parses the position posting, researches the professor/lab website and recent papers, identifies lab-specific gaps, and generates a targeted proposal with deep fit analysis. Humanizes the output to match your writing style. Parser/document execution is currently scaffolded with known gaps.
+The intended workflow parses the position posting, verifies and structures its fields, researches the professor/lab website and recent papers, identifies lab-specific gaps, and generates a targeted proposal with deep fit analysis. Humanizes the output to match your writing style. Local text/Markdown/JSON intake is executable; PDF extraction uses optional tooling, while URL/image inputs require an explicit recorded fetch/transcription first.
 </details>
 
 <details>

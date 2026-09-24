@@ -57,6 +57,24 @@ Implement two bounded P0 slices: B0 makes verifier benchmark scoring complete, d
 | Local store is mistaken for global memory | Medium | Default project-local ignored path, explicit commands, README boundary, and no automatic invocation |
 | Existing dirty audit edits are overwritten | High | Stage and commit only files belonging to each slice; inspect status before every commit |
 
+## Phase 4: R0 proposal/document execution
+
+- [x] Task 6: Repair document extraction and add local posting/CV parser commands.
+  - Acceptance: `node --check scripts/extract-document.mjs` passes; plain text/Markdown/JSON extraction works; renamed binary content, PDF fallback, URL, and image inputs fail closed; `parse-posting.mjs` and `parse-cv.mjs` exist and fail closed; copied-skill-local extraction uses the active project root.
+  - Verification: focused proposal parser tests and package dependency/syntax checks.
+
+- [x] Task 7: Make binder assembly prove the complete core artifact set.
+  - Acceptance: missing gap/evidence/verifier/draft/final/profile/provenance artifacts fail before writing a binder; digest-bound structured fields are registered into one manifest lineage, explicit voice status, complete verifier evidence, and one PASS verdict are required; every intake/registration/failure change archives descendants; valid fixtures produce binder and provenance.
+  - Verification: positive and negative binder fixtures, stale-output and rerun invalidation checks.
+
+- [x] Task 8: Wire proposal checks into npm and update execution claims.
+  - Acceptance: `npm test` includes proposal execution; README/skill distinguish runnable local paths from explicit URL/image transcription and blocked PDF/dependency paths; skill version is bumped.
+  - Verification: full suite, package dry-run, and independent review.
+
+### Checkpoint: R0
+
+- [x] Proposal/document execution is runnable for supported local text intake, PDF/URL/image boundaries fail closed, and copied-skill execution is covered; full downstream proposal research remains an agent workflow, not a claim of deterministic generation.
+
 ## Open Questions
 
 - Whether to promote the project-local Habit store to a user-scoped home-directory store later; defer until a real cross-project need is demonstrated.

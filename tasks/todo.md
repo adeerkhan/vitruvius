@@ -23,6 +23,14 @@
 - [x] Update audit map/report/provenance
 - [x] Full verification and independent review
 
+## Phase 4: R0
+
+- [x] Document extraction syntax, self-contained local parser commands, and binary/URL/image boundaries
+- [x] Structured registration, digest/lineage manifest, and downstream invalidation
+- [x] Complete binder artifact/verifier gate and atomic publication
+- [x] Proposal test/npm wiring and execution claims
+- [x] R0 checkpoint
+
 ## Checkpoints
 
 - After Phase 1: all benchmark cases and controls are accounted for; missing verdicts fail.
