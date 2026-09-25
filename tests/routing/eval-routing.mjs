@@ -11,8 +11,8 @@
  * Exit 1 on any collision or routing miss.
  */
 
-import { readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
-import { join, dirname } from "node:path";
+import { lstatSync, readFileSync, readdirSync, realpathSync, writeFileSync } from "node:fs";
+import { join, dirname, relative, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { validateEvalCatalog } from "../../scripts/eval-contract.mjs";
@@ -22,6 +22,16 @@ const REPO_ROOT = join(__dirname, "..", "..");
 const SKILLS_DIR = join(REPO_ROOT, "skills");
 
 const COLLISION_THRESHOLD = 0.7;
+const REPO_REAL = realpathSync(REPO_ROOT);
+
+function assertSafeRegularFile(path) {
+  const stat = lstatSync(path);
+  if (!stat.isFile() || stat.isSymbolicLink()) throw new Error(`routing input is not a regular file: ${path}`);
+  const real = realpathSync(path);
+  const rel = relative(REPO_REAL, real);
+  if (rel === ".." || rel.startsWith(`..${sep}`) || /^[A-Za-z]:[\\/]/.test(rel) || rel.startsWith("\\\\")) throw new Error(`routing input escapes repository: ${path}`);
+  return path;
+}
 
 // ---------------------------------------------------------------------------
 // Tiny TF-IDF over skill descriptions (no deps)
@@ -77,11 +87,19 @@ function jaccard(a, b) {
 // ---------------------------------------------------------------------------
 
 const skills = [];
+const routingInputErrors = [];
 for (const entry of readdirSync(SKILLS_DIR)) {
-  const p = join(SKILLS_DIR, entry, "SKILL.md");
+  const skillDir = join(SKILLS_DIR, entry);
+  const p = join(skillDir, "SKILL.md");
   try {
-    if (!statSync(p).isFile()) continue;
-  } catch {
+    const dirStat = lstatSync(skillDir);
+    if (!dirStat.isDirectory() || dirStat.isSymbolicLink()) {
+      if (dirStat.isSymbolicLink()) routingInputErrors.push(`skill directory is a symlink: ${skillDir}`);
+      continue;
+    }
+    assertSafeRegularFile(p);
+  } catch (error) {
+    if (error.code !== "ENOENT" && error.message.startsWith("routing input")) routingInputErrors.push(error.message);
     continue;
   }
   const text = readFileSync(p, "utf-8");
@@ -91,6 +109,12 @@ for (const entry of readdirSync(SKILLS_DIR)) {
     m[1].match(/description:\s*(.+)/);
   const description = descMatch ? descMatch[1].replace(/\n\s*/g, " ").trim() : "";
   skills.push({ name: entry, description, tokens: tokenize(entry + " " + description) });
+}
+
+if (routingInputErrors.length > 0) {
+  console.error("Routing input confinement failed:");
+  for (const error of routingInputErrors) console.error(`  - ${error}`);
+  process.exit(1);
 }
 
 console.log(`[routing-eval] ${skills.length} skills loaded`);
@@ -145,7 +169,7 @@ const baselineRoutingCases = [
   { prompt: "investigate the technical landscape and architecture options for this software system", skill: "software" },
 ];
 
-const e1Catalog = JSON.parse(readFileSync(join(REPO_ROOT, "evals", "catalog.json"), "utf8"));
+const e1Catalog = JSON.parse(readFileSync(assertSafeRegularFile(join(REPO_ROOT, "evals", "catalog.json")), "utf8"));
 const e1CatalogReport = validateEvalCatalog(e1Catalog, { repoRoot: REPO_ROOT });
 if (!e1CatalogReport.valid) {
   console.error("E1 catalog contract failed:");
@@ -232,31 +256,35 @@ if (negativeHits < e1Cases.length) {
   failed++;
 }
 
-function persistMisses(path, label, misses, hits, total) {
+function persistMisses(path, label, misses, scoreText) {
   const missBody = misses.length ? `${misses.join("\n")}\n` : "";
+  const header = `# ${label}, last run ${new Date().toISOString().split("T")[0]}: ${scoreText}`;
   let shouldWrite = true;
   try {
+    const stat = lstatSync(path);
+    if (stat.isSymbolicLink() || !stat.isFile()) throw new Error(`miss artifact is not a regular file: ${path}`);
     const current = readFileSync(path, "utf-8");
     const currentBody = current.replace(/^#[^\n]*\n/, "").replace(/\r\n/g, "\n");
-    shouldWrite = currentBody !== missBody;
-  } catch {
+    const currentHeader = current.split(/\r?\n/, 1)[0];
+    shouldWrite = currentBody !== missBody || currentHeader !== header;
+  } catch (error) {
+    if (error.code !== "ENOENT") throw error;
     // First run: create the artifact.
   }
-  if (shouldWrite) {
-    writeFileSync(
-      path,
-      `# ${label}, last run ${new Date().toISOString().split("T")[0]}: ${hits}/${total}\n${missBody}`,
-    );
-  }
+  if (shouldWrite) writeFileSync(path, `${header}\n${missBody}`);
 }
 
-persistMisses(join(__dirname, "last-misses.txt"), "baseline routing misses (rank-1)", baselineReport.misses, baselineReport.hits, routingCases.length);
+persistMisses(
+  join(__dirname, "last-misses.txt"),
+  "baseline routing misses (rank-1)",
+  baselineReport.misses,
+  `${baselineReport.hits}/${routingCases.length}`,
+);
 persistMisses(
   join(__dirname, "e1-misses.txt"),
   "E1 positive/owner-negative misses",
   [...e1Report.misses, ...negativeMisses],
-  Math.min(e1Report.hits, negativeHits),
-  e1Cases.length,
+  `positive ${e1Report.hits}/${e1PositiveCases.length}; owner-negative ${negativeHits}/${e1Cases.length}`,
 );
 
 // Baseline floor (2026-09 first measured run: 12/16). Raise only with a

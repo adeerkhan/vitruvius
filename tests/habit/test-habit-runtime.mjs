@@ -156,10 +156,10 @@ function validReport(value) {
 }
 
 {
-  const expiring = ledger({ expiresAt: "2026-09-25T00:00:00.000Z" });
+  const expiring = ledger({ expiresAt: "2099-01-01T00:00:00.000Z" });
   const approved = approveCandidates(expiring, ["h1"], { approvedBy: "user", approvedAt: T1 });
   const store = activateLedger(approved, { schema: "habit-store.v1", rules: [], events: [] }, { now: T1 });
-  assert.equal(loadHabits(store, { scope: "research", now: "2026-09-26T00:00:00.000Z" }).length, 0);
+  assert.equal(loadHabits(store, { scope: "research", now: "2099-01-02T00:00:00.000Z" }).length, 0);
 }
 
 {

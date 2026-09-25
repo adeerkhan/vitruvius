@@ -140,12 +140,17 @@ function walkDir(dir, fn) {
 }
 
 // Run scan
-console.log("Scanning skills and shipped proposal runtime scripts for security issues...\n");
+console.log("Scanning skills and shipped proposal/eval runtime scripts for security issues...\n");
 
 const allProblems = [];
 allProblems.push(...walkDir(SKILLS_DIR, scanFile));
 allProblems.push(...walkDir(SKILLS_DIR, (f) => scanPersonalPaths(f)));
-for (const runtimeFile of [join(SCRIPTS_DIR, 'extract-document.mjs'), join(SCRIPTS_DIR, 'verifier-parser.mjs')]) {
+for (const runtimeFile of [
+  join(SCRIPTS_DIR, 'extract-document.mjs'),
+  join(SCRIPTS_DIR, 'verifier-parser.mjs'),
+  join(SCRIPTS_DIR, 'eval-contract.mjs'),
+  join(SCRIPTS_DIR, 'fixed-case.mjs'),
+]) {
   allProblems.push(...scanFile(runtimeFile));
   allProblems.push(...scanPersonalPaths(runtimeFile));
 }

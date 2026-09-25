@@ -26,6 +26,7 @@
       },
       "behavior": {
         "test": "tests/logging/test-log-run.mjs",
+        "execution": "npm-test",
         "artifact": {
           "kind": "runtime-fixture",
           "path": "tests/logging/test-log-run.mjs"
@@ -52,6 +53,7 @@
       },
       "behavior": {
         "test": "tests/habit/test-habit-runtime.mjs",
+        "execution": "npm-test",
         "artifact": {
           "kind": "runtime-fixture",
           "path": "tests/habit/test-habit-runtime.mjs"
@@ -78,6 +80,7 @@
       },
       "behavior": {
         "test": "tests/proposal/test-proposal.mjs",
+        "execution": "npm-test",
         "artifact": {
           "kind": "runtime-fixture",
           "path": "tests/proposal/test-proposal.mjs"
@@ -104,6 +107,7 @@
       },
       "behavior": {
         "test": "tests/verifier/test-verifier.mjs",
+        "execution": "npm-test",
         "artifact": {
           "kind": "runtime-fixture",
           "path": "tasks/benchmark/results/architectural-code_misapplication-01-result.md"

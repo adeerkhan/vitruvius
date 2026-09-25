@@ -2,7 +2,7 @@
 
 ## Overview
 
-Implement bounded reliability slices: B0 makes verifier benchmark scoring complete, deterministic, and fail-closed; H1 turns the Habit proposal contract into a validated, explicitly approved, locally activated lifecycle; R0 makes proposal/document intake and binder gates executable at the supported local boundary; L1 adds a tested run ledger with stable identity; E1 pilots fixture-linked positive/negative behavioral cases for the four priority skills that already have real executable fixtures; C1 pilots one fixed local engineering case across three isolated subagent runs. Update public claims only after executable behavior and tests exist.
+Implement bounded reliability slices: B0 makes verifier benchmark scoring complete, deterministic, and fail-closed; H1 turns the Habit proposal contract into a validated, explicitly approved, locally activated lifecycle; R0 makes proposal/document intake and binder gates executable at the supported local boundary; L1 adds a tested run ledger with stable identity; E1 pilots fixture-linked positive/negative behavioral cases for the four priority skills that already have real executable fixtures; C1 pilots three fixed local engineering cases across three isolated subagent runs. Update public claims only after executable behavior and tests exist.
 
 ## Architecture Decisions
 
@@ -12,8 +12,8 @@ Implement bounded reliability slices: B0 makes verifier benchmark scoring comple
 - Habit activation requires a valid `habit.v1` ledger, explicit approval metadata, secret-redacted transcript data, scope/expiry checks, and a later-run `load` command. Revocation is recorded rather than silently deleting history.
 - README language will describe only behavior demonstrated by tests and checked-in fixtures.
 - E1 is a pilot, not a 25-skill completion claim. Its initial priority set is `engineering-research`, `verifier`, `proposal`, and `habit`, because each already has a real executable fixture path; every entry must also carry a positive trigger, an owner-labeled negative trigger, and verifiable behavioral expectations.
-- C1 uses a deterministic local-code research case rather than live web search. Three fresh subagents write to separate fixture directories; the repository stores their final artifacts, provenance sidecars, hashes, and independent grading. Model cost that the host does not expose is recorded as unavailable, never invented.
-- `npm test` validates eval contracts and recorded C1 evidence only; it never launches model calls. Subagent runs are on-demand and run once per recorded case.
+- C1 uses three deterministic local-code cases rather than live web search: supported evidence, unavailable evidence, and conflicting evidence. One fresh subagent writes each case to a separate result directory; the repository stores final artifacts, provenance sidecars, hashes, and independent grading. Model cost that the host does not expose is recorded as unavailable, never invented.
+- `npm test` validates the full repository suite, including eval contracts and retained C1 evidence; it never launches model calls. Subagent runs are on-demand and run once per recorded case.
 
 ## Task List
 
@@ -100,21 +100,21 @@ Implement bounded reliability slices: B0 makes verifier benchmark scoring comple
 
 ### Checkpoint: E1 pilot
 
-- [ ] Four priority skills have executable positive/negative/artifact contracts; broader skill coverage remains explicitly partial.
+- [x] Four priority skills have executable positive/negative/artifact contracts; broader skill coverage remains explicitly partial.
 
 ## Phase 7: C1 fixed-case pilot
 
-- [ ] Task 11: Define one local fixed case, strict run-artifact schema, and fail-closed result validator.
-  - Acceptance: source paths, required final/provenance files, claim expectations, hashes, byte counts, and grading records are required; missing or malformed evidence fails.
-  - Verification: synthetic valid/invalid C1 fixtures pass/fail as expected without model calls.
+- [x] Task 11: Define three local fixed cases, a shared strict run-artifact schema, and a fail-closed result validator.
+  - Acceptance: each case has pinned local source paths, expected research status, required final/provenance files, claim expectations, hashes, byte counts, and grading records; missing or malformed evidence fails without model calls.
+  - Verification: synthetic valid/invalid C1 fixtures pass/fail as expected.
 
-- [ ] Task 12: Execute three isolated subagent runs and independently grade them.
-  - Acceptance: three fresh workspaces each produce a final artifact plus provenance; a read-only reviewer grades every declared expectation; retained hashes and unavailable cost fields are explicit.
+- [x] Task 12: Execute one isolated subagent run per fixed case and independently grade them.
+  - Acceptance: three fresh isolated result directories each produce a final artifact plus provenance; a read-only reviewer grades every declared expectation; retained hashes and unavailable cost fields are explicit.
   - Verification: focused C1 validator, one read-only review, and the repository's final full-suite run.
 
 ### Checkpoint: C1 pilot
 
-- [ ] One fixed case has three isolated, provenance-backed example runs and recorded grading; multi-case breadth and model-cost certification remain open.
+- [x] Three fixed cases have isolated, provenance-backed example runs and recorded grading; multi-case breadth beyond this suite and model-cost certification remain open.
 
 ## Open Questions
 

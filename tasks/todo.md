@@ -47,10 +47,10 @@
 
 ## Phase 7: C1 pilot
 
-- [ ] Fixed local case and strict run schema
-- [ ] Three isolated subagent example runs
-- [ ] Independent grading and retained hashes
-- [ ] C1 pilot checkpoint
+- [x] Three fixed local cases and strict run schema
+- [x] One isolated subagent run per case
+- [x] Independent grading and retained hashes
+- [x] C1 pilot checkpoint
 
 ## Checkpoints
 
@@ -58,4 +58,4 @@
 - After Phase 2: approved preference loads in a later run and is absent after revoke/expiry.
 - After Phase 3: public claims match executable tests and no unrelated dirty files are staged.
 - After E1 pilot: four priority skills have valid positive/negative/artifact contracts; no 25-skill completion claim.
-- After C1 pilot: one fixed case has three isolated recorded runs; cost/model coverage remains explicit.
+- After C1 pilot: three fixed local cases have one isolated recorded run each; cost/model coverage remains explicit.

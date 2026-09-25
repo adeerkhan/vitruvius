@@ -1,0 +1,109 @@
+{
+  "schema": "vitruvius-c1.v1",
+  "id": "local-evidence-suite",
+  "mode": "local-only",
+  "cases": [
+    {
+      "id": "supported-evidence",
+      "expected_status": "verified",
+      "question": "Does the synthetic test report support the stated 250 MPa requirement?",
+      "sources": [
+        {
+          "id": "SRC-REQ-001",
+          "path": "evals/fixtures/c1/supported-evidence/requirement.md"
+        },
+        {
+          "id": "SRC-TEST-001",
+          "path": "evals/fixtures/c1/supported-evidence/test-report.md"
+        }
+      ],
+      "fixture_tree_sha256": "46360dedfdd804601c4770d7d46a520ec42f6b31c6872b48f779befb2e54921c",
+      "expectations": [
+        {
+          "id": "E1",
+          "statement": "The conclusion is verified because 240 MPa is below the stated 250 MPa requirement."
+        },
+        {
+          "id": "E2",
+          "statement": "Both local source files are cited and no external or real standard is invented."
+        },
+        {
+          "id": "E3",
+          "statement": "The final artifact has a paired provenance sidecar with a verification status."
+        }
+      ],
+      "required_outputs": {
+        "final": "supported-evidence.md",
+        "provenance": "supported-evidence.provenance.md"
+      }
+    },
+    {
+      "id": "unavailable-source",
+      "expected_status": "blocked",
+      "question": "Can the unavailable source metadata support a claim about the missing source's contents?",
+      "sources": [
+        {
+          "id": "SRC-META-001",
+          "path": "evals/fixtures/c1/unavailable-source/metadata.md"
+        }
+      ],
+      "fixture_tree_sha256": "d0cc014b6befecc96d6968f679a301cb05f20343bf84e59c1bbbdd9766de8876",
+      "expectations": [
+        {
+          "id": "E1",
+          "statement": "The research status is blocked because the source content is unavailable."
+        },
+        {
+          "id": "E2",
+          "statement": "The conclusion states the unblock path and does not infer the missing contents."
+        },
+        {
+          "id": "E3",
+          "statement": "The final artifact has a paired provenance sidecar with the blocked status recorded."
+        }
+      ],
+      "required_outputs": {
+        "final": "unavailable-source.md",
+        "provenance": "unavailable-source.provenance.md"
+      }
+    },
+    {
+      "id": "conflicting-evidence",
+      "expected_status": "partial",
+      "question": "Does the 240 MPa test result resolve the conflicting allowable-stress statements?",
+      "sources": [
+        {
+          "id": "SRC-REQ-002",
+          "path": "evals/fixtures/c1/conflicting-evidence/requirement.md"
+        },
+        {
+          "id": "SRC-TEST-002",
+          "path": "evals/fixtures/c1/conflicting-evidence/test-report.md"
+        },
+        {
+          "id": "SRC-NOTE-002",
+          "path": "evals/fixtures/c1/conflicting-evidence/engineering-note.md"
+        }
+      ],
+      "fixture_tree_sha256": "b8847e7496ef33dbe97532807bded1230496d837f236da88829cfc20e55c8e28",
+      "expectations": [
+        {
+          "id": "E1",
+          "statement": "The research status is partial because the local sources conflict on the governing limit."
+        },
+        {
+          "id": "E2",
+          "statement": "The conclusion cites all three local sources and names the unresolved conflict."
+        },
+        {
+          "id": "E3",
+          "statement": "The final artifact has a paired provenance sidecar and does not select a winner without evidence."
+        }
+      ],
+      "required_outputs": {
+        "final": "conflicting-evidence.md",
+        "provenance": "conflicting-evidence.provenance.md"
+      }
+    }
+  ]
+}

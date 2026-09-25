@@ -1,0 +1,141 @@
+{
+  "schema": "vitruvius-c1-results.v1",
+  "suite_id": "local-evidence-suite",
+  "suite_path": "evals/cases/local-evidence-suite.json",
+  "suite_sha256": "682dfb7bf53a89944288b8cbf99600df113f53177d7875d5c7318a4570d63df1",
+  "suite_bytes": 3659,
+  "reviewer_agent": "reviewer",
+  "reviewer_session_id": "ses_f289ad6e2ffeVxM2QJq30FyVPl",
+  "runs": [
+    {
+      "case_id": "supported-evidence",
+      "run_id": "run-1",
+      "agent": "general",
+      "fresh": true,
+      "session_id": "ses_f289c3cf0ffeMLIsyCe8b3PGQZ",
+      "model": "not exposed by subagent harness",
+      "cost_usd": null,
+      "cost_status": "unavailable",
+      "research_status": "verified",
+      "final": {
+        "path": "supported-evidence/supported-evidence.md",
+        "sha256": "fede7c4592d163bb25a81d7b8fef00d064d2d70511f31af9f1db070ed2ca5501",
+        "bytes": 883
+      },
+      "provenance": {
+        "path": "supported-evidence/supported-evidence.provenance.md",
+        "sha256": "c846de72d0c5a278baf8a815e6f28512572e351d944a45b9e3e5bc72f9c9f349",
+        "bytes": 1308
+      },
+      "grade": {
+        "status": "PASS",
+        "expectations": [
+          {
+            "id": "E1",
+            "passed": true,
+            "evidence": "The final reports verified and compares 240 MPa against the cited 250 MPa requirement."
+          },
+          {
+            "id": "E2",
+            "passed": true,
+            "evidence": "Both designated local synthetic sources are cited and no external authority is introduced."
+          },
+          {
+            "id": "E3",
+            "passed": true,
+            "evidence": "The paired provenance exists and records the verified status and claim counts."
+          }
+        ]
+      }
+    },
+    {
+      "case_id": "unavailable-source",
+      "run_id": "run-2",
+      "agent": "general",
+      "fresh": true,
+      "session_id": "ses_f289c3cedffegYKyjD8IguArud",
+      "model": "not exposed by subagent harness",
+      "cost_usd": null,
+      "cost_status": "unavailable",
+      "research_status": "blocked",
+      "final": {
+        "path": "unavailable-source/unavailable-source.md",
+        "sha256": "0acdd1897c8defa45687b11d013d82db0e7d08fd232db3e009d6bc0f59ddc30d",
+        "bytes": 950
+      },
+      "provenance": {
+        "path": "unavailable-source/unavailable-source.provenance.md",
+        "sha256": "d342054122610927ff32d420447180462a89ada431c0c38e0662bf1361566dee",
+        "bytes": 1382
+      },
+      "grade": {
+        "status": "PASS",
+        "expectations": [
+          {
+            "id": "E1",
+            "passed": true,
+            "evidence": "The final reports blocked because the metadata explicitly says the source content is unavailable."
+          },
+          {
+            "id": "E2",
+            "passed": true,
+            "evidence": "The final gives the authorized-access unblock path and does not infer missing contents."
+          },
+          {
+            "id": "E3",
+            "passed": true,
+            "evidence": "The paired provenance records the blocked status and distinguishes metadata facts from unavailable contents."
+          }
+        ]
+      }
+    },
+    {
+      "case_id": "conflicting-evidence",
+      "run_id": "run-3",
+      "agent": "general",
+      "fresh": true,
+      "session_id": "ses_f289c3cebffeLnjyZ9WpX329J8",
+      "model": "not exposed by subagent harness",
+      "cost_usd": null,
+      "cost_status": "unavailable",
+      "research_status": "partial",
+      "final": {
+        "path": "conflicting-evidence/conflicting-evidence.md",
+        "sha256": "ffbc72e9814984649eb08ea82224c3814708c5e04742b9e6412809809a38c19f",
+        "bytes": 1414
+      },
+      "provenance": {
+        "path": "conflicting-evidence/conflicting-evidence.provenance.md",
+        "sha256": "08a0ae88460992bd73f607cf8b5e778340e42ad492e93dbcb358e79919918001",
+        "bytes": 1650
+      },
+      "grade": {
+        "status": "PASS",
+        "expectations": [
+          {
+            "id": "E1",
+            "passed": true,
+            "evidence": "The final reports partial because the 250 MPa and 200 MPa source statements conflict."
+          },
+          {
+            "id": "E2",
+            "passed": true,
+            "evidence": "All three local sources are cited and the unresolved conflict is named."
+          },
+          {
+            "id": "E3",
+            "passed": true,
+            "evidence": "The paired provenance records the partial status and the final selects no governing limit."
+          }
+        ]
+      }
+    }
+  ],
+  "summary": {
+    "cases": 3,
+    "passed": 3,
+    "failed": 0,
+    "review_status": "PASS",
+    "cost_status": "unavailable"
+  }
+}

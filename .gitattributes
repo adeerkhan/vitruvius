@@ -1,0 +1,4 @@
+evals/** text eol=lf
+scripts/eval-contract.mjs text eol=lf
+scripts/fixed-case.mjs text eol=lf
+tests/evals/** text eol=lf

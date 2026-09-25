@@ -33,7 +33,7 @@ assert.match(
 );
 assert.match(
   errorsFor((value) => { value.cases[0].behavior.test = "tests/missing.mjs"; }).join("\n"),
-  /behavior test does not exist/i,
+  /behavior\.test must be a regular file under tests/i,
 );
 assert.match(
   errorsFor((value) => { value.cases[0].behavior.expectations[0].marker = "marker-that-does-not-exist"; }).join("\n"),
@@ -42,6 +42,26 @@ assert.match(
 assert.match(
   errorsFor((value) => { value.cases[0].skill = "unknown-skill"; }).join("\n"),
   /unknown skill/i,
+);
+assert.match(
+  errorsFor((value) => { value.cases[0].positive.top_k = 1000000; }).join("\n"),
+  /top_k must be an integer from 1 to 3/i,
+);
+assert.match(
+  errorsFor((value) => { value.coverage.status = "complete"; }).join("\n"),
+  /coverage\.status and coverage\.complete are inconsistent/i,
+);
+assert.match(
+  errorsFor((value) => { value.coverage.status = "complete"; value.coverage.complete = true; }).join("\n"),
+  /complete coverage is missing skill case/i,
+);
+assert.match(
+  errorsFor((value) => { value.cases[0].behavior.artifact.path = "tests"; }).join("\n"),
+  /artifact must be a regular file/i,
+);
+assert.match(
+  errorsFor((value) => { value.cases[0].behavior.execution = "model-call"; }).join("\n"),
+  /execution must be npm-test/i,
 );
 
 console.log("PASS: E1 catalog contract accepts the pilot and refuses malformed cases");

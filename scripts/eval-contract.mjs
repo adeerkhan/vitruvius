@@ -1,5 +1,5 @@
-import { existsSync, readFileSync, readdirSync } from "node:fs";
-import { isAbsolute, join, resolve } from "node:path";
+import { existsSync, lstatSync, readFileSync, readdirSync, realpathSync } from "node:fs";
+import { isAbsolute, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const VALID_STATUSES = new Set(["pilot", "partial", "complete"]);
@@ -16,14 +16,27 @@ function isSafeRelativePath(value, prefix) {
   return true;
 }
 
+function isSafeRegularFile(root, value) {
+  if (!isSafeRelativePath(value, "")) return false;
+  try {
+    const rootReal = realpathSync(root);
+    const path = resolve(root, value);
+    if (!lstatSync(path).isFile()) return false;
+    const relativePath = relative(rootReal, realpathSync(path));
+    return !isAbsolute(relativePath) && relativePath !== ".." && !relativePath.startsWith(`..${sep}`);
+  } catch {
+    return false;
+  }
+}
+
 function validateTrigger(trigger, label, errors) {
   if (!trigger || typeof trigger !== "object" || Array.isArray(trigger)) {
     errors.push(`${label} must be an object`);
     return;
   }
   if (!isNonEmptyString(trigger.prompt)) errors.push(`${label}.prompt must be a non-empty string`);
-  if (!Number.isInteger(trigger.top_k) || trigger.top_k < 1) {
-    errors.push(`${label}.top_k must be a positive integer`);
+  if (!Number.isInteger(trigger.top_k) || trigger.top_k < 1 || trigger.top_k > 3) {
+    errors.push(`${label}.top_k must be an integer from 1 to 3`);
   }
 }
 
@@ -44,8 +57,10 @@ export function validateEvalCatalog(catalog, { repoRoot }) {
     return { valid: false, errors: ["catalog must be an object"], caseCount: 0, skills: [] };
   }
   if (catalog.schema !== "vitruvius-e1.v1") errors.push("schema must be vitruvius-e1.v1");
-  if (!catalog.coverage || !VALID_STATUSES.has(catalog.coverage.status)) {
-    errors.push("coverage.status must be pilot, partial, or complete");
+  if (!catalog.coverage || !VALID_STATUSES.has(catalog.coverage.status) || typeof catalog.coverage.complete !== "boolean") {
+    errors.push("coverage must declare a valid status and boolean complete flag");
+  } else if ((catalog.coverage.status === "complete") !== catalog.coverage.complete) {
+    errors.push("coverage.status and coverage.complete are inconsistent");
   }
   if (!Array.isArray(catalog.priority_skills) || catalog.priority_skills.length === 0) {
     errors.push("priority_skills must be a non-empty array");
@@ -62,6 +77,12 @@ export function validateEvalCatalog(catalog, { repoRoot }) {
     } else {
       prioritySet.add(skill);
       if (!skillNames.has(skill)) errors.push(`unknown priority skill: ${skill}`);
+    }
+  }
+
+  if (catalog.coverage?.status === "complete") {
+    for (const skill of skillNames) {
+      if (!prioritySet.has(skill)) errors.push(`complete coverage is missing skill case: ${skill}`);
     }
   }
 
@@ -109,19 +130,32 @@ export function validateEvalCatalog(catalog, { repoRoot }) {
       errors.push(`${label}.behavior must be an object`);
       continue;
     }
-    if (!isSafeRelativePath(behavior.test, "tests")) {
-      errors.push(`${label}.behavior.test must be a safe path under tests/`);
+    if (!isSafeRegularFile(root, behavior.test) || !behavior.test.startsWith("tests/")) {
+      errors.push(`${label}.behavior.test must be a regular file under tests/`);
       continue;
+    }
+    if (behavior.execution !== "npm-test") {
+      errors.push(`${label}.behavior.execution must be npm-test for the deterministic pilot`);
+    }
+    let testScript = "";
+    try {
+      testScript = JSON.parse(readFileSync(join(root, "package.json"), "utf8")).scripts?.test ?? "";
+    } catch {
+      errors.push("package.json test script could not be read");
+    }
+    if (!testScript) {
+      errors.push("package.json scripts.test is missing or empty");
+    } else {
+      const testCommands = testScript.split("&&").map((command) => command.trim());
+      if (!testCommands.includes(`node ${behavior.test}`)) {
+        errors.push(`${label}.behavior.test is not an exact npm test command: ${behavior.test}`);
+      }
     }
     const testPath = resolve(root, behavior.test);
-    if (!existsSync(testPath)) {
-      errors.push(`${label}.behavior test does not exist: ${behavior.test}`);
-      continue;
-    }
-    if (!behavior.artifact || !isNonEmptyString(behavior.artifact.path) || !isNonEmptyString(behavior.artifact.kind)) {
+    if (!behavior.artifact || !isNonEmptyString(behavior.artifact.path) || !["runtime-fixture", "recorded-artifact"].includes(behavior.artifact.kind)) {
       errors.push(`${label}.behavior.artifact requires kind and path`);
-    } else if (!isSafeRelativePath(behavior.artifact.path, "") || !existsSync(resolve(root, behavior.artifact.path))) {
-      errors.push(`${label}.behavior.artifact path does not exist inside the repository: ${behavior.artifact.path}`);
+    } else if (!isSafeRegularFile(root, behavior.artifact.path)) {
+      errors.push(`${label}.behavior.artifact must be a regular file inside the repository: ${behavior.artifact.path}`);
     }
     const testSource = readFileSync(testPath, "utf8");
     if (!Array.isArray(behavior.expectations) || behavior.expectations.length === 0) {

@@ -73,6 +73,8 @@ The verifier is benchmarked, not asserted. Its checked-in results are on-disk, r
 | Benchmark integrity | Missing, malformed, duplicate, and unknown result files fail closed | [benchmark scorer](scripts/benchmark-scoring.mjs) |
 | Integrity under persuasion (5 pressure cases: authority, sunk cost, time, reframe, pedantry) | Latest artifact: 4/5 held with one false approval; no false-block guarantee is claimed | [pressure suite](tasks/benchmark/pressure/README.md) |
 | Skill routing (20 labeled prompts, 25 skills) | 16/20 rank-1, 0 collisions | [routing evals](tests/routing/eval-routing.mjs) |
+| E1 evaluation pilot | 4 fixture-backed priority skills; positive top-k 4/4 and owner-negative 4/4; full 25-skill coverage remains open | [evals/catalog.json](evals/catalog.json) |
+| C1 fixed-case pilot | 3 local-only cases, 3 fresh subagent runs, independent review 3/3; host model cost unavailable | [evals/results/manifest.json](evals/results/manifest.json) |
 | Structural contract (25 skills) | enforced in CI | [validate-contract.mjs](scripts/validate-contract.mjs) |
 | Provenance schema (selected sidecars, `inferred` derivation traces) | enforced for selected root/plan/draft paths in CI; nested closure remains pending | [validate-artifacts.mjs](scripts/validate-artifacts.mjs) |
 
@@ -88,7 +90,15 @@ node scripts/score-benchmark.mjs tasks/benchmark/controls/results tasks/benchmar
 
 # Optional certification gate: also fail on any false approval or false block
 node scripts/score-benchmark.mjs --strict-quality tasks/benchmark/results tasks/benchmark/cases
+
+# Deterministic E1/C1 contract checks; these do not call a model
+npm run test:evals
+node tests/routing/eval-routing.mjs
+node scripts/fixed-case.mjs case evals/cases/local-evidence-suite.json
+node scripts/fixed-case.mjs results evals/results/manifest.json evals/results
 ```
+
+The E1/C1 subagent runs are on-demand evidence and are not part of `npm test`; the checked-in C1 bundle records their artifact hashes and independent grades.
 
 ## Worked Examples
 
