@@ -15,7 +15,7 @@ argument-hint: "<research question or artifact to review> [--deep | --quick]"
 allowed-tools: Write Edit Bash Read
 license: MIT
 metadata:
-  version: "0.2.4"
+  version: "0.2.5"
 
 ---
 
@@ -73,6 +73,7 @@ files on disk:
 - `outputs/.drafts/<slug>-draft.md`
 - `outputs/.drafts/<slug>-cited.md`
 - `outputs/<slug>.md` or `papers/<slug>.md`
+- `outputs/<slug>-problem-anchor.json` (beside the candidate, not in a drafts dir)
 - `outputs/<slug>.provenance.md` or `papers/<slug>.provenance.md`
 
 ## File Write Fallback
@@ -109,9 +110,31 @@ sidecar. Never end with chat-only output after plan approval.
 If any gate fails, resolve it before writing the plan. Do not silently
 degrade — note the gate resolution in the plan's Decision log.
 
+### Problem anchor (freeze before searching)
+
+Before any search, name what the report is *about*, not just what it will
+look up. Write these into the plan and keep them stable for the whole run:
+
+- **Artifacts under study** — the files, repos, or documents this run is
+  actually about, with the commit or revision that pins them. A run with no
+  artifact is a literature review; say so in the plan rather than implying a
+  codebase was read.
+- **Decisions to inform** — the 2-5 concrete decisions the reader will make
+  with this report (ship / defer / profile / measure / policy). Research that
+  cannot name them is scope drift, and the goal-checker will catch it.
+- **Non-goals** — what this run will not settle (usually product policy and
+  jurisdiction choice).
+
+These three become the `decisions` and `artifacts` of the machine record in
+`references/problem-anchor-contract.md`, which is written beside the candidate
+and validated with `vitruvius-problem-anchor`. Anchors are resolved against real
+bytes, so a `repo` claim that does not match the snapshot fails closed instead
+of reaching review.
+
 Create `outputs/.plans/<slug>.md` immediately. The plan must include:
 
 - Key questions
+- Problem anchor: artifacts under study (+ commit), decisions to inform, non-goals
 - Evidence needed (standards, code provisions, vendor docs, datasheets, prior
   designs, repos, prior art)
 - Scale decision (below)
@@ -146,33 +169,12 @@ Use subagents only when decomposition clearly helps:
 
 ### Parallel Fan-Out (T2)
 
-When dispatching multiple independent skills, run them in parallel:
-
-**Parallel pattern:**
-```
-Dispatch skill A and skill B simultaneously
-  → Both run at the same time
-  → Merge results when both complete
-```
-
-**When to use parallel:**
-- Gap analysis + evidence ranking (independent outputs)
-- Multiple researcher subagents on different topics
-- Discipline skills on different domains
-
-**When NOT to use parallel:**
-- Sequential dependencies (verifier needs evidence first)
-- Skills that share state or context
-- When token budget is constrained
-
-**Example:**
-```
-/gap-analysis civil FRP-bonding
-/evidence-ranking "FRP bonding in civil structures"
-
-→ Dispatch both simultaneously
-→ Merge: gaps inform evidence priorities
-```
+Run independent skills simultaneously and merge when both complete — for
+example gap analysis with evidence ranking, several researcher subagents on
+different topics, or discipline skills on different domains. Gaps then inform
+evidence priorities. Do **not** parallelize sequential dependencies (the
+verifier needs the evidence first), skills that share state or context, or work
+constrained by the token budget.
 
 ## Step 3: Gather Evidence
 
@@ -217,37 +219,19 @@ If subagents were chosen:
 - Prefer file-based handoffs: the researcher writes findings to its output
   file and returns a one-line summary; the lead reads the file.
 
-Evidence-gathering rules (researcher role):
+Evidence-gathering rules (researcher role): the six integrity commandments in
+`AGENTS.md` are non-negotiable here. In brief — never fabricate a source, never
+claim something exists without checking it, never describe a source you have
+not read, give a checkable locator for every entry, read before you summarize,
+and mark status honestly.
 
-1. **Never fabricate a source.** Every named standard, code, provision,
-   product, material, project, or dataset must have a verifiable reference. If
-   you cannot find one, do not mention it.
-2. **Never claim something exists without checking.** Before citing a standard
-   or code section, verify it exists and read the actual provision. If a
-   search returns zero results, it does not exist — do not invent it.
-3. **Never extrapolate details you haven't read.** If you have not fetched and
-   inspected a source, you may note its existence but must not describe its
-   contents, numbers, or claims.
-4. **URL or it didn't happen.** Every evidence-table entry must include a
-   direct, checkable source identifier: standard + section, URL, artifact
-   path, or calculation.
-5. **Read before you summarize.** Do not infer a code provision, a spec value,
-   or a material property from a title, a snippet, or memory when a direct
-   read is possible.
-6. **Mark status honestly.** Distinguish `verified`, `inferred`, `blocked`,
-   and `unverified`.
-
-Source quality:
-
-- **Prefer:** official standards bodies, code text, primary vendor
-  documentation, datasheets, peer-reviewed engineering literature, reputable
-  government and industry sources.
-- **Accept with caveats:** well-cited secondary sources, established trade
-  publications.
-- **Deprioritize:** undated blog posts, content aggregators, forum posts
-  without primary links, SEO listicles.
-- **Reject:** sources with no author and no date, content that appears
-  AI-generated with no primary backing.
+Source quality: **prefer** official standards bodies, code text, primary vendor
+documentation, datasheets, peer-reviewed engineering literature, and reputable
+government/industry sources. **Accept with caveats** well-cited secondary
+sources and established trade publications. **Deprioritize** undated blog posts,
+content aggregators, primary-less forum posts, and SEO listicles. **Reject**
+anything with no author and no date, or that appears AI-generated with no
+primary backing.
 
 Evidence table format — assign each source a stable numeric ID for downstream
 traceability:
@@ -255,6 +239,13 @@ traceability:
 | # | Source | Reference (std+sec / URL / path) | Key claim | Type | Status |
 |---|--------|----------------------------------|-----------|------|--------|
 | 1 | ASME B31.3 | §304.1.2 | min wall thickness formula | code | verified |
+| 2 | this repo | `packages/solver/src/x.ts:42` | treemap fills the host exactly | repo | verified |
+
+`Type` is `code`, `standard`, `paper`, `vendor`, or `repo`. A `repo` row is a
+claim about the artifact under study, so it must carry a `path:line` anchor
+that resolves on disk. Never assert what a codebase does, lacks, or needs
+without opening it — the most expensive research failure is a confident finding
+about code nobody read. Full anchor rules: `references/problem-anchor-contract.md`.
 
 Write findings with inline source references `[1]`, `[2]`. Label inferences as
 inferences in the prose. End with a numbered Sources section matching the
@@ -271,6 +262,30 @@ Save to `outputs/.drafts/<slug>-draft.md`. Include:
 - Evidence-backed caveats and disagreements
 - Open questions
 - No invented sources, numbers, figures, tables, or claims
+
+Every finding carries an ID, a `type`, and a **changes** line naming its landing
+site: `change`, `measure`, `defer`, `product-decision`, or `background`. This is
+what separates an engineering report from a survey. A finding with no landing
+site is either background or a product decision, and must say which. A finding
+that recommends building something must first show it is absent — with an
+anchor, not an assertion.
+
+Two sections are mandatory, not optional:
+
+- **`## What we did not find`** — what you searched for, did not find, and the
+  boundary of the search. Silence reads as "no problems exist"; this section
+  makes the gap itself evidence.
+- **`## Impact vs. evidence`** — for each recommendation, the evidence behind
+  it and the cost of being wrong. An unsupported priority ranking is a guess
+  wearing a table.
+
+Then write the `vitruvius-problem-anchor.v1` record beside the candidate from
+`references/problem-anchor-contract.md` and run `vitruvius-problem-anchor
+<record>` (or `node scripts/problem-anchor-contract.mjs <record>` in a
+checkout). It must pass before the brief moves to verification: every decision
+reached a position, every `repo` anchor resolves to a non-blank line on disk,
+and the candidate actually cites them. Repair a failed record by fixing the
+claim or the anchor — never by deleting the finding.
 
 Before citation, sweep the draft: every critical claim, number, figure, or
 table must map to a source reference, research note, raw artifact path, or
@@ -311,51 +326,34 @@ Keep the flat agent structure — escalation is conditional, not hierarchical.
 | Verifiers disagree (different verdicts) | Escalate to arbiter | 3 |
 | All three disagree | BLOCKED, document disagreement | — |
 
-#### When to Use 2 Verifiers (Parallel)
+#### When to Use 2 or 3 Verifiers
 
-- `--deep` flag is set (parallel verify all claims)
-- Claim involves life-safety (structural, fire, electrical safety, pressure vessels)
-- Claim cites a specific code provision as the sole basis
-- Numerical result governs a design decision
-- Cross-discipline claim (spans multiple engineering fields)
+Use 2 verifiers when `--deep` is set, when the claim involves life-safety
+(structural, fire, electrical, pressure vessels), when a specific code provision
+is the sole basis, when a numerical result governs a design decision, or when
+the claim spans multiple engineering fields. Escalate to 3 when the first two
+return different verdicts, when a safety-critical claim carries high stakes of
+being wrong, or when the evidence is ambiguous or conflicting.
 
-#### When to Escalate to 3 Verifiers (Arbiter)
+#### Arbiter and independence
 
-- The first 2 verifiers return **different verdicts** (e.g., one PASS, one BLOCKED)
-- The claim is safety-critical AND the stakes of being wrong are high
-- The evidence is ambiguous or conflicting
+The arbiter is dispatched from `agents/arbiter.md` with the original question,
+the evidence, the two prior verdicts and their evidence trails, and the
+instruction: "Two verifiers disagree. Review both trails and render a majority
+verdict." It does NOT re-research — it adjudicates between the two existing
+verdicts. Majority wins; all three disagree returns BLOCKED with documentation.
 
-#### Arbiter Behavior
+#### Documenting Disagreement and Independence
 
-The 3rd verifier (arbiter) is dispatched from `agents/arbiter.md` and receives:
-- The original question and evidence
-- The two prior verdicts and their evidence trails
-- Instruction: "Two verifiers disagree. Review both trails and render a majority verdict."
+When verifiers disagree, the provenance sidecar records one `## Verifier
+Disagreement` block: each verdict and reason, the arbiter's verdict and reason,
+and the resolution. A disagreement with no recorded resolution is an open
+finding, not a closed one.
 
-The arbiter does NOT re-research — it adjudicates between the two existing verdicts.
-Majority vote wins. If all three disagree, return BLOCKED with full documentation.
-
-#### Documenting Disagreement
-
-When verifiers disagree, the provenance sidecar must record:
-
-```markdown
-## Verifier Disagreement
-
-- **Verifier 1:** PASS — <brief reason>
-- **Verifier 2:** BLOCKED — <brief reason>
-- **Arbiter:** <verdict> — <brief reason>
-- **Resolution:** <how the disagreement was resolved>
-```
-
-#### Independence Rules
-
-- Every verifier/reviewer MUST be a fresh subagent instance
-- No agent reviews work it authored
-- Concurrent verifiers share no verdict channel
-- Negative verdicts loop back to the lead agent, never sideways
-
-For routine claims (informational, non-safety), single verifier is sufficient.
+Every verifier/reviewer MUST be a fresh subagent instance; no agent reviews
+work it authored; concurrent verifiers share no verdict channel; negative
+verdicts loop back to the lead agent, never sideways. For routine
+(informational, non-safety) claims a single verifier is sufficient.
 
 ## Step 6: Review
 
@@ -397,7 +395,9 @@ otherwise `outputs/.drafts/<slug>-cited.md`.
 
 Dispatch the `goal-checker` role (`agents/goal-checker.md`) with: the original
 research question verbatim plus its frozen requirements IDs/manifest, the final candidate path (+ SHA-256 + byte count),
-the provenance sidecar path, and the plan path. In `--quick` mode, run the tri-axis check inline in the same format, write the [machine contract](references/goal-check-contract.md) record beside the candidate, and validate it with `vitruvius-goal-check <record>` (or `node scripts/goal-check-contract.mjs <record>` in a checkout); only a valid `DONE` and promotable record permits delivery.
+the provenance sidecar path, the plan path, and the problem-anchor record path
+so it can confirm the report is about the artifact it claims to study. In
+`--quick` mode, run the tri-axis check inline in the same format, write the [machine contract](references/goal-check-contract.md) record beside the candidate, and validate it with `vitruvius-goal-check <record>` (or `node scripts/goal-check-contract.mjs <record>` in a checkout); only a valid `DONE` and promotable record permits delivery.
 
 Default NOT-DONE: every ask re-derived from the original question must be
 delivered (`scope=pass prompt=pass flaws=0`, non-empty `ran=`). Any NOT-DONE

@@ -11,7 +11,7 @@ description: >
 argument-hint: "<topic or paper identifier>"
 license: MIT
 metadata:
-  version: "0.1.0"
+  version: "0.1.1"
 
 ---
 
@@ -23,6 +23,21 @@ depends on scraping a site that blocks agents.
 
 ## Rules (read first)
 
+- **This skill produces evidence, not a report.** You find, read, and record
+  sources. Synthesis, recommendations, and the final deliverable belong to
+  `engineering-research`. If the user invoked you directly and wants a report,
+  say so and hand back the evidence set with a pointer to that skill — do not
+  improvise a deliverable, because an unbounded report is how a literature
+  review ends up answering a question nobody asked.
+- **Every source must answer a named question.** Before searching, write down
+  the specific question each query is trying to answer, and tag every source
+  with the question it resolves and its relation to it: `supports`,
+  `challenges`, or `contextual`. A source that answers no named question is
+  dropped, however interesting it is.
+- **Never assert facts about a local codebase or artifact.** You have no
+  mandate to read the user's repository, and this skill does not grant one. If
+  the question depends on what their code does, hand that to
+  `engineering-research`, which carries the `repo`-anchored evidence contract.
 - Tool names are literal and host-dependent. Use ONLY tools visible in the
   current session: a web search may be `web_search`, `search`, or `browser`;
   fetching may be `fetch`, `fetch_content`, or a shell `curl`. Never call a
@@ -109,8 +124,22 @@ Write findings as an evidence table with stable numeric IDs (see the
 `engineering-research` method) and end with a numbered Sources section where
 every entry is a DOI, arXiv id, or verified URL.
 
+Add a `Question` column to the table so each row names the question it
+resolves, and close with two required sections:
+
+- **`## What the literature does not settle`** — the questions searched for
+  where the literature is silent, contested, or jurisdiction-specific. A
+  literature review with no such section reads as "the field agrees", which is
+  the most expensive false impression research can produce. This is the
+  scholarly half of the negative coverage the `engineering-research` problem
+  anchor records on the report side.
+- **`## Handback`** — what `engineering-research` must decide, and which
+  questions this evidence set cannot answer. Product policy, jurisdiction
+  choice, and anything about the user's own code belong there, not in a
+  finding.
+
 ## Scope and Boundaries
 
-- This skill finds and verifies academic sources — it does NOT produce final designs or implementation guidance.
+- This skill finds and verifies academic sources — it does NOT produce final designs, implementation guidance, or the final research deliverable.
 - **Research-only, not for final engineering sign-off.** Outputs support engineering research but must be reviewed by a licensed engineer for any design application.
 - Evidence quality: see `references/evidence-quality-tiers.md`.

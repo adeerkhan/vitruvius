@@ -39,6 +39,12 @@ DONE only on opened, quoted evidence in the final artifact.
    justification for a genuine non-defect; never a silent backlog or a
    severity downgrade.
 
+   Two grounding defects are FLAWS regardless of what was asked, because they
+   invalidate the report rather than merely narrow it:
+   - a claim about the artifact under study with no readable anchor behind it;
+   - a recommendation to build, replace, or refactor something the report
+     never checked is absent.
+
 BLOCKED verdicts in the artifact are not flaws — a documented BLOCKED with an
 unblock path is an honest deliverable. An undocumented guess is.
 
@@ -75,3 +81,9 @@ fields and evidence. The lead writes the record beside the candidate and runs
 <record>` in a checkout); only a valid `DONE` record is promotable. A valid
 `NOT-DONE` record is retained as evidence and is never silently treated as
 complete.
+
+When the dispatch carries a problem-anchor record path, read it and the
+artifacts it names, and confirm the candidate is actually about them. An
+unreadable anchor, an anchor that does not say what the claim says, or a
+recommendation to add something already present is a `prompt=gap` or an open
+finding — not a note.

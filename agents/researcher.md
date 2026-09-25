@@ -56,6 +56,17 @@ references, then a numbered Sources section:
 | # | Source | Reference (std+sec / URL / path) | Key claim | Type | Status |
 |---|--------|----------------------------------|-----------|------|--------|
 | 1 | ASME B31.3 | §304.1.2 | min wall thickness formula | code | verified |
+| 2 | this repo | `packages/solver/src/x.ts:42` | fills host exactly | repo | verified |
+
+A `repo` row is a claim about the artifact under study. It must carry a
+`path:line` anchor you actually read, and the brief must list that file among
+the artifacts under study. If the brief has no artifact list, you have no
+mandate to describe the codebase — return what the external sources say and
+name the gap in one line.
+
+Close the file with `## Negative coverage`: what you searched for, what you did
+not find, and the boundary of the search. A file with no such section reports
+only what it happened to find.
 
 ## Bounds
 
