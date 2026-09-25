@@ -121,7 +121,7 @@ Implement bounded reliability slices: B0 makes verifier benchmark scoring comple
 
 ## Phase 8: Q1 source/search/claim ledger
 
-- [ ] Task 13: Refresh the ignored audit map, report, and provenance sidecar through E1/C1.
+- [x] Task 13: Refresh the ignored audit map, report, and provenance sidecar through E1/C1.
   - Acceptance: current commit, file hashes, C1 manifest/reviewer evidence, and remaining limits are recorded without presenting ignored artifacts as tracked deliverables.
   - Verification: recompute hashes and inspect the audit status against `git status` and the retained result bundle.
 
@@ -133,15 +133,16 @@ Implement bounded reliability slices: B0 makes verifier benchmark scoring comple
   - Acceptance: a valid ledger is written atomically under the project-local runs directory, tied to a UUID `run_id`, refuses overwrite, and leaves no partial file after failure; the root wrapper preserves the historical default.
   - Verification: focused lifecycle/portability tests, syntax checks, and package wiring pass.
 
-- [ ] Task 16: Run one local Q1 example through a fresh subagent and independently inspect it.
+- [x] Task 16: Run one local Q1 example through a fresh subagent and independently inspect it.
   - Acceptance: the example records supported and challenging/null evidence, preserves blocked or ambiguous states honestly, and produces a provenance/verification record; no model-quality certification is claimed.
-  - Verification: one on-demand subagent run, focused validator, and final full-suite run.
+  - Verification: one on-demand subagent run, focused validator, independent review, and final full-suite run.
 
 ### Checkpoint: Q1 pilot
 
-- [ ] One run-local source/search/claim ledger is executable, fail-closed, provenance-backed, and honestly limited to a pilot rather than a general evidence database.
+- [x] One run-local source/search/claim ledger is executable, fail-closed, provenance-backed, and honestly limited to a pilot rather than a general evidence database.
 
 ## Open Questions
 
 - Whether to promote the project-local Habit store to a user-scoped home-directory store later; defer until a real cross-project need is demonstrated.
 - Whether benchmark quality should become a hard CI threshold after a majority-of-three run; keep the current point estimate informational for now.
+- G1 input gates and R1 package-consumer/release checks are the next bounded reliability slices after the Q1 pilot.
