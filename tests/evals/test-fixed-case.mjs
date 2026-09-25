@@ -180,6 +180,17 @@ try {
     /status lines must consistently state verified/i,
   );
 
+  const externalText = `${readFileSync(statusPath, "utf8")}\nhttps://example.invalid/undeclared\n`;
+  writeFileSync(statusPath, externalText);
+  const externalManifest = structuredClone(manifest);
+  const externalBytes = readFileSync(statusPath);
+  externalManifest.runs[0].final.sha256 = createHash("sha256").update(externalBytes).digest("hex");
+  externalManifest.runs[0].final.bytes = externalBytes.length;
+  assert.match(
+    validateRunManifest(externalManifest, { repoRoot, artifactRoot, casePath: suitePath }).errors.join("\n"),
+    /external URL|local-only suite forbids/i,
+  );
+
   const retainedManifest = JSON.parse(readFileSync(join(repoRoot, "evals", "results", "manifest.json"), "utf8"));
   const retained = validateRunManifest(retainedManifest, {
     repoRoot,

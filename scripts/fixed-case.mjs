@@ -348,6 +348,14 @@ export function validateRunManifest(manifest, { repoRoot, artifactRoot = repoRoo
     if (statuses.length === 0 || statuses.some((status) => status !== fixedCase.expected_status)) {
       errors.push(`${label} artifact status lines must consistently state ${fixedCase.expected_status}`);
     }
+    const declaredSourcePaths = new Set(fixedCase.sources.map((source) => source.path));
+    for (const [kind, artifactText] of [["final", finalText], ["provenance", provenanceText]]) {
+      if (/https?:\/\/|file:\/\//i.test(artifactText)) errors.push(`${label}.${kind} contains an external URL; the local-only suite forbids it`);
+      const referencedPaths = artifactText.match(/evals\/fixtures\/[A-Za-z0-9_./-]+/g) || [];
+      for (const referencedPath of referencedPaths) {
+        if (!declaredSourcePaths.has(referencedPath)) errors.push(`${label}.${kind} references undeclared source path: ${referencedPath}`);
+      }
+    }
     for (const source of fixedCase.sources) {
       if (!finalText.includes(source.path)) errors.push(`${label}.final is missing source path ${source.path}`);
       if (!provenanceText.includes(source.id) || !provenanceText.includes(source.path)) errors.push(`${label}.provenance is missing source id/path ${source.id}`);
