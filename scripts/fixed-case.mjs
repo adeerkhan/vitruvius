@@ -16,12 +16,16 @@ function isNonEmptyString(value) {
 function isSafeRelativePath(value) {
   if (!isNonEmptyString(value) || isAbsolute(value)) return false;
   const segments = value.replaceAll("\\", "/").split("/");
-  return !segments.includes("..") && !segments.includes("");
+  return !segments.includes("..") && !segments.includes("") && !value.includes(":");
 }
 
 function isInside(root, candidate) {
   const pathFromRoot = relative(root, candidate);
   return !isAbsolute(pathFromRoot) && pathFromRoot !== "" && pathFromRoot !== ".." && !pathFromRoot.startsWith(`..${sep}`);
+}
+
+function canonicalPath(path) {
+  return process.platform === "win32" ? path.toLowerCase() : path;
 }
 
 function isSafeRegularFile(root, value) {
@@ -30,7 +34,10 @@ function isSafeRegularFile(root, value) {
     const rootReal = realpathSync(root);
     const path = resolve(root, value);
     if (!lstatSync(path).isFile()) return false;
-    const relativePath = relative(rootReal, realpathSync(path));
+    const actualPath = realpathSync(path);
+    const expectedPath = resolve(rootReal, value);
+    if (canonicalPath(actualPath) !== canonicalPath(expectedPath)) return false;
+    const relativePath = relative(rootReal, actualPath);
     return !isAbsolute(relativePath) && relativePath !== ".." && !relativePath.startsWith(`..${sep}`);
   } catch {
     return false;
@@ -57,7 +64,8 @@ function hashFixtureTree(root, caseId) {
   const fixtureRoot = resolve(root, "evals", "fixtures", "c1", caseId);
   const rootReal = realpathSync(root);
   const fixtureReal = realpathSync(fixtureRoot);
-  if (!isInside(rootReal, fixtureReal) || !lstatSync(fixtureRoot).isDirectory()) {
+  const expectedFixtureReal = resolve(rootReal, "evals", "fixtures", "c1", caseId);
+  if (canonicalPath(fixtureReal) !== canonicalPath(expectedFixtureReal) || !isInside(rootReal, fixtureReal) || !lstatSync(fixtureRoot).isDirectory()) {
     throw new Error(`fixture root is not a confined directory: ${caseId}`);
   }
   const hash = createHash("sha256");
@@ -77,7 +85,7 @@ function validateOutputs(outputs, label, errors) {
     return;
   }
   for (const [name, fileName] of Object.entries(outputs)) {
-    if (!isNonEmptyString(fileName) || fileName.includes("/") || fileName.includes("\\") || fileName === "." || fileName === "..") {
+    if (!isNonEmptyString(fileName) || fileName.includes("/") || fileName.includes("\\") || fileName.includes(":") || fileName === "." || fileName === "..") {
       errors.push(`${label} required_outputs.${name} must be a plain file name`);
     }
   }
@@ -213,15 +221,17 @@ function hasExactResearchStatus(text, status) {
   return extractResearchStatuses(text).includes(status);
 }
 
-function readClaimCount(text, label) {
+function readClaimCounts(text, label) {
+  const counts = [];
   for (const line of text.split(/\r?\n/)) {
     const value = line.replace(/[`*]/g, "").trim().replace(/^[-*]\s*/, "").replace(/^Claims\s+/i, "");
     const prefix = `${label}:`;
     if (!value.toLowerCase().startsWith(prefix)) continue;
-    const countText = value.slice(prefix.length).trim().match(/^\d+/)?.[0];
-    if (countText !== undefined) return Number(countText);
+    const remainder = value.slice(prefix.length).trim();
+    const match = remainder.match(/^(\d+)(?:\s*[.—-].*)?$/);
+    if (match) counts.push(Number(match[1]));
   }
-  return null;
+  return counts;
 }
 
 function validateGrade(grade, expectedIds, label, errors) {
@@ -345,10 +355,13 @@ export function validateRunManifest(manifest, { repoRoot, artifactRoot = repoRoo
     if (provenanceText) {
       const claimCounts = new Map();
       for (const claimLabel of ["verified", "partial", "blocked", "unverified", "inferred", "failed"]) {
-        const count = readClaimCount(provenanceText, claimLabel);
-        if (count === null) errors.push(`${label}.provenance missing numeric claim count ${claimLabel}`);
-        else claimCounts.set(claimLabel, count);
+        const counts = readClaimCounts(provenanceText, claimLabel);
+        if (counts.length !== 1) errors.push(`${label}.provenance must contain exactly one numeric claim count ${claimLabel}`);
+        else claimCounts.set(claimLabel, counts[0]);
       }
+      const totalClaims = [...claimCounts.values()].reduce((sum, count) => sum + count, 0);
+      if (totalClaims === 0) errors.push(`${label}.provenance claim accounting cannot be all zero`);
+      if ((claimCounts.get(fixedCase.expected_status) ?? 0) === 0) errors.push(`${label}.provenance must account for the expected status ${fixedCase.expected_status}`);
       if ((claimCounts.get("inferred") ?? 0) > 0 && !/^#+\s*derivations?\b/im.test(provenanceText)) {
         errors.push(`${label}.provenance has inferred claims without a Derivations section`);
       }
@@ -369,6 +382,8 @@ export function validateRunManifest(manifest, { repoRoot, artifactRoot = repoRoo
     if (summary.passed !== passed || summary.failed !== failed) errors.push("summary pass/fail counts do not match run grades");
     if (!GRADE_STATUSES.has(summary.review_status) || summary.review_status !== derivedReviewStatus) errors.push(`summary.review_status must be ${derivedReviewStatus}`);
     if (!isNonEmptyString(summary.cost_status)) errors.push("summary.cost_status must be recorded");
+    const allCostsUnavailable = Array.isArray(manifest.runs) && manifest.runs.every((run) => run?.cost_usd === null);
+    if (allCostsUnavailable && summary.cost_status !== "unavailable") errors.push("summary.cost_status must be unavailable when all run costs are unavailable");
   }
   return { valid: errors.length === 0, errors, caseCount: cases.length };
 }

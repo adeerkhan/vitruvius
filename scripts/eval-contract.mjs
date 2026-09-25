@@ -12,8 +12,12 @@ function isSafeRelativePath(value, prefix) {
   if (!isNonEmptyString(value) || isAbsolute(value)) return false;
   const normalized = value.replaceAll("\\", "/");
   const segments = normalized.split("/");
-  if ((prefix && !normalized.startsWith(`${prefix}/`)) || segments.includes("..")) return false;
+  if ((prefix && !normalized.startsWith(`${prefix}/`)) || segments.includes("..") || normalized.includes(":")) return false;
   return true;
+}
+
+function canonicalPath(path) {
+  return process.platform === "win32" ? path.toLowerCase() : path;
 }
 
 function isSafeRegularFile(root, value) {
@@ -22,7 +26,9 @@ function isSafeRegularFile(root, value) {
     const rootReal = realpathSync(root);
     const path = resolve(root, value);
     if (!lstatSync(path).isFile()) return false;
-    const relativePath = relative(rootReal, realpathSync(path));
+    const actualPath = realpathSync(path);
+    if (canonicalPath(actualPath) !== canonicalPath(resolve(rootReal, value))) return false;
+    const relativePath = relative(rootReal, actualPath);
     return !isAbsolute(relativePath) && relativePath !== ".." && !relativePath.startsWith(`..${sep}`);
   } catch {
     return false;

@@ -40,8 +40,11 @@ try {
     const finalPath = join(runDir, fixedCase.required_outputs.final);
     const provenancePath = join(runDir, fixedCase.required_outputs.provenance);
     const sourceList = fixedCase.sources.map((source) => `- ${source.id}: ${source.path}`).join("\n");
+    const claimLines = ["verified", "partial", "blocked", "unverified", "inferred", "failed"]
+      .map((label) => `- ${label}: ${label === fixedCase.expected_status ? 1 : 0}`)
+      .join("\n");
     writeFileSync(finalPath, `# ${fixedCase.id}\n\nResearch status: ${fixedCase.expected_status}\n## Sources\n${sourceList}\n`);
-    writeFileSync(provenancePath, `# Provenance\n\n- Date: 2026-09-25\n- Sources consulted:\n${sourceList}\n- Sources accepted: local fixtures\n- Verification: ${fixedCase.expected_status}\n- verified: 1\n- partial: 0\n- blocked: 0\n- unverified: 0\n- inferred: 0\n- failed: 0\n- Plan: none\n`);
+    writeFileSync(provenancePath, `# Provenance\n\n- Date: 2026-09-25\n- Sources consulted:\n${sourceList}\n- Sources accepted: local fixtures\n- Verification: ${fixedCase.expected_status}\n${claimLines}\n- Plan: none\n`);
     const finalBytes = readFileSync(finalPath);
     const provenanceBytes = readFileSync(provenancePath);
     return {
@@ -156,6 +159,13 @@ try {
   assert.match(
     validateRunManifest(summaryMismatch, { repoRoot, artifactRoot, casePath: suitePath }).errors.join("\n"),
     /summary\.review_status must be PASS/i,
+  );
+
+  const costMismatch = structuredClone(manifest);
+  costMismatch.summary.cost_status = "available";
+  assert.match(
+    validateRunManifest(costMismatch, { repoRoot, artifactRoot, casePath: suitePath }).errors.join("\n"),
+    /summary\.cost_status must be unavailable/i,
   );
 
   const statusPath = join(artifactRoot, "supported-evidence", "supported-evidence.md");

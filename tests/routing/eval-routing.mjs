@@ -12,7 +12,7 @@
  */
 
 import { lstatSync, readFileSync, readdirSync, realpathSync, writeFileSync } from "node:fs";
-import { join, dirname, relative, sep } from "node:path";
+import { join, dirname, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { validateEvalCatalog } from "../../scripts/eval-contract.mjs";
@@ -24,10 +24,16 @@ const SKILLS_DIR = join(REPO_ROOT, "skills");
 const COLLISION_THRESHOLD = 0.7;
 const REPO_REAL = realpathSync(REPO_ROOT);
 
+function canonicalPath(path) {
+  return process.platform === "win32" ? path.toLowerCase() : path;
+}
+
 function assertSafeRegularFile(path) {
   const stat = lstatSync(path);
   if (!stat.isFile() || stat.isSymbolicLink()) throw new Error(`routing input is not a regular file: ${path}`);
   const real = realpathSync(path);
+  const expected = resolve(REPO_REAL, relative(REPO_ROOT, path));
+  if (canonicalPath(real) !== canonicalPath(expected)) throw new Error(`routing input uses a symlink or junction: ${path}`);
   const rel = relative(REPO_REAL, real);
   if (rel === ".." || rel.startsWith(`..${sep}`) || /^[A-Za-z]:[\\/]/.test(rel) || rel.startsWith("\\\\")) throw new Error(`routing input escapes repository: ${path}`);
   return path;
