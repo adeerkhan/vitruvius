@@ -11,7 +11,8 @@ function isNonEmptyString(value) {
 function isSafeRelativePath(value, prefix) {
   if (!isNonEmptyString(value) || isAbsolute(value)) return false;
   const normalized = value.replaceAll("\\", "/");
-  if (!normalized.startsWith(`${prefix}/`) || normalized.includes("../")) return false;
+  const segments = normalized.split("/");
+  if ((prefix && !normalized.startsWith(`${prefix}/`)) || segments.includes("..")) return false;
   return true;
 }
 
@@ -116,6 +117,11 @@ export function validateEvalCatalog(catalog, { repoRoot }) {
     if (!existsSync(testPath)) {
       errors.push(`${label}.behavior test does not exist: ${behavior.test}`);
       continue;
+    }
+    if (!behavior.artifact || !isNonEmptyString(behavior.artifact.path) || !isNonEmptyString(behavior.artifact.kind)) {
+      errors.push(`${label}.behavior.artifact requires kind and path`);
+    } else if (!isSafeRelativePath(behavior.artifact.path, "") || !existsSync(resolve(root, behavior.artifact.path))) {
+      errors.push(`${label}.behavior.artifact path does not exist inside the repository: ${behavior.artifact.path}`);
     }
     const testSource = readFileSync(testPath, "utf8");
     if (!Array.isArray(behavior.expectations) || behavior.expectations.length === 0) {

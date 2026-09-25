@@ -146,22 +146,20 @@ const baselineRoutingCases = [
 ];
 
 const e1Catalog = JSON.parse(readFileSync(join(REPO_ROOT, "evals", "catalog.json"), "utf8"));
-const e1Report = validateEvalCatalog(e1Catalog, { repoRoot: REPO_ROOT });
-if (!e1Report.valid) {
+const e1CatalogReport = validateEvalCatalog(e1Catalog, { repoRoot: REPO_ROOT });
+if (!e1CatalogReport.valid) {
   console.error("E1 catalog contract failed:");
-  for (const error of e1Report.errors) console.error(`  - ${error}`);
+  for (const error of e1CatalogReport.errors) console.error(`  - ${error}`);
   process.exit(1);
 }
 const e1Cases = e1Catalog.cases;
-const routingCases = [
-  ...baselineRoutingCases,
-  ...e1Cases.map((evalCase) => ({
-    id: evalCase.id,
-    prompt: evalCase.positive.prompt,
-    skill: evalCase.skill,
-    top_k: evalCase.positive.top_k,
-  })),
-];
+const e1PositiveCases = e1Cases.map((evalCase) => ({
+  id: evalCase.id,
+  prompt: evalCase.positive.prompt,
+  skill: evalCase.skill,
+  top_k: evalCase.positive.top_k,
+}));
+const routingCases = baselineRoutingCases;
 
 const idf = new Map();
 for (const s of skills) {
@@ -181,25 +179,35 @@ function tfidfVec(tokens) {
 
 const skillVecs = skills.map((s) => ({ name: s.name, v: tfidfVec(s.tokens) }));
 
-console.log("\nCheck 2 — prompt routing (rank-1 must hit labeled skill):");
-let hits = 0;
-const misses = [];
-for (const c of routingCases) {
-  const qv = tfidfVec(tokenize(c.prompt));
-  const ranked = skillVecs
-    .map((skill) => ({ name: skill.name, score: cosine(qv, skill.v) }))
-    .sort((left, right) => right.score - left.score);
-  const targetRank = ranked.findIndex((rankedSkill) => rankedSkill.name === c.skill) + 1;
-  const topK = c.top_k ?? 1;
-  const ok = targetRank > 0 && targetRank <= topK;
-  if (ok) hits++;
-  else {
-    const top = ranked[0];
-    misses.push(`${c.skill} <- "${c.prompt}" (got ${top.name}, rank ${targetRank || "unranked"})`);
-    console.log(`  MISS: "${c.prompt.slice(0, 50)}..." → got ${top.name}, want ${c.skill}`);
+function evaluatePositiveCases(cases) {
+  let hits = 0;
+  const misses = [];
+  for (const evalCase of cases) {
+    const query = tfidfVec(tokenize(evalCase.prompt));
+    const ranked = skillVecs
+      .map((skill) => ({ name: skill.name, score: cosine(query, skill.v) }))
+      .sort((left, right) => right.score - left.score);
+    const targetRank = ranked.findIndex((rankedSkill) => rankedSkill.name === evalCase.skill) + 1;
+    const topK = evalCase.top_k ?? 1;
+    if (targetRank > 0 && targetRank <= topK) {
+      hits++;
+    } else {
+      const top = ranked[0];
+      misses.push(`${evalCase.skill} <- "${evalCase.prompt}" (got ${top.name}, rank ${targetRank || "unranked"})`);
+      console.log(`  MISS: "${evalCase.prompt.slice(0, 50)}..." → got ${top.name}, want ${evalCase.skill}`);
+    }
   }
+  return { hits, misses };
 }
-console.log(`  rank-1: ${hits}/${routingCases.length}`);
+
+console.log("\nCheck 2 — baseline prompt routing (rank-1 must hit labeled skill):");
+const baselineReport = evaluatePositiveCases(routingCases);
+console.log(`  rank-1: ${baselineReport.hits}/${routingCases.length}`);
+
+console.log("\nCheck 2b — E1 positive routing (declared top-k):");
+const e1Report = evaluatePositiveCases(e1PositiveCases);
+console.log(`  top-k: ${e1Report.hits}/${e1PositiveCases.length}`);
+if (e1Report.hits < e1PositiveCases.length) failed++;
 
 console.log("\nCheck 3 — E1 owner negatives (named owner must outrank target):");
 let negativeHits = 0;
@@ -224,33 +232,41 @@ if (negativeHits < e1Cases.length) {
   failed++;
 }
 
-// Persist misses so run-over-run drift is visible in git diff. Do not rewrite
-// an unchanged miss list merely because the calendar date changed.
-const missPath = join(__dirname, "last-misses.txt");
-const missBody = misses.length ? `${misses.join("\n")}\n` : "";
-let writeMisses = true;
-try {
-  const current = readFileSync(missPath, "utf-8");
-  const currentBody = current.replace(/^# routing misses[^\n]*\n/, "").replace(/\r\n/g, "\n");
-  writeMisses = currentBody !== missBody;
-} catch {
-  // First run: create the artifact.
+function persistMisses(path, label, misses, hits, total) {
+  const missBody = misses.length ? `${misses.join("\n")}\n` : "";
+  let shouldWrite = true;
+  try {
+    const current = readFileSync(path, "utf-8");
+    const currentBody = current.replace(/^#[^\n]*\n/, "").replace(/\r\n/g, "\n");
+    shouldWrite = currentBody !== missBody;
+  } catch {
+    // First run: create the artifact.
+  }
+  if (shouldWrite) {
+    writeFileSync(
+      path,
+      `# ${label}, last run ${new Date().toISOString().split("T")[0]}: ${hits}/${total}\n${missBody}`,
+    );
+  }
 }
-if (writeMisses) {
-  writeFileSync(
-    missPath,
-    `# routing misses (rank-1), last run ${new Date().toISOString().split("T")[0]}: ${hits}/${routingCases.length}\n${missBody}`,
-  );
-}
+
+persistMisses(join(__dirname, "last-misses.txt"), "baseline routing misses (rank-1)", baselineReport.misses, baselineReport.hits, routingCases.length);
+persistMisses(
+  join(__dirname, "e1-misses.txt"),
+  "E1 positive/owner-negative misses",
+  [...e1Report.misses, ...negativeMisses],
+  Math.min(e1Report.hits, negativeHits),
+  e1Cases.length,
+);
 
 // Baseline floor (2026-09 first measured run: 12/16). Raise only with a
 // recorded better run and sharpened descriptions — never lower.
 const floor = 0.75;
-if (hits / routingCases.length < floor) {
-  console.log(`  FAIL: rank-1 ${(hits / routingCases.length * 100).toFixed(0)}% < ${floor * 100}% floor`);
+if (baselineReport.hits / routingCases.length < floor) {
+  console.log(`  FAIL: baseline rank-1 ${(baselineReport.hits / routingCases.length * 100).toFixed(0)}% < ${floor * 100}% floor`);
   failed++;
 } else {
-  console.log(`  rank-1 >= ${floor * 100}% floor: OK`);
+  console.log(`  baseline rank-1 >= ${floor * 100}% floor: OK`);
 }
 
 console.log(`\n${failed === 0 ? "PASS" : "FAIL"}: routing eval`);

@@ -16,7 +16,7 @@
       "id": "engineering-research-run-ledger",
       "skill": "engineering-research",
       "positive": {
-        "prompt": "Research and verify the fatigue evidence for a steel bracket under cyclic loading",
+        "prompt": "Use the engineering research method to discover, read, synthesize, and verify primary evidence for an engineering question",
         "top_k": 3
       },
       "negative": {
@@ -26,6 +26,10 @@
       },
       "behavior": {
         "test": "tests/logging/test-log-run.mjs",
+        "artifact": {
+          "kind": "runtime-fixture",
+          "path": "tests/logging/test-log-run.mjs"
+        },
         "expectations": [
           {
             "statement": "The run-ledger path emits validated run.v1 JSONL and refuses duplicate identifiers.",
@@ -48,6 +52,10 @@
       },
       "behavior": {
         "test": "tests/habit/test-habit-runtime.mjs",
+        "artifact": {
+          "kind": "runtime-fixture",
+          "path": "tests/habit/test-habit-runtime.mjs"
+        },
         "expectations": [
           {
             "statement": "Only explicitly approved user evidence can be activated and later loaded.",
@@ -70,6 +78,10 @@
       },
       "behavior": {
         "test": "tests/proposal/test-proposal.mjs",
+        "artifact": {
+          "kind": "runtime-fixture",
+          "path": "tests/proposal/test-proposal.mjs"
+        },
         "expectations": [
           {
             "statement": "Supported local intake is executable while URL and image inputs fail closed with provenance.",
@@ -82,7 +94,7 @@
       "id": "verifier-missing-verdict",
       "skill": "verifier",
       "positive": {
-        "prompt": "Check my claimed weld size against the code requirement",
+        "prompt": "Verify a fatigue claim against the cited standard and return a severity-gated verdict",
         "top_k": 3
       },
       "negative": {
@@ -92,6 +104,10 @@
       },
       "behavior": {
         "test": "tests/verifier/test-verifier.mjs",
+        "artifact": {
+          "kind": "runtime-fixture",
+          "path": "tasks/benchmark/results/architectural-code_misapplication-01-result.md"
+        },
         "expectations": [
           {
             "statement": "Verifier benchmark and PASS-control integrity checks fail closed and remain measurable.",
