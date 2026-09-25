@@ -13,6 +13,7 @@ import { readFileSync, existsSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { check, hasS7Boundary, lineCountUnder } from "../_contract/contract.mjs";
+import { readYamlFrontmatter } from "../../scripts/yaml-frontmatter.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = join(__dirname, "..", "..");
@@ -69,7 +70,7 @@ console.log("\n[Test] skills/habit/SKILL.md");
 const skill = read(SKILL);
 assert(skill !== null, "skills/habit/SKILL.md exists");
 if (skill) {
-  assert(/^---\n/.test(skill), "skill: has frontmatter");
+  assert(readYamlFrontmatter(skill) !== null, "skill: has frontmatter");
   assert(/^name:\s*habit\s*$/m.test(skill), "skill: name is habit");
   assert(/^description:\s*[>|]/m.test(skill), "skill: has folded description");
   assert(/^argument-hint:/m.test(skill), "skill: has argument-hint");

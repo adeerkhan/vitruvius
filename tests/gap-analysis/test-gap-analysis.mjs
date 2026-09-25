@@ -10,6 +10,7 @@ import { readFileSync, existsSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { check } from "../_contract/contract.mjs";
+import { readYamlFrontmatter } from "../../scripts/yaml-frontmatter.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = join(__dirname, "..", "..");
@@ -20,7 +21,7 @@ let passed = 0;
 let failed = 0;
 
 const skill = readFileSync(SKILL_PATH, "utf-8");
-const frontmatter = skill.match(/^---\n([\s\S]*?)\n---/)?.[1] || "";
+const frontmatter = readYamlFrontmatter(skill) ?? "";
 
 console.log("\n[Test] Frontmatter has required fields");
 {

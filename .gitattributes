@@ -1,5 +1,8 @@
-evals/** text eol=lf
-outputs/.q1-example/** text eol=lf
-scripts/eval-contract.mjs text eol=lf
-scripts/fixed-case.mjs text eol=lf
-tests/evals/** text eol=lf
+# Normalize line endings so parsers, hashes, and generated adapters are
+# identical on every platform. A CRLF checkout previously changed which
+# skills the structural contract and the routing eval could see.
+* text=auto eol=lf
+
+*.jpg binary
+*.png binary
+*.pdf binary

@@ -11,6 +11,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
 import { check } from "../_contract/contract.mjs";
+import { readYamlFrontmatter } from "../../scripts/yaml-frontmatter.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = join(__dirname, "..", "..");
@@ -48,11 +49,11 @@ console.log("\n[Test] All skills have required frontmatter fields");
 {
   for (const name of getSkills()) {
     const skillMd = readFileSync(join(SKILLS_DIR, name, "SKILL.md"), "utf-8");
-    const hasFrontmatter = skillMd.startsWith("---\n");
+    const hasFrontmatter = readYamlFrontmatter(skillMd) !== null;
     check(hasFrontmatter, `${name}: has frontmatter`);
 
     if (hasFrontmatter) {
-      const frontmatter = skillMd.match(/^---\n([\s\S]*?)\n---/)?.[1] || "";
+      const frontmatter = readYamlFrontmatter(skillMd) ?? "";
       check(frontmatter.includes("name:"), `${name}: has name field`);
       check(frontmatter.includes("description:"), `${name}: has description field`);
     }

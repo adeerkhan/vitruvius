@@ -16,6 +16,7 @@ import { join, dirname, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { validateEvalCatalog } from "../../scripts/eval-contract.mjs";
+import { readSkillDescription } from "../../scripts/yaml-frontmatter.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = join(__dirname, "..", "..");
@@ -109,11 +110,13 @@ for (const entry of readdirSync(SKILLS_DIR)) {
     continue;
   }
   const text = readFileSync(p, "utf-8");
-  const m = text.match(/^---\n([\s\S]*?)\n---/);
-  if (!m) continue;
-  const descMatch = m[1].match(/description:\s*>-?\s*\n([\s\S]*?)(?=\n[a-z-]+:|\n---)/) ||
-    m[1].match(/description:\s*(.+)/);
-  const description = descMatch ? descMatch[1].replace(/\n\s*/g, " ").trim() : "";
+  // Line-ending independent. A CRLF checkout used to drop the skill from the
+  // index entirely, so the measured rank-1 depended on checkout settings.
+  const description = readSkillDescription(text);
+  if (!description) {
+    routingInputErrors.push(`${entry.name}: no frontmatter description parsed`);
+    continue;
+  }
   skills.push({ name: entry, description, tokens: tokenize(entry + " " + description) });
 }
 
