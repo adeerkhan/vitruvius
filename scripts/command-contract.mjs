@@ -130,6 +130,12 @@ export const commands = [
     category: "workflow",
   },
   {
+    name: "vitruvius-help",
+    description: "Quick-reference card for all Vitruvius commands and the shared research method",
+    argumentHint: "[no arguments]",
+    category: "workflow",
+  },
+  {
     name: "proposal",
     description: "Generate targeted Ph.D./Masters research proposals with gap analysis + verification",
     argumentHint: "--posting <path-or-url> --cv <path> [--statement <path>] [--sample <path>]",
@@ -150,4 +156,15 @@ export const hosts = [
   { id: "claude", dir: ".claude/commands", ext: "md" },
   { id: "codex", dir: ".codex/commands", ext: "md" },
   { id: "commandcode", dir: ".commandcode/mods", ext: "ts" },
+];
+
+/**
+ * Hosts that load a free-standing ruleset rather than slash commands. All three
+ * read the same file; it is generated from `references/host-rules.md` so the
+ * copies cannot drift apart silently.
+ */
+export const rulesetHosts = [
+  { id: "clinerules", file: ".clinerules/vitruvius.md" },
+  { id: "qoder", file: ".qoder/rules/vitruvius.md" },
+  { id: "windsurf", file: ".windsurf/rules/vitruvius.md" },
 ];

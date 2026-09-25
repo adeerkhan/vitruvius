@@ -17,4 +17,3 @@ Civil/structural engineering research — buildings, bridges, steel, concrete, l
 ## Category
 
 Disciplines
-

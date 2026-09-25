@@ -17,4 +17,3 @@ Faithful structured digest of a standard, spec, or paper
 ## Category
 
 Workflows
-

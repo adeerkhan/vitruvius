@@ -50,7 +50,7 @@ discipline:
 | User says | Command | What it does |
 |-----------|---------|--------------|
 | compare, weigh, choose between, where do X and Y differ | `/vitruvius:compare` | Source/standard/design comparison matrix |
-| is this right, check/verify this claim/calculation, does it meet code | `/vitruvius:verify` | Verdict on a claim or number with evidence trail |
+| is this right, check/verify this claim/calculation, does it meet code | `/vitruvius:verifier` | Blind Verifier — verdict on a claim or number with evidence trail |
 | review, critique, find weaknesses, pre-submission check | `/vitruvius:review` | Severity-graded artifact review |
 | audit, does the code match the paper/spec, consistency check | `/vitruvius:audit` | Claim-vs-implementation mismatch audit |
 | summarize, condense, key requirements of this spec/standard/paper | `/vitruvius:summarize` | Faithful structured document digest |

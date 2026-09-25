@@ -17,4 +17,3 @@ Architectural research — building science, facades, codes, performance
 ## Category
 
 Disciplines
-

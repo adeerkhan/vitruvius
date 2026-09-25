@@ -17,4 +17,3 @@ Anchored extraction from PDFs, drawings, specs
 ## Category
 
 Workflows
-

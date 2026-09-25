@@ -17,4 +17,3 @@ Mechanical engineering research — design, thermal, fluids, materials, manufact
 ## Category
 
 Disciplines
-

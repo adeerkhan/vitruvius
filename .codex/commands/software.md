@@ -17,4 +17,3 @@ Software engineering research — architecture, frameworks, protocols, security
 ## Category
 
 Disciplines
-

@@ -125,6 +125,12 @@ export const commands = [
   },
 
   {
+    name: "vitruvius-help",
+    description: "Quick-reference card for all Vitruvius commands and the shared research method",
+    argumentHint: "[no arguments]",
+  },
+
+  {
     name: "proposal",
     description: "Generate targeted Ph.D./Masters research proposals with gap analysis + verification",
     argumentHint: "--posting <path-or-url> --cv <path> [--statement <path>] [--sample <path>]",

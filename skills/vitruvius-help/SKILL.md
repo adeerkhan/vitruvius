@@ -30,7 +30,6 @@ with auditable provenance.
 | `/vitruvius:electrical <question>` | Electrical / electronics research (power, controls, EMC). |
 | `/vitruvius:architectural <question>` | Architectural research (building science, facades, codes). |
 | `/vitruvius:verifier <claim>` | Blind Verifier — independent subagent checks claim vs evidence. |
-| `/vitruvius:verify <claim>` | Verify a claim/calculation against authoritative sources. |
 | `/vitruvius:compare <items>` | Source/standard/design comparison matrix. |
 | `/vitruvius:review <artifact>` | Severity-graded artifact review. |
 | `/vitruvius:audit <target>` | Claim-vs-implementation mismatch audit. |

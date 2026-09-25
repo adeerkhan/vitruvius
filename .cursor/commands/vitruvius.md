@@ -17,4 +17,3 @@ Engineering research agent — dispatch to discipline or workflow skill
 ## Category
 
 Core
-

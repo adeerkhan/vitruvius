@@ -17,4 +17,3 @@ Electrical/electronics research — power, electronics, controls, EMC
 ## Category
 
 Disciplines
-
