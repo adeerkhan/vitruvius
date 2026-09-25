@@ -1,0 +1,104 @@
+{
+  "schema": "vitruvius-e1.v1",
+  "coverage": {
+    "status": "pilot",
+    "complete": false,
+    "scope": "Four fixture-backed P0/P1 skills; broader 25-skill behavioral coverage remains open."
+  },
+  "priority_skills": [
+    "engineering-research",
+    "habit",
+    "proposal",
+    "verifier"
+  ],
+  "cases": [
+    {
+      "id": "engineering-research-run-ledger",
+      "skill": "engineering-research",
+      "positive": {
+        "prompt": "Research and verify the fatigue evidence for a steel bracket under cyclic loading",
+        "top_k": 3
+      },
+      "negative": {
+        "prompt": "Investigate the technical landscape and architecture options for this software system",
+        "owner": "software",
+        "top_k": 1
+      },
+      "behavior": {
+        "test": "tests/logging/test-log-run.mjs",
+        "expectations": [
+          {
+            "statement": "The run-ledger path emits validated run.v1 JSONL and refuses duplicate identifiers.",
+            "marker": "PASS: run.v1 JSONL logger, validation, duplicate refusal, and isolation"
+          }
+        ]
+      }
+    },
+    {
+      "id": "habit-explicit-approval",
+      "skill": "habit",
+      "positive": {
+        "prompt": "Capture a standing research convention for future runs: use concise evidence tables",
+        "top_k": 1
+      },
+      "negative": {
+        "prompt": "Discover primary sources, read them, synthesize findings, and verify claims for an engineering question",
+        "owner": "engineering-research",
+        "top_k": 1
+      },
+      "behavior": {
+        "test": "tests/habit/test-habit-runtime.mjs",
+        "expectations": [
+          {
+            "statement": "Only explicitly approved user evidence can be activated and later loaded.",
+            "marker": "PASS: Habit validation, activation, later-run loading, and revocation"
+          }
+        ]
+      }
+    },
+    {
+      "id": "proposal-local-intake-boundary",
+      "skill": "proposal",
+      "positive": {
+        "prompt": "Turn this position posting and CV into a targeted PhD research proposal",
+        "top_k": 1
+      },
+      "negative": {
+        "prompt": "Find recent academic papers on retraction-aware paper ranking",
+        "owner": "scholarly-research",
+        "top_k": 1
+      },
+      "behavior": {
+        "test": "tests/proposal/test-proposal.mjs",
+        "expectations": [
+          {
+            "statement": "Supported local intake is executable while URL and image inputs fail closed with provenance.",
+            "marker": "PASS: proposal intake, provenance, fail-closed binder, and packaging"
+          }
+        ]
+      }
+    },
+    {
+      "id": "verifier-missing-verdict",
+      "skill": "verifier",
+      "positive": {
+        "prompt": "Check my claimed weld size against the code requirement",
+        "top_k": 3
+      },
+      "negative": {
+        "prompt": "Audit whether a paper's claims match its published code",
+        "owner": "audit",
+        "top_k": 1
+      },
+      "behavior": {
+        "test": "tests/verifier/test-verifier.mjs",
+        "expectations": [
+          {
+            "statement": "Verifier benchmark and PASS-control integrity checks fail closed and remain measurable.",
+            "marker": "PASS: verifier benchmark integrity and controls"
+          }
+        ]
+      }
+    }
+  ]
+}

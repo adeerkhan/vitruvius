@@ -48,7 +48,7 @@
     "pdf-parse": "^1.1.1"
   },
   "scripts": {
-    "test": "node scripts/test-skills.mjs && node scripts/validate-contract.mjs && node scripts/validate-artifacts.mjs outputs/ && node scripts/check-output-quality.mjs outputs/ && node scripts/security-scan.mjs && node tests/routing/eval-routing.mjs && node tests/validate-contract/test-contract.mjs && node tests/_contract/test-check.mjs && node tests/adapters/test-adapters.mjs && node tests/gap-analysis/test-gap-analysis.mjs && node tests/hypothesis-generation/test-hypothesis.mjs && node tests/evidence-ranking/test-evidence-ranking.mjs && node tests/verifier/test-benchmark-scoring.mjs && node tests/verifier/test-verifier.mjs && node tests/agents/test-agents.mjs && node tests/design-alternatives/test-design-alternatives.mjs && node tests/fmea-brainstorm/test-fmea-brainstorm.mjs && node tests/all-skills/test-all-skills.mjs && node tests/habit/test-habit.mjs && node tests/habit/test-habit-runtime.mjs && node tests/habit/test-habit-cli.mjs && node tests/proposal/test-proposal.mjs && node tests/logging/test-log-run.mjs",
+    "test": "node scripts/test-skills.mjs && node scripts/validate-contract.mjs && node scripts/validate-artifacts.mjs outputs/ && node scripts/check-output-quality.mjs outputs/ && node scripts/security-scan.mjs && node tests/routing/eval-routing.mjs && node tests/validate-contract/test-contract.mjs && node tests/_contract/test-check.mjs && node tests/adapters/test-adapters.mjs && node tests/gap-analysis/test-gap-analysis.mjs && node tests/hypothesis-generation/test-hypothesis.mjs && node tests/evidence-ranking/test-evidence-ranking.mjs && node tests/verifier/test-benchmark-scoring.mjs && node tests/verifier/test-verifier.mjs && node tests/agents/test-agents.mjs && node tests/design-alternatives/test-design-alternatives.mjs && node tests/fmea-brainstorm/test-fmea-brainstorm.mjs && node tests/all-skills/test-all-skills.mjs && node tests/habit/test-habit.mjs && node tests/habit/test-habit-runtime.mjs && node tests/habit/test-habit-cli.mjs && node tests/proposal/test-proposal.mjs && node tests/logging/test-log-run.mjs && node tests/evals/test-eval-contract.mjs",
     "test:skills": "node scripts/test-skills.mjs",
     "test:contract": "node scripts/validate-contract.mjs",
     "test:contract:unit": "node tests/validate-contract/test-contract.mjs && node tests/_contract/test-check.mjs",
@@ -65,6 +65,7 @@
     "test:benchmark": "node tests/verifier/test-benchmark-scoring.mjs && node tests/verifier/test-verifier.mjs",
     "test:proposal": "node tests/proposal/test-proposal.mjs",
     "test:logger": "node tests/logging/test-log-run.mjs",
+    "test:evals": "node tests/evals/test-eval-contract.mjs",
     "test:habit": "node tests/habit/test-habit.mjs && node tests/habit/test-habit-runtime.mjs && node tests/habit/test-habit-cli.mjs",
     "benchmark": "node scripts/score-benchmark.mjs tasks/benchmark/results tasks/benchmark/cases",
     "test:routing": "node tests/routing/eval-routing.mjs"

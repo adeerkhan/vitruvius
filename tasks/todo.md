@@ -1,4 +1,4 @@
-# B0 + H1 + R0 + L1 Implementation Checklist
+# B0 + H1 + R0 + L1 + E1/C1 Implementation Checklist
 
 ## Phase 1: B0
 
@@ -38,8 +38,24 @@
 - [x] Wire logger tests into `npm test`
 - [x] L1 checkpoint
 
+## Phase 6: E1 pilot
+
+- [x] Four-skill positive/negative/artifact catalog
+- [x] Fail-closed catalog tests
+- [x] Routing integration without baseline duplication
+- [x] E1 pilot checkpoint
+
+## Phase 7: C1 pilot
+
+- [ ] Fixed local case and strict run schema
+- [ ] Three isolated subagent example runs
+- [ ] Independent grading and retained hashes
+- [ ] C1 pilot checkpoint
+
 ## Checkpoints
 
 - After Phase 1: all benchmark cases and controls are accounted for; missing verdicts fail.
 - After Phase 2: approved preference loads in a later run and is absent after revoke/expiry.
 - After Phase 3: public claims match executable tests and no unrelated dirty files are staged.
+- After E1 pilot: four priority skills have valid positive/negative/artifact contracts; no 25-skill completion claim.
+- After C1 pilot: one fixed case has three isolated recorded runs; cost/model coverage remains explicit.

@@ -1,5 +1,6 @@
-# routing misses (rank-1), last run 2026-09-18: 16/20
-standards-lookup <- "what does ACI 318 say about the reduction factor for post-tensioned tendons" (got scholarly-research)
-gap-analysis <- "find research gaps in FRP bonding literature for civil structures" (got civil)
-design-alternatives <- "compare three design alternatives for this pressure vessel closure" (got compare)
-verifier <- "check my claimed weld size against the code requirement" (got audit)
+# routing misses (rank-1), last run 2026-09-25: 19/24
+standards-lookup <- "what does ACI 318 say about the reduction factor for post-tensioned tendons" (got scholarly-research, rank 2)
+gap-analysis <- "find research gaps in FRP bonding literature for civil structures" (got civil, rank 2)
+design-alternatives <- "compare three design alternatives for this pressure vessel closure" (got compare, rank 2)
+verifier <- "check my claimed weld size against the code requirement" (got audit, rank 3)
+engineering-research <- "Research and verify the fatigue evidence for a steel bracket under cyclic loading" (got civil, rank 8)

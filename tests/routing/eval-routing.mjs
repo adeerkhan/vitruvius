@@ -15,6 +15,8 @@ import { readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { validateEvalCatalog } from "../../scripts/eval-contract.mjs";
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = join(__dirname, "..", "..");
 const SKILLS_DIR = join(REPO_ROOT, "skills");
@@ -120,7 +122,7 @@ if (collisions > 0) failed++;
 
 // Each case: a user prompt and the skill that must rank first.
 // Derived from each skill's own "Use when" territory.
-const routingCases = [
+const baselineRoutingCases = [
   { prompt: "is this right — does my calculation of the flexural strength hold up", skill: "verifier" },
   { prompt: "what does ACI 318 say about the reduction factor for post-tensioned tendons", skill: "standards-lookup" },
   { prompt: "find research gaps in FRP bonding literature for civil structures", skill: "gap-analysis" },
@@ -141,6 +143,24 @@ const routingCases = [
   { prompt: "research motor drives and power systems for this grid-tied installation", skill: "electrical" },
   { prompt: "research facade and enclosure systems for my building science survey", skill: "architectural" },
   { prompt: "investigate the technical landscape and architecture options for this software system", skill: "software" },
+];
+
+const e1Catalog = JSON.parse(readFileSync(join(REPO_ROOT, "evals", "catalog.json"), "utf8"));
+const e1Report = validateEvalCatalog(e1Catalog, { repoRoot: REPO_ROOT });
+if (!e1Report.valid) {
+  console.error("E1 catalog contract failed:");
+  for (const error of e1Report.errors) console.error(`  - ${error}`);
+  process.exit(1);
+}
+const e1Cases = e1Catalog.cases;
+const routingCases = [
+  ...baselineRoutingCases,
+  ...e1Cases.map((evalCase) => ({
+    id: evalCase.id,
+    prompt: evalCase.positive.prompt,
+    skill: evalCase.skill,
+    top_k: evalCase.positive.top_k,
+  })),
 ];
 
 const idf = new Map();
@@ -167,17 +187,42 @@ const misses = [];
 for (const c of routingCases) {
   const qv = tfidfVec(tokenize(c.prompt));
   const ranked = skillVecs
-    .map((s) => ({ name: s.name, score: cosine(qv, s.v) }))
-    .sort((a, b) => b.score - a.score);
-  const top = ranked[0];
-  const ok = top.name === c.skill;
+    .map((skill) => ({ name: skill.name, score: cosine(qv, skill.v) }))
+    .sort((left, right) => right.score - left.score);
+  const targetRank = ranked.findIndex((rankedSkill) => rankedSkill.name === c.skill) + 1;
+  const topK = c.top_k ?? 1;
+  const ok = targetRank > 0 && targetRank <= topK;
   if (ok) hits++;
   else {
-    misses.push(`${c.skill} <- "${c.prompt}" (got ${top.name})`);
+    const top = ranked[0];
+    misses.push(`${c.skill} <- "${c.prompt}" (got ${top.name}, rank ${targetRank || "unranked"})`);
     console.log(`  MISS: "${c.prompt.slice(0, 50)}..." → got ${top.name}, want ${c.skill}`);
   }
 }
 console.log(`  rank-1: ${hits}/${routingCases.length}`);
+
+console.log("\nCheck 3 — E1 owner negatives (named owner must outrank target):");
+let negativeHits = 0;
+const negativeMisses = [];
+for (const evalCase of e1Cases) {
+  const query = tfidfVec(tokenize(evalCase.negative.prompt));
+  const ranked = skillVecs
+    .map((skill) => ({ name: skill.name, score: cosine(query, skill.v) }))
+    .sort((left, right) => right.score - left.score);
+  const ownerRank = ranked.findIndex((skill) => skill.name === evalCase.negative.owner) + 1;
+  const targetRank = ranked.findIndex((skill) => skill.name === evalCase.skill) + 1;
+  const topK = evalCase.negative.top_k ?? 1;
+  if (ownerRank > 0 && ownerRank <= topK && ownerRank < targetRank) {
+    negativeHits++;
+  } else {
+    negativeMisses.push(`${evalCase.negative.owner} must outrank ${evalCase.skill} for "${evalCase.negative.prompt}"`);
+  }
+}
+console.log(`  owner-negative: ${negativeHits}/${e1Cases.length}`);
+if (negativeHits < e1Cases.length) {
+  for (const miss of negativeMisses) console.log(`  MISS: ${miss}`);
+  failed++;
+}
 
 // Persist misses so run-over-run drift is visible in git diff. Do not rewrite
 // an unchanged miss list merely because the calendar date changed.
