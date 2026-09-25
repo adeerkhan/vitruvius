@@ -160,6 +160,32 @@ Implement bounded reliability slices: B0 makes verifier benchmark scoring comple
 - [x] The roadmap has executable proof for the final gate and artifact closure, plus a bounded field-pilot format; no new source connector or skill catalogue is added without observed need.
 - [ ] Run the first real V1 question and record the observed source-access/value result.
 
+## Phase 10: PA1 — bind research to the artifact it studies
+
+A floorplanner audit was fully and correctly cited yet contained no repository
+path, recommended a furniture module the repo already had, asserted a
+simulation dependency the repo does not have, and graded twelve changes
+"very high impact" with no ground. The failure is grounding, not relevance, so
+the fix is a contract rather than a prompt.
+
+- [x] Task 20: Add a `vitruvius-problem-anchor.v1` contract binding a run to the artifacts it studied.
+  - Acceptance: `repo` findings carry a `path:line` that resolves through links to a real non-blank line inside a hash-pinned artifact; every finding names a `changes` landing site; every declared decision reaches a finding; negative coverage is non-empty and bound to the candidate; the record sits beside the candidate; the report cites every anchor and every id, with the line number delimited on both sides.
+  - Verification: `npm run test:problem-anchor` and the full suite pass. Cross-repo resolution, link-escape refusal, record/report drift, and a wrong-line citation are all exercised. The residual limit — an anchor that resolves but does not support its claim — passes and is documented as the verifier's job.
+
+- [x] Task 21: Enforce the grounding rules in the shared method and the roles.
+  - Acceptance: `engineering-research` freezes artifacts/decisions/non-goals before searching, requires `## What we did not find` and `## Impact vs. evidence`, and bumps to 0.2.5; `scholarly-research` refuses to write the report, tags every source with the question it answers, requires a handback, and bumps to 0.1.1; `researcher` and `writer` carry the anchor and landing-site rules; `goal-checker` treats an unsupported anchor or an unchecked absence claim as a finding.
+  - Verification: contract assertions live in `tests/engineering-research/test-problem-anchor.mjs`; routing stays 16/20 with 0 collisions.
+
+- [x] Task 22: Scope the cheap drift checks so they cannot condemn required or non-report artifacts.
+  - Acceptance: grounding checks apply only to files carrying a GOAL-CHECK or problem-anchor record, never to provenance sidecars, FMEA tables, comparison matrices, or reviews; a heading without content does not satisfy a section; a command with a result counts as an anchor.
+  - Verification: `npm run test:quality` passes; `npm run check:local-artifacts` reports only genuine pre-contract debt in the local tree, documented in the README.
+
+### Checkpoint: PA1
+
+- [x] Research output is bound to the artifact it studies, and the boundary of that guarantee is stated in AGENTS.md, the README, the skill, and the contract reference rather than implied.
+- [ ] Re-run the floorplanner audit under the new contract as a real adoption test.
+- [ ] Close rules 2 and 3 mechanically if a cheap, non-false-positive check exists.
+
 ## Open Questions
 
 - Which real engineering question should be the first V1 field pilot? The record format is ready, but no question or external-source run has been supplied.

@@ -68,6 +68,18 @@
 - [x] GC1/PR1/V1 contract checkpoint
 - [ ] Run the first real V1 question and retain its evidence/outcome record
 
+## Phase 10: PA1 problem anchor
+
+- [x] `vitruvius-problem-anchor.v1` contract and validator with cross-repo anchor resolution
+- [x] `repo` evidence-table type, mandatory `changes` landing site, negative-coverage binding
+- [x] Anchor-resolution, link-escape, record/report drift, and line-boundary fixtures
+- [x] `scholarly-research` boundary, question tagging, and handback
+- [x] Final-deliverable grounding checks scoped to records, not filename guesses
+- [x] PA1 contract checkpoint
+- [ ] Re-run the floorplanner audit under the new contract as a real adoption test
+- [ ] Close rules 2 and 3: an anchored line that does not entail its claim, and an
+      impact claim with no stated evidence, are still only prose-plus-review
+
 ## Checkpoints
 
 - After Phase 1: all benchmark cases and controls are accounted for; missing verdicts fail.
@@ -78,3 +90,4 @@
 - After GC1: a final artifact with an omitted ask cannot be promoted.
 - After PR1: nested final/provenance closure is tested without making ignored local outputs a CI oracle.
 - After V1: the field-pilot format exists, but no real-run outcome is claimed without retained evidence.
+- After PA1: a report cannot claim anything about an artifact without an anchor that resolves to real, non-blank, hash-pinned bytes, and every declared decision reaches a finding. Whether the anchored line *supports* the claim is explicitly not proven.

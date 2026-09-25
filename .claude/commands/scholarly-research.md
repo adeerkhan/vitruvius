@@ -1,12 +1,12 @@
 ---
 name: scholarly-research
-description: Academic literature discovery (OpenAlex, arXiv, Semantic Scholar)
+description: Academic literature evidence layer (OpenAlex, arXiv, Semantic Scholar); synthesis goes to engineering-research
 argument-hint: <topic or paper identifier>
 ---
 
 # scholarly-research
 
-Academic literature discovery (OpenAlex, arXiv, Semantic Scholar)
+Academic literature evidence layer (OpenAlex, arXiv, Semantic Scholar); synthesis goes to engineering-research
 
 ## Usage
 

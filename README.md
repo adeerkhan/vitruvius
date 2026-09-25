@@ -78,6 +78,7 @@ The verifier is benchmarked, not asserted. Its checked-in results are on-disk, r
 | GC1 GOAL-CHECK contract | deterministic positive/omitted-ask/repeated-gap fixtures; valid `NOT-DONE` is not promotable | [goal-check-contract.mjs](scripts/goal-check-contract.mjs) |
 | PR1 artifact closure | nested final/provenance, stale-byte, orphan, and path-escape fixtures | [artifact-closure.mjs](scripts/artifact-closure.mjs) |
 | V1 field-pilot contract | format and refusal tests only; no real external-source result claimed | [field-pilot README](evals/field-pilot/README.md) |
+| Problem-anchor contract | anchors resolve to non-blank lines on disk; unanchored `repo` claims, uncited anchors, decisions with no finding, and empty negative coverage all fail closed | [problem-anchor-contract.mjs](scripts/problem-anchor-contract.mjs) |
 | Structural contract (25 skills) | enforced in CI | [validate-contract.mjs](scripts/validate-contract.mjs) |
 | Provenance schema (selected sidecars, `inferred` derivation traces) | selected root/plan/draft checks plus deterministic generic closure fixtures; legacy local closure remains opt-in | [validate-artifacts.mjs](scripts/validate-artifacts.mjs) |
 
@@ -99,13 +100,14 @@ npm run test:evals
 npm run test:goal-check
 npm run test:artifacts
 npm run test:field-pilot
+npm run test:problem-anchor
 npm run test:package-contract
 node tests/routing/eval-routing.mjs
 node scripts/fixed-case.mjs case evals/cases/local-evidence-suite.json
 node scripts/fixed-case.mjs results evals/results/manifest.json evals/results
 ```
 
-The E1/C1 subagent runs are on-demand evidence and are not part of `npm test`; the checked-in C1 bundle records their artifact hashes and independent grades. GC1, PR1, and V1 are deterministic contract checks; V1 still requires a real pilot record before any outcome claim. When installed as a package, the same validators are available as `vitruvius-goal-check`, `vitruvius-artifact-closure`, and `vitruvius-field-pilot`.
+The E1/C1 subagent runs are on-demand evidence and are not part of `npm test`; the checked-in C1 bundle records their artifact hashes and independent grades. GC1, PR1, and V1 are deterministic contract checks; V1 still requires a real pilot record before any outcome claim. The problem-anchor contract is also deterministic: it proves a report is bound to the artifacts it studied, not that its claims are correct. When installed as a package, the same validators are available as `vitruvius-goal-check`, `vitruvius-artifact-closure`, `vitruvius-field-pilot`, and `vitruvius-problem-anchor`.
 
 ## Worked Examples
 
@@ -143,9 +145,51 @@ Named engineering jobs over the shared loop:
 | `/summarize` | Faithful structured digest of a standard, spec, or paper |
 | `/eli5` | Plain-language engineering explanation |
 | `/artifact-reading` | Anchored extraction from PDFs, drawings, specs |
-| `/scholarly-research` | Academic literature discovery (OpenAlex, arXiv, Semantic Scholar) |
+| `/scholarly-research` | Academic literature evidence layer (OpenAlex, arXiv, Semantic Scholar); synthesis goes to `/engineering-research` |
 | `/standards-lookup` | Engineering standards: AISC, ACI, ASCE, IEEE, Eurocode |
 | `/habit` | Extract explicit research preferences, validate them, and activate only human-approved rules in a project-local store |
+
+## Grounding: keeping a report about your problem
+
+A fully cited literature review that never opens the codebase it was commissioned
+about passes every citation check and answers nobody. Vitruvius closes that with
+rules, not exhortation:
+
+1. **Name the artifacts before searching** — the files, repos, or documents the
+   run studies, plus the commit. The record hash-pins the files, so the snapshot
+   is the hash set; the commit is recorded for the reader.
+2. **`repo` claims carry an anchor** — a claim about the artifact under study
+   resolves to `path:line` on disk. You cannot assert a codebase does, lacks, or
+   needs something without opening it.
+3. **Every finding names its landing site** — `change`, `measure`, `defer`,
+   `product-decision`, or `background`. A finding with no landing site is
+   background or a product decision and has to say which.
+4. **Every decision gets a position** — a report may not list a decision and
+   then ignore it.
+5. **Silence is not a finding** — record what you searched for, did not find, and
+   the search boundary.
+6. **Weight follows evidence** — an impact or priority claim states the evidence
+   behind it and the cost of being wrong.
+
+`/scholarly-research` is the evidence layer and does not write the report;
+/`/engineering-research` owns these rules and writes the deliverable. The
+deterministic half is machine-checked:
+
+```bash
+node scripts/problem-anchor-contract.mjs <record.json>
+```
+
+The record binds the run to the artifacts it studied, requires every declared
+decision to reach a finding, resolves every `repo` anchor against real
+non-blank bytes, and requires the report to actually cite them. It does **not**
+read the claim: an anchor that resolves but says the opposite still passes, so
+rules 2 and 3 are narrowed, not closed. See
+[the contract reference](skills/engineering-research/references/problem-anchor-contract.md).
+
+`npm run check:local-artifacts` is the opt-in check over your local `outputs/`
+tree. Research deliverables written before this contract predate its three
+grounding checks and will be reported; that is expected local debt, the same
+way legacy closure debt is.
 
 ## Habit Learning
 
@@ -215,7 +259,7 @@ End-to-end workflows for specific tasks:
 | `/summarize <document>` | Faithful structured digest of a standard, spec, or paper |
 | `/eli5 "topic"` | Plain-language engineering explanation |
 | `/artifact-reading <file>` | Anchored extraction from PDFs, drawings, specs |
-| `/scholarly-research "topic"` | Academic literature discovery (OpenAlex, arXiv, Semantic Scholar) |
+| `/scholarly-research "topic"` | Academic literature evidence layer (OpenAlex, arXiv, Semantic Scholar); synthesis goes to `/engineering-research` |
 | `/standards-lookup AISC 360` | Looks up AISC 360 provisions by section |
 | `/habit` | Extracts explicit research preferences for validation and human approval |
 | `/proposal --posting X --cv Y` | Intended PhD-proposal workflow; local text intake is executable, PDF extraction uses optional tooling, and URL/image inputs require explicit recorded fetch/transcription |

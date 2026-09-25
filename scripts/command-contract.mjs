@@ -113,7 +113,7 @@ export const commands = [
   },
   {
     name: "scholarly-research",
-    description: "Academic literature discovery (OpenAlex, arXiv, Semantic Scholar)",
+    description: "Academic literature evidence layer (OpenAlex, arXiv, Semantic Scholar); synthesis goes to engineering-research",
     argumentHint: "<topic or paper identifier>",
     category: "workflow",
   },

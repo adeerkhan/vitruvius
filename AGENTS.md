@@ -78,6 +78,42 @@ The source of truth for their behavior is the canonical role definitions in `age
 - Never claim a fix or a check landed unless an explicit on-disk verification (read, grep, diff) proves it.
 - If verification could not be completed, mark the output `Verification: BLOCKED` or `PASS WITH NOTES` and list the missing checks.
 
+## Grounding rules (why a report is about *your* problem)
+
+A well-cited literature review that never opens the codebase it was commissioned
+about passes every citation check and answers nobody. These rules narrow that
+failure. They do not eliminate it — see the honesty note at the end.
+
+1. **Name the artifacts before searching.** Every run states the files, repos, or
+   documents it studies plus the commit that pins them. A run with no artifact is
+   a literature review — say so rather than implying code was read.
+2. **`repo` claims carry an anchor.** A claim about the artifact under study
+   resolves to `path:line` on disk. Never assert that a system does, lacks, or
+   needs something without opening it.
+3. **Every finding names its landing site.** `change`, `measure`, `defer`,
+   `product-decision`, or `background`. A finding with no landing site is
+   background or a product decision and must say which.
+4. **Every decision gets a position.** A report may not list a decision and then
+   ignore it.
+5. **Silence is not a finding.** Record what you searched for, did not find, and
+   the boundary of the search.
+6. **Weight follows evidence.** An impact or priority claim states the evidence
+   behind it and the cost of being wrong.
+
+**What is machine-checked, and what is not.** `vitruvius-problem-anchor` proves
+rules 1, 2, 4 and 5 mechanically: anchors resolve to real non-blank lines, files
+are hash-pinned to a snapshot, every declared decision reaches a finding, and
+negative coverage is bound to the candidate. It does **not** read the claim and
+compare it to the anchored line, so rule 2 catches a missing anchor but not an
+anchor that points at the wrong thing — an absence claim citing a file that
+proves the opposite still passes. Rule 3 is enforced only as a required enum
+value, and rule 6 is prose plus a cheap heading check. Closing those three gaps
+is the verifier's and the goal-checker's job; do not report a grounded report as
+a correct one.
+
+`scholarly-research` supplies the evidence layer and does not write the report;
+`engineering-research` owns these rules.
+
 ## Skill frontmatter rules (S9 — AGENTS.md rigor)
 
 Every skill's `SKILL.md` frontmatter MUST conform to the structural contract enforced by `scripts/validate-contract.mjs`:
@@ -122,6 +158,7 @@ When modifying an existing skill:
 - Final output: `outputs/<slug>.md` or `papers/<slug>.md`
 - Goal-check record: `<slug>-goal-check.json` (machine gate beside the candidate)
 - Goal requirements manifest: `<slug>-goal-requirements.json` (frozen before goal-check)
+- Problem anchor: `<slug>-problem-anchor.json` (binds findings to the artifacts studied)
 - Provenance: `<slug>.provenance.md` (next to the final output)
 - Habit ledger: `outputs/.habits/<slug>.json` plus `.provenance.md` sidecar (never an `AGENTS.md` write)
 
