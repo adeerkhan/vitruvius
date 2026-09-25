@@ -30,8 +30,8 @@ import { randomUUID } from "node:crypto";
 import { basename, dirname, isAbsolute, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-export const HABIT_SCHEMA = "habit.v1";
-export const STORE_SCHEMA = "habit-store.v1";
+const HABIT_SCHEMA = "habit.v1";
+const STORE_SCHEMA = "habit-store.v1";
 
 const CANDIDATE_STATUSES = new Set([
   "proposed",
@@ -367,7 +367,7 @@ function ensureValidStore(store) {
   }
 }
 
-export function emptyStore() {
+function emptyStore() {
   return { schema: STORE_SCHEMA, rules: [], events: [] };
 }
 
@@ -552,7 +552,7 @@ export function writeJsonAtomic(path, value, options = {}) {
   writeTextAtomic(path, `${JSON.stringify(value, null, 2)}\n`, options);
 }
 
-export function withStoreLock(storePath, callback, { projectRoot = process.cwd() } = {}) {
+function withStoreLock(storePath, callback, { projectRoot = process.cwd() } = {}) {
   const target = resolve(storePath);
   assertProjectLocal(target, projectRoot);
   assertProjectLocal(`${target}.lock`, projectRoot);

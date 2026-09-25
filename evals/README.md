@@ -44,7 +44,7 @@ invented.
 Validate the suite contract and retained result bundle:
 
 ```bash
-npm run test:fixed-case
+node tests/evals/test-fixed-case.mjs
 node scripts/fixed-case.mjs case evals/cases/local-evidence-suite.json
 node scripts/fixed-case.mjs results evals/results/manifest.json evals/results
 ```

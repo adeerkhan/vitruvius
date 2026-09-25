@@ -133,7 +133,8 @@ Every skill's `SKILL.md` frontmatter MUST conform to the structural contract enf
 Before committing a new skill or capability:
 
 1. Run `npm run test:contract` — all skills must pass the structural contract.
-2. Run `npm run test:gap` (or equivalent for the new skill) — skill-specific tests must pass.
+2. Run the skill's own test file — `node tests/<skill-name>/test-<skill>.mjs` (or every
+   `tests/<skill-name>/` file) — and `npm test`. Skill-specific tests must pass.
 3. Verify the skill appears in the README "What each skill does" section.
 4. Verify the skill links to `references/evidence-quality-tiers.md` if it produces research output.
 5. Verify S7 boundary language is present ("research-only, not for final engineering sign-off").

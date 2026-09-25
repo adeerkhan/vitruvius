@@ -468,6 +468,17 @@ Mechanical, civil, electrical, software, and architectural engineering.
 Research outputs are intended to include a `.provenance.md` sidecar recording what was checked and how; the current validator covers selected root/plan/draft paths, while nested and method-specific sidecars remain a known gap. Check the verification status labels: `verified`, `partial`, `blocked`, `unverified`.
 </details>
 
+## Documentation
+
+| Doc | What it covers |
+|-----|----------------|
+| [AGENTS.md](AGENTS.md) | The always-on repo contract: scope, integrity commandments, provenance, grounding rules, skill frontmatter rules |
+| [docs/agent-portability.md](docs/agent-portability.md) | How the same skills load across Claude Code, Cursor, Codex, Command Code, OpenCode, and Pi |
+| [docs/permissions.md](docs/permissions.md) | Per-host file-write permissions, which every research skill needs in order to persist artifacts |
+| [SECURITY.md](SECURITY.md) | Reporting a vulnerability, what the scanner checks, and the skill security rules |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Local setup and the change workflow |
+| [references/host-rules.md](references/host-rules.md) | The condensed ruleset generated into `.clinerules/`, `.qoder/rules/`, and `.windsurf/rules/` |
+
 ## Uninstall
 
 | Harness | Command |

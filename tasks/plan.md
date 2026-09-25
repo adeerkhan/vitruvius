@@ -28,7 +28,7 @@ Implement bounded reliability slices: B0 makes verifier benchmark scoring comple
 
 - [x] Task 2: Add deterministic PASS controls and fail-closed benchmark execution.
   - Acceptance: at least one PASS control per discipline; all controls have checked-in results; `run-benchmark.sh` exits nonzero when an expected case lacks a verdict; the benchmark integrity test is in `npm test`.
-  - Verification: `npm run test:benchmark` and full `npm test` pass; current residual quality metrics remain explicitly reported.
+  - Verification: `node tests/verifier/test-benchmark-scoring.mjs && node tests/verifier/test-verifier.mjs` and full `npm test` pass; current residual quality metrics remain explicitly reported.
 
 ### Checkpoint: B0
 
