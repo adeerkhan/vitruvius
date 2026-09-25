@@ -1,0 +1,123 @@
+{
+  "schema": "evidence.v1",
+  "run_id": "d79a8dcd-7f81-464a-b970-cea45e091fc3",
+  "question": "How does the measured 240 MPa result compare with the local 250 MPa fixture limit, and what can be established about real-world compliance?",
+  "sources": [
+    {
+      "id": "SRC-Q1-001",
+      "title": "Synthetic Q1 Requirement Fixture",
+      "locator": "tests/engineering-research/fixtures/q1/requirement.md:3",
+      "artifact_path": "tests/engineering-research/fixtures/q1/requirement.md",
+      "sha256": "51c209087178f675e7c46b7d8af5ef0e48696255789d432e89d9b478b7fc6502",
+      "accessed_on": "2026-09-25",
+      "status": "verified"
+    },
+    {
+      "id": "SRC-Q1-002",
+      "title": "Synthetic Q1 Challenge Fixture",
+      "locator": "tests/engineering-research/fixtures/q1/challenge.md:3",
+      "artifact_path": "tests/engineering-research/fixtures/q1/challenge.md",
+      "sha256": "2f8bdf8667783f397d52094b1f8db0e88796cc5a8db6f16f668461cc224a9e91",
+      "accessed_on": "2026-09-25",
+      "status": "verified"
+    },
+    {
+      "id": "SRC-Q1-003",
+      "title": "Synthetic Q1 Search Boundary",
+      "locator": "tests/engineering-research/fixtures/q1/search-boundary.md:3",
+      "artifact_path": "tests/engineering-research/fixtures/q1/search-boundary.md",
+      "sha256": "c97e4379289be542237677ff4fd60a192c57774d4824d241add6d956f8dffbf2",
+      "accessed_on": "2026-09-25",
+      "status": "verified"
+    }
+  ],
+  "searches": [
+    {
+      "id": "SEARCH-Q1-001",
+      "query": "Q1 250 MPa fixture limit and 240 MPa measured result",
+      "boundary": "Local Q1 fixture directory only; no external sources.",
+      "searched_on": "2026-09-25",
+      "status": "completed",
+      "screened_count": 3,
+      "result_source_ids": [
+        "SRC-Q1-001",
+        "SRC-Q1-002",
+        "SRC-Q1-003"
+      ]
+    }
+  ],
+  "claims": [
+    {
+      "id": "CLAIM-Q1-001",
+      "text": "The measured 240 MPa result is 10 MPa below the local 250 MPa fixture limit.",
+      "status": "verified",
+      "coverage_status": "covered",
+      "support": [
+        {
+          "source_id": "SRC-Q1-001",
+          "locator": "tests/engineering-research/fixtures/q1/requirement.md:3",
+          "relation": "supports",
+          "status": "verified"
+        },
+        {
+          "source_id": "SRC-Q1-002",
+          "locator": "tests/engineering-research/fixtures/q1/challenge.md:3",
+          "relation": "supports",
+          "status": "verified"
+        }
+      ]
+    },
+    {
+      "id": "CLAIM-Q1-002",
+      "text": "Whether the synthetic fixture evidence establishes real-world compliance remains unresolved.",
+      "status": "partial",
+      "coverage_status": "ambiguous",
+      "support": [
+        {
+          "source_id": "SRC-Q1-001",
+          "locator": "tests/engineering-research/fixtures/q1/requirement.md:5",
+          "relation": "contextual",
+          "status": "verified"
+        },
+        {
+          "source_id": "SRC-Q1-002",
+          "locator": "tests/engineering-research/fixtures/q1/challenge.md:5",
+          "relation": "contextual",
+          "status": "verified"
+        },
+        {
+          "source_id": "SRC-Q1-003",
+          "locator": "tests/engineering-research/fixtures/q1/search-boundary.md:3",
+          "relation": "contextual",
+          "status": "verified"
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "negative": [
+      {
+        "id": "NEG-Q1-001",
+        "search_id": "SEARCH-Q1-001",
+        "claim_ids": [
+          "CLAIM-Q1-002"
+        ],
+        "status": "documented",
+        "note": "The local-only search found no real-world compliance evidence."
+      }
+    ],
+    "ambiguous": [
+      {
+        "id": "AMB-Q1-001",
+        "search_id": "SEARCH-Q1-001",
+        "claim_ids": [
+          "CLAIM-Q1-002"
+        ],
+        "status": "open",
+        "note": "The unresolved real-world scope remains open."
+      }
+    ]
+  },
+  "completion": "partial",
+  "recorded_at": "2026-09-25T09:37:12.396Z"
+}

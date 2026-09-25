@@ -1,0 +1,33 @@
+{
+  "schema": "vitruvius-q1-results.v1",
+  "case_id": "q1-local-evidence-example",
+  "run_id": "d79a8dcd-7f81-464a-b970-cea45e091fc3",
+  "agent": "general",
+  "fresh": true,
+  "session_id": "ses_f2814ebedffeu1PAFC9QxCGz8x",
+  "session_id_status": "unverified_process_metadata",
+  "research_status": "partial",
+  "completion": "partial",
+  "evidence": {
+    "path": "outputs/.q1-example/runs/d79a8dcd-7f81-464a-b970-cea45e091fc3.evidence.json",
+    "sha256": "51af3c943533c7d1bcf97f086009d744565e363949d6632ab0343def78f755b9",
+    "bytes": 3967
+  },
+  "raw_draft": {
+    "path": "outputs/.q1-example/agent-evidence.json",
+    "sha256": "c2424828660d098220baef23640f8b9a9eeb461e9ced0a2cd33e1c9020b0968b",
+    "bytes": 3895
+  },
+  "provenance": {
+    "path": "outputs/.q1-example/q1-ledger.provenance.md"
+  },
+  "source_fixture_count": 3,
+  "search_count": 1,
+  "claim_count": 2,
+  "cost_status": "unavailable",
+  "limitations": [
+    "Synthetic local fixtures only",
+    "No web or external source was used",
+    "No model-quality, cost, novelty, or real-world engineering certification"
+  ]
+}

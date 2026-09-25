@@ -15,7 +15,7 @@ argument-hint: "<research question or artifact to review> [--deep | --quick]"
 allowed-tools: Write Edit Bash Read
 license: MIT
 metadata:
-  version: "0.2.2"
+  version: "0.2.3"
 
 ---
 
@@ -456,13 +456,14 @@ The skill-local wrapper is self-contained and defaults `.runs/` to the active pr
 
 ### Q1 evidence ledger
 
-After `log-run.mjs` returns a `run_id`, record the run's source, search, and claim mappings as one `evidence.v1` JSON document. The document must include stable `SRC-*`, `SEARCH-*`, `CLAIM-*`, `NEG-*`, and `AMB-*` identifiers, repository-relative source artifact paths with SHA-256/access dates, explicit claim support mappings, search screening counts, and negative coverage for every search. The validator refuses unknown IDs, orphan mappings, unverified support for verified claims, and missing or ambiguous coverage. It reports `complete`, `partial`, or `blocked` separately from validity.
+After `log-run.mjs` returns a `run_id`, record the run's source, search, and claim mappings as one `evidence.v1` JSON document. The exact fields, local-only boundary, completion semantics, and fail-closed rules are in `references/evidence-ledger.md`.
 
 ```bash
 printf '%s\n' '<evidence_json>' | node <engineering-research-skill-root>/scripts/record-evidence.mjs --run-id <run_id>
+node scripts/validate-evidence.mjs <project-root>/.runs/<run_id>.evidence.json
 ```
 
-The skill-local writer stores `<project-root>/.runs/<run_id>.evidence.json` atomically and refuses overwrites. A repository checkout may use `node scripts/record-evidence.mjs`; the compatibility wrapper preserves the checkout-local `.runs/` default. A held `.evidence.lock` fails closed until an operator verifies it is safe to remove.
+The writer requires the existing L1 entry, stores `<project-root>/.runs/<run_id>.evidence.json` atomically, refuses overwrites, and shares the `.log-run.lock` with L1. The repository compatibility commands are `scripts/record-evidence.mjs` and `scripts/validate-evidence.mjs`.
 
 ### Verification Labels (F2 — Vitruvius Provenance)
 

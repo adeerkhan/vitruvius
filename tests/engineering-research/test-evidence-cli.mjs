@@ -36,7 +36,7 @@ function ledger(runId, sourcePath = repoSourcePath, sourceHash = repoSourceHash)
     sources: [{ id: "SRC-001", title: "Synthetic requirement", locator: "requirement.md#L3", artifact_path: sourcePath, sha256: sourceHash, accessed_on: "2026-09-25", status: "verified" }],
     searches: [{ id: "SEARCH-001", query: "synthetic limit", boundary: "local fixture set", searched_on: "2026-09-25", status: "completed", screened_count: 1, result_source_ids: ["SRC-001"] }],
     claims: [{ id: "CLAIM-001", text: "The fixture supports the stated limit.", status: "verified", coverage_status: "covered", support: [{ source_id: "SRC-001", locator: "requirement.md#L3", relation: "supports", status: "verified" }] }],
-    coverage: { negative: [{ id: "NEG-001", search_id: "SEARCH-001", claim_ids: ["CLAIM-001"], status: "documented", note: "The local set was screened." }], ambiguous: [] },
+    coverage: { negative: [{ id: "NEG-001", search_id: "SEARCH-001", claim_ids: [], status: "documented", note: "The local set was screened." }], ambiguous: [] },
   };
 }
 
@@ -79,6 +79,18 @@ try {
   const revalidated = spawnSync(process.execPath, [rootValidator, outputPath(runId)], { encoding: "utf-8" });
   assert.equal(revalidated.status, 0, revalidated.stderr);
   assert.match(revalidated.stdout, /PASS: evidence\.v1 valid/);
+
+  const roundTripDir = join(tempRoot, "round-trip");
+  const roundTripId = "99999999-9999-4999-8999-999999999999";
+  seedRun(roundTripDir, roundTripId);
+  const roundTripCwd = join(tempRoot, "round-trip-cwd");
+  mkdirSync(roundTripCwd, { recursive: true });
+  const roundTripEnv = { ...process.env, VITRUVIUS_RUNS_DIR: roundTripDir };
+  delete roundTripEnv.VITRUVIUS_PROJECT_ROOT;
+  const roundTripRecord = spawnSync(process.execPath, [rootScript, "--run-id", roundTripId], { cwd: roundTripCwd, env: roundTripEnv, input: JSON.stringify(ledger(roundTripId)), encoding: "utf-8" });
+  assert.equal(roundTripRecord.status, 0, roundTripRecord.stderr);
+  const roundTripValidate = spawnSync(process.execPath, [rootValidator, outputPath(roundTripId, roundTripDir)], { cwd: roundTripCwd, env: roundTripEnv, encoding: "utf-8" });
+  assert.equal(roundTripValidate.status, 0, roundTripValidate.stderr);
 
   const duplicate = run(["--run-id", runId], ledger(runId));
   assert.notEqual(duplicate.status, 0);

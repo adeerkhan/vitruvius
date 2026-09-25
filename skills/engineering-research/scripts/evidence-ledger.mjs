@@ -111,6 +111,7 @@ export function validateEvidenceLedger(value, { repoRoot } = {}) {
   const searchedSourceIds = new Set();
   const negativeByClaim = new Set();
   const ambiguousByClaim = new Set();
+  const openAmbiguousByClaim = new Set();
 
   const sources = Array.isArray(value.sources) ? value.sources : [];
   const searches = Array.isArray(value.searches) ? value.searches : [];
@@ -130,6 +131,7 @@ export function validateEvidenceLedger(value, { repoRoot } = {}) {
     if (source.notes !== undefined && !text(source.notes)) errors.push(`${label}.notes must be a non-empty string when provided`);
     if (addId(ids, source.id, "SRC", label, errors)) sourceById.set(source.id, source);
     if (!SOURCE_STATUSES.has(source.status)) errors.push(`${label}.status must be verified, blocked, unverified, or inferred`);
+    if (!isoDate(source.accessed_on)) errors.push(`${label}.accessed_on must be a real ISO date`);
     if (root && text(source.artifact_path)) {
       if (!isSafeRepoFile(root, source.artifact_path)) errors.push(`${label}.artifact_path must be a confined regular file`);
       else if (!/^[0-9a-f]{64}$/.test(source.sha256) || fileHash(root, source.artifact_path) !== source.sha256) errors.push(`${label}.sha256 must match artifact_path bytes`);
@@ -266,8 +268,8 @@ export function validateEvidenceLedger(value, { repoRoot } = {}) {
       if (search?.status === "blocked" && entry.status === "documented") errors.push(`${label} blocked search cannot have documented negative coverage`);
       if (entry.status === "not_reached" && search?.status === "completed") errors.push(`${label} completed search cannot be not_reached`);
       if (search) negativeSearchIds.add(search.id);
-      if (!Array.isArray(entry.claim_ids) || entry.claim_ids.length === 0) {
-        errors.push(`${label}.claim_ids must be a non-empty array`);
+      if (!Array.isArray(entry.claim_ids)) {
+        errors.push(`${label}.claim_ids must be an array`);
       } else {
         const seen = new Set();
         for (const claimId of entry.claim_ids) {
@@ -303,6 +305,7 @@ export function validateEvidenceLedger(value, { repoRoot } = {}) {
           if (!claim) errors.push(`${label} references unknown claim id: ${claimId}`);
           else {
             ambiguousByClaim.add(claimId);
+            if (entry.status === "open") openAmbiguousByClaim.add(claimId);
             if (entry.status === "open" && claim.status === "verified") errors.push(`${label} open ambiguity must reference a non-verified claim`);
           }
         }
@@ -314,12 +317,14 @@ export function validateEvidenceLedger(value, { repoRoot } = {}) {
     if (!isObject(claim)) continue;
     if (claim.coverage_status === "negative" && !negativeByClaim.has(claim.id)) errors.push(`claims[${index}] negative coverage is not recorded`);
     if (claim.coverage_status === "ambiguous" && !ambiguousByClaim.has(claim.id)) errors.push(`claims[${index}] ambiguous coverage is not recorded`);
+    if (claim.coverage_status === "covered" && negativeByClaim.has(claim.id)) errors.push(`claims[${index}] covered claim cannot also have negative coverage`);
+    if (claim.coverage_status === "covered" && openAmbiguousByClaim.has(claim.id)) errors.push(`claims[${index}] covered claim cannot have open ambiguity`);
   }
 
   let completion = "invalid";
   if (errors.length === 0) {
     const hasBlocked = claims.some((claim) => claim.status === "blocked") || searches.some((search) => search.status === "blocked") || (Array.isArray(value.coverage?.negative) && value.coverage.negative.some((entry) => entry.status === "blocked" || entry.status === "not_reached"));
-    const hasPartial = claims.some((claim) => claim.status !== "verified" || claim.coverage_status !== "covered") || (Array.isArray(value.coverage?.ambiguous) && value.coverage.ambiguous.some((entry) => entry.status === "open"));
+    const hasPartial = searches.some((search) => search.status === "partial") || claims.some((claim) => claim.status !== "verified" || claim.coverage_status !== "covered") || (Array.isArray(value.coverage?.ambiguous) && value.coverage.ambiguous.some((entry) => entry.status === "open"));
     completion = hasBlocked ? "blocked" : hasPartial ? "partial" : "complete";
     if (value.completion !== undefined && value.completion !== completion) errors.push(`completion must be ${completion}`);
   }

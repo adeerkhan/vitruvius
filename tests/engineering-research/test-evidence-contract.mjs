@@ -60,7 +60,7 @@ function validLedger() {
       },
     ],
     coverage: {
-      negative: [{ id: "NEG-001", search_id: "SEARCH-001", claim_ids: ["CLAIM-001"], status: "documented", note: "The local set was screened for contradictory requirements." }],
+      negative: [{ id: "NEG-001", search_id: "SEARCH-001", claim_ids: [], status: "documented", note: "The local set was screened for contradictory requirements." }],
       ambiguous: [],
     },
   };
@@ -96,20 +96,28 @@ assert.match(errorsFor((value) => { delete value.coverage.ambiguous; }).join("\n
 assert.match(errorsFor((value) => { value.sources[0].artifact_path = "evals/fixtures/c1/supported-evidence/../supported-evidence/requirement.md"; }).join("\n"), /confined regular file/i);
 assert.match(errorsFor((value) => { value.sources[0].sha256 = "0".repeat(64); }).join("\n"), /sha256 must match artifact_path bytes/i);
 assert.match(errorsFor((value) => { value.searches[0].searched_on = "2026-02-30"; }).join("\n"), /real ISO date/i);
+assert.match(errorsFor((value) => { value.sources[0].accessed_on = "last tuesday"; }).join("\n"), /accessed_on must be a real ISO date/i);
 assert.match(errorsFor((value) => { value.searches[0].screened_count = null; }).join("\n"), /screened_count must be a non-negative integer/i);
 assert.match(errorsFor((value) => { value.unknown = true; }).join("\n"), /unknown field: unknown/i);
 assert.match(errorsFor((value) => { value.claims[0].coverage_status = "ambiguous"; }).join("\n"), /ambiguous coverage is not recorded/i);
+assert.match(errorsFor((value) => { value.coverage.negative[0].claim_ids.push("CLAIM-001"); }).join("\n"), /covered claim cannot also have negative coverage/i);
 assert.match(errorsFor((value) => { value.completion = "partial"; }).join("\n"), /completion must be complete/i);
 assert.match(errorsFor((value) => { const orphan = structuredClone(value.sources[0]); orphan.id = "SRC-ORPHAN"; value.sources.push(orphan); }).join("\n"), /not linked to any search/i);
 assert.match(errorsFor((value) => { value.claims[0].support.push({ source_id: "SRC-001", locator: "challenge.md#L1", relation: "challenges", status: "verified" }); }).join("\n"), /verified challenge requires ambiguous coverage/i);
 assert.match(errorsFor((value) => { value.searches.push({ id: "SEARCH-002", query: "blocked", boundary: "local", searched_on: "2026-09-25", status: "blocked", screened_count: 0, result_source_ids: [] }); value.coverage.negative.push({ id: "NEG-002", search_id: "SEARCH-002", claim_ids: ["CLAIM-001"], status: "blocked", note: "Not reached." }); }).join("\n"), /screened_count must be null for a blocked search/i);
+const partialSearch = clone();
+partialSearch.searches.push({ id: "SEARCH-002", query: "partial", boundary: "local", searched_on: "2026-09-25", status: "partial", screened_count: 1, result_source_ids: [] });
+partialSearch.coverage.negative.push({ id: "NEG-002", search_id: "SEARCH-002", claim_ids: [], status: "documented", note: "The boundary was only partially screened." });
+const partialSearchReport = validateEvidenceLedger(partialSearch, { repoRoot });
+assert.equal(partialSearchReport.valid, true, partialSearchReport.errors.join("\n"));
+assert.equal(partialSearchReport.completion, "partial");
 const partial = clone();
 partial.claims[0].status = "partial";
 partial.claims[0].coverage_status = "ambiguous";
 partial.coverage.ambiguous.push({ id: "AMB-001", search_id: "SEARCH-001", claim_ids: ["CLAIM-001"], status: "open", note: "Scope remains unresolved." });
 const partialReport = validateEvidenceLedger(partial, { repoRoot });
-assert.equal(partialReport.valid, true, partialReport.errors.join("\\n"));
+assert.equal(partialReport.valid, true, partialReport.errors.join("\n"));
 assert.equal(partialReport.completion, "partial");
-assert.match(validateEvidenceLedger(validLedger()).errors.join("\\n"), /repoRoot is required/i);
+assert.match(validateEvidenceLedger(validLedger()).errors.join("\n"), /repoRoot is required/i);
 
 console.log("PASS: Q1 evidence.v1 contract accepts valid mappings and refuses malformed evidence");
