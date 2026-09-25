@@ -347,6 +347,17 @@ echo '{"skill":"engineering-research","status":"completed","verdict":"verified"}
 
 The logger generates a UUID and UTC timestamp, rejects malformed input and duplicate IDs, and supports `--runs-dir <path>` or `VITRUVIUS_RUNS_DIR` for isolated runs. `VITRUVIUS_PROJECT_ROOT` selects the project root for the default `.runs/` path when the command is run from another directory. With no override, the repository compatibility command preserves its historical repository-local `.runs/` default; the skill-local wrapper defaults to the active project working directory. Concurrent writers wait briefly for the ledger lock; an interrupted process leaves the lock in place and subsequent writes fail closed until an operator verifies it is safe to remove `.log-run.lock`. The engineering-research skill carries a self-contained wrapper for copied-skill installations; the repository command remains available at `scripts/log-run.mjs`.
 
+## Evidence Ledger
+
+After the run logger returns a `run_id`, record the run's source, search, and claim mappings as one fail-closed `evidence.v1` document:
+
+```bash
+printf '%s\n' '<evidence_json>' \
+  | node scripts/record-evidence.mjs --run-id <run_id>
+```
+
+The ledger uses stable `SRC-*`, `SEARCH-*`, `CLAIM-*`, `NEG-*`, and `AMB-*` IDs. It requires explicit claim support, negative coverage for every search, and recorded ambiguous coverage; unknown IDs, orphan mappings, unverified support, and duplicate/overwritten run ledgers fail closed. The writer stores `.runs/<run_id>.evidence.json` atomically. `npm run test:evidence-ledger` runs the pure contract and lifecycle tests without model calls.
+
 ## Research Sources
 
 Vitruvius points research at the best free, verifiable layers for the job:

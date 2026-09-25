@@ -1,8 +1,8 @@
-# Implementation Plan: Reliability Slices (B0, H1, R0, L1, E1, C1)
+# Implementation Plan: Reliability Slices (B0, H1, R0, L1, E1, C1, Q1)
 
 ## Overview
 
-Implement bounded reliability slices: B0 makes verifier benchmark scoring complete, deterministic, and fail-closed; H1 turns the Habit proposal contract into a validated, explicitly approved, locally activated lifecycle; R0 makes proposal/document intake and binder gates executable at the supported local boundary; L1 adds a tested run ledger with stable identity; E1 pilots fixture-linked positive/negative behavioral cases for the four priority skills that already have real executable fixtures; C1 pilots three fixed local engineering cases across three isolated subagent runs. Update public claims only after executable behavior and tests exist.
+Implement bounded reliability slices: B0 makes verifier benchmark scoring complete, deterministic, and fail-closed; H1 turns the Habit proposal contract into a validated, explicitly approved, locally activated lifecycle; R0 makes proposal/document intake and binder gates executable at the supported local boundary; L1 adds a tested run ledger with stable identity; E1 pilots fixture-linked positive/negative behavioral cases for the four priority skills that already have real executable fixtures; C1 pilots three fixed local engineering cases across three isolated subagent runs; Q1 adds a per-run source/search/claim ledger tied to the L1 identity. Update public claims only after executable behavior and tests exist.
 
 ## Architecture Decisions
 
@@ -14,6 +14,9 @@ Implement bounded reliability slices: B0 makes verifier benchmark scoring comple
 - E1 is a pilot, not a 25-skill completion claim. Its initial priority set is `engineering-research`, `verifier`, `proposal`, and `habit`, because each already has a real executable fixture path; every entry must also carry a positive trigger, an owner-labeled negative trigger, and verifiable behavioral expectations.
 - C1 uses three deterministic local-code cases rather than live web search: supported evidence, unavailable evidence, and conflicting evidence. One fresh subagent writes each case to a separate result directory; the repository stores final artifacts, provenance sidecars, hashes, and independent grading. Model cost that the host does not expose is recorded as unavailable, never invented.
 - `npm test` validates the full repository suite, including eval contracts and retained C1 evidence; it never launches model calls. Subagent runs are on-demand and run once per recorded case.
+- Q1 is a minimal `evidence.v1` JSON document per run, stored beside the L1 run identity. It records source, search, and claim records plus explicit support mappings and negative/ambiguous coverage; it is not a general database, crawler, or telemetry system.
+- Q1 validation is fail-closed: every referenced ID must exist, every claim must have an explicit support status, every search must record its boundary/result state, and negative or ambiguous coverage cannot be silently omitted.
+- Q1 writes atomically and refuses replacement of an existing run ledger. The repository wrapper preserves the historical project-local `.runs/` default; the skill-local implementation can be copied with the skill.
 
 ## Task List
 
@@ -115,6 +118,28 @@ Implement bounded reliability slices: B0 makes verifier benchmark scoring comple
 ### Checkpoint: C1 pilot
 
 - [x] Three fixed cases have isolated, provenance-backed example runs and recorded grading; multi-case breadth beyond this suite and model-cost certification remain open.
+
+## Phase 8: Q1 source/search/claim ledger
+
+- [ ] Task 13: Refresh the ignored audit map, report, and provenance sidecar through E1/C1.
+  - Acceptance: current commit, file hashes, C1 manifest/reviewer evidence, and remaining limits are recorded without presenting ignored artifacts as tracked deliverables.
+  - Verification: recompute hashes and inspect the audit status against `git status` and the retained result bundle.
+
+- [ ] Task 14: Define and test the `evidence.v1` contract.
+  - Acceptance: stable source/search/claim IDs, explicit claim support mappings, search boundary/result state, negative coverage, ambiguous coverage, and status enums are required; unknown IDs, orphan mappings, unverified support, and missing/ambiguous coverage fail closed.
+  - Verification: synthetic valid fixtures and mutation tests prove every refusal without network access.
+
+- [ ] Task 15: Implement the per-run ledger CLI and root compatibility wrapper.
+  - Acceptance: a valid ledger is written atomically under the project-local runs directory, tied to a UUID `run_id`, refuses overwrite, and leaves no partial file after failure; the root wrapper preserves the historical default.
+  - Verification: focused lifecycle/portability tests, syntax checks, and package wiring pass.
+
+- [ ] Task 16: Run one local Q1 example through a fresh subagent and independently inspect it.
+  - Acceptance: the example records supported and challenging/null evidence, preserves blocked or ambiguous states honestly, and produces a provenance/verification record; no model-quality certification is claimed.
+  - Verification: one on-demand subagent run, focused validator, and final full-suite run.
+
+### Checkpoint: Q1 pilot
+
+- [ ] One run-local source/search/claim ledger is executable, fail-closed, provenance-backed, and honestly limited to a pilot rather than a general evidence database.
 
 ## Open Questions
 

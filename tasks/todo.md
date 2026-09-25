@@ -1,4 +1,4 @@
-# B0 + H1 + R0 + L1 + E1/C1 Implementation Checklist
+# B0 + H1 + R0 + L1 + E1/C1 + Q1 Implementation Checklist
 
 ## Phase 1: B0
 
@@ -51,6 +51,14 @@
 - [x] One isolated subagent run per case
 - [x] Independent grading and retained hashes
 - [x] C1 pilot checkpoint
+
+## Phase 8: Q1 ledger
+
+- [ ] Refresh ignored audit/provenance through E1/C1
+- [ ] Define `evidence.v1` schema and fail-closed mutations
+- [ ] Implement per-run CLI, wrapper, atomic write, and package wiring
+- [ ] Run one fresh subagent example and independent inspection
+- [ ] Q1 pilot checkpoint
 
 ## Checkpoints
 

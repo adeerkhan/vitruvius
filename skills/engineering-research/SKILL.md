@@ -15,7 +15,7 @@ argument-hint: "<research question or artifact to review> [--deep | --quick]"
 allowed-tools: Write Edit Bash Read
 license: MIT
 metadata:
-  version: "0.2.1"
+  version: "0.2.2"
 
 ---
 
@@ -453,6 +453,16 @@ echo '<ledger_json>' | node <engineering-research-skill-root>/scripts/log-run.mj
 ```
 
 The skill-local wrapper is self-contained and defaults `.runs/` to the active project working directory; a repository checkout may use the compatibility command `node scripts/log-run.mjs`, which preserves the checkout-local default unless an override is supplied. Set `VITRUVIUS_PROJECT_ROOT` when the active project is not the command's working directory. Concurrent writes wait briefly for a ledger lock; an interrupted process leaves the lock in place and later writes fail closed until an operator verifies it is safe to remove `.log-run.lock`.
+
+### Q1 evidence ledger
+
+After `log-run.mjs` returns a `run_id`, record the run's source, search, and claim mappings as one `evidence.v1` JSON document. The document must include stable `SRC-*`, `SEARCH-*`, `CLAIM-*`, `NEG-*`, and `AMB-*` identifiers, explicit claim support mappings, and negative coverage for every search. The validator refuses unknown IDs, orphan mappings, unverified support for verified claims, and missing or ambiguous coverage.
+
+```bash
+printf '%s\n' '<evidence_json>' | node <engineering-research-skill-root>/scripts/record-evidence.mjs --run-id <run_id>
+```
+
+The skill-local writer stores `<project-root>/.runs/<run_id>.evidence.json` atomically and refuses overwrites. A repository checkout may use `node scripts/record-evidence.mjs`; the compatibility wrapper preserves the checkout-local `.runs/` default. A held `.evidence.lock` fails closed until an operator verifies it is safe to remove.
 
 ### Verification Labels (F2 — Vitruvius Provenance)
 
