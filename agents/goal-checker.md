@@ -60,3 +60,18 @@ E2E: scope=<pass|gap> prompt=<pass|gap> flaws=<n> ran=<one phrase>
 ```
 
 ≤150 words of prose; detail lives in the findings list. No praise, no hedging.
+
+## Machine gate
+
+After the human-readable report, return the structured checks needed for the
+`vitruvius-goal-check.v1` record. The lead freezes a `requirements` list and a hash-bound
+`vitruvius-goal-requirements.v1` manifest from the original question before
+dispatch; return one prompt check for every manifest requirement ID, plus one
+entry for every manifest scope item, each with `pass` or `gap`,
+literal final-artifact evidence for a pass, and a required fix for a gap.
+Include open, wontfix, or blocked findings with their required resolution
+fields and evidence. The lead writes the record beside the candidate and runs
+`vitruvius-goal-check <record>` (or `node scripts/goal-check-contract.mjs
+<record>` in a checkout); only a valid `DONE` record is promotable. A valid
+`NOT-DONE` record is retained as evidence and is never silently treated as
+complete.

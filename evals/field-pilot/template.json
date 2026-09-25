@@ -1,0 +1,60 @@
+{
+  "schema": "vitruvius-field-pilot.v1",
+  "pilot_id": "replace-with-pilot-slug",
+  "question": "Paste the original engineering question verbatim.",
+  "observed_on": "YYYY-MM-DD",
+  "host": "record the host or mark unavailable in notes",
+  "model": "record the model or mark unavailable in notes",
+  "session_id": "record the fresh session identifier",
+  "sources": [
+    {
+      "id": "SRC-001",
+      "kind": "standard|code|vendor|scholarly|repository|other",
+      "locator": "URL, DOI, standard identifier, or local artifact path",
+      "status": "read|blocked",
+      "accessed_on": "YYYY-MM-DD",
+      "artifact": {
+        "path": "path/to/retained-source",
+        "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "bytes": 1
+      },
+      "blocked_reason": null,
+      "unblock_path": null
+    }
+  ],
+  "plan": {
+    "path": "path/to/plan.md",
+    "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "bytes": 1
+  },
+  "final": {
+    "path": "path/to/final.md",
+    "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "bytes": 1
+  },
+  "provenance": {
+    "path": "path/to/final.provenance.md",
+    "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "bytes": 1
+  },
+  "verifier": {
+    "path": "path/to/verifier.md",
+    "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "bytes": 1
+  },
+  "goal_check": {
+    "path": "path/to/goal-check.json",
+    "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "bytes": 1
+  },
+  "metrics": {
+    "wall_time_minutes": null,
+    "wall_time_status": "unavailable",
+    "cost_usd": null,
+    "cost_status": "unavailable",
+    "user_corrections": 0,
+    "decision_outcome": "unknown",
+    "notes": "Record how the result was used and any limitations. Do not invent cost or impact."
+  },
+  "completion": "partial"
+}

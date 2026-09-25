@@ -52,3 +52,15 @@ node scripts/fixed-case.mjs results evals/results/manifest.json evals/results
 The three subagent runs are on-demand evidence, not part of `npm test`. The
 current pilot is not cross-host certification, a majority-of-three benchmark,
 or proof of model quality.
+
+## V1 field pilot
+
+V1 is the real-question pilot layer. It is separate from C1 because C1 proves
+local artifact contracts, while V1 records source access, final/provenance
+pairing, verifier/GOAL-CHECK evidence, user corrections, and decision outcome
+for actual engineering questions.
+
+The format is documented in `evals/field-pilot/README.md` and validated with
+`node scripts/field-pilot-contract.mjs <record.json>`. The checked-in template
+is intentionally incomplete; no pilot result is claimed until a real record
+retains the source bytes or an honest blocked reason and all artifact hashes.

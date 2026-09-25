@@ -15,7 +15,7 @@ argument-hint: "<research question or artifact to review> [--deep | --quick]"
 allowed-tools: Write Edit Bash Read
 license: MIT
 metadata:
-  version: "0.2.3"
+  version: "0.2.4"
 
 ---
 
@@ -396,9 +396,8 @@ otherwise `outputs/.drafts/<slug>-cited.md`.
 ### GOAL-CHECK gate (mandatory before copying to `outputs/`)
 
 Dispatch the `goal-checker` role (`agents/goal-checker.md`) with: the original
-research question verbatim, the final candidate path (+ SHA-256 + byte count),
-the provenance sidecar path, and the plan path. In `--quick` mode, run the
-tri-axis check inline in the same format and say so in the provenance notes.
+research question verbatim plus its frozen requirements IDs/manifest, the final candidate path (+ SHA-256 + byte count),
+the provenance sidecar path, and the plan path. In `--quick` mode, run the tri-axis check inline in the same format, write the [machine contract](references/goal-check-contract.md) record beside the candidate, and validate it with `vitruvius-goal-check <record>` (or `node scripts/goal-check-contract.mjs <record>` in a checkout); only a valid `DONE` and promotable record permits delivery.
 
 Default NOT-DONE: every ask re-derived from the original question must be
 delivered (`scope=pass prompt=pass flaws=0`, non-empty `ran=`). Any NOT-DONE
@@ -413,10 +412,11 @@ GOAL-CHECK: E2E: scope=<pass|gap> prompt=<pass|gap> flaws=<n> ran=<phrase>
 
 Copy the final candidate to `outputs/<slug>.md` (or `papers/<slug>.md` for
 paper-style artifacts). Write provenance next to it as `<slug>.provenance.md`:
-
 ```markdown
 # Provenance: [topic]
-
+- **Final artifact:** `[slug].md`
+- **Final SHA-256:** `<64 lowercase hex characters>`
+- **Final bytes:** `<positive integer>`
 - **Date:** [date]
 - **Rounds:** [number of research rounds]
 - **Sources consulted:** [count and/or list]
@@ -428,9 +428,8 @@ paper-style artifacts). Write provenance next to it as `<slug>.provenance.md`:
 - **Claims blocked:** [count — source unreachable or unverifiable]
 - **Claims unverified:** [count — default, not yet checked]
 - **Plan:** outputs/.plans/<slug>.md
-- **Research files:** [files used]
+- **GOAL-CHECK:** E2E: scope=<pass|gap> prompt=<pass|gap> flaws=<n> ran=<phrase>
 ```
-
 Generate a ledger entry (JSON) and log it:
 
 ```json
