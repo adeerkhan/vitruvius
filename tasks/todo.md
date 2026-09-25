@@ -60,6 +60,14 @@
 - [x] Run one fresh subagent example and independent inspection
 - [x] Q1 pilot checkpoint
 
+## Phase 9: GC1 + PR1 + V1
+
+- [x] Deterministic GOAL-CHECK contract and positive/manifest-omission/repeated-gap fixtures
+- [x] Recursive final/provenance closure validator and temporary-directory tests
+- [x] V1 field-pilot contract and incomplete-record refusal tests
+- [x] GC1/PR1/V1 contract checkpoint
+- [ ] Run the first real V1 question and retain its evidence/outcome record
+
 ## Checkpoints
 
 - After Phase 1: all benchmark cases and controls are accounted for; missing verdicts fail.
@@ -67,3 +75,6 @@
 - After Phase 3: public claims match executable tests and no unrelated dirty files are staged.
 - After E1 pilot: four priority skills have valid positive/negative/artifact contracts; no 25-skill completion claim.
 - After C1 pilot: three fixed local cases have one isolated recorded run each; cost/model coverage remains explicit.
+- After GC1: a final artifact with an omitted ask cannot be promoted.
+- After PR1: nested final/provenance closure is tested without making ignored local outputs a CI oracle.
+- After V1: the field-pilot format exists, but no real-run outcome is claimed without retained evidence.

@@ -120,6 +120,8 @@ When modifying an existing skill:
 - Cited brief: `outputs/.drafts/<slug>-cited.md`
 - Verification: `<slug>-verification.md`
 - Final output: `outputs/<slug>.md` or `papers/<slug>.md`
+- Goal-check record: `<slug>-goal-check.json` (machine gate beside the candidate)
+- Goal requirements manifest: `<slug>-goal-requirements.json` (frozen before goal-check)
 - Provenance: `<slug>.provenance.md` (next to the final output)
 - Habit ledger: `outputs/.habits/<slug>.json` plus `.provenance.md` sidecar (never an `AGENTS.md` write)
 

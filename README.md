@@ -75,8 +75,11 @@ The verifier is benchmarked, not asserted. Its checked-in results are on-disk, r
 | Skill routing (20 labeled prompts, 25 skills) | 16/20 rank-1, 0 collisions | [routing evals](tests/routing/eval-routing.mjs) |
 | E1 evaluation pilot | 4 fixture-backed priority skills; positive top-k 4/4 and owner-negative 4/4; full 25-skill coverage remains open | [evals/catalog.json](evals/catalog.json) |
 | C1 fixed-case pilot | 3 local-only cases, 3 fresh subagent runs, independent review 3/3; host model cost unavailable | [evals/results/manifest.json](evals/results/manifest.json) |
+| GC1 GOAL-CHECK contract | deterministic positive/omitted-ask/repeated-gap fixtures; valid `NOT-DONE` is not promotable | [goal-check-contract.mjs](scripts/goal-check-contract.mjs) |
+| PR1 artifact closure | nested final/provenance, stale-byte, orphan, and path-escape fixtures | [artifact-closure.mjs](scripts/artifact-closure.mjs) |
+| V1 field-pilot contract | format and refusal tests only; no real external-source result claimed | [field-pilot README](evals/field-pilot/README.md) |
 | Structural contract (25 skills) | enforced in CI | [validate-contract.mjs](scripts/validate-contract.mjs) |
-| Provenance schema (selected sidecars, `inferred` derivation traces) | enforced for selected root/plan/draft paths in CI; nested closure remains pending | [validate-artifacts.mjs](scripts/validate-artifacts.mjs) |
+| Provenance schema (selected sidecars, `inferred` derivation traces) | selected root/plan/draft checks plus deterministic generic closure fixtures; legacy local closure remains opt-in | [validate-artifacts.mjs](scripts/validate-artifacts.mjs) |
 
 Reproduce:
 
@@ -91,14 +94,18 @@ node scripts/score-benchmark.mjs tasks/benchmark/controls/results tasks/benchmar
 # Optional certification gate: also fail on any false approval or false block
 node scripts/score-benchmark.mjs --strict-quality tasks/benchmark/results tasks/benchmark/cases
 
-# Deterministic E1/C1 contract checks; these do not call a model
+# Deterministic contract checks; these do not call a model
 npm run test:evals
+npm run test:goal-check
+npm run test:artifacts
+npm run test:field-pilot
+npm run test:package-contract
 node tests/routing/eval-routing.mjs
 node scripts/fixed-case.mjs case evals/cases/local-evidence-suite.json
 node scripts/fixed-case.mjs results evals/results/manifest.json evals/results
 ```
 
-The E1/C1 subagent runs are on-demand evidence and are not part of `npm test`; the checked-in C1 bundle records their artifact hashes and independent grades.
+The E1/C1 subagent runs are on-demand evidence and are not part of `npm test`; the checked-in C1 bundle records their artifact hashes and independent grades. GC1, PR1, and V1 are deterministic contract checks; V1 still requires a real pilot record before any outcome claim. When installed as a package, the same validators are available as `vitruvius-goal-check`, `vitruvius-artifact-closure`, and `vitruvius-field-pilot`.
 
 ## Worked Examples
 

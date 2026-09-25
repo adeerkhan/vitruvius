@@ -141,8 +141,28 @@ Implement bounded reliability slices: B0 makes verifier benchmark scoring comple
 
 - [x] One run-local source/search/claim ledger is executable, fail-closed, provenance-backed, and honestly limited to a pilot rather than a general evidence database.
 
+## Phase 9: GC1, PR1, and V1 proof loop
+
+- [x] Task 17: Add a deterministic GOAL-CHECK completion contract and negative/positive fixtures.
+  - Acceptance: a valid `DONE` report is promotable; a manifest-declared omitted ask or open finding is non-promotable `NOT-DONE`; report fields, frozen-manifest binding, final bytes/hash, and provenance binding are checked fail-closed; the focused test is wired into `npm test`. Semantic omission from the manifest remains an explicit host/model smoke boundary.
+  - Verification: `npm run test:goal-check` and the full suite pass.
+
+- [x] Task 18: Add recursive final/provenance closure validation with deterministic fixtures.
+  - Acceptance: nested ordinary finals require adjacent sidecars, stale hash/byte bindings and path escapes fail closed, working/judge files are excluded, and current ignored outputs remain an explicit opt-in scan rather than a CI oracle.
+  - Verification: `npm run test:artifacts` and the full suite pass; `npm run check:local-artifacts` is wired as an explicit fail-closed diagnostic and currently reports known legacy output debt.
+
+- [x] Task 19: Define the V1 real-question field-pilot contract without inventing results.
+  - Acceptance: the pilot records original question, source/retrieval status, raw-byte or blocked record with unblock path, final/provenance pair, strict verifier/GOAL-CHECK results with matching identities, time/cost availability, user corrections, and decision outcome; no result is marked complete without retained evidence.
+  - Verification: contract tests reject incomplete or hash-inconsistent records; a real pilot run remains explicitly pending until questions and source access are supplied.
+
+### Checkpoint: GC1/PR1/V1
+
+- [x] The roadmap has executable proof for the final gate and artifact closure, plus a bounded field-pilot format; no new source connector or skill catalogue is added without observed need.
+- [ ] Run the first real V1 question and record the observed source-access/value result.
+
 ## Open Questions
 
+- Which real engineering question should be the first V1 field pilot? The record format is ready, but no question or external-source run has been supplied.
 - Whether to promote the project-local Habit store to a user-scoped home-directory store later; defer until a real cross-project need is demonstrated.
 - Whether benchmark quality should become a hard CI threshold after a majority-of-three run; keep the current point estimate informational for now.
 - G1 input gates and R1 package-consumer/release checks are the next bounded reliability slices after the Q1 pilot.
