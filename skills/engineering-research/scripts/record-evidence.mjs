@@ -2,9 +2,9 @@ import { randomUUID } from "node:crypto";
 import {
   closeSync,
   existsSync,
-  mkdirSync,
   openSync,
   readFileSync,
+  readdirSync,
   renameSync,
   unlinkSync,
   writeFileSync,
@@ -16,14 +16,16 @@ import { validateEvidenceLedger } from "./evidence-ledger.mjs";
 const PROJECT_ROOT = resolve(process.env.VITRUVIUS_PROJECT_ROOT || process.cwd());
 const DEFAULT_RUNS_DIR = join(PROJECT_ROOT, ".runs");
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const LOCK_WAIT_MS = 10_000;
+const LOCK_POLL_MS = 25;
 
 function usage() {
   return [
-    "Usage: node scripts/record-evidence.mjs [options]",
+    "Usage: node scripts/record-evidence.mjs --run-id <uuid> [options]",
     "Options:",
     "  --runs-dir <path>  Override the ledger directory (or set VITRUVIUS_RUNS_DIR)",
-    "  --run-id <uuid>    Require the input run_id to match this UUID",
-    "  VITRUVIUS_PROJECT_ROOT  Select the project root for the default .runs/ path",
+    "  --run-id <uuid>    Required L1 run identity",
+    "  VITRUVIUS_PROJECT_ROOT  Select the project root for local artifacts and default .runs/",
     "  --help              Show this help",
     "Input: one evidence.v1 JSON object on stdin",
   ].join("\n");
@@ -58,23 +60,59 @@ function readStdin() {
   });
 }
 
-function acquireLock(path) {
-  const token = randomUUID();
-  try {
-    const descriptor = openSync(path, "wx");
-    writeFileSync(descriptor, `${process.pid}:${token}\n`, "utf-8");
-    closeSync(descriptor);
-    return token;
-  } catch (error) {
-    if (error.code === "EEXIST") throw new Error(`evidence ledger is locked: ${path}`);
-    throw error;
+function readRunEntries(runsDir) {
+  if (!existsSync(runsDir)) throw new Error(`L1 runs directory does not exist: ${runsDir}`);
+  const entries = [];
+  for (const name of readdirSync(runsDir)) {
+    if (!name.endsWith(".jsonl")) continue;
+    const path = join(runsDir, name);
+    const text = readFileSync(path, "utf-8");
+    if (text && !text.endsWith("\n")) throw new Error(`existing L1 ledger is not newline-terminated: ${path}`);
+    for (const [index, line] of text.split("\n").filter(Boolean).entries()) {
+      try {
+        const entry = JSON.parse(line);
+        if (entry?.schema !== "run.v1" || typeof entry.run_id !== "string" || !UUID_PATTERN.test(entry.run_id)) {
+          throw new Error(`invalid run.v1 entry at ${path}:${index + 1}`);
+        }
+        entries.push(entry);
+      } catch (error) {
+        throw new Error(`invalid L1 JSONL in ${path}: ${error.message}`);
+      }
+    }
   }
+  return entries;
 }
 
-function releaseLock(path, token) {
+function wait(milliseconds) {
+  return new Promise((resolveWait) => setTimeout(resolveWait, milliseconds));
+}
+
+async function acquireRunLock(runsDir) {
+  const lockPath = join(runsDir, ".log-run.lock");
+  const deadline = Date.now() + LOCK_WAIT_MS;
+  while (Date.now() < deadline) {
+    const token = randomUUID();
+    let descriptor;
+    try {
+      descriptor = openSync(lockPath, "wx");
+      writeFileSync(descriptor, `${process.pid}:${token}\n`, "utf-8");
+      closeSync(descriptor);
+      return { path: lockPath, token };
+    } catch (error) {
+      if (descriptor !== undefined) {
+        try { closeSync(descriptor); } catch { /* Preserve the original lock error. */ }
+      }
+      if (error.code !== "EEXIST") throw error;
+      await wait(LOCK_POLL_MS);
+    }
+  }
+  throw new Error(`run ledger is busy or locked: ${lockPath}`);
+}
+
+function releaseRunLock(lock) {
   try {
-    if (readFileSync(path, "utf-8").trim() !== `${process.pid}:${token}`) return;
-    unlinkSync(path);
+    if (readFileSync(lock.path, "utf-8").trim() !== `${process.pid}:${lock.token}`) return;
+    unlinkSync(lock.path);
   } catch {
     // Never remove a lock whose ownership cannot be proven.
   }
@@ -86,6 +124,7 @@ async function main() {
     console.log(usage());
     return;
   }
+  if (!options.runId) throw new Error("--run-id is required and must identify an existing L1 run");
 
   const raw = await readStdin();
   if (!raw.trim()) throw new Error(usage());
@@ -95,28 +134,34 @@ async function main() {
   } catch (error) {
     throw new Error(`invalid JSON: ${error.message}`);
   }
-  const report = validateEvidenceLedger(input);
+  const report = validateEvidenceLedger(input, { repoRoot: PROJECT_ROOT });
   if (!report.valid) throw new Error(`invalid evidence ledger:\n${report.errors.map((error) => `- ${error}`).join("\n")}`);
 
-  const runId = input.run_id.toLowerCase();
-  if (options.runId && options.runId.toLowerCase() !== runId) throw new Error(`input run_id does not match --run-id: ${runId}`);
-  if (!UUID_PATTERN.test(runId)) throw new Error("run_id must be a valid UUID");
+  const runId = options.runId.toLowerCase();
+  if (!UUID_PATTERN.test(runId)) throw new Error("--run-id must be a valid UUID");
+  if (input.run_id.toLowerCase() !== runId) throw new Error(`input run_id does not match --run-id: ${runId}`);
 
-  const outputPath = join(options.runsDir, `${runId}.evidence.json`);
-  if (existsSync(outputPath)) throw new Error(`evidence ledger already exists: ${outputPath}`);
-  mkdirSync(options.runsDir, { recursive: true });
-  const lockPath = join(options.runsDir, `${runId}.evidence.lock`);
-  const token = acquireLock(lockPath);
-  const temporaryPath = join(options.runsDir, `${runId}.${randomUUID()}.tmp`);
+  if (!existsSync(options.runsDir)) throw new Error(`L1 runs directory does not exist: ${options.runsDir}`);
+  const lock = await acquireRunLock(options.runsDir);
+  let temporaryPath;
   try {
+    const entries = readRunEntries(options.runsDir);
+    const matches = entries.filter((entry) => entry.run_id.toLowerCase() === runId);
+    if (matches.length === 0) throw new Error(`no L1 run entry found for run_id: ${runId}`);
+    if (matches.length > 1) throw new Error(`duplicate L1 run_id: ${runId}`);
+
+    const outputPath = join(options.runsDir, `${runId}.evidence.json`);
     if (existsSync(outputPath)) throw new Error(`evidence ledger already exists: ${outputPath}`);
-    const output = { ...input, run_id: runId, recorded_at: new Date().toISOString() };
+    const output = { ...input, run_id: runId, completion: report.completion, recorded_at: new Date().toISOString() };
+    temporaryPath = join(options.runsDir, `${runId}.${randomUUID()}.tmp`);
     writeFileSync(temporaryPath, `${JSON.stringify(output, null, 2)}\n`, { encoding: "utf-8", flag: "wx" });
     renameSync(temporaryPath, outputPath);
     console.log(`Recorded: ${runId} -> ${outputPath}`);
   } finally {
-    try { unlinkSync(temporaryPath); } catch { /* Nothing to clean up. */ }
-    releaseLock(lockPath, token);
+    if (temporaryPath) {
+      try { unlinkSync(temporaryPath); } catch { /* Nothing to clean up. */ }
+    }
+    releaseRunLock(lock);
   }
 }
 

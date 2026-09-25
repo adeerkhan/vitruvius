@@ -38,6 +38,7 @@
     "scripts/extract-document.mjs",
     "scripts/log-run.mjs",
     "scripts/record-evidence.mjs",
+    "scripts/validate-evidence.mjs",
     "scripts/verifier-parser.mjs",
     "scripts/habit-ledger.mjs",
     "agents/",

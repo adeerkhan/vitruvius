@@ -15,8 +15,8 @@ Implement bounded reliability slices: B0 makes verifier benchmark scoring comple
 - C1 uses three deterministic local-code cases rather than live web search: supported evidence, unavailable evidence, and conflicting evidence. One fresh subagent writes each case to a separate result directory; the repository stores final artifacts, provenance sidecars, hashes, and independent grading. Model cost that the host does not expose is recorded as unavailable, never invented.
 - `npm test` validates the full repository suite, including eval contracts and retained C1 evidence; it never launches model calls. Subagent runs are on-demand and run once per recorded case.
 - Q1 is a minimal `evidence.v1` JSON document per run, stored beside the L1 run identity. It records source, search, and claim records plus explicit support mappings and negative/ambiguous coverage; it is not a general database, crawler, or telemetry system.
-- Q1 validation is fail-closed: every referenced ID must exist, every claim must have an explicit support status, every search must record its boundary/result state, and negative or ambiguous coverage cannot be silently omitted.
-- Q1 writes atomically and refuses replacement of an existing run ledger. The repository wrapper preserves the historical project-local `.runs/` default; the skill-local implementation can be copied with the skill.
+- Q1 validation is fail-closed: the writer requires an existing L1 `run.v1` entry, every source is a confined repository artifact with a byte hash/access date, every referenced ID must exist, every search must record screening state and negative coverage, and every claim must have explicit support and coverage status. Valid partial/blocked ledgers remain storable but report non-complete completion.
+- Q1 writes atomically under the shared L1 `.log-run.lock` and refuses replacement of an existing run ledger. The repository wrapper preserves the historical project-local `.runs/` default; the skill-local implementation can be copied with the skill.
 
 ## Task List
 
@@ -125,11 +125,11 @@ Implement bounded reliability slices: B0 makes verifier benchmark scoring comple
   - Acceptance: current commit, file hashes, C1 manifest/reviewer evidence, and remaining limits are recorded without presenting ignored artifacts as tracked deliverables.
   - Verification: recompute hashes and inspect the audit status against `git status` and the retained result bundle.
 
-- [ ] Task 14: Define and test the `evidence.v1` contract.
+- [x] Task 14: Define and test the `evidence.v1` contract.
   - Acceptance: stable source/search/claim IDs, explicit claim support mappings, search boundary/result state, negative coverage, ambiguous coverage, and status enums are required; unknown IDs, orphan mappings, unverified support, and missing/ambiguous coverage fail closed.
   - Verification: synthetic valid fixtures and mutation tests prove every refusal without network access.
 
-- [ ] Task 15: Implement the per-run ledger CLI and root compatibility wrapper.
+- [x] Task 15: Implement the per-run ledger CLI and root compatibility wrapper.
   - Acceptance: a valid ledger is written atomically under the project-local runs directory, tied to a UUID `run_id`, refuses overwrite, and leaves no partial file after failure; the root wrapper preserves the historical default.
   - Verification: focused lifecycle/portability tests, syntax checks, and package wiring pass.
 

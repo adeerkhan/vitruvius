@@ -151,6 +151,7 @@ for (const runtimeFile of [
   join(SCRIPTS_DIR, 'eval-contract.mjs'),
   join(SCRIPTS_DIR, 'fixed-case.mjs'),
   join(SCRIPTS_DIR, 'record-evidence.mjs'),
+  join(SCRIPTS_DIR, 'validate-evidence.mjs'),
 ]) {
   allProblems.push(...scanFile(runtimeFile));
   allProblems.push(...scanPersonalPaths(runtimeFile));

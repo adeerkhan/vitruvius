@@ -456,7 +456,7 @@ The skill-local wrapper is self-contained and defaults `.runs/` to the active pr
 
 ### Q1 evidence ledger
 
-After `log-run.mjs` returns a `run_id`, record the run's source, search, and claim mappings as one `evidence.v1` JSON document. The document must include stable `SRC-*`, `SEARCH-*`, `CLAIM-*`, `NEG-*`, and `AMB-*` identifiers, explicit claim support mappings, and negative coverage for every search. The validator refuses unknown IDs, orphan mappings, unverified support for verified claims, and missing or ambiguous coverage.
+After `log-run.mjs` returns a `run_id`, record the run's source, search, and claim mappings as one `evidence.v1` JSON document. The document must include stable `SRC-*`, `SEARCH-*`, `CLAIM-*`, `NEG-*`, and `AMB-*` identifiers, repository-relative source artifact paths with SHA-256/access dates, explicit claim support mappings, search screening counts, and negative coverage for every search. The validator refuses unknown IDs, orphan mappings, unverified support for verified claims, and missing or ambiguous coverage. It reports `complete`, `partial`, or `blocked` separately from validity.
 
 ```bash
 printf '%s\n' '<evidence_json>' | node <engineering-research-skill-root>/scripts/record-evidence.mjs --run-id <run_id>

@@ -55,8 +55,8 @@
 ## Phase 8: Q1 ledger
 
 - [ ] Refresh ignored audit/provenance through E1/C1
-- [ ] Define `evidence.v1` schema and fail-closed mutations
-- [ ] Implement per-run CLI, wrapper, atomic write, and package wiring
+- [x] Define `evidence.v1` schema and fail-closed mutations
+- [x] Implement per-run CLI, wrapper, atomic write, and package wiring
 - [ ] Run one fresh subagent example and independent inspection
 - [ ] Q1 pilot checkpoint
 

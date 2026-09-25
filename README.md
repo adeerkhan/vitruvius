@@ -356,7 +356,7 @@ printf '%s\n' '<evidence_json>' \
   | node scripts/record-evidence.mjs --run-id <run_id>
 ```
 
-The ledger uses stable `SRC-*`, `SEARCH-*`, `CLAIM-*`, `NEG-*`, and `AMB-*` IDs. It requires explicit claim support, negative coverage for every search, and recorded ambiguous coverage; unknown IDs, orphan mappings, unverified support, and duplicate/overwritten run ledgers fail closed. The writer stores `.runs/<run_id>.evidence.json` atomically. `npm run test:evidence-ledger` runs the pure contract and lifecycle tests without model calls.
+The ledger uses stable `SRC-*`, `SEARCH-*`, `CLAIM-*`, `NEG-*`, and `AMB-*` IDs. Each source is a repository-relative artifact with a verified SHA-256 and access date; each search records its screening count; each claim records coverage status and support mappings. The validator refuses unknown IDs, orphan mappings, unverified support, missing negative/ambiguous coverage, and duplicate/overwritten run ledgers. The writer requires an existing L1 `run.v1` entry and stores `.runs/<run_id>.evidence.json` atomically. Revalidate an existing file with `node scripts/validate-evidence.mjs <path>`. `npm run test:evidence-ledger` runs the pure contract and lifecycle tests without model calls.
 
 ## Research Sources
 
