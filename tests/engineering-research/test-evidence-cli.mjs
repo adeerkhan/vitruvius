@@ -138,6 +138,19 @@ try {
   assert.equal(existsSync(outputPath(lockedId, lockedDir)), false);
   rmSync(join(lockedDir, ".log-run.lock"), { force: true });
 
+  // R2: an expired lease is reclaimed by the next writer.
+  const expiredId = "abababab-abab-4bab-8bab-abababababab";
+  const expiredDir = join(tempRoot, "expired-lease");
+  seedRun(expiredDir, expiredId);
+  writeFileSync(
+    join(expiredDir, ".log-run.lock"),
+    `${JSON.stringify({ pid: 4242, token: "dead", expires_at: "2000-01-01T00:00:00.000Z" })}\n`,
+  );
+  const reclaimed = run(["--run-id", expiredId], ledger(expiredId), expiredDir);
+  assert.equal(reclaimed.status, 0, reclaimed.stderr);
+  assert.equal(existsSync(outputPath(expiredId, expiredDir)), true);
+  assert.equal(existsSync(join(expiredDir, ".log-run.lock")), false);
+
   const copiedProject = join(tempRoot, "copied-project");
   const helper = join(copiedProject, "helper");
   mkdirSync(helper, { recursive: true });

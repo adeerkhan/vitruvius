@@ -250,6 +250,35 @@ try {
   assert.match(locked.stderr, /busy|locked/i);
   assert.equal(readFileSync(lockPath, "utf-8"), lockContents);
 
+  // R2: an expired lease is reclaimed; a live lease is never stolen.
+  const expiredDir = join(tempRoot, "expired-lease-runs");
+  mkdirSync(expiredDir, { recursive: true });
+  const expiredLock = join(expiredDir, ".log-run.lock");
+  writeFileSync(
+    expiredLock,
+    `${JSON.stringify({ pid: 4242, token: "dead", expires_at: "2000-01-01T00:00:00.000Z" })}\n`,
+  );
+  const reclaimed = run([], JSON.stringify({ skill: "test" }), expiredDir);
+  assert.equal(reclaimed.status, 0, reclaimed.stderr);
+  assert.equal(entries(expiredDir).length, 1);
+  assert.equal(existsSync(expiredLock), false);
+
+  const leaseDir = join(tempRoot, "live-lease-runs");
+  mkdirSync(leaseDir, { recursive: true });
+  const leaseLock = join(leaseDir, ".log-run.lock");
+  const leaseBody = `${JSON.stringify({ pid: 4242, token: "alive", expires_at: new Date(Date.now() + 60_000).toISOString() })}\n`;
+  writeFileSync(leaseLock, leaseBody);
+  const leaseHeld = spawnSync(process.execPath, [logger], {
+    cwd: repoRoot,
+    env: { ...process.env, VITRUVIUS_RUNS_DIR: leaseDir },
+    input: JSON.stringify({ skill: "test" }),
+    encoding: "utf-8",
+    timeout: 12_000,
+  });
+  assert.notEqual(leaseHeld.status, 0);
+  assert.match(leaseHeld.stderr, /busy|locked/i);
+  assert.equal(readFileSync(leaseLock, "utf-8"), leaseBody);
+
   const explicitDir = join(tempRoot, "explicit-runs");
   const explicit = run(["--runs-dir", explicitDir], JSON.stringify({ skill: "test", status: "recorded" }));
   assert.equal(explicit.status, 0, explicit.stderr);

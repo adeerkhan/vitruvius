@@ -47,7 +47,7 @@ are in the source inventory below.
 - **NV1 — Node version guard.** `ref/feynman/scripts/check-node-version.mjs` declares and checks the supported Node range. Directly relevant to the `pdf-parse` Node 24 `Buffer` failure just fixed. **Partial steal.**
 - **R2 — lease-based run lock.** `ref/autoprompt-skill` (v2.0.0) holds run slots by lease with compare-and-delete reclaim and a bounded token lifetime. Vitruvius's `.log-run.lock` stays fail-closed forever on a stale lock. **Optional; changes a documented policy.**
 
-**Implemented in the same slice:** AP1 (`scripts/validate-artifact-paths.mjs` + `tests/skills/test-artifact-paths.mjs`), DP1 (`tests/docs/test-docs-parity.mjs`, which immediately caught `evidence-ranking` missing from the docs), SA1 (`skill_layout` + `description_trigger` in `scripts/validate-contract.mjs`, `tests/validate-contract/test-skill-anatomy.mjs`), NV1 (`engines.node` + `scripts/check-node-version.mjs`). R2 stays deferred as a policy change.
+**Implemented in the same slice:** AP1 (`scripts/validate-artifact-paths.mjs` + `tests/skills/test-artifact-paths.mjs`), DP1 (`tests/docs/test-docs-parity.mjs`, which immediately caught `evidence-ranking` missing from the docs), SA1 (`skill_layout` + `description_trigger` in `scripts/validate-contract.mjs`, `tests/validate-contract/test-skill-anatomy.mjs`), NV1 (`engines.node` + `scripts/check-node-version.mjs`). A second slice added R2 (lease/TTL reclaim in `log-run.mjs`/`record-evidence.mjs`) and O1 (`docs/rejected-changes.md` + `scripts/rejected-change-ledger.mjs`).
 
 ### Reject on this refresh
 
@@ -202,12 +202,12 @@ Do not call this model training. It is an explicit, provenance-backed user-prefe
 | P2 | D1 | Retrieval-to-direct-read bridge and retrieval benchmark | Semble | Optional semantic recall improves end-to-end evidence quality, not just NDCG |
 | P2 | M1 | Need-based scholarly routing and stable-ID cross-check | Feynman | Existing scholarly skill gains bounded modes; no new database skill |
 | P2 | N1 | Exact-first source/claim deduplication with merge trail | BugTraceAI | Aliases and discard reasons survive; semantic merging is advisory only |
-| P2 | O1 | Append-only rejected-change ledger | Agent Skills | Rejected prompt/skill/eval changes retain before/after evidence |
+| P2 (implemented) | O1 | Append-only rejected-change ledger | Agent Skills | Rejected prompt/skill/eval changes retain before/after evidence |
 | P1 (implemented) | AP1 | Artifact-path consistency guard across every skill/command surface | Agent Skills | One canonical path set; any drifted path fails the check |
 | P1 (implemented) | DP1 | Docs/command parity: mention only commands and paths that exist | Feynman | README/help name only contract commands and real scripts |
 | P2 (implemented) | SA1 | Skill-anatomy layout lint (empty dirs, kebab supporting files, line-budget warning, trigger rule) | Agent Skills | Layout violations fail; over-budget is a warning, not a block |
 | P2 (implemented) | NV1 | Declared and checked Node version range | Feynman | `engines` declared and a check fails outside it |
-| P3 | R2 | Lease/TTL reclaim for the run lock | Autoprompt | A stale lock is reclaimable only by an owner proving a bounded lease |
+| P3 (implemented) | R2 | Lease/TTL reclaim for the run lock | Autoprompt | A stale lock is reclaimable only by an owner proving a bounded lease |
 | P3 | U1 | Run-local lessons, remote retrieval, social proof | Feynman, Semble, Humanizer | Added only after a measured need; never auto-promoted to global preferences |
 
 ## Transfer anchors

@@ -27,6 +27,10 @@ const VALID_VERDICTS = new Set([
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const LOCK_WAIT_MS = 10_000;
 const LOCK_POLL_MS = 25;
+// A crashed holder must not wedge the ledger forever (ref/autoprompt-skill
+// transfer). A holder writes a bounded lease; only an *expired* lease is
+// reclaimed, and only by one reclaimer at a time.
+const LOCK_TTL_MS = Number(process.env.VITRUVIUS_LOCK_TTL_MS || 60_000);
 
 function usage() {
   return [
@@ -124,16 +128,66 @@ function wait(milliseconds) {
   return new Promise((resolveWait) => setTimeout(resolveWait, milliseconds));
 }
 
+// Parse a lock body. Current locks are JSON `{ pid, token, expires_at }`;
+// legacy `pid:token` locks carry no expiry and are never reclaimed.
+function parseLock(raw) {
+  try {
+    const value = JSON.parse(raw.trim());
+    if (value && typeof value.token === "string") {
+      return {
+        token: value.token,
+        expiresAt: typeof value.expires_at === "string" ? Date.parse(value.expires_at) : null,
+      };
+    }
+  } catch {
+    // legacy lock, not reclaimable
+  }
+  return null;
+}
+
+// Reclaim an expired lease with compare-and-delete. A sidecar `*.reclaim` file
+// picks a single reclaimer, so two waiters cannot both delete the lock.
+function reclaimExpiredLock(lockPath) {
+  const reclaimPath = `${lockPath}.reclaim`;
+  try {
+    writeFileSync(reclaimPath, `${process.pid}:${randomUUID()}\n`, { encoding: "utf-8", flag: "wx" });
+  } catch {
+    return false; // another process is already reclaiming
+  }
+  try {
+    let raw;
+    try {
+      raw = readFileSync(lockPath, "utf-8");
+    } catch {
+      return false; // lock already released
+    }
+    const parsed = parseLock(raw);
+    if (parsed && parsed.expiresAt !== null && parsed.expiresAt <= Date.now()) {
+      unlinkSync(lockPath);
+      return true;
+    }
+    return false;
+  } finally {
+    try { unlinkSync(reclaimPath); } catch { /* nothing to clean up */ }
+  }
+}
+
 async function acquireLock(runsDir) {
   const lockPath = join(runsDir, ".log-run.lock");
   const deadline = Date.now() + LOCK_WAIT_MS;
   while (Date.now() < deadline) {
     const token = randomUUID();
+    const body = JSON.stringify({
+      pid: process.pid,
+      token,
+      expires_at: new Date(Date.now() + LOCK_TTL_MS).toISOString(),
+    });
     try {
-      writeFileSync(lockPath, `${process.pid}:${token}\n`, { encoding: "utf-8", flag: "wx" });
+      writeFileSync(lockPath, `${body}\n`, { encoding: "utf-8", flag: "wx" });
       return { path: lockPath, token };
     } catch (error) {
       if (error.code !== "EEXIST") throw error;
+      reclaimExpiredLock(lockPath);
       await wait(LOCK_POLL_MS);
     }
   }
@@ -142,8 +196,8 @@ async function acquireLock(runsDir) {
 
 function releaseLock(lock) {
   try {
-    const current = readFileSync(lock.path, "utf-8").trim();
-    if (current !== `${process.pid}:${lock.token}`) return;
+    const parsed = parseLock(readFileSync(lock.path, "utf-8"));
+    if (!parsed || parsed.token !== lock.token) return;
     unlinkSync(lock.path);
   } catch {
     // Never remove a lock whose ownership cannot be proven.

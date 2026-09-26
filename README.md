@@ -107,6 +107,7 @@ npm run test:input-gate
 npm run test:node
 npm run test:artifact-paths
 npm run test:docs
+npm run test:rejected-changes
 node tests/routing/eval-routing.mjs
 node scripts/fixed-case.mjs case evals/cases/local-evidence-suite.json
 node scripts/fixed-case.mjs results evals/results/manifest.json evals/results
@@ -415,7 +416,7 @@ echo '{"skill":"engineering-research","status":"completed","verdict":"verified"}
   | node scripts/log-run.mjs
 ```
 
-The logger generates a UUID and UTC timestamp, rejects malformed input and duplicate IDs, and supports `--runs-dir <path>` or `VITRUVIUS_RUNS_DIR` for isolated runs. `VITRUVIUS_PROJECT_ROOT` selects the project root for the default `.runs/` path when the command is run from another directory. With no override, the repository compatibility command preserves its historical repository-local `.runs/` default; the skill-local wrapper defaults to the active project working directory. Concurrent writers wait briefly for the ledger lock; an interrupted process leaves the lock in place and subsequent writes fail closed until an operator verifies it is safe to remove `.log-run.lock`. The engineering-research skill carries a self-contained wrapper for copied-skill installations; the repository command remains available at `scripts/log-run.mjs`.
+The logger generates a UUID and UTC timestamp, rejects malformed input and duplicate IDs, and supports `--runs-dir <path>` or `VITRUVIUS_RUNS_DIR` for isolated runs. `VITRUVIUS_PROJECT_ROOT` selects the project root for the default `.runs/` path when the command is run from another directory. With no override, the repository compatibility command preserves its historical repository-local `.runs/` default; the skill-local wrapper defaults to the active project working directory. Concurrent writers wait briefly for the ledger lock. A holder writes a bounded lease (`VITRUVIUS_LOCK_TTL_MS`, default 60s), so an expired lease left by a crashed process is reclaimed automatically while a live lease — or a legacy lock without an expiry — is never stolen. The engineering-research skill carries a self-contained wrapper for copied-skill installations; the repository command remains available at `scripts/log-run.mjs`.
 
 ## Evidence Ledger
 

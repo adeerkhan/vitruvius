@@ -51,6 +51,7 @@ command-code -p "Name the available skills." --skill ./skills --no-skills --skip
 - Large feature changes should start with an issue or a concrete implementation discussion before code lands.
 - Avoid refactor-only PRs unless they unblock a real fix or are requested by a maintainer.
 - Do not add bundled skills or docs whose primary purpose is to market, endorse, or funnel users toward a third-party product or service.
+- Before changing an existing skill or the verifier, search `docs/rejected-changes.md` for a prior rejection of the same idea and cite its evidence. If a change is rejected on evidence, append one row with `node scripts/rejected-change-ledger.mjs append ...`; the ledger is append-only.
 - Keep the repo self-contained: do not reference private or upstream research projects by name in shipped docs.
 
 ## Repo-Specific Checks
