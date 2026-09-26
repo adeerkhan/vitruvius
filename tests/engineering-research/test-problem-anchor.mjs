@@ -31,7 +31,7 @@ assert.match(method, /Impact vs\. evidence/i, "method requires impact-vs-evidenc
 assert.match(method, /problem-anchor-contract\.md/, "method points at the contract reference");
 assert.match(method, /decisions to inform/i, "method freezes the decisions to inform");
 
-assert.match(scholarly, /version: "0\.1\.[1-9]\d*"/, "scholarly-research version bumped");
+assert.match(scholarly, /version: "0\.(?:1\.[1-9]\d*|[2-9]\.\d+)"/, "scholarly-research version bumped");
 assert.match(scholarly, /produces evidence, not a report/i, "scholarly-research boundary is enforced in prose");
 assert.match(scholarly, /What the literature does not settle/i, "scholarly-research requires negative coverage");
 assert.match(scholarly, /Handback/i, "scholarly-research requires a handback section");

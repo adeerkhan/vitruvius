@@ -150,7 +150,7 @@ Named engineering jobs over the shared loop:
 | `/summarize` | Faithful structured digest of a standard, spec, or paper |
 | `/eli5` | Plain-language engineering explanation |
 | `/artifact-reading` | Anchored extraction from PDFs, drawings, specs |
-| `/scholarly-research` | Academic literature evidence layer (OpenAlex, arXiv, Semantic Scholar) with page-anchored open-access PDF reading; synthesis goes to `/engineering-research` |
+| `/scholarly-research` | Academic literature evidence layer (OpenAlex, arXiv, Semantic Scholar) with need-based routing modes, code prior-art search, and page-anchored open-access PDF reading; synthesis goes to `/engineering-research` |
 | `/standards-lookup` | Engineering standards: AISC, ACI, ASCE, IEEE, Eurocode |
 | `/habit` | Extract explicit research preferences, validate them, and activate only human-approved rules in a project-local store |
 
@@ -273,7 +273,7 @@ End-to-end workflows for specific tasks:
 | `/summarize <document>` | Faithful structured digest of a standard, spec, or paper |
 | `/eli5 "topic"` | Plain-language engineering explanation |
 | `/artifact-reading <file>` | Anchored extraction from PDFs, drawings, specs |
-| `/scholarly-research "topic"` | Academic literature evidence layer (OpenAlex, arXiv, Semantic Scholar) with page-anchored open-access PDF reading; synthesis goes to `/engineering-research` |
+| `/scholarly-research "topic"` | Academic literature evidence layer (OpenAlex, arXiv, Semantic Scholar) with routing modes, code prior art, and page-anchored PDF reading; synthesis goes to `/engineering-research` |
 | `/standards-lookup AISC 360` | Looks up AISC 360 provisions by section |
 | `/habit` | Extracts explicit research preferences for validation and human approval |
 | `/proposal --posting X --cv Y` | Intended PhD-proposal workflow; local text intake is executable, PDF extraction uses optional tooling, and URL/image inputs require explicit recorded fetch/transcription |

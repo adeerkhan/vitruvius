@@ -7,7 +7,8 @@ const SOURCE_STATUSES = new Set(["verified", "blocked", "unverified", "inferred"
 const CLAIM_STATUSES = new Set(["verified", "partial", "blocked", "unverified", "inferred", "failed"]);
 const COVERAGE_STATUSES = new Set(["covered", "negative", "ambiguous"]);
 const SEARCH_STATUSES = new Set(["completed", "partial", "blocked"]);
-const NEGATIVE_STATUSES = new Set(["documented", "blocked", "not_reached"]);
+const NEGATIVE_STATUSES = new Set(["documented", "measured_zero", "skipped", "not_reached", "blocked", "truncated"]);
+const MERGE_RULES = new Set(["exact-locator", "doi", "arxiv", "normalized-url", "title-venue-year"]);
 const AMBIGUOUS_STATUSES = new Set(["open", "resolved"]);
 const RELATIONS = new Set(["supports", "challenges", "contextual"]);
 const COMPLETION_STATUSES = new Set(["complete", "partial", "blocked"]);
@@ -126,15 +127,61 @@ export function validateEvidenceLedger(value, { repoRoot } = {}) {
       errors.push(`${label} must be an object`);
       continue;
     }
-    exactKeys(source, ["id", "title", "locator", "artifact_path", "sha256", "accessed_on", "status", "notes"], label, errors);
+    exactKeys(source, ["id", "title", "locator", "artifact_path", "sha256", "accessed_on", "status", "notes", "aliases", "merged_into", "merge_rule", "discard_reason"], label, errors);
     requireTextFields(source, ["title", "locator", "artifact_path", "sha256", "accessed_on"], label, errors);
     if (source.notes !== undefined && !text(source.notes)) errors.push(`${label}.notes must be a non-empty string when provided`);
+    if (source.aliases !== undefined) {
+      if (!Array.isArray(source.aliases) || source.aliases.length === 0) {
+        errors.push(`${label}.aliases must be a non-empty array when provided`);
+      } else {
+        const seenAliases = new Set();
+        for (const alias of source.aliases) {
+          if (!text(alias)) errors.push(`${label}.aliases must contain non-empty strings`);
+          else if (seenAliases.has(alias)) errors.push(`${label}.aliases contains duplicate ${alias}`);
+          else seenAliases.add(alias);
+        }
+      }
+    }
+    if (source.merged_into !== undefined) {
+      if (!identifier(source.merged_into, "SRC")) errors.push(`${label}.merged_into must be a SRC- identifier`);
+      if (source.merged_into === source.id) errors.push(`${label}.merged_into cannot point at itself`);
+      if (!MERGE_RULES.has(source.merge_rule)) errors.push(`${label}.merge_rule must be one of ${[...MERGE_RULES].join(", ")} on a merged source`);
+      if (!text(source.discard_reason)) errors.push(`${label}.discard_reason is required on a merged source`);
+    } else {
+      if (source.merge_rule !== undefined) errors.push(`${label}.merge_rule is only valid on a merged source`);
+      if (source.discard_reason !== undefined) errors.push(`${label}.discard_reason is only valid on a merged source`);
+    }
     if (addId(ids, source.id, "SRC", label, errors)) sourceById.set(source.id, source);
     if (!SOURCE_STATUSES.has(source.status)) errors.push(`${label}.status must be verified, blocked, unverified, or inferred`);
     if (!isoDate(source.accessed_on)) errors.push(`${label}.accessed_on must be a real ISO date`);
     if (root && text(source.artifact_path)) {
       if (!isSafeRepoFile(root, source.artifact_path)) errors.push(`${label}.artifact_path must be a confined regular file`);
       else if (!/^[0-9a-f]{64}$/.test(source.sha256) || fileHash(root, source.artifact_path) !== source.sha256) errors.push(`${label}.sha256 must match artifact_path bytes`);
+    }
+  }
+
+  // Exact-first deduplication: a merged source must point at a real canonical
+  // source (no chains), and alias strings must be unique across the set so a
+  // duplicate cannot be counted twice under two identifiers.
+  const aliasOwners = new Map();
+  for (const [index, source] of sources.entries()) {
+    if (!isObject(source)) continue;
+    const label = `sources[${index}]`;
+    if (source.merged_into !== undefined) {
+      const target = sourceById.get(source.merged_into);
+      if (target === undefined) errors.push(`${label}.merged_into references unknown source id: ${source.merged_into}`);
+      else if (target.merged_into !== undefined) errors.push(`${label}.merged_into target is itself merged (no merge chains)`);
+    }
+    if (Array.isArray(source.aliases)) {
+      for (const alias of source.aliases) {
+        if (!text(alias)) continue;
+        const owner = aliasOwners.get(alias);
+        if (owner !== undefined && owner !== source.id) {
+          errors.push(`${label}.alias ${alias} is already owned by ${owner} (exact duplicate was not merged)`);
+        } else {
+          aliasOwners.set(alias, source.id);
+        }
+      }
     }
   }
 
@@ -231,6 +278,7 @@ export function validateEvidenceLedger(value, { repoRoot } = {}) {
         continue;
       }
       if (!searchedSourceIds.has(mapping.source_id)) errors.push(`${label} references a source not linked to any search: ${mapping.source_id}`);
+      if (source.merged_into !== undefined) errors.push(`${label} references a merged duplicate source: ${mapping.source_id}`);
       if (mapping.status === "verified" && source.status !== "verified") errors.push(`${label} cannot be verified while its source is ${source.status}`);
       if (mapping.relation === "supports" && mapping.status === "verified") hasVerifiedSupport = true;
       if (mapping.status === "blocked" || source.status === "blocked") hasBlockedSupport = true;
@@ -261,12 +309,17 @@ export function validateEvidenceLedger(value, { repoRoot } = {}) {
       }
       exactKeys(entry, ["id", "search_id", "claim_ids", "status", "note"], label, errors);
       requireTextFields(entry, ["search_id", "note"], label, errors);
-      if (!NEGATIVE_STATUSES.has(entry.status)) errors.push(`${label}.status must be documented, blocked, or not_reached`);
+      if (!NEGATIVE_STATUSES.has(entry.status)) errors.push(`${label}.status must be one of ${[...NEGATIVE_STATUSES].join(", ")}`);
       if (addId(ids, entry.id, "NEG", label, errors) && !searchById.has(entry.search_id)) errors.push(`${label} references unknown search id: ${entry.search_id}`);
       const search = searchById.get(entry.search_id);
-      if (search?.status === "completed" && entry.status !== "documented") errors.push(`${label} completed search requires documented negative coverage`);
-      if (search?.status === "blocked" && entry.status === "documented") errors.push(`${label} blocked search cannot have documented negative coverage`);
-      if (entry.status === "not_reached" && search?.status === "completed") errors.push(`${label} completed search cannot be not_reached`);
+      const allowedBySearch = {
+        completed: new Set(["documented", "measured_zero"]),
+        partial: new Set(["documented", "measured_zero", "skipped", "truncated"]),
+        blocked: new Set(["blocked", "not_reached"]),
+      };
+      if (search && allowedBySearch[search.status] && !allowedBySearch[search.status].has(entry.status)) {
+        errors.push(`${label} status ${entry.status} is not valid for a ${search.status} search`);
+      }
       if (search) negativeSearchIds.add(search.id);
       if (!Array.isArray(entry.claim_ids)) {
         errors.push(`${label}.claim_ids must be an array`);
@@ -323,8 +376,9 @@ export function validateEvidenceLedger(value, { repoRoot } = {}) {
 
   let completion = "invalid";
   if (errors.length === 0) {
-    const hasBlocked = claims.some((claim) => claim.status === "blocked") || searches.some((search) => search.status === "blocked") || (Array.isArray(value.coverage?.negative) && value.coverage.negative.some((entry) => entry.status === "blocked" || entry.status === "not_reached"));
-    const hasPartial = searches.some((search) => search.status === "partial") || claims.some((claim) => claim.status !== "verified" || claim.coverage_status !== "covered") || (Array.isArray(value.coverage?.ambiguous) && value.coverage.ambiguous.some((entry) => entry.status === "open"));
+    const negative = Array.isArray(value.coverage?.negative) ? value.coverage.negative : [];
+    const hasBlocked = claims.some((claim) => claim.status === "blocked") || searches.some((search) => search.status === "blocked") || negative.some((entry) => entry.status === "blocked" || entry.status === "not_reached");
+    const hasPartial = searches.some((search) => search.status === "partial") || claims.some((claim) => claim.status !== "verified" || claim.coverage_status !== "covered") || negative.some((entry) => entry.status === "skipped" || entry.status === "truncated") || (Array.isArray(value.coverage?.ambiguous) && value.coverage.ambiguous.some((entry) => entry.status === "open"));
     completion = hasBlocked ? "blocked" : hasPartial ? "partial" : "complete";
     if (value.completion !== undefined && value.completion !== completion) errors.push(`completion must be ${completion}`);
   }

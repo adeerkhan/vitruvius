@@ -12,7 +12,7 @@ argument-hint: "<topic or paper identifier>"
 allowed-tools: Write Edit Bash Read
 license: MIT
 metadata:
-  version: "0.1.5"
+  version: "0.2.0"
 
 ---
 
@@ -118,8 +118,45 @@ account: connect `https://api.alphaxiv.org/mcp/v1` as an MCP server with
 ### 5. Host web / browser tools
 
 When the host exposes a web search or browser tool, use it for non-academic
-sources (vendor docs, standards bodies, news, blogs) and to confirm recency —
-not as the primary paper index. Do not point a browser at scholar.google.com.
+sources (vendor docs, standards bodies, news, blogs), for conceptual or very
+recent work the keyword indexes miss, and to confirm recency — not as the
+primary paper index. Do not point a browser at scholar.google.com.
+
+## Routing modes
+
+Pick the mode from the need; do not default every question to keyword search.
+(Feynman source-routing transfer, mapped to the keyless indexes above and the
+host's own tools.)
+
+| Need | Mode | Start | Then |
+|---|---|---|---|
+| Map a field | `discover` | OpenAlex `title_and_abstract.search` | `&sort=cited_by_count:desc`; 2–4 reworded queries |
+| One known paper | `known-id` | OpenAlex `/works/doi:<doi>` or arXiv id | Semantic Scholar `/paper/DOI:...` for citation count |
+| Seminal / adjacent work | `citation-graph` | OpenAlex `cited_by_api_url` / `referenced_works` | Semantic Scholar `citations` / `references` |
+| Conceptual or very recent work keywords miss | `semantic` | host web/browser search | Semantic Scholar relevance sort |
+| Full text behind a claim | `full-text` | `best_oa_location.pdf_url` / arXiv HTML or PDF | the page-anchored reader below |
+| Working code / prior art | `code-prior-art` | host web/GitHub search | read the repo at source (`path:line`) |
+
+- Run 2–4 reworded queries per question (synonyms, the method's name, the
+  problem's name) and merge; never trust one query's ranking — seminal work can
+  appear under only one phrasing or sort order.
+- `code-prior-art` is a first-class mode, not a fallback: the decisive lead is
+  often a working implementation that four paper searches miss. A repository is
+  a lead, not a citation — verify any claim about it at source (`path:line`) and
+  mark it `repo` (see `engineering-research`).
+- A mode that returns nothing is recorded as negative coverage, with the mode
+  and the exact terms used.
+
+## Source identity (exact-first)
+
+Before a source enters the evidence set, canonicalize its identifier and check
+it against the set: DOI lowercase `10.xxxx/...`; arXiv id `arxiv:XXXX.XXXXX`; a
+URL stripped of scheme/host case, tracking query parameters, fragment, and a
+trailing slash. If it is already present, merge it — record the surviving ID,
+the `merge_rule`, and a `discard_reason` on the duplicate (see the
+`engineering-research` `evidence.v1` ledger). Do not present one work twice as
+two sources, and do not let a semantic near-duplicate proposal delete a source;
+it is advisory.
 
 ## Full text and verification
 

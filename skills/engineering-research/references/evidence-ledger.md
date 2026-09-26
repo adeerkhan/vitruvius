@@ -24,6 +24,19 @@ repository-relative regular file and its bytes must match `sha256`. The Q1
 pilot is local-only; a blocked external source is represented by a local block
 record, not a guessed external document.
 
+### Exact-first deduplication
+
+Before adding a source, canonicalize its identifier (DOI, arXiv id, normalized
+URL) and check it against the set. A duplicate is recorded, not silently
+dropped: add `aliases` (the other identifiers for the same source) and, on the
+non-surviving record, `merged_into` (the surviving `SRC-` id), `merge_rule`
+(`exact-locator`, `doi`, `arxiv`, `normalized-url`, `title-venue-year`), and a
+`discard_reason`. The survivor is the record with no `merged_into`. Merge chains
+and self-merges are refused, alias strings must be unique across the set, and a
+merged duplicate may appear in a search result but must never be load-bearing
+support for a claim. Semantic near-duplicate matching is advisory: it may
+propose a merge, never delete evidence.
+
 ## Search records
 
 Each search has `id`, `query`, `boundary`, `searched_on`, `status`,
@@ -38,6 +51,18 @@ Each claim has `id`, `text`, `status`, `coverage_status`, and non-empty
 `status`. A verified claim needs verified support and cannot be covered while
 an open ambiguity or negative coverage exists. Negative and ambiguous entries
 carry `id`, `search_id`, `claim_ids`, `status`, and `note`.
+
+Negative coverage records *what was actually done*, not just "nothing found"
+(BugTraceAI negative-evidence transfer). `status` is one of:
+
+| status | meaning | valid on | completion |
+|--------|---------|----------|------------|
+| `documented` | searched and documented | completed / partial | as the search |
+| `measured_zero` | searched, zero relevant results | completed / partial | as the search |
+| `skipped` | deliberately not searched | partial | partial |
+| `truncated` | result set capped | partial | partial |
+| `blocked` | source or endpoint unreachable | blocked | blocked |
+| `not_reached` | search boundary never reached | blocked | blocked |
 
 Unknown/duplicate IDs, orphan mappings, byte/hash mismatches, missing negative
 coverage, unlinked support, and contradictory coverage fail closed. A negative

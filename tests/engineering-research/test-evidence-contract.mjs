@@ -120,4 +120,97 @@ assert.equal(partialReport.valid, true, partialReport.errors.join("\n"));
 assert.equal(partialReport.completion, "partial");
 assert.match(validateEvidenceLedger(validLedger()).errors.join("\n"), /repoRoot is required/i);
 
+// --- N1: exact-first dedup merge trail (BugTraceAI exact-first keying) --------
+const merged = clone();
+merged.sources.push({
+  id: "SRC-003",
+  title: "Synthetic requirement (repository mirror)",
+  locator: "doi:10.1000/exact-first",
+  artifact_path: requirementPath,
+  sha256: hash(requirementPath),
+  accessed_on: "2026-09-25",
+  status: "verified",
+  aliases: ["mirror:requirement.md#L3"],
+  merged_into: "SRC-001",
+  merge_rule: "doi",
+  discard_reason: "Same work as SRC-001 reached under a different identifier.",
+});
+merged.searches[0].result_source_ids.push("SRC-003");
+const mergedReport = validateEvidenceLedger(merged, { repoRoot });
+assert.equal(mergedReport.valid, true, mergedReport.errors.join("\n"));
+
+const withMerged = (status = "verified") => {
+  const value = clone();
+  value.sources.push({
+    id: "SRC-003",
+    title: "duplicate",
+    locator: "doi:10.1000/dup",
+    artifact_path: requirementPath,
+    sha256: hash(requirementPath),
+    accessed_on: "2026-09-25",
+    status: "verified",
+    merged_into: "SRC-001",
+    merge_rule: "doi",
+    discard_reason: "duplicate",
+  });
+  value.searches[0].result_source_ids.push("SRC-003");
+  value.claims[0].support.push({ source_id: "SRC-003", locator: "doi:10.1000/dup", relation: "supports", status });
+  return value;
+};
+
+// A merged duplicate must not be load-bearing, even as support.
+assert.match(validateEvidenceLedger(withMerged("unverified"), { repoRoot }).errors.join("\n"), /merged duplicate source/i);
+assert.match(errorsFor((value) => { value.sources[0].merged_into = "SRC-999"; value.sources[0].merge_rule = "doi"; value.sources[0].discard_reason = "x"; }).join("\n"), /merged_into references unknown source id/i);
+assert.match(errorsFor((value) => { value.sources[0].merged_into = "SRC-002"; }).join("\n"), /merge_rule must be one of/i);
+assert.match(errorsFor((value) => { value.sources[0].merged_into = "SRC-002"; }).join("\n"), /discard_reason is required/i);
+assert.match(errorsFor((value) => { value.sources[0].merge_rule = "doi"; }).join("\n"), /only valid on a merged source/i);
+assert.match(errorsFor((value) => { value.sources[0].merged_into = "SRC-001"; value.sources[0].merge_rule = "doi"; value.sources[0].discard_reason = "x"; }).join("\n"), /cannot point at itself/i);
+assert.match(errorsFor((value) => {
+  value.sources[0].merged_into = "SRC-002";
+  value.sources[0].merge_rule = "doi";
+  value.sources[0].discard_reason = "x";
+  value.sources[1].merged_into = "SRC-001";
+  value.sources[1].merge_rule = "doi";
+  value.sources[1].discard_reason = "y";
+}).join("\n"), /itself merged \(no merge chains\)/i);
+assert.match(errorsFor((value) => {
+  value.sources[0].aliases = ["doi:10.1000/a"];
+  value.sources[1].aliases = ["doi:10.1000/a"];
+}).join("\n"), /alias .* already owned/i);
+
+// --- N1: negative-coverage statuses (BugTraceAI negative evidence) -----------
+// measured_zero is a complete negative on a completed search.
+const measured = clone();
+measured.coverage.negative[0].status = "measured_zero";
+const measuredReport = validateEvidenceLedger(measured, { repoRoot });
+assert.equal(measuredReport.valid, true, measuredReport.errors.join("\n"));
+assert.equal(measuredReport.completion, "complete");
+
+// A completed search cannot be skipped/truncated/not_reached.
+assert.match(errorsFor((value) => { value.coverage.negative[0].status = "skipped"; }).join("\n"), /not valid for a completed search/i);
+assert.match(errorsFor((value) => { value.coverage.negative[0].status = "not_reached"; }).join("\n"), /not valid for a completed search/i);
+assert.match(errorsFor((value) => { value.coverage.negative[0].status = "bogus"; }).join("\n"), /status must be one of/i);
+
+const partialNegative = (status) => {
+  const value = clone();
+  value.searches.push({ id: "SEARCH-002", query: status, boundary: "local", searched_on: "2026-09-25", status: "partial", screened_count: 1, result_source_ids: [] });
+  value.coverage.negative.push({ id: "NEG-002", search_id: "SEARCH-002", claim_ids: [], status, note: `${status} boundary` });
+  return value;
+};
+assert.equal(validateEvidenceLedger(partialNegative("skipped"), { repoRoot }).completion, "partial");
+assert.equal(validateEvidenceLedger(partialNegative("truncated"), { repoRoot }).completion, "partial");
+assert.equal(validateEvidenceLedger(partialNegative("measured_zero"), { repoRoot }).completion, "partial");
+
+const blockedNegative = (status) => {
+  const value = clone();
+  value.searches.push({ id: "SEARCH-002", query: "blocked", boundary: "local", searched_on: "2026-09-25", status: "blocked", screened_count: null, result_source_ids: [] });
+  value.coverage.negative.push({ id: "NEG-002", search_id: "SEARCH-002", claim_ids: [], status, note: "blocked boundary" });
+  return value;
+};
+const blockedReport = validateEvidenceLedger(blockedNegative("blocked"), { repoRoot });
+assert.equal(blockedReport.valid, true, blockedReport.errors.join("\n"));
+assert.equal(blockedReport.completion, "blocked");
+assert.equal(validateEvidenceLedger(blockedNegative("not_reached"), { repoRoot }).completion, "blocked");
+assert.match(validateEvidenceLedger(blockedNegative("measured_zero"), { repoRoot }).errors.join("\n"), /not valid for a blocked search/i);
+
 console.log("PASS: Q1 evidence.v1 contract accepts valid mappings and refuses malformed evidence");

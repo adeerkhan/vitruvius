@@ -15,7 +15,7 @@ argument-hint: "<research question or artifact to review> [--deep | --quick]"
 allowed-tools: Write Edit Bash Read
 license: MIT
 metadata:
-  version: "0.2.8"
+  version: "0.2.9"
 
 ---
 
