@@ -1,7 +1,7 @@
 import { readdirSync, readFileSync, statSync, existsSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { readYamlFrontmatter, parseFrontmatterEntries, readSkillDescription } from "./yaml-frontmatter.mjs";
+import { readYamlFrontmatter, parseFrontmatterEntries, parseFrontmatterObject, readSkillDescription } from "./yaml-frontmatter.mjs";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const REPO_ROOT = join(__dirname, "..");
@@ -73,8 +73,8 @@ function frontmatterProblems(skill) {
   // Values must be single clean tokens; a value containing a colon means two
   // keys were merged onto one line (e.g. "license: MITmetadata:"), which the
   // line-based parser silently swallows.
-  for (const [key, value] of entries) {
-    if (key === "description" || key === "compatibility") continue; // free text
+  for (const [key, value, isBlock] of entries) {
+    if (key === "description" || key === "compatibility" || isBlock) continue; // free text
     if (value.includes(":") || /^\s/.test(value)) {
       problems.push(
         `${relative(SKILLS_DIR, skill)}: frontmatter key \`${key}\` has a malformed value \`${value}\` — likely two keys merged onto one line`,
@@ -110,9 +110,9 @@ function frontmatterProblems(skill) {
   }
 
   // metadata.version is required (bump-on-change discipline lives in AGENTS.md)
-  const fmText = readFileSync(join(skill, "SKILL.md"), "utf-8").split("\n---", 2)[0];
-  const versionMatch = fmText.match(/^\s+version:\s*[\"']?([\w.-]+)/m);
-  if (!versionMatch) {
+  const object = frontmatter === null ? null : parseFrontmatterObject(frontmatter);
+  const version = object && typeof object.metadata === "object" ? object.metadata.version : undefined;
+  if (typeof version !== "string" || version.trim() === "") {
     problems.push(
       `${relative(SKILLS_DIR, skill)}: frontmatter missing \`metadata.version\` (expected a nested \`version:\` under \`metadata:\`)`,
     );

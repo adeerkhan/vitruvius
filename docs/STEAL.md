@@ -47,7 +47,7 @@ are in the source inventory below.
 - **NV1 — Node version guard.** `ref/feynman/scripts/check-node-version.mjs` declares and checks the supported Node range. Directly relevant to the `pdf-parse` Node 24 `Buffer` failure just fixed. **Partial steal.**
 - **R2 — lease-based run lock.** `ref/autoprompt-skill` (v2.0.0) holds run slots by lease with compare-and-delete reclaim and a bounded token lifetime. Vitruvius's `.log-run.lock` stays fail-closed forever on a stale lock. **Optional; changes a documented policy.**
 
-**Implemented in the same slice:** AP1 (`scripts/validate-artifact-paths.mjs` + `tests/skills/test-artifact-paths.mjs`), DP1 (`tests/docs/test-docs-parity.mjs`, which immediately caught `evidence-ranking` missing from the docs), SA1 (`skill_layout` + `description_trigger` in `scripts/validate-contract.mjs`, `tests/validate-contract/test-skill-anatomy.mjs`), NV1 (`engines.node` + `scripts/check-node-version.mjs`). A second slice added R2 (lease/TTL reclaim in `log-run.mjs`/`record-evidence.mjs`) and O1 (`docs/rejected-changes.md` + `scripts/rejected-change-ledger.mjs`).
+**Implemented in the same slice:** AP1 (`scripts/validate-artifact-paths.mjs` + `tests/skills/test-artifact-paths.mjs`), DP1 (`tests/docs/test-docs-parity.mjs`, which immediately caught `evidence-ranking` missing from the docs), SA1 (`skill_layout` + `description_trigger` in `scripts/validate-contract.mjs`, `tests/validate-contract/test-skill-anatomy.mjs`), NV1 (`engines.node` + `scripts/check-node-version.mjs`). A second slice added R2 (lease/TTL reclaim in `log-run.mjs`/`record-evidence.mjs`) and O1 (`docs/rejected-changes.md` + `scripts/rejected-change-ledger.mjs`). A third hardened `scripts/yaml-frontmatter.mjs` into a bounded subset parser (folded/literal blocks, one nesting level, quotes, comments) behind the existing flat API, and moved the `metadata.version` check onto the nested parser.
 
 ### Reject on this refresh
 
@@ -132,7 +132,7 @@ Keep the Q1 pilot local-only until a concrete external-source need justifies bro
 ### Confirmed defects to fix before feature expansion
 
 - “Read-only” judge/Habit roles still expose Bash in their declared tools; this is policy, not a technical permission boundary, until host restrictions and negative tests enforce it.
-- `scripts/yaml-frontmatter.mjs:14-45` is not host-compatible YAML parsing.
+- `scripts/yaml-frontmatter.mjs` is a deliberately bounded YAML subset parser (folded/literal block scalars, one nesting level, quotes, trailing comments), not a general YAML implementation. Shapes beyond that subset are left as plain strings rather than mis-parsed; a general parser is still out of scope.
 - `scripts/validate-artifacts.mjs:16-18,134-149` still checks only selected legacy paths; the new generic closure contract is `scripts/artifact-closure.mjs`, and the local combined audit is opt-in.
 - `docs/`, `outputs/`, and `ref/` are ignored by `.gitignore:3-4,14`; the Q1 example under `outputs/.q1-example/` is an explicit tracked exception, while the audit/map remain local ignored artifacts.
 
