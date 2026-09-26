@@ -1,7 +1,7 @@
 # Steal Map: Reference Patterns for Vitruvius
 
 **Snapshot:** 2026-09-25  
-**Implementation HEAD:** `c742ea1` plus the PA1/entailment and R1/G1 slice (see the 2026-09-26 update below)  
+**Implementation HEAD:** `3c17fa4` (PA1/entailment, R1/G1, integrity pass, M1/N1) plus the 2026-09-26 upstream refresh below  
 **Scope:** local projects under `ref/` and the current Vitruvius working tree.  
 **Rule:** steal design patterns, not domain scope or incompatible code. Keep every transfer traceable to a local path.
 
@@ -25,18 +25,49 @@ Landed after the 2026-09-25 snapshot:
 
 `docs/` is now tracked (removed from `.gitignore`) because this map is the declared status source.
 
+## 2026-09-26 upstream refresh
+
+All eight `ref/` checkouts were fetched and pulled. Five moved; three
+(`abrt`, `humanizer`, `scientific-agent-skills`) were already current. New pins
+are in the source inventory below.
+
+| Source | Was → now | What changed upstream |
+|---|---|---|
+| `agent-skills` | `bcab6a1` → `2686b62` | skill-lint layout rules, artifact-path guard on every command surface, negated-trigger fix, manifest-version check, a must-not-fire plugin eval |
+| `autoprompt-skill` | `91dc6ed` → `b6516cf` | v2.0.0: new providers (Grok/Hermes), Windows/WSL runtime tests, lease-based run slots, EAGAIN stdin retry |
+| `BugTraceAI-CLI` | `86172ce` → `ddb1b20` | license standardization + public snapshot; some offensive tooling removed, negative-coverage/dedup core unchanged |
+| `feynman` | `fdf56b1` → `fe3fd94` | 0.5.4–0.5.8: docs/code parity sweep, Node 24/26 support and `check-node-version`, package budget, telemetry isolation |
+| `semble` | `9bd776d` → `2449784` | 0.6.1: MCP index idle TTL, dead-code cleanup, zvec-grep benchmark, more host installers |
+
+### New candidate transfers (evidence-checked)
+
+- **AP1 — artifact-path consistency guard.** `ref/agent-skills/scripts/validate-artifact-paths.js:35-93` keeps one canonical artifact-path allowlist and fails CI when any pipeline surface (producers, consumers, docs) references a different path. Vitruvius has the documented artifact-path-drift defect and no static guard across skill/command surfaces. **Steal.**
+- **SA1 — skill-anatomy layout lint.** `ref/agent-skills/scripts/lib/skill-lint.js` (commit `d6c11c4`) makes empty skill subdirectories and non-kebab-case supporting `.md` filenames errors, and the 500-line budget a warning; `fc3026e` strips *every* negated trigger clause before deciding a description has a positive trigger. Vitruvius enforces 500 lines as a hard error and has neither layout nor trigger lint. **Steal, selectively.**
+- **DP1 — docs/code parity.** `ref/feynman` (`5087ac8`, `e18b7e3`) lists only commands and tools that exist and checks the docs/README against the code. Vitruvius has command-contract parity but no docs-vs-code existence check. **Steal (cheap).**
+- **NV1 — Node version guard.** `ref/feynman/scripts/check-node-version.mjs` declares and checks the supported Node range. Directly relevant to the `pdf-parse` Node 24 `Buffer` failure just fixed. **Partial steal.**
+- **R2 — lease-based run lock.** `ref/autoprompt-skill` (v2.0.0) holds run slots by lease with compare-and-delete reclaim and a bounded token lifetime. Vitruvius's `.log-run.lock` stays fail-closed forever on a stale lock. **Optional; changes a documented policy.**
+
+### Reject on this refresh
+
+- Autoprompt's v2 provider/harness sprawl (Grok, Hermes, OMP supervisor, Windows/WSL runtime stack) — outside F1.
+- Semble's extra host installers and MCP cache internals — D1 stays deferred until a measured source-acquisition failure.
+- BugTraceAI's remaining offensive tooling — out of scope.
+
+`outputs/ref-steal-repo-audit.md` remains the pre-refresh evidence snapshot; this
+section and the source inventory below are the current delta.
+
 ## Source inventory
 
 | Source | Local revision | License | Decision |
 |---|---|---|---|
 | `ref/abrt` | `1ae85385932385711259cd06124e4306bfe75a23` (Git objects; no worktree) | GPL-2.0-or-later | Borrow failure-visible tests and trust boundaries only; no code |
-| `ref/agent-skills` | `bcab6a1b8503100e8618c3b4e32cc78de43de769` | MIT | Borrow evaluation/contract mechanics |
-| `ref/autoprompt-skill` | `91dc6edf336abea96ceb10eaf7efab77ca4c7007` | MIT | Borrow generation, drift checks, receipts, manifests |
-| `ref/BugTraceAI-CLI` | `86172cec85a3df7d12147f736eaa600dc8e09fd4` | Apache-2.0 | Borrow negative coverage and auditable deduplication |
-| `ref/feynman` | `fdf56b1ca111c2f516b9647593a20781f4d79598` | MIT | Borrow end-to-end evals, artifact pairing, release budgets |
+| `ref/agent-skills` | `2686b620fc1fed2e8f60c704839c766b8594c6b6` | MIT | Borrow evaluation/contract mechanics |
+| `ref/autoprompt-skill` | `b6516cf52a7891d797621fdd2a8ca0311e1ae0a9` | MIT | Borrow generation, drift checks, receipts, manifests |
+| `ref/BugTraceAI-CLI` | `ddb1b207f4c369d7e7f9d307fb10b82f544e5594` | Apache-2.0 | Borrow negative coverage and auditable deduplication |
+| `ref/feynman` | `fe3fd94943df8c5b519fed14c8485215b206aba8` | MIT | Borrow end-to-end evals, artifact pairing, release budgets |
 | `ref/humanizer` | `9862685f575c65a8247f90369951df1b3416e3d6` | MIT | Borrow package smoke tests and prompt clarity |
 | `ref/scientific-agent-skills` | `49c6e97775eaa18ba791bebe23162a70ae601c18` | MIT | Borrow ledgers, input gates, fixtures, scope discipline |
-| `ref/semble` | `9bd776d7eaef0ee918ef39c546ea902399d7a5ba` | MIT | Borrow retrieval-to-direct-read bridge and benchmark method |
+| `ref/semble` | `24497845460960db1839c8485319df189a889225` | MIT | Borrow retrieval-to-direct-read bridge and benchmark method |
 
 Cognee and Ponytail appear in older notes but have no current checkout under `ref/`; their claims are historical, not current evidence.
 
@@ -170,6 +201,11 @@ Do not call this model training. It is an explicit, provenance-backed user-prefe
 | P2 | M1 | Need-based scholarly routing and stable-ID cross-check | Feynman | Existing scholarly skill gains bounded modes; no new database skill |
 | P2 | N1 | Exact-first source/claim deduplication with merge trail | BugTraceAI | Aliases and discard reasons survive; semantic merging is advisory only |
 | P2 | O1 | Append-only rejected-change ledger | Agent Skills | Rejected prompt/skill/eval changes retain before/after evidence |
+| P1 | AP1 | Artifact-path consistency guard across every skill/command surface | Agent Skills | One canonical path set; any drifted path fails the check |
+| P1 | DP1 | Docs/command parity: mention only commands and paths that exist | Feynman | README/help name only contract commands and real scripts |
+| P2 | SA1 | Skill-anatomy layout lint (empty dirs, kebab supporting files, line-budget warning, trigger rule) | Agent Skills | Layout violations fail; over-budget is a warning, not a block |
+| P2 | NV1 | Declared and checked Node version range | Feynman | `engines` declared and a check fails outside it |
+| P3 | R2 | Lease/TTL reclaim for the run lock | Autoprompt | A stale lock is reclaimable only by an owner proving a bounded lease |
 | P3 | U1 | Run-local lessons, remote retrieval, social proof | Feynman, Semble, Humanizer | Added only after a measured need; never auto-promoted to global preferences |
 
 ## Transfer anchors
@@ -202,7 +238,7 @@ The backlog’s project names resolve to these local evidence anchors; claims ar
 ### Agent Skills
 
 **Keep:** primary-source/version discipline, bounded repair, thin adapters, routing collisions.  
-**Steal:** real failing tests, per-skill eval contracts, owner-based negative routing, artifact-path graph validation, parser/host parity, no-op-loop detection, rejected-change ledger.  
+**Steal:** real failing tests, per-skill eval contracts, owner-based negative routing, artifact-path graph validation, a static artifact-path consistency guard across every command surface, skill-anatomy/trigger lint, parser/host parity, no-op-loop detection, rejected-change ledger.  
 **Reject:** software-delivery lifecycle, generic productivity hooks, cross-model debate on every cycle, second router, generic memory.
 
 ### Autoprompt
@@ -220,7 +256,7 @@ The backlog’s project names resolve to these local evidence anchors; claims ar
 ### Feynman
 
 **Keep:** research loop, source layers, blocked outcomes, artifact lifecycle.  
-**Steal:** fixed-case end-to-end evals, final/provenance pairing, minimal manifest, need-based scholarly routing, package budget, exact-tarball provenance, command parity, plan-as-working-memory.  
+**Steal:** fixed-case end-to-end evals, final/provenance pairing, minimal manifest, need-based scholarly routing, docs/code parity checks, a declared and checked Node version range, package budget, exact-tarball provenance, command parity, plan-as-working-memory.  
 **Reject:** CLI/Pi runtime, editing verifier, automatic memory, workbench, telemetry, broad database suite.
 
 ### Humanizer
