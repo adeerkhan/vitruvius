@@ -6,7 +6,7 @@ Vitruvius is a portable engineering research agent — a collection of Agent Ski
 
 - GitHub: https://github.com/adeerkhan/vitruvius
 - Repo agent contract: [AGENTS.md](AGENTS.md)
-- Implementation plan: [IMPLEMENTATION.md](IMPLEMENTATION.md)
+- Implementation plan: [tasks/plan.md](tasks/plan.md)
 - Issues: https://github.com/adeerkhan/vitruvius/issues
 
 ## What Goes Where
@@ -33,7 +33,7 @@ If you change how a discipline behaves, edit that discipline's `SKILL.md` lens. 
 npm test
 ```
 
-`npm test` runs `scripts/validate-skills.mjs`, which checks that every skill is a directory with a `SKILL.md` carrying YAML frontmatter (`name` matching the folder, plus `description`).
+`npm test` runs `scripts/test-skills.mjs` and `scripts/validate-contract.mjs`, which check structural shape (frontmatter, name-matching, allowed-tools for file-writing skills, resolving references) and the skill structural contract. It also runs the artifact, agent, benchmark, routing, and packaging suites.
 
 4. If you changed a skill body, verify it loads in a real host. Command Code, for example:
 
@@ -42,7 +42,7 @@ command-code -p "Name the available skills." --skill ./skills --no-skills --skip
 ```
 
 5. Keep the PR focused. Do not mix unrelated cleanup with the real change.
-6. Update `README.md` when the user-facing install surface changes, and `IMPLEMENTATION.md` when the structure or roadmap changes.
+6. Update `README.md` when the user-facing install surface changes, and `tasks/plan.md` when the structure or roadmap changes.
 
 ## Contribution Rules
 
@@ -68,7 +68,7 @@ command-code -p "Name the available skills." --skill ./skills --no-skills --skip
 Vitruvius research may draw on paper and scholar indexes where they serve the question:
 
 - Prefer primary sources (standards bodies, code text, official vendor docs) first.
-- Paper indexes and scholarly search (AlphaXiv-style paper Q&A, Google Scholar) are acceptable discovery layers — but a claim is only `verified` when the underlying source has been read directly.
+- Paper indexes and scholarly search (OpenAlex, Semantic Scholar, arXiv, alphaXiv) are acceptable discovery layers — but a claim is only `verified` when the underlying source has been read directly. Google Scholar has no official API and blocks automated access; do not scrape it, and use OpenAlex/Semantic Scholar citation counts instead.
 - When a full text is paywalled or unreachable, cite it from search metadata and mark full-text access as `blocked`. Never guess at contents.
 
 ## AI-Assisted Contributions

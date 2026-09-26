@@ -10,7 +10,7 @@ description: >
 argument-hint: "<document(s) to read>"
 license: MIT
 metadata:
-  version: "0.1.3"
+  version: "0.1.4"
 
 ---
 
@@ -19,6 +19,13 @@ metadata:
 Read and extract from engineering documents accurately. This is the reading
 half of the research loop, made explicit: most research failures are reading
 failures — answering from one page, from a title, or from memory.
+
+## Input Gate
+
+Before searching, name the question, the artifact/scope (or say it is a
+literature review), the jurisdiction/edition, and the effort budget (user-set or
+thorough). Ask ONE clarifying question if the ask is too vague, then proceed.
+See `references/input-gate.md`.
 
 ## Workflow
 

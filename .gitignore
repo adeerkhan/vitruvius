@@ -11,4 +11,3 @@ tasks/benchmark/*results*/
 !tasks/benchmark/controls/results/
 !tasks/benchmark/controls/results/*.md
 tasks/benchmark/results/.err-*.log
-docs/

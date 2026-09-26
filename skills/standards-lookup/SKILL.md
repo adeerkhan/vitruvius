@@ -13,7 +13,7 @@ description: >
 argument-hint: "<standard or topic to look up>"
 license: MIT
 metadata:
-  version: "0.1.0"
+  version: "0.1.1"
 ---
 
 # Standards Lookup
@@ -29,6 +29,13 @@ Engineering standards differ from scientific databases: most are paywalled,
 many have no public API, and the same question may be answered differently by
 different jurisdictional standards. This skill handles those realities
 explicitly.
+
+## Input Gate
+
+Before searching, name the question, the artifact/scope (or say it is a
+literature review), the jurisdiction/edition, and the effort budget (user-set or
+thorough). Ask ONE clarifying question if the ask is too vague, then proceed.
+See `references/input-gate.md`.
 
 ## Core Workflow
 

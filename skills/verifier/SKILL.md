@@ -16,13 +16,20 @@ argument-hint: "<claim or calculation> [--direct | --blind]"
 allowed-tools: Read Grep Glob Bash
 license: MIT
 metadata:
-  version: "0.3.0"
+  version: "0.3.1"
 
 ---
 
 # Engineering Verifier
 
 Verify a claim, calculation, or design statement against authoritative sources.
+
+## Input Gate
+
+Before searching, name the question, the artifact/scope (or say it is a
+literature review), the jurisdiction/edition, and the effort budget (user-set or
+thorough). Ask ONE clarifying question if the ask is too vague, then proceed.
+See `references/input-gate.md`.
 
 ## Workflow
 

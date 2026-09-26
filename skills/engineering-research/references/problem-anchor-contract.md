@@ -153,6 +153,11 @@ vitruvius-problem-anchor <record.json>
 node scripts/problem-anchor-contract.mjs <record.json>
 ```
 
+Installed through the npm package, the binary is `vitruvius-problem-anchor`.
+If neither the binary nor the checkout script is available, write the record
+anyway and mark its validation `BLOCKED` in the provenance sidecar — an
+unvalidated record is recoverable, a missing one is not.
+
 The record is written beside the candidate as `<slug>-problem-anchor.json`.
 Paths in the record use `/` separators; backslashes are rejected for
 cross-platform determinism.

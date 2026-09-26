@@ -11,13 +11,20 @@ argument-hint: "<artifact to review>"
 allowed-tools: Write Edit Bash Read
 license: MIT
 metadata:
-  version: "0.1.0"
+  version: "0.1.1"
 
 ---
 
 # Engineering Peer Review
 
 Run an independent adversarial review of an engineering artifact. This skill reuses the `engineering-research` evidence discipline with a review-specific lens. The reviewer has NOT seen the author's reasoning — independence is the point.
+
+## Input Gate
+
+Before searching, name the question, the artifact/scope (or say it is a
+literature review), the jurisdiction/edition, and the effort budget (user-set or
+thorough). Ask ONE clarifying question if the ask is too vague, then proceed.
+See `references/input-gate.md`.
 
 ## Invocation
 

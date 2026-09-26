@@ -10,13 +10,20 @@ argument-hint: "<research question or evidence list>"
 allowed-tools: Write Edit Bash Read
 license: MIT
 metadata:
-  version: "0.1.0"
+  version: "0.1.1"
 
 ---
 
 # Evidence Ranking
 
 Score and rank engineering evidence using the tier system from `references/evidence-quality-tiers.md`. This skill provides transparent, auditable evidence scoring — never a black-box "relevance" score.
+
+## Input Gate
+
+Before searching, name the question, the artifact/scope (or say it is a
+literature review), the jurisdiction/edition, and the effort budget (user-set or
+thorough). Ask ONE clarifying question if the ask is too vague, then proceed.
+See `references/input-gate.md`.
 
 ## Workflow
 

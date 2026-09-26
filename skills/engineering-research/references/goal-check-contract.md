@@ -25,4 +25,10 @@ vitruvius-goal-check outputs/.drafts/<slug>-goal-check.json
 # checkout equivalent: node scripts/goal-check-contract.mjs outputs/.drafts/<slug>-goal-check.json
 ```
 
+Installed through the npm package, the binary is `vitruvius-goal-check`; run it
+from the project that holds the record. If neither the binary nor the checkout
+script is available, write the record anyway and mark its validation `BLOCKED`
+in the provenance sidecar — an unvalidated record is recoverable, a missing one
+is not.
+
 A zero exit means the record is valid and promotable. A valid `NOT-DONE` is expected to return nonzero until the named gaps are repaired or the result is delivered honestly with the unmet asks recorded.

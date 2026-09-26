@@ -9,9 +9,10 @@ description: >
   search) and host-tool guidance. Do NOT use for standards/code research that
   has no scholarly layer.
 argument-hint: "<topic or paper identifier>"
+allowed-tools: Write Edit Bash Read
 license: MIT
 metadata:
-  version: "0.1.3"
+  version: "0.1.5"
 
 ---
 
@@ -20,6 +21,13 @@ metadata:
 Find academic sources and verify them. This skill layers free, keyless
 scholarly indexes first, then the host's own web/browser tools — and never
 depends on scraping a site that blocks agents.
+
+## Input Gate
+
+Before searching, name the question, the artifact/scope (or say it is a
+literature review), the jurisdiction/edition, and the effort budget (user-set or
+thorough). Ask ONE clarifying question if the ask is too vague, then proceed.
+See `references/input-gate.md`.
 
 ## Rules (read first)
 

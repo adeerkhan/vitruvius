@@ -10,7 +10,7 @@ argument-hint: "<problem statement with constraints>"
 allowed-tools: Write Edit Bash Read
 license: MIT
 metadata:
-  version: "0.1.0"
+  version: "0.1.1"
 
 ---
 
@@ -19,6 +19,13 @@ metadata:
 Generate structured engineering design alternatives and compare them against
 the problem constraints. This skill is for exploration and comparison, not
 final design.
+
+## Input Gate
+
+Before searching, name the question, the artifact/scope (or say it is a
+literature review), the jurisdiction/edition, and the effort budget (user-set or
+thorough). Ask ONE clarifying question if the ask is too vague, then proceed.
+See `references/input-gate.md`.
 
 ## Workflow
 

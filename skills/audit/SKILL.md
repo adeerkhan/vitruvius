@@ -11,7 +11,7 @@ argument-hint: "<what to audit>"
 allowed-tools: Write Edit Bash Read
 license: MIT
 metadata:
-  version: "0.1.0"
+  version: "0.1.1"
 
 ---
 
@@ -20,6 +20,13 @@ metadata:
 Audit a claimed/specified behavior against its actual implementation or
 source. This reuses the `engineering-research` discipline, focused on
 consistency between two things.
+
+## Input Gate
+
+Before searching, name the question, the artifact/scope (or say it is a
+literature review), the jurisdiction/edition, and the effort budget (user-set or
+thorough). Ask ONE clarifying question if the ask is too vague, then proceed.
+See `references/input-gate.md`.
 
 ## Workflow
 

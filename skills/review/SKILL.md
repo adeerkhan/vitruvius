@@ -10,7 +10,7 @@ argument-hint: "<artifact to review>"
 allowed-tools: Write Edit Bash Read
 license: MIT
 metadata:
-  version: "0.1.0"
+  version: "0.1.1"
 
 ---
 
@@ -19,6 +19,13 @@ metadata:
 Run an adversarial review of an engineering artifact. This reuses the
 `engineering-research` evidence discipline but the artifact is the subject,
 not a question to research.
+
+## Input Gate
+
+Before searching, name the question, the artifact/scope (or say it is a
+literature review), the jurisdiction/edition, and the effort budget (user-set or
+thorough). Ask ONE clarifying question if the ask is too vague, then proceed.
+See `references/input-gate.md`.
 
 ## Workflow
 

@@ -29,11 +29,14 @@ const FILE_WRITING_SKILLS = new Set([
 	"electrical",
 	"software",
 	"architectural",
+	"scholarly-research",
+	"gap-analysis",
 	"compare",
 	"review",
 	"audit",
-	"verify",
 	"summarize",
+	"proposal",
+	"habit",
 ]);
 
 // Artifact contract paths that must be mentioned
