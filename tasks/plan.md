@@ -183,12 +183,13 @@ the fix is a contract rather than a prompt.
 ### Checkpoint: PA1
 
 - [x] Research output is bound to the artifact it studies, and the boundary of that guarantee is stated in AGENTS.md, the README, the skill, and the contract reference rather than implied.
-- [ ] Re-run the floorplanner audit under the new contract as a real adoption test.
-- [ ] Close rules 2 and 3 mechanically if a cheap, non-false-positive check exists.
+- [x] Re-run the floorplanner audit under the new contract as a real adoption test. Done 2026-09-26: `outputs/solver-frontier-verification*`, and it earned its keep by catching a mis-anchored claim in its own first draft.
+- [ ] Close rules 2 and 3 mechanically if a cheap, non-false-positive check exists. Partly done: the number/identifier half of rule 2 is closed by `scripts/entailment.mjs`. The token-but-not-meaning case and rule 3's unenforced landing site are not, and the pilot showed why the remaining gap is real rather than theoretical.
 
 ## Open Questions
 
-- Which real engineering question should be the first V1 field pilot? The record format is ready, but no question or external-source run has been supplied.
+- ~~Which real engineering question should be the first V1 field pilot?~~ Answered 2026-09-26: the floorplanner unit-cell baseline, at `d351ae3`. It is now `outputs/solver-frontier-verification*`. The next open question is what binds its 130 unsolved units, since a twelve-family ablation returns delta 0 for all of them.
+- Whether a `dependencyStdout` guard belongs in the shared extractor contract or only in the optional-dependency call sites. Dogfooding the pilot found that `pdf-parse` writes to stdout and corrupts the `--json` payload; the fix landed in `skills/proposal/scripts/document-extractor.mjs` and `proposal` is bumped to 0.1.9. Other optional-dependency call sites have not been audited for the same hazard.
 - Whether to promote the project-local Habit store to a user-scoped home-directory store later; defer until a real cross-project need is demonstrated.
 - Whether benchmark quality should become a hard CI threshold after a majority-of-three run; keep the current point estimate informational for now.
 - G1 input gates and R1 package-consumer/release checks are the next bounded reliability slices after the Q1 pilot.

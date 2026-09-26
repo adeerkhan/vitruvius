@@ -36,20 +36,46 @@ function isScannedPdf(text) {
   return (controlCharacters / sample.length) > 0.3;
 }
 
-async function extractWithPdfParse(filePath, sourceBuffer) {
+/**
+ * Run `body` with process.stdout captured.
+ *
+ * `pdf-parse` prints diagnostics of its own ("Warning: Indexing all PDF
+ * objects", for one) straight to stdout. Left alone, that text lands in front
+ * of the `--json` payload and makes the machine contract unparseable for any
+ * caller that installs the optional dependency. Capture it and hand it back so
+ * the caller can record it as a warning instead of losing it or leaking it.
+ */
+async function withCapturedStdout(body) {
+  const captured = [];
+  const realWrite = process.stdout.write.bind(process.stdout);
+  process.stdout.write = (chunk, ...rest) => {
+    captured.push(typeof chunk === 'string' ? chunk : Buffer.from(chunk).toString('utf8'));
+    const callback = rest.find((argument) => typeof argument === 'function');
+    if (callback) callback();
+    return true;
+  };
   try {
+    return { value: await body(), stdout: captured.join('') };
+  } finally {
+    process.stdout.write = realWrite;
+  }
+}
+
+async function extractWithPdfParse(filePath, sourceBuffer) {
+  const { value, stdout } = await withCapturedStdout(async () => {
     const module = await import('pdf-parse');
     const pdfParse = module.default ?? module;
     if (typeof pdfParse !== 'function') throw new Error('pdf-parse export is not callable');
     const data = await pdfParse(sourceBuffer);
     const text = typeof data.text === 'string' ? data.text : '';
     return { text, markdown: text, pages: data.numpages || 0, ocrUsed: false };
-  } catch (error) {
+  }).catch((error) => {
     if (error.code === 'ERR_MODULE_NOT_FOUND') {
       throw new Error('pdf-parse is not installed; install the optional pdf-parse dependency or provide plain text');
     }
     throw new Error(`pdf-parse failed: ${error.message}`);
-  }
+  });
+  return { ...value, dependencyStdout: stdout.trim() };
 }
 
 function extractPlainText(filePath, sourceBuffer) {
@@ -76,7 +102,10 @@ export async function extractDocument(filePath, sourceBuffer) {
   }
 
   try {
-    const result = await extractWithPdfParse(filePath, bytes);
+    const { dependencyStdout, ...result } = await extractWithPdfParse(filePath, bytes);
+    // The dependency's own stdout is recorded, never emitted, so the --json
+    // payload stays parseable whether or not the optional dep is installed.
+    if (dependencyStdout) warnings.push(`pdf-parse wrote to stdout: ${dependencyStdout}`);
     if (isScannedPdf(result.text)) {
       warnings.push('PDF appears to be scanned or has no usable text');
       warnings.push('OCR is BLOCKED in deterministic intake; provide a text-layer PDF or transcription');

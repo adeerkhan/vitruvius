@@ -76,9 +76,24 @@
 - [x] `scholarly-research` boundary, question tagging, and handback
 - [x] Final-deliverable grounding checks scoped to records, not filename guesses
 - [x] PA1 contract checkpoint
-- [ ] Re-run the floorplanner audit under the new contract as a real adoption test
-- [ ] Close rules 2 and 3: an anchored line that does not entail its claim, and an
-      impact claim with no stated evidence, are still only prose-plus-review
+- [x] Re-run the floorplanner audit under the new contract as a real adoption test
+      (`outputs/solver-frontier-verification*`, 2026-09-26: first real V1 question,
+      7 asks delivered, 4 negative-coverage entries, 8 anchored findings)
+- [x] Close the number/identifier half of rule 2 with a high-precision entailment
+      proxy (`scripts/entailment.mjs`, gated on `status: "verified"` so a paraphrase
+      scores `partial` rather than being punished as a falsehood)
+- [ ] Close the remaining half of rule 2: an anchored line that carries every
+      token of a claim but does not support it. The proxy is a token check, not
+      comprehension. The V1 pilot produced the cleanest example yet — a claim that
+      cited `RoomProfile.ts:35` as the aspect gate when `Constraints.ts:394-399`
+      names `AR_CAP` as the gate and RoomProfile as sizing-only. Both lines carry
+      `maxAspectRatio` and `2.0`, so the proxy passed it and the blind verifier
+      did not. Attentive re-anchoring is still a human act.
+- [ ] Close rule 3: `changes` is a required enum, so a finding can name
+      `change` without the change being specified. Nothing checks that the named
+      landing site is actionable.
+- [x] Close rules 2 and 3, first pass: a decision with no finding and a finding
+      with no landing site are both refused by the contract
 
 ## Checkpoints
 

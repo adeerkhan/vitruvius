@@ -241,6 +241,28 @@ try {
     assert.notEqual(result.status, 0);
     assert.match(JSON.parse(result.stdout).warnings.join(" "), /pdf-parse|OCR|vision/i);
   }
+  {
+    // The --json payload must stay parseable no matter which optional
+    // dependencies are installed. pdf-parse prints "Warning: Indexing all PDF
+    // objects" to stdout on a malformed PDF; if that reaches stdout it
+    // corrupts every machine caller. Found by installing the optional
+    // pdf-parse dependency and re-running the suite.
+    const noisyPdf = join(tempRoot, "noisy.pdf");
+    writeFileSync(noisyPdf, "%PDF-1.4\nnot a readable document\n");
+    const result = run("scripts/extract-document.mjs", [noisyPdf, "--json"]);
+    const parsed = JSON.parse(result.stdout);
+    assert.equal(typeof parsed, "object");
+    assert.equal(typeof parsed.method, "string");
+    assert.ok(Array.isArray(parsed.warnings), "warnings must survive as an array");
+    // If the optional dep is present, its stdout is recorded rather than leaked.
+    const leaked = parsed.warnings.filter((w) => /pdf-parse wrote to stdout/.test(w));
+    if (leaked.length > 0) {
+      assert.ok(
+        !result.stdout.includes("Warning: Indexing all PDF objects"),
+        "dependency stdout must not precede the JSON payload",
+      );
+    }
+  }
 
   const dir = initialize("test-student");
   assert.ok(existsSync(join(dir, "voice-sample.txt")));
