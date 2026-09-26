@@ -19,6 +19,7 @@ Landed after the 2026-09-25 snapshot:
 - **Provenance and citation lint.** `validate-artifacts` requires `Final SHA-256`, `Final bytes`, and the `GOAL-CHECK` line on engineering-research sidecars; `check-output-quality` flags Sources entries nothing cites and repo claims anchored to a bare filename.
 - **R1 — package/consumer smoke.** `tests/artifacts/test-package-consumer.mjs` packs the exact tarball, checks its size budget and discovery surface, installs it into a clean consumer, resolves the four validator bins, and runs one (`npm run test:package-consumer`).
 - **G1 — shared input gates.** `references/input-gate.md` is the gate; every standalone research skill declares `## Input Gate` and is checked by `tests/input-gate/test-input-gate.mjs` (`npm run test:input-gate`).
+- **Cheap integrity pass (same slice).** Five methodology skills now name their `.provenance.md` sidecar (shared minimal shape in `references/provenance-sidecar.md`); the hypothesis-generation test uses a checked-in fixture plus negative mutations instead of skipping; the command contract now covers all 25 skills with regenerated adapters; and the adapter drift test compares the host ruleset after line-ending normalization.
 
 `docs/` is now tracked (removed from `.gitignore`) because this map is the declared status source.
 

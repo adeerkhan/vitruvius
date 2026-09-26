@@ -11,7 +11,7 @@ argument-hint: "<artifact to review>"
 allowed-tools: Write Edit Bash Read
 license: MIT
 metadata:
-  version: "0.1.1"
+  version: "0.1.2"
 
 ---
 
@@ -119,6 +119,8 @@ Save to `outputs/peer-review/<slug>.md`:
 |---|---------|--------|-------------------|---------|
 | 1 | <flaw> | <source> | <§section or line> | contradicts / partially supports / missing |
 ```
+
+Write `outputs/peer-review/<slug>.provenance.md` beside the review (sources consulted, accepted, and rejected; verification status). Minimal shape: `references/provenance-sidecar.md`.
 
 ## Scope and Boundaries
 

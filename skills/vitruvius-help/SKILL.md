@@ -7,7 +7,7 @@ description: >
   vitruvius".
 license: MIT
 metadata:
-  version: "0.1.1"
+  version: "0.1.2"
 ---
 
 # Vitruvius Help
@@ -38,6 +38,9 @@ with auditable provenance.
 | `/vitruvius:artifact-reading <doc>` | Anchored document reading + extraction. |
 | `/vitruvius:scholarly-research <topic>` | Academic literature discovery (OpenAlex, arXiv, etc.). |
 | `/vitruvius:standards-lookup <standard>` | Engineering standards (AISC, ACI, ASCE, IEEE, Eurocode). |
+| `/vitruvius:engineering-research <question>` | Shared research method (discover → read → verify → review). |
+| `/vitruvius:hypothesis-generation <observation>` | Freeze rival hypotheses with dated evidence boundaries. |
+| `/vitruvius:peer-review <artifact>` | Adversarial peer review with severity-graded findings. |
 | `/vitruvius-help` | This reference card. |
 
 ## The shared research method

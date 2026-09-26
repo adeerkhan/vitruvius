@@ -140,6 +140,9 @@ Named engineering jobs over the shared loop:
 | `/gap-analysis` | Systematic literature gap identification via triangulation (OpenAlex, arXiv, web) |
 | `/design-alternatives` | Generate and compare 3+ engineering approaches with scored trade-off matrices |
 | `/fmea-brainstorm` | FMEA-style failure mode brainstorming with S/O/D ratings and RPN ranking |
+| `/hypothesis-generation` | Freeze rival hypotheses with dated evidence boundaries and discriminating tests |
+| `/peer-review` | Severity-graded adversarial peer review with a revision plan |
+| `/engineering-research` | Shared research method: discover → read → synthesize → verify → review |
 | `/verifier` | Blind subagent verdict on a claim with evidence trail (8 adversarial checks) |
 | `/compare` | Standards/designs/products into a source-grounded comparison matrix |
 | `/review` | Severity-graded adversarial review of an artifact |
@@ -260,6 +263,9 @@ End-to-end workflows for specific tasks:
 | `/gap-analysis civil FRP-bonding` | Finds research gaps via OpenAlex + arXiv triangulation |
 | `/design-alternatives "problem"` | Compares 3+ engineering approaches with scored trade-off matrix |
 | `/fmea-brainstorm "system"` | Brainstorms failure modes with S/O/D ratings and RPN ranking |
+| `/hypothesis-generation "observation"` | Freezes rival hypotheses with dated evidence boundaries |
+| `/peer-review <artifact>` | Severity-graded adversarial peer review with a revision plan |
+| `/engineering-research "question"` | Runs the shared research method directly |
 | `/verifier "claim"` | Verifies a claim against authoritative sources (blind subagent) |
 | `/compare "A vs B"` | Source/standard/design comparison matrix |
 | `/review <artifact>` | Severity-graded adversarial review |

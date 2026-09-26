@@ -11,7 +11,7 @@ argument-hint: "<system or component description>"
 allowed-tools: Write Edit Bash Read
 license: MIT
 metadata:
-  version: "0.1.1"
+  version: "0.1.2"
 
 ---
 
@@ -67,6 +67,8 @@ criticality, regulatory context.
 ### Full Analysis (saved to disk)
 
 Save to `outputs/fmea/<slug>.md`: System Definition, Failure Modes table (Component/Mode/Effect/S/O/D/RPN/Mitigation), Critical Items (RPN≥200 or S≥9) with mitigation + verification, Moderate Items, Assumptions.
+
+Write `outputs/fmea/<slug>.provenance.md` beside the analysis (sources consulted, accepted, and rejected; verification status). Minimal shape: `references/provenance-sidecar.md`.
 
 ## Scope and Boundaries
 

@@ -12,7 +12,7 @@ argument-hint: "<engineering observation or phenomenon>"
 allowed-tools: Write Edit Bash Read
 license: MIT
 metadata:
-  version: "0.1.1"
+  version: "0.1.2"
 
 ---
 
@@ -105,6 +105,8 @@ Save to `outputs/hypothesis/<slug>.md`:
 - **Status:** candidate (never scored/selected by tool)
 - **Deviations:** none yet
 ```
+
+Write `outputs/hypothesis/<slug>.provenance.md` beside the record (sources consulted, accepted, and rejected; verification status). Minimal shape: `references/provenance-sidecar.md`.
 
 ## Scope and Boundaries
 

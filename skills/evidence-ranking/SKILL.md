@@ -10,7 +10,7 @@ argument-hint: "<research question or evidence list>"
 allowed-tools: Write Edit Bash Read
 license: MIT
 metadata:
-  version: "0.1.1"
+  version: "0.1.2"
 
 ---
 
@@ -125,6 +125,8 @@ Self-check the output. If any check fails, retry once with feedback:
 5. **Evidence strength** — overall strength is stated with justification. If missing, add reasoning.
 
 **Retry logic:** If quality gate fails, re-run the ranking once with the specific failure as feedback. If it fails again, return the best output with a `Weak` evidence strength and list the unresolved issues.
+
+Write `outputs/evidence-ranking/<slug>.provenance.md` beside the ranking (sources consulted, accepted, and rejected; verification status). Minimal shape: `references/provenance-sidecar.md`.
 
 ## Scope and Boundaries
 

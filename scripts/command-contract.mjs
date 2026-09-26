@@ -16,6 +16,12 @@ export const commands = [
     category: "core",
   },
   {
+    name: "engineering-research",
+    description: "Shared research method — discover, read, synthesize, verify, review",
+    argumentHint: "<research question or artifact to review> [--deep | --quick] [--turns N | --budget N]",
+    category: "core",
+  },
+  {
     name: "mechanical",
     description: "Mechanical engineering research — design, thermal, fluids, materials, manufacturing",
     argumentHint: "<research question> [--deep | --quick]",
@@ -73,6 +79,18 @@ export const commands = [
     name: "fmea-brainstorm",
     description: "FMEA-style failure mode brainstorming with S/O/D ratings and RPN ranking",
     argumentHint: "<system or component description>",
+    category: "workflow",
+  },
+  {
+    name: "hypothesis-generation",
+    description: "Generate and freeze rival engineering hypotheses with dated evidence boundaries",
+    argumentHint: "<engineering observation>",
+    category: "workflow",
+  },
+  {
+    name: "peer-review",
+    description: "Adversarial peer review of an engineering artifact with severity-graded findings",
+    argumentHint: "<artifact to review>",
     category: "workflow",
   },
   {

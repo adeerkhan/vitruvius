@@ -10,7 +10,7 @@ argument-hint: "<problem statement with constraints>"
 allowed-tools: Write Edit Bash Read
 license: MIT
 metadata:
-  version: "0.1.1"
+  version: "0.1.2"
 
 ---
 
@@ -66,6 +66,8 @@ code requirements, environmental conditions, timeline.
 ### Full Analysis (saved to disk)
 
 Save to `outputs/design-alternatives/<slug>.md`: Problem Statement, Constraints, Alternatives (Approach/Governing standards/Advantages/Limitations each), Comparison Matrix (criteria × alternatives, scored 1-5 with weights), Recommendation (best overall + trade-offs).
+
+Write `outputs/design-alternatives/<slug>.provenance.md` beside the analysis (sources consulted, accepted, and rejected; verification status). Minimal shape: `references/provenance-sidecar.md`.
 
 ## Scope and Boundaries
 

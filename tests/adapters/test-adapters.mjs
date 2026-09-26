@@ -80,12 +80,19 @@ for (const entry of readdirSync(join(root, "skills"), { withFileTypes: true })) 
 }
 
 // The free-standing host ruleset is authored once. Three identical copies used
-// to sit in the tree, hand-maintained, free to drift apart unnoticed.
-const ruleset = readFileSync(join(root, "references", "host-rules.md"), "utf-8");
+// to sit in the tree, hand-maintained, free to drift apart unnoticed. Compare
+// after line-ending normalization: the generator emits LF, and a CRLF working
+// tree must not read as drift.
+const normalize = (text) => text.replace(/\r\n?/g, "\n");
+const ruleset = normalize(readFileSync(join(root, "references", "host-rules.md"), "utf-8"));
 for (const host of rulesetHosts) {
   const target = join(root, host.file);
   assert.ok(existsSync(target), `${host.file} is missing`);
-  assert.equal(readFileSync(target, "utf-8"), ruleset, `${host.file} has drifted from references/host-rules.md`);
+  assert.equal(
+    normalize(readFileSync(target, "utf-8")),
+    ruleset,
+    `${host.file} has drifted from references/host-rules.md`,
+  );
 }
 
 console.log("PASS: adapter drift and orphans are detected, and every routed command exists on every host");
