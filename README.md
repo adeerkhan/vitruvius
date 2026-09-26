@@ -112,13 +112,12 @@ npm run test:artifact-paths
 npm run test:docs
 npm run test:rejected-changes
 npm run test:majority
-npm run test:host-smoke
 node tests/routing/eval-routing.mjs
 node scripts/fixed-case.mjs case evals/cases/local-evidence-suite.json
 node scripts/fixed-case.mjs results evals/results/manifest.json evals/results
 ```
 
-The E1/C1 subagent runs are on-demand evidence and are not part of `npm test`; the checked-in C1 bundle records their artifact hashes and independent grades. GC1, PR1, and V1 are deterministic contract checks; V1 still requires a real pilot record before any outcome claim. The problem-anchor contract is also deterministic: it proves a report is bound to the artifacts it studied, not that its claims are correct. When installed as a package, the same validators are available as `vitruvius-goal-check`, `vitruvius-artifact-closure`, `vitruvius-field-pilot`, and `vitruvius-problem-anchor`; `test:package-consumer` proves that by installing the packed tarball into a clean consumer. `test:input-gate` proves every standalone research skill declares the shared gate in `references/input-gate.md`. `test:majority` scores the verifier benchmark across independent runs, takes the per-case majority verdict, and publishes agreement and per-run residuals (`benchmark:majority` runs it on real result directories); a majority false approval fails the strict gate. `test:host-smoke` proves every host discovery surface resolves and writes exact failure bundles off it. OpenCode role adapters are generated from `agents/*.md`, so `generate-adapters.mjs --check` now covers them too.
+The E1/C1 subagent runs are on-demand evidence and are not part of `npm test`; the checked-in C1 bundle records their artifact hashes and independent grades. GC1, PR1, and V1 are deterministic contract checks; V1 still requires a real pilot record before any outcome claim. The problem-anchor contract is also deterministic: it proves a report is bound to the artifacts it studied, not that its claims are correct. When installed as a package, the same validators are available as `vitruvius-goal-check`, `vitruvius-artifact-closure`, `vitruvius-field-pilot`, and `vitruvius-problem-anchor`; `test:package-consumer` proves that by installing the packed tarball into a clean consumer. `test:input-gate` proves every standalone research skill declares the shared gate in `references/input-gate.md`. `test:majority` scores the verifier benchmark across independent runs, takes the per-case majority verdict, and publishes agreement and per-run residuals (`benchmark:majority` runs it on real result directories); a majority false approval fails the strict gate. OpenCode role adapters are generated from `agents/*.md`, so `generate-adapters.mjs --check` now covers them too.
 
 ## Worked Examples
 

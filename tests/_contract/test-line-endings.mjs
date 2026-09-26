@@ -60,7 +60,6 @@ assert.match(attributes, /^\* text=auto eol=lf$/m, ".gitattributes must normaliz
 // --- no other parser may match a literal \n against raw file text -----------
 const suspicious = [];
 for (const rel of [
-  "scripts/test-skills.mjs",
   "scripts/validate-contract.mjs",
   "scripts/security-scan.mjs",
   "tests/routing/eval-routing.mjs",

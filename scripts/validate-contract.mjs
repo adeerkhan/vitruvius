@@ -29,11 +29,19 @@ const MARKDOWN_LINK = /\]\(((?:assets|references|scripts|agents)\/[\w.\-/]+)\)/g
 const SKILL_MENTION = /(?<=^|\s|`|[*\[(])\/([a-z][a-z0-9-]{2,})\b(?!\/)/g;
 const SKILL_MENTION_ALLOWED_PREFIX = new Set(["skill"]);
 const URL_SPAN = /https?:\/\/\S+/g;
-const PERSONAL_PATH = /\/mnt\/[a-z]\/Users|home|Users\/(?![<\$<]|\$\{?)([\w.-]+)\//g;
 
-const IMPERSONAL_ACCOUNTS = new Set([
-  "user", "username", "you", "me", "youruser", "your-user", "name", "runner",
+// Skills that write files must declare allowed-tools and name the artifact
+// contract; the slug rule and the personal-path ban are repo-wide. Ported from
+// the retired test-skills.mjs so one validator owns structural shape.
+const FILE_WRITING_SKILLS = new Set([
+  "engineering-research", "civil", "mechanical", "electrical", "software",
+  "architectural", "scholarly-research", "gap-analysis", "evidence-ranking",
+  "design-alternatives", "fmea-brainstorm", "hypothesis-generation",
+  "peer-review", "compare", "review", "audit", "summarize", "proposal", "habit",
 ]);
+const ARTIFACT_PATHS = ["outputs/.plans/", "outputs/.drafts/", "outputs/<slug>.md", ".provenance.md"];
+const SLUG_PATTERN = /slug|lowercase.*hyphen|hyphenat/;
+const PERSONAL_PATH = /\/Users\/[^/]+/;
 
 function allSkillNames() {
   const names = new Set();
@@ -301,11 +309,45 @@ function descriptionTriggerProblems(skill) {
   return [];
 }
 
+// Writer contract: file-writing skills declare tools and the artifact contract;
+// engineering-research documents slug derivation; no skill carries a personal
+// path. Ported from the retired test-skills.mjs.
+function writerContractProblems(skill) {
+  const name = relative(SKILLS_DIR, skill);
+  let text;
+  try {
+    text = readFileSync(join(skill, "SKILL.md"), "utf-8");
+  } catch {
+    return [];
+  }
+  const problems = [];
+  if (FILE_WRITING_SKILLS.has(name)) {
+    const frontmatter = readYamlFrontmatter(text);
+    const values = frontmatter === null ? {} : Object.fromEntries(parseFrontmatterEntries(frontmatter));
+    const tools = (values["allowed-tools"] ?? "").split(/\s+/).filter(Boolean);
+    if (tools.length === 0) problems.push(`${name}: missing allowed-tools (writes files)`);
+    else if (!tools.includes("Write") && !tools.includes("Edit")) {
+      problems.push(`${name}: allowed-tools missing Write/Edit`);
+    }
+    if (name !== "engineering-research") {
+      const hasArtifact = ARTIFACT_PATHS.some((token) => text.includes(token)) || text.includes("artifact contract");
+      if (!hasArtifact) problems.push(`${name}: artifact contract not mentioned`);
+    }
+  }
+  if (name === "engineering-research" && !SLUG_PATTERN.test(text)) {
+    problems.push(`${name}: slug derivation rule not documented`);
+  }
+  const personal = text.match(PERSONAL_PATH);
+  if (personal) problems.push(`${name}: contains personal path (${personal[0]})`);
+  return problems;
+}
+
 const CHECKS = {
   frontmatter: frontmatterProblems,
   skill_md_length: lengthProblems,
   skill_layout: skillLayoutProblems,
   description_trigger: descriptionTriggerProblems,
+  writer_contract: writerContractProblems,
   no_tests_under_skills: strayTestProblems,
   local_links_resolve: linkProblems,
   skill_references_resolve: (skill) => skillMentionProblems(skill, knownSkills),
@@ -357,6 +399,18 @@ if (existsSync(manifestPath)) {
     console.error("FAIL: .claude-plugin/plugin.json invalid JSON");
     process.exit(1);
   }
+}
+
+// The artifact contract assumes outputs/ is never committed.
+let gitignoreOk = true;
+try {
+  if (!readFileSync(join(REPO_ROOT, ".gitignore"), "utf-8").includes("outputs/")) gitignoreOk = false;
+} catch {
+  gitignoreOk = false;
+}
+if (!gitignoreOk) {
+  console.error("FAIL: .gitignore must ignore outputs/");
+  process.exit(1);
 }
 
 if (totalProblems === 0) {

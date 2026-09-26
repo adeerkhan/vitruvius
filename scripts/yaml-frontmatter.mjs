@@ -2,7 +2,7 @@
  * yaml-frontmatter.mjs — Shared YAML frontmatter parser for Vitruvius skills.
  *
  * Extracts and parses the --- delimited frontmatter block from Markdown files.
- * Used by test-skills.mjs, validate-contract.mjs, and the routing eval.
+ * Used by validate-contract.mjs and the routing eval.
  *
  * This is a deliberate, bounded subset of YAML, not a general parser. It covers
  * the shapes a SKILL.md frontmatter actually uses and refuses to guess beyond

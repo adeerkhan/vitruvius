@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { scoreMajority } from "../../scripts/majority-benchmark.mjs";
+import { scoreMajority } from "../../scripts/benchmark-scoring.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const CLI = join(root, "scripts", "majority-benchmark.mjs");

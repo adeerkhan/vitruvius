@@ -1,11 +1,9 @@
+#!/usr/bin/env node
 /**
- * majority-benchmark.mjs — B1 majority-of-N certification for the verifier
- * benchmark.
+ * majority-benchmark.mjs — CLI for B1 majority-of-N certification.
  *
- * A single benchmark run is a variance-limited point estimate
- * (`tasks/benchmark/RESULTS.md`). This scores the same case set across several
- * independent runs, takes the per-case majority verdict, and publishes the
- * agreement and the per-run residuals instead of one headline number.
+ * Scoring lives in benchmark-scoring.mjs next to scoreBenchmark; this prints
+ * the report and applies the optional strict gate.
  *
  * Usage:
  *   node scripts/majority-benchmark.mjs <run1> <run2> <run3> [--cases <dir>]
@@ -15,108 +13,9 @@
  * `--strict-quality` additionally fails on a majority false approval or false
  * block; splits are published as variance, not hidden.
  */
-import { existsSync, readFileSync } from "node:fs";
-import { basename, resolve } from "node:path";
+import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
-import { classify, scoreBenchmark } from "./benchmark-scoring.mjs";
-import { parseGroundTruth } from "./verifier-parser.mjs";
-
-function majorityOf(verdicts) {
-  const counts = new Map();
-  for (const verdict of verdicts) counts.set(verdict, (counts.get(verdict) ?? 0) + 1);
-  let winner = null;
-  let winnerCount = 0;
-  for (const [verdict, count] of counts) {
-    if (count > winnerCount) {
-      winner = verdict;
-      winnerCount = count;
-    }
-  }
-  const split = winnerCount * 2 <= verdicts.length;
-  return { verdict: split ? null : winner, count: winnerCount, split, distribution: Object.fromEntries(counts) };
-}
-
-export function scoreMajority({ casesDir, runDirs }) {
-  casesDir = resolve(casesDir);
-  const errors = [];
-  const runs = (runDirs ?? []).map((dir) => resolve(dir));
-  if (runs.length < 2) errors.push("majority scoring requires at least two run directories");
-  for (const dir of runs) {
-    if (!existsSync(dir)) errors.push(`missing run directory: ${dir}`);
-  }
-
-  const perRun = runs.map((resultsDir) => scoreBenchmark({ casesDir, resultsDir }));
-  for (const [index, report] of perRun.entries()) {
-    for (const error of report.errors) errors.push(`run${index + 1}: ${error}`);
-  }
-
-  const caseFiles = perRun[0]?.caseFiles ?? [];
-  const caseNames = caseFiles.map((file) => basename(file, ".md"));
-  const cases = [];
-  for (const [index, caseFile] of caseFiles.entries()) {
-    const caseName = caseNames[index];
-    const groundTruth = parseGroundTruth(readFileSync(caseFile, "utf-8"));
-    const verdicts = [];
-    let incomplete = false;
-    for (const report of perRun) {
-      const scored = report.results.find((result) => result.caseName === caseName);
-      if (!scored) {
-        incomplete = true;
-        break;
-      }
-      verdicts.push(scored.machineVerdict.verdict);
-    }
-    if (incomplete || groundTruth === null) {
-      cases.push({ caseName, groundTruth, verdicts, error: incomplete ? "INCOMPLETE RUN" : "INVALID GROUND TRUTH" });
-      continue;
-    }
-    const majority = majorityOf(verdicts);
-    const classification = majority.verdict === null ? null : classify(groundTruth, { verdict: majority.verdict, flaw: "none" });
-    cases.push({
-      caseName,
-      groundTruth,
-      verdicts,
-      majority: majority.verdict,
-      agreement: majority.count / verdicts.length,
-      unanimous: majority.count === verdicts.length,
-      split: majority.split,
-      distribution: majority.distribution,
-      status: majority.split ? "SPLIT" : classification.status,
-      correct: majority.split ? false : classification.correct,
-      falseApproval: majority.split ? false : classification.falseApproval,
-      falseBlock: majority.split ? false : classification.falseBlock,
-      conservativeOvercall: majority.split ? false : classification.conservativeOvercall,
-    });
-  }
-
-  const scoredCases = cases.filter((item) => item.error === undefined);
-  const unanimous = scoredCases.filter((item) => item.unanimous).length;
-  const split = scoredCases.filter((item) => item.split).length;
-  const summary = {
-    cases: cases.length,
-    scored: scoredCases.length,
-    runs: runs.length,
-    unanimous,
-    majorityOnly: scoredCases.length - unanimous - split,
-    split,
-    majorityCorrect: scoredCases.filter((item) => item.correct).length,
-    majorityFalseApprovals: scoredCases.filter((item) => item.falseApproval).length,
-    majorityFalseBlocks: scoredCases.filter((item) => item.falseBlock).length,
-    conservativeOvercalls: scoredCases.filter((item) => item.conservativeOvercall).length,
-    meanAgreement: scoredCases.length === 0
-      ? 0
-      : scoredCases.reduce((sum, item) => sum + item.agreement, 0) / scoredCases.length,
-    perRun: perRun.map((report) => ({
-      scored: report.summary.scored,
-      correct: report.summary.correct,
-      falseApprovals: report.summary.falseApprovals,
-      falseBlocks: report.summary.falseBlocks,
-      conservativeOvercalls: report.summary.conservativeOvercalls,
-    })),
-  };
-
-  return { cases, errors, summary };
-}
+import { scoreMajority } from "./benchmark-scoring.mjs";
 
 function printReport(report) {
   console.log(`\nMajority Benchmark — ${new Date().toISOString().split("T")[0]}`);

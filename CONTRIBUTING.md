@@ -33,7 +33,7 @@ If you change how a discipline behaves, edit that discipline's `SKILL.md` lens. 
 npm test
 ```
 
-`npm test` runs `scripts/test-skills.mjs` and `scripts/validate-contract.mjs`, which check structural shape (frontmatter, name-matching, allowed-tools for file-writing skills, resolving references) and the skill structural contract. It also runs the artifact, agent, benchmark, routing, and packaging suites.
+`npm test` runs `scripts/validate-contract.mjs`, which enforces the skill structural contract (frontmatter shape, name-matching, allowed-tools for file-writing skills, the artifact contract, layout, description triggers, and resolving references), plus the artifact, agent, benchmark, routing, and packaging suites.
 
 4. If you changed a skill body, verify it loads in a real host. Command Code, for example:
 

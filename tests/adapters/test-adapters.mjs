@@ -4,6 +4,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
 import { commands, hosts, rulesetHosts } from "../../scripts/command-contract.mjs";
+import { parseFrontmatterObject } from "../../scripts/yaml-frontmatter.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const generator = join(root, "scripts", "generate-adapters.mjs");
@@ -92,6 +93,20 @@ for (const host of rulesetHosts) {
     normalize(readFileSync(target, "utf-8")),
     ruleset,
     `${host.file} has drifted from references/host-rules.md`,
+  );
+}
+
+// Every skill is present with parseable frontmatter, so a host that scans
+// skills/ discovers a real catalog. (Ported from the retired host-discovery
+// smoke; the bundle machinery was speculative infra around this one check.)
+for (const entry of readdirSync(join(root, "skills"), { withFileTypes: true })) {
+  if (!entry.isDirectory()) continue;
+  const skillMd = join(root, "skills", entry.name, "SKILL.md");
+  assert.ok(existsSync(skillMd), `skills/${entry.name}/SKILL.md is missing`);
+  const frontmatter = parseFrontmatterObject(readFileSync(skillMd, "utf-8"));
+  assert.ok(
+    frontmatter && frontmatter.name === entry.name,
+    `skills/${entry.name}/SKILL.md frontmatter name does not match the directory`,
   );
 }
 

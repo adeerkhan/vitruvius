@@ -5,7 +5,7 @@
 **Scope:** local projects under `ref/` and the current Vitruvius working tree.  
 **Rule:** steal design patterns, not domain scope or incompatible code. Keep every transfer traceable to a local path.
 
-This is the current decision map. Historical audit prose remains in `docs/audit-2026-09.md`; it is not the live status source.
+This is the current decision map. Historical audit prose lives in git history; it is not the live status source.
 
 ## 2026-09-26 update (supersedes statuses below where they differ)
 
@@ -47,7 +47,15 @@ are in the source inventory below.
 - **NV1 — Node version guard.** `ref/feynman/scripts/check-node-version.mjs` declares and checks the supported Node range. Directly relevant to the `pdf-parse` Node 24 `Buffer` failure just fixed. **Partial steal.**
 - **R2 — lease-based run lock.** `ref/autoprompt-skill` (v2.0.0) holds run slots by lease with compare-and-delete reclaim and a bounded token lifetime. Vitruvius's `.log-run.lock` stays fail-closed forever on a stale lock. **Optional; changes a documented policy.**
 
-**Implemented in the same slice:** AP1 (`scripts/validate-artifact-paths.mjs` + `tests/skills/test-artifact-paths.mjs`), DP1 (`tests/docs/test-docs-parity.mjs`, which immediately caught `evidence-ranking` missing from the docs), SA1 (`skill_layout` + `description_trigger` in `scripts/validate-contract.mjs`, `tests/validate-contract/test-skill-anatomy.mjs`), NV1 (`engines.node` + `scripts/check-node-version.mjs`). A second slice added R2 (lease/TTL reclaim in `log-run.mjs`/`record-evidence.mjs`) and O1 (`docs/rejected-changes.md` + `scripts/rejected-change-ledger.mjs`). A third hardened `scripts/yaml-frontmatter.mjs` into a bounded subset parser (folded/literal blocks, one nesting level, quotes, comments) behind the existing flat API, and moved the `metadata.version` check onto the nested parser. A fourth added B1's majority-of-N harness (`scripts/majority-benchmark.mjs`), generated OpenCode role adapters from `agents/*.md` in `generate-adapters.mjs`, a host-discovery smoke with failure bundles (`scripts/host-discovery-smoke.mjs`), E1 `must_not_fire` cases, and the verifier/reviewer no-op loop stop. B1's real multi-run result is still pending — the harness is the deliverable until then.
+**Implemented in the same slice:** AP1 (`scripts/validate-artifact-paths.mjs` + `tests/skills/test-artifact-paths.mjs`), DP1 (`tests/docs/test-docs-parity.mjs`, which immediately caught `evidence-ranking` missing from the docs), SA1 (`skill_layout` + `description_trigger` in `scripts/validate-contract.mjs`, `tests/validate-contract/test-skill-anatomy.mjs`), NV1 (`engines.node` + `scripts/check-node-version.mjs`). A second slice added R2 (lease/TTL reclaim in `log-run.mjs`/`record-evidence.mjs`) and O1 (`docs/rejected-changes.md` + `scripts/rejected-change-ledger.mjs`). A third hardened `scripts/yaml-frontmatter.mjs` into a bounded subset parser (folded/literal blocks, one nesting level, quotes, comments) behind the existing flat API, and moved the `metadata.version` check onto the nested parser. A fourth added B1's majority-of-N harness (`scripts/majority-benchmark.mjs` + `scoreMajority` in `benchmark-scoring.mjs`), generated OpenCode role adapters from `agents/*.md` in `generate-adapters.mjs`, a skill-catalog discovery check in `tests/adapters/test-adapters.mjs`, E1 `must_not_fire` cases, and the verifier/reviewer no-op loop stop. B1's real multi-run result is still pending — the harness is the deliverable until then.
+
+### Consolidation pass (ponytail audit)
+
+- `scripts/test-skills.mjs` was deleted; its unique checks (writer allowlist, artifact contract, slug rule, personal paths, `outputs/` gitignore) moved into `scripts/validate-contract.mjs`. Dead `PERSONAL_PATH`/`IMPERSONAL_ACCOUNTS` constants removed.
+- The scope-guarded `scripts/host-discovery-smoke.mjs` and its failure-bundle test were deleted; the one novel check (skill-catalog frontmatter) folded into `tests/adapters/test-adapters.mjs`.
+- `scoreMajority`/`majorityOf` moved from the CLI into `scripts/benchmark-scoring.mjs`; `majority-benchmark.mjs` is now a thin CLI.
+- Deleted the superseded `tasks/benchmark/results-v1-2026-09-09/` snapshot (local, ignored) and the historical `docs/audit-2026-09.md`.
+- Left alone deliberately: lock duplication in `log-run.mjs`/`record-evidence.mjs` (forced by the copied-skill compatibility test), and the four slightly-different `isSafeRelativePath`/two PDF extractors (unifying them would add options/complexity for no behavior change).
 
 ### Reject on this refresh
 
@@ -147,7 +155,7 @@ Keep the Q1 pilot local-only until a concrete external-source need justifies bro
 - `scripts/command-contract.mjs:11-138`, generated commands, README, and `vitruvius-help` still do not form one complete contract; `generate-adapters.mjs --check` now detects generated-file drift, but role adapters are validated separately.
 - Existing outputs contain unresolved consistency issues: ACI status counts, design-alternatives “best overall” wording, evidence-ranking Tier 3 count, FMEA Critical threshold labeling, and `docs/examples.md` links to ignored/local-only benchmark artifacts.
 - `scripts/check-output-quality.mjs:5-9,19-75` still advertises provenance checking but does not implement final/sidecar pairing; generic pairing is now owned by `scripts/artifact-closure.mjs` and the legacy scan remains opt-in.
-- `CONTRIBUTING.md:9,36,45` references missing `IMPLEMENTATION.md` and nonexistent `scripts/validate-skills.mjs`; `scripts/test-skills.mjs:24-36` has a stale writer allowlist.
+- ~~`CONTRIBUTING.md:9,36,45` references missing `IMPLEMENTATION.md` and nonexistent `scripts/validate-skills.mjs`; `scripts/test-skills.mjs:24-36` has a stale writer allowlist.~~ Fixed: CONTRIBUTING points at `tasks/plan.md`, `test-skills.mjs` was deleted, and its checks live in `validate-contract.mjs`.
 
 ## Habit learning: target lifecycle
 
