@@ -37,7 +37,7 @@ cpSync(join(repoRoot, "tests", "engineering-research", "fixtures", "audit-excerp
 
 const artifactPath = join(root, "furniture.ts");
 mkdirSync(join(root, "solver"), { recursive: true });
-writeFileSync(artifactPath, "export const CLEARANCE = { bed: { side: 0.08, front: 0 } };\n");
+writeFileSync(artifactPath, "export const CLEARANCE = { bed: { side: 0.08, front: 0 } }; // per-kind clearance table\n");
 
 /**
  * The record an agent would have written for this run. The anchor is the file

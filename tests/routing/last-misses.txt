@@ -1,4 +1,4 @@
-# baseline routing misses (rank-1), last run 2026-09-25: 16/20
+# baseline routing misses (rank-1), last run 2026-09-26: 16/20
 standards-lookup <- "what does ACI 318 say about the reduction factor for post-tensioned tendons" (got scholarly-research, rank 2)
 gap-analysis <- "find research gaps in FRP bonding literature for civil structures" (got civil, rank 2)
 design-alternatives <- "compare three design alternatives for this pressure vessel closure" (got compare, rank 2)
