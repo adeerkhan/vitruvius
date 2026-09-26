@@ -11,7 +11,7 @@ description: >
 argument-hint: "<topic or paper identifier>"
 license: MIT
 metadata:
-  version: "0.1.1"
+  version: "0.1.3"
 
 ---
 
@@ -38,6 +38,11 @@ depends on scraping a site that blocks agents.
   mandate to read the user's repository, and this skill does not grant one. If
   the question depends on what their code does, hand that to
   `engineering-research`, which carries the `repo`-anchored evidence contract.
+- **Effort is user-controlled, and the default is thorough.** If the user sets
+  a turn or token budget, honor it and record it in the evidence set. If not,
+  keep searching while new sources that answer a named question are still
+  turning up. Do not impose a fixed internal query cap: change terms and
+  indexes before you mark a question `blocked`, and say which indexes you used.
 - Tool names are literal and host-dependent. Use ONLY tools visible in the
   current session: a web search may be `web_search`, `search`, or `browser`;
   fetching may be `fetch`, `fetch_content`, or a shell `curl`. Never call a
@@ -117,6 +122,39 @@ not as the primary paper index. Do not point a browser at scholar.google.com.
   the URL actually fetched.
 - If a full text is paywalled, cite it from metadata and mark full-text access
   as `blocked`. Never guess at its contents.
+- **Name the access route you actually used.** Record `pdf-parse` only when the
+  PDF extractor ran and its output is on disk; otherwise record `html`,
+  `abstract`, or `metadata`. Never label a source "full text read" when only an
+  abstract, an HTML page, or a model summary was seen.
+
+### Reading open-access PDFs (page-anchored)
+
+When a claim needs more than the abstract and only a PDF is available, extract
+the text with the shared reader instead of trusting a host PDF preview:
+
+```bash
+node scripts/extract-pdf.mjs <pdf-path-or-url> --json --delete
+```
+
+In a copied-skill install, run
+`node <scholarly-research-skill-root>/scripts/extract-pdf.mjs`. The reader
+returns `{ source, url, sha256, pages, text, warnings, deleted }`, with page
+boundaries stamped as `[[page N]]` so every extracted claim can be anchored to
+a page. It wraps the optional `pdf-parse` dependency; if it reports
+`pdf-parse is not installed`, install it (`npm install pdf-parse`, or
+`npm install` in a checkout) and retry — do not substitute a model summary for
+PDF text.
+
+`--delete` removes the binary **only after a usable extraction**. A scanned PDF
+with no text layer is never deleted: its text comes back empty with a warning
+because there is no OCR here. Record that source's full text as `blocked`.
+
+After extraction, write the text to `outputs/.drafts/<slug>-pdf-<n>.md` with a
+header carrying the source URL, retrieval date, page count, and `sha256`, then
+the extracted text with its `[[page N]]` markers. That file is the artifact of
+record; the deleted binary is replaced by its link and hash, so a reader can
+re-fetch and re-hash to confirm the same bytes. Never keep a claim that rests
+only on a link you did not extract or read.
 
 ## Output
 

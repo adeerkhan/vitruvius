@@ -81,8 +81,10 @@ function validateProvenance(filePath) {
 		}
 	}
 
-	// Verification verdict must use the 6-label schema
-	const verdictMatch = text.match(/\*\*Verification:\*\*\s*(\S+)/);
+	// Verification verdict must use the 6-label schema. Markdown emphasis around
+	// the value is tolerated (`**partial**` reads as `partial`), because the
+	// template's label is already bold and agents naturally bold the value too.
+	const verdictMatch = text.match(/\*\*Verification:\*\*\s*[*`'"]*([A-Za-z]+)/);
 	if (verdictMatch && !VERIFICATION_LABELS.has(verdictMatch[1].toLowerCase())) {
 		problems.push(
 			`${filename}: Verification value \`${verdictMatch[1]}\` is not one of ${[...VERIFICATION_LABELS].join("/")}`,
@@ -126,6 +128,23 @@ function validateProvenance(filePath) {
 	// Provenance must point at its plan or say why there isn't one
 	if (!text.includes("Plan") && !text.includes("plan")) {
 		problems.push(`${filename}: missing Plan reference`);
+	}
+
+	// An engineering-research sidecar must be byte-pinned and goal-checked. The
+	// `Final artifact`/`Rounds` markers scope this to the shared method's
+	// template, so sidecars from gap-analysis/proposal are not judged against it
+	// (only engineering-research uses `Rounds`). A run that deleted its PDFs
+	// still proves the bytes it *did* deliver via this hash.
+	if (/\*\*(?:Final artifact|Rounds):\*\*/.test(text)) {
+		if (!/\*\*Final SHA-256:\*\*\s*`?[a-f0-9]{64}`?/.test(text)) {
+			problems.push(`${filename}: missing or malformed \`Final SHA-256\` (64 lowercase hex characters)`);
+		}
+		if (!/\*\*Final bytes:\*\*\s*`?[1-9]\d*`?/.test(text)) {
+			problems.push(`${filename}: missing or malformed \`Final bytes\` (positive integer)`);
+		}
+		if (!/GOAL-CHECK:[^\n]*E2E:/i.test(text)) {
+			problems.push(`${filename}: missing \`GOAL-CHECK: E2E:\` line`);
+		}
 	}
 
 	return problems;

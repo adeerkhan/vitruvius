@@ -145,9 +145,15 @@ Named engineering jobs over the shared loop:
 | `/summarize` | Faithful structured digest of a standard, spec, or paper |
 | `/eli5` | Plain-language engineering explanation |
 | `/artifact-reading` | Anchored extraction from PDFs, drawings, specs |
-| `/scholarly-research` | Academic literature evidence layer (OpenAlex, arXiv, Semantic Scholar); synthesis goes to `/engineering-research` |
+| `/scholarly-research` | Academic literature evidence layer (OpenAlex, arXiv, Semantic Scholar) with page-anchored open-access PDF reading; synthesis goes to `/engineering-research` |
 | `/standards-lookup` | Engineering standards: AISC, ACI, ASCE, IEEE, Eurocode |
 | `/habit` | Extract explicit research preferences, validate them, and activate only human-approved rules in a project-local store |
+
+`/engineering-research` and the discipline skills default to **thorough**
+research. Pass `--deep` to force multi-agent coverage, `--quick` for an explicit
+fast lookup, or `--turns N` / `--budget N` (or plain language like "run ~200
+turns") to set your own effort ceiling. With no budget, the run continues while
+new grounded evidence is still arriving.
 
 ## Grounding: keeping a report about your problem
 
@@ -259,7 +265,7 @@ End-to-end workflows for specific tasks:
 | `/summarize <document>` | Faithful structured digest of a standard, spec, or paper |
 | `/eli5 "topic"` | Plain-language engineering explanation |
 | `/artifact-reading <file>` | Anchored extraction from PDFs, drawings, specs |
-| `/scholarly-research "topic"` | Academic literature evidence layer (OpenAlex, arXiv, Semantic Scholar); synthesis goes to `/engineering-research` |
+| `/scholarly-research "topic"` | Academic literature evidence layer (OpenAlex, arXiv, Semantic Scholar) with page-anchored open-access PDF reading; synthesis goes to `/engineering-research` |
 | `/standards-lookup AISC 360` | Looks up AISC 360 provisions by section |
 | `/habit` | Extracts explicit research preferences for validation and human approval |
 | `/proposal --posting X --cv Y` | Intended PhD-proposal workflow; local text intake is executable, PDF extraction uses optional tooling, and URL/image inputs require explicit recorded fetch/transcription |
@@ -319,7 +325,7 @@ pi install git:github.com/adeerkhan/vitruvius
 
 ### Any Agent Skills Host
 
-Copy the `skills/` and `references/` directories into your agent's skills folder. The proposal skill carries its own parser runtime; copy `scripts/habit-ledger.mjs` as well when using the Habit CLI, and `scripts/extract-document.mjs` when using the standalone artifact-reading command. Preserve repository-relative paths when copying helpers:
+Copy the `skills/` and `references/` directories into your agent's skills folder. The proposal skill carries its own parser runtime; copy `scripts/habit-ledger.mjs` as well when using the Habit CLI, and `scripts/extract-document.mjs` plus `scripts/extract-pdf.mjs` when using the standalone artifact-reading command. Preserve repository-relative paths when copying helpers:
 - `.claude/skills/` (Claude Code)
 - `.commandcode/skills/` (Command Code)
 - `.agents/skills/` (Agents)

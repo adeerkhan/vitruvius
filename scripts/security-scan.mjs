@@ -147,6 +147,7 @@ allProblems.push(...walkDir(SKILLS_DIR, scanFile));
 allProblems.push(...walkDir(SKILLS_DIR, (f) => scanPersonalPaths(f)));
 for (const runtimeFile of [
   join(SCRIPTS_DIR, 'extract-document.mjs'),
+  join(SCRIPTS_DIR, 'extract-pdf.mjs'),
   join(SCRIPTS_DIR, 'verifier-parser.mjs'),
   join(SCRIPTS_DIR, 'eval-contract.mjs'),
   join(SCRIPTS_DIR, 'fixed-case.mjs'),

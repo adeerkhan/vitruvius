@@ -15,7 +15,7 @@ argument-hint: "<research question or artifact to review> [--deep | --quick]"
 allowed-tools: Write Edit Bash Read
 license: MIT
 metadata:
-  version: "0.2.6"
+  version: "0.2.8"
 
 ---
 
@@ -29,12 +29,13 @@ disciplines unchanged.
 ## Invocation Flags
 
 ```
-/engineering-research <question> [--deep | --quick]
+/engineering-research <question> [--deep | --quick] [--turns N | --budget N]
 ```
 
 - **`--deep`**: Force multi-agent mode. Spawns researcher subagents regardless of query complexity. Uses parallel verification lanes for all claims. Use when the user wants comprehensive coverage or the topic is safety-critical.
-- **`--quick`**: Force direct search mode. No subagents, no parallel verification. Lead agent searches and synthesizes alone. Use for simple lookups or when token cost matters.
-- **No flag**: Auto-scale based on query complexity (default behavior — see Step 2 Scale).
+- **`--quick`**: Force direct search mode. No subagents, no parallel verification. Lead agent searches and synthesizes alone. Use only when the user explicitly asks for a fast lookup.
+- **`--turns N` / `--budget N`**: The user's effort ceiling for this run (`N` research turns, or an approximate token budget). Record it in the plan and report when you approach it; it is a ceiling you honor, not an internal default you impose.
+- **No flag**: Default to thorough research, bounded by a user-set budget when one is given and by evidence saturation when not. The user can change the budget mid-run ("keep going", "stop here").
 
 Discipline skills pass these flags through to this method.
 
@@ -57,11 +58,10 @@ tool calls that create the plan artifact.
 
 ## Context Management
 
-Write research notes to disk after each search batch (extract findings to
-`outputs/.drafts/<slug>-research-<scope>.md`, don't accumulate in working
-memory). Bounded searches: 3–5 queries per phase, then extract to disk and
-re-search; 3 failed queries = mark `blocked`. Re-read plans and notes after
-interruption. Full practice: `references/context-management.md`.
+Write notes to disk after each batch and re-read plans after an interruption.
+**Effort is the user's call:** honor `--turns`/`--budget` or plain language;
+keep researching while rounds add grounded evidence, and never stop at a fixed
+turn count. See `references/context-management.md`.
 
 ## Required Artifacts
 
@@ -130,6 +130,7 @@ Create `outputs/.plans/<slug>.md` immediately. The plan must include:
 - Problem anchor: artifacts under study (+ commit), decisions to inform, non-goals
 - Evidence needed (standards, code provisions, vendor docs, datasheets, prior
   designs, repos, prior art)
+- Effort budget (user-set turns/tokens, or thorough until evidence saturates)
 - Scale decision (below)
 - Task ledger
 - Verification log
@@ -162,24 +163,17 @@ Use subagents only when decomposition clearly helps:
 
 ### Parallel Fan-Out (T2)
 
-Run independent skills simultaneously and merge when both complete — for
-example gap analysis with evidence ranking, several researcher subagents on
-different topics, or discipline skills on different domains. Gaps then inform
-evidence priorities. Do **not** parallelize sequential dependencies (the
-verifier needs the evidence first), skills that share state or context, or work
-constrained by the token budget.
+Run independent skills simultaneously and merge when both complete (e.g. gap
+analysis + evidence ranking, or researcher subagents on different topics). Do
+**not** parallelize sequential dependencies, shared state, or budget-bound work.
 
 ## Step 3: Gather Evidence
 
 ### Increment Checklist (complete before moving to Step 4)
 
-- [ ] At least 3 distinct search queries run
-- [ ] At least 5 sources found and evaluated
-- [ ] At least 2 source tiers represented (Tier 1-2 preferred)
-- [ ] All numeric claims have units and sign conventions
-- [ ] All standard citations include section + edition
-- [ ] No sources appear AI-generated or undated
-- [ ] Search terms recorded in research notes
+- [ ] ≥3 distinct search queries run; ≥5 sources found and evaluated; ≥2 source tiers represented
+- [ ] Numeric claims carry units + sign convention; standard citations carry section + edition
+- [ ] No AI-generated or undated sources; search terms recorded in research notes
 
 If any checkbox is unchecked, continue searching before drafting.
 
@@ -273,11 +267,14 @@ Two sections are mandatory, not optional:
   wearing a table.
 
 Then write the `vitruvius-problem-anchor.v1` record beside the candidate from
-`references/problem-anchor-contract.md` and run `vitruvius-problem-anchor
-<record>` (or `node scripts/problem-anchor-contract.mjs <record>` in a
-checkout). It must pass before the brief moves to verification: every decision
-reached a position, every `repo` anchor resolves to a non-blank line on disk,
-and the candidate actually cites them.
+`references/problem-anchor-contract.md`. Validate it with
+`vitruvius-problem-anchor <record>` (or
+`node scripts/problem-anchor-contract.mjs <record>` in a checkout). **The record
+is mandatory even when the validator is not installed**: with no validator,
+keep the record and mark its validation `BLOCKED` in the provenance — never
+drop the record. It must pass (or be explicitly blocked) before the brief moves
+to verification: every decision reached a position, every `repo` anchor
+resolves to a non-blank line on disk, and the candidate actually cites them.
 
 `verified` also requires the entailment proxy: the anchored line must carry the
 claim's quoted spans, identifiers, and measures. A paraphrase is `partial`;
@@ -395,7 +392,13 @@ Dispatch the `goal-checker` role (`agents/goal-checker.md`) with: the original
 research question verbatim plus its frozen requirements IDs/manifest, the final candidate path (+ SHA-256 + byte count),
 the provenance sidecar path, the plan path, and the problem-anchor record path
 so it can confirm the report is about the artifact it claims to study. In
-`--quick` mode, run the tri-axis check inline in the same format, write the [machine contract](references/goal-check-contract.md) record beside the candidate, and validate it with `vitruvius-goal-check <record>` (or `node scripts/goal-check-contract.mjs <record>` in a checkout); only a valid `DONE` and promotable record permits delivery.
+`--quick` mode, run the tri-axis check inline in the same format, and write the
+[machine contract](references/goal-check-contract.md) record beside the candidate.
+Validate it with `vitruvius-goal-check <record>` (or
+`node scripts/goal-check-contract.mjs <record>` in a checkout). **The record is
+mandatory even when the validator is not installed** — keep it and mark its
+validation `BLOCKED`. Only a valid `DONE` and promotable record permits
+delivery.
 
 Default NOT-DONE: every ask re-derived from the original question must be
 delivered (`scope=pass prompt=pass flaws=0`, non-empty `ran=`). Any NOT-DONE

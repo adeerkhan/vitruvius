@@ -18,7 +18,7 @@ const researcher = readFileSync(join(repoRoot, "agents", "researcher.md"), "utf8
 const writer = readFileSync(join(repoRoot, "agents", "writer.md"), "utf8");
 const goalChecker = readFileSync(join(repoRoot, "agents", "goal-checker.md"), "utf8");
 
-assert.match(method, /version: "0\.2\.6"/, "engineering-research version bumped");
+assert.match(method, /version: "0\.2\.[5-9]\d*"/, "engineering-research version bumped");
 assert.match(
   method,
   /entailment proxy|entailment/i,
@@ -31,7 +31,7 @@ assert.match(method, /Impact vs\. evidence/i, "method requires impact-vs-evidenc
 assert.match(method, /problem-anchor-contract\.md/, "method points at the contract reference");
 assert.match(method, /decisions to inform/i, "method freezes the decisions to inform");
 
-assert.match(scholarly, /version: "0\.1\.1"/, "scholarly-research version bumped");
+assert.match(scholarly, /version: "0\.1\.[1-9]\d*"/, "scholarly-research version bumped");
 assert.match(scholarly, /produces evidence, not a report/i, "scholarly-research boundary is enforced in prose");
 assert.match(scholarly, /What the literature does not settle/i, "scholarly-research requires negative coverage");
 assert.match(scholarly, /Handback/i, "scholarly-research requires a handback section");

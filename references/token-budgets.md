@@ -1,13 +1,15 @@
 # Token Budgets
 
-Approximate token costs per skill run. Use these to estimate cost and avoid runaway runs.
+Approximate token costs per skill run. Use these to plan cost, not to stop
+research early. A budget is a ceiling the user sets (see
+`context-management.md`), not an internal switch the agent imposes.
 
 ## By Skill
 
 | Skill | Mode | Est. Tokens | Budget |
 |-------|------|-------------|--------|
-| engineering-research | direct | 3,000-5,000 | 8,000 |
-| engineering-research | deep (subagents) | 8,000-15,000 | 20,000 |
+| engineering-research | direct | 5,000-20,000 | user-set, else saturation |
+| engineering-research | deep (subagents) | 30,000-150,000+ | user-set, else saturation |
 | gap-analysis | quick | 2,000-3,000 | 5,000 |
 | gap-analysis | deep | 5,000-8,000 | 12,000 |
 | evidence-ranking | — | 2,000-4,000 | 6,000 |
@@ -25,18 +27,31 @@ Approximate token costs per skill run. Use these to estimate cost and avoid runa
 | scholarly-research | — | 2,000-3,500 | 5,000 |
 | artifact-reading | — | 1,000-2,000 | 3,000 |
 
+Estimates, not limits. A user-set `--turns`/`--budget` overrides the table for
+that run.
+
 ## Cost-Saving Rules
 
-1. **Default to quick/direct mode** unless user asks for comprehensive coverage
-2. **Cap web searches** at 3-5 queries per phase (engineering-research)
-3. **Limit subagents** to 3-4 max (engineering-research deep mode)
-4. **Write notes to disk** after each search batch (reduces context pressure)
-5. **Stop searching** after 3 queries with no results (mark `blocked`)
+1. **Cheaper modes are a user choice, not a default.** `--quick` exists because
+   the user may want it; substantive research runs thorough.
+2. **Honor a user-set budget** (`--turns`, `--budget`, or plain language):
+   record it in the plan, track it, and announce when you approach it.
+3. **Cap duplicate work, not coverage.** Write notes to disk after each search
+   batch to keep context small. That lowers cost without capping depth.
+4. **Change tactics before declaring a dead end.** If a few queries return
+   nothing new, switch terms/indexes; mark `blocked` only when you can name what
+   you exhausted.
+5. **Scale subagents to the decomposition**, not to a token panic (see the
+   engineering-research scale step).
 
 ## Warning Thresholds
 
-| Tokens | Action |
-|--------|--------|
-| > 50% of budget | Warn user, offer to continue or stop |
-| > 80% of budget | Stop and deliver partial output with explanation |
-| > 100% of budget | Abort, return best output so far, list what was not completed |
+| Situation | Action |
+|-----------|--------|
+| > 50% of a **user-set** budget | Say so, and continue unless the user stops you |
+| > 80% of a **user-set** budget | Ask before continuing; if the user says keep going, keep going |
+| No user-set budget | No forced stop: continue while evidence is still arriving, and report saturation honestly |
+
+If you must stop before the question is answered, deliver what exists with
+`Verification: PARTIAL` or `BLOCKED` and list the missing checks. Never present
+partial work as complete.

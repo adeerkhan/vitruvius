@@ -10,7 +10,7 @@ description: >
 argument-hint: "<document(s) to read>"
 license: MIT
 metadata:
-  version: "0.1.2"
+  version: "0.1.3"
 
 ---
 
@@ -63,10 +63,16 @@ failures — answering from one page, from a title, or from memory.
 When dispatched as an isolated subagent for document parsing (e.g., by `/proposal`):
 
 1. **Receive file paths** — one or more document paths to parse
-2. **Extract content** — for each file, run:
+2. **Extract content** — for each file, run the reader that matches the type:
    ```bash
-   node scripts/extract-document.mjs <file-path>
+   # PDFs: page-anchored text with [[page N]] markers
+   node scripts/extract-pdf.mjs <pdf-path-or-url> --json
+   # text / Markdown / JSON documents
+   node scripts/extract-document.mjs <file-path> --json
    ```
+   The PDF reader (`scripts/extract-pdf.mjs`, wrapping the optional
+   `pdf-parse` dependency) stamps `[[page N]]` boundaries and reports the
+   source `sha256`, so extracts stay anchorable after the binary is deleted.
 3. **Parse the JSON result** — extract:
    - `markdown` — full document content in markdown format
    - `pages` — page count

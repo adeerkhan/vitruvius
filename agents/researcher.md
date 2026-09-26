@@ -70,7 +70,11 @@ only what it happened to find.
 
 ## Bounds
 
-- Max 3–5 distinct search queries per scope. Still short after 3? Mark the
-  remaining questions `blocked` and return what you have.
+- Work the scope until evidence saturates: keep going while each round adds
+  grounded sources that answer a named question. If several queries return
+  nothing new, change terms and indexes before declaring a dead end; mark a
+  question `blocked` only when you can name what you exhausted.
+- Honor a turn/token budget the lead passes in your brief over the default.
+  With none, thorough is the default.
 - Paywalled or unreachable: cite from metadata, mark `blocked`, never guess.
 - Never produce the draft. Someone else reads your file.

@@ -5,6 +5,8 @@
  * - Missing MACHINE_VERDICT line (verifier outputs)
  * - Missing inline citations [1], [2]
  * - Missing Sources section
+ * - Sources entries listed but never cited in the body
+ * - Repo claims anchored to a bare filename instead of a path
  * - Missing evidence trail table
  * - Final research deliverables that answer nobody's question: no artifact
  *   anchor, no negative coverage, or a recommendation with no stated evidence
@@ -95,6 +97,31 @@ function isFinalDeliverable(filePath) {
   return markers.some((marker) => existsSync(join(dirname(filePath), marker)));
 }
 
+// A numbered Sources entry that nothing cites is a reference kept for looks.
+function uncitedSources(text) {
+  const heading = /^#{1,4}\s*Sources\b/im.exec(text);
+  if (!heading) return [];
+  const body = text.slice(0, heading.index);
+  const after = text.slice(heading.index + heading[0].length);
+  const listed = [...after.matchAll(/^\s*(\d+)\.\s+/gm)].map((m) => m[1]);
+  if (listed.length === 0) return [];
+  const cited = new Set([...body.matchAll(/\[(\d+)\]/g)].map((m) => m[1]));
+  return listed.filter((n) => !cited.has(n));
+}
+
+// A repo claim anchored to a bare code filename (`solver.ts:42`) cannot be
+// resolved by a reader; only a path is checkable. Prose/config files commonly
+// sit at a repo root, so they are exempt; code files rarely do.
+const CODE_EXT = "ts|tsx|js|mjs|cjs|py|go|rs|java|c|cc|cpp|h|hpp|sql|sh|ps1";
+function bareCodeAnchors(text) {
+  const pattern = new RegExp(`(?:^|[\`(<\\s])([\\w.-]+\\.(?:${CODE_EXT})):\\d+`, "gi");
+  const bad = [];
+  for (const match of text.matchAll(pattern)) {
+    if (!match[1].includes("/")) bad.push(match[1]);
+  }
+  return [...new Set(bad)];
+}
+
 function checkFile(filePath) {
   const problems = [];
   const text = readFileSync(filePath, "utf-8");
@@ -102,6 +129,7 @@ function checkFile(filePath) {
   const isVerifier = filename.includes("verifier") || filename.includes("verification");
   const isDraft = filename.includes("draft") || filename.includes("cited");
   const isPlan = filename.includes("plan");
+  const final = isFinalDeliverable(filePath);
 
   if (isVerifier && !text.includes("MACHINE_VERDICT:")) {
     problems.push(`${filename}: missing MACHINE_VERDICT line`);
@@ -113,6 +141,11 @@ function checkFile(filePath) {
 
   if (isDraft && !text.includes("## Sources") && !text.includes("## sources")) {
     problems.push(`${filename}: missing Sources section`);
+  }
+
+  if ((isDraft || final) && uncitedSources(text).length > 0) {
+    const uncited = uncitedSources(text).map((n) => `[${n}]`).join(", ");
+    problems.push(`${filename}: Sources ${uncited} listed but never cited in the body`);
   }
 
   if (isVerifier && !text.includes("Evidence Trail") && !text.includes("evidence trail")) {
@@ -127,10 +160,16 @@ function checkFile(filePath) {
     problems.push(`${filename}: missing Evidence Needed section`);
   }
 
-  if (isFinalDeliverable(filePath)) {
+  if (final) {
     if (!FILE_ANCHOR.test(text) && !MEASURED_COMMAND.test(text)) {
       problems.push(
         `${filename}: no artifact anchor — ground a claim in path:line or in a command and its result`,
+      );
+    }
+    const bare = bareCodeAnchors(text);
+    if (bare.length > 0) {
+      problems.push(
+        `${filename}: bare filename anchor ${bare.map((b) => `\`${b}\``).join(", ")} — repo claims need path:line`,
       );
     }
     if (!hasSectionWithBody(text, NEGATIVE_COVERAGE)) {
@@ -190,6 +229,7 @@ if (totalProblems === 0) {
   console.log("  - All plans have Key Questions + Evidence Needed");
   console.log("  - All verifier outputs have Evidence Trail");
   console.log("  - Every final deliverable is anchored and records what it did not find");
+  console.log("  - Sources entries are cited; repo anchors carry a path");
   process.exit(0);
 }
 

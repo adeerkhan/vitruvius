@@ -12,7 +12,7 @@ argument-hint: "[--posting <path>] [--cv <path>] [--statement <path>] [--sample 
 allowed-tools: Write Edit Bash Read
 license: MIT
 metadata:
-  version: "0.1.9"
+  version: "0.1.10"
 
 ---
 

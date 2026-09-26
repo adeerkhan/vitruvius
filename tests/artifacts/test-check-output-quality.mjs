@@ -32,6 +32,12 @@ try {
   assert.equal(invalidDraft.status, 1);
   assert.match(invalidDraft.stderr, /inline citations|Sources/i);
 
+  // A numbered Sources entry that nothing cites is a reference kept for looks.
+  write("brief-draft.md", "# Draft\n\n[1] A cited claim.\n\n## Sources\n1. Source A\n2. Source B\n");
+  const uncited = run();
+  assert.equal(uncited.status, 1);
+  assert.match(uncited.stderr, /\[2\] listed but never cited/);
+
   write("claim-verification.md", "# Verification\n\nNo machine markers.\n");
   const invalidVerifier = run();
   assert.equal(invalidVerifier.status, 1);
@@ -71,6 +77,13 @@ try {
   writeFinal("treemap-audit-problem-anchor.json", "{}\n");
   const validFinal = runFinal();
   assert.equal(validFinal.status, 0, validFinal.stderr);
+
+  // A repo claim anchored to a bare filename cannot be resolved by a reader.
+  writeFinal("treemap-audit.md", `# Audit\n\nSee \`squarify.ts:9\`.\n\n${body}`);
+  const bareAnchor = runFinal();
+  assert.equal(bareAnchor.status, 1);
+  assert.match(bareAnchor.stderr, /bare filename anchor.*squarify\.ts/);
+  writeFinal("treemap-audit.md", `# Treemap audit\n\n${body}`);
 
   // Regression: neither a provenance sidecar nor any of the shaped artifacts
   // that share the outputs tree may be judged as a research report.

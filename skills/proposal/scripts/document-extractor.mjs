@@ -66,7 +66,9 @@ async function extractWithPdfParse(filePath, sourceBuffer) {
     const module = await import('pdf-parse');
     const pdfParse = module.default ?? module;
     if (typeof pdfParse !== 'function') throw new Error('pdf-parse export is not callable');
-    const data = await pdfParse(sourceBuffer);
+    // pdf-parse 1.x misreads a Node Buffer and throws "bad XRef entry" on valid
+    // PDFs; it expects a Uint8Array. See skills/scholarly-research/scripts/extract-pdf.mjs.
+    const data = await pdfParse(new Uint8Array(sourceBuffer));
     const text = typeof data.text === 'string' ? data.text : '';
     return { text, markdown: text, pages: data.numpages || 0, ocrUsed: false };
   }).catch((error) => {
