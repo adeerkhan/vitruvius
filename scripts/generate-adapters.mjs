@@ -20,6 +20,7 @@ import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, rmSync
 import { join, dirname, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 import { commands, categories, hosts, rulesetHosts } from "./command-contract.mjs";
+import { parseFrontmatterObject } from "./yaml-frontmatter.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = join(__dirname, "..");
@@ -96,9 +97,63 @@ for (const host of rulesetHosts) {
   emit(target, normalizeLineEndings(ruleset));
 }
 
+// Role adapters are generated from the canonical agents/*.md manifest, so the
+// OpenCode subagents cannot drift from their role contracts. A read-only role
+// (declares neither Write nor Edit) gets the write/edit denials; a producer
+// gets unrestricted tools.
+const AGENTS_DIR = join(REPO_ROOT, "agents");
+const AGENT_OUT_DIR = join(REPO_ROOT, ".opencode", "agent");
+
+function parseToolsList(value) {
+  const match = String(value ?? "").match(/^\[(.*)\]$/);
+  return match ? match[1].split(",").map((entry) => entry.trim()).filter(Boolean) : [];
+}
+
+function agentAdapterContent(role, canonical) {
+  const frontmatter = parseFrontmatterObject(canonical);
+  const name = typeof frontmatter.name === "string" ? frontmatter.name : role;
+  const purpose = typeof frontmatter.role === "string"
+    ? frontmatter.role.charAt(0).toLowerCase() + frontmatter.role.slice(1)
+    : role;
+  const tools = parseToolsList(frontmatter.tools);
+  const readOnly = !tools.includes("Write") && !tools.includes("Edit");
+  return [
+    "---",
+    `description: Vitruvius ${name} role (${purpose}). Canonical definition: agents/${name}.md - Read it and follow it exactly.`,
+    "mode: subagent",
+    readOnly ? "tools:\n  write: false\n  edit: false" : "tools:",
+    "---",
+    "",
+    `1. Read the file agents/${name}.md from the repo root and follow it exactly.`,
+    `2. If that file is missing, refuse the task and report BLOCKED: role definition agents/${name}.md not found - do not improvise the role.`,
+    "",
+  ].join("\n");
+}
+
+if (existsSync(AGENTS_DIR)) {
+  if (!CHECK_MODE && !existsSync(AGENT_OUT_DIR)) mkdirSync(AGENT_OUT_DIR, { recursive: true });
+  const roleFiles = readdirSync(AGENTS_DIR).filter((file) => file.endsWith(".md")).sort();
+  const expectedRoles = new Set(roleFiles);
+  if (existsSync(AGENT_OUT_DIR)) {
+    for (const entry of readdirSync(AGENT_OUT_DIR, { withFileTypes: true })) {
+      if (!entry.isFile() || !entry.name.endsWith(".md")) continue;
+      if (expectedRoles.has(entry.name)) continue;
+      orphans.push(relative(REPO_ROOT, join(AGENT_OUT_DIR, entry.name)));
+      if (!CHECK_MODE) {
+        rmSync(join(AGENT_OUT_DIR, entry.name));
+        console.log(`Pruned: ${join(AGENT_OUT_DIR, entry.name)}`);
+      }
+    }
+  }
+  for (const file of roleFiles) {
+    const canonical = readFileSync(join(AGENTS_DIR, file), "utf-8");
+    emit(join(AGENT_OUT_DIR, file), agentAdapterContent(file.replace(/\.md$/, ""), canonical));
+  }
+}
+
 if (CHECK_MODE) {
   if (orphans.length > 0) {
-    console.error(`FAIL: ${orphans.length} orphaned adapter file(s) for commands no longer in the contract:`);
+    console.error(`FAIL: ${orphans.length} orphaned adapter file(s) for commands/roles no longer in the contract:`);
     for (const file of orphans) console.error(`  ${file}  (run: node scripts/generate-adapters.mjs)`);
   }
   if (mismatches.length > 0) {

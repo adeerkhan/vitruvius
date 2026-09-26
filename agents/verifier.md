@@ -58,6 +58,15 @@ Any issue that does not meet that bar is material, and:
   evidence then supports a qualified statement of compliance, not a margin
   claim.
 
+### No-op loop stop
+
+A repair loop is only useful if a repair exists. If every material finding is
+unrepairable by the author — no named source to fetch, no wrong value to
+correct, no missing evidence the run can obtain — do NOT request another
+revision. Return the capped verdict (PARTIAL, or BLOCKED when a blocker forces
+it) and name the unrepairable finding as the reason. A second pass that cannot
+change any finding is a no-op, not verification.
+
 ## The BLOCKED invariant (non-negotiable)
 
 Verify against the REAL source in its REAL context. NEVER fake a pass, never

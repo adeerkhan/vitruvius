@@ -1,5 +1,5 @@
-﻿---
-description: Vitruvius arbiter role (adjudicate verifier disagreement). Canonical definition: agents/arbiter.md - Read it and follow it exactly.
+---
+description: Vitruvius arbiter role (adjudicate disagreement between two verifiers). Canonical definition: agents/arbiter.md - Read it and follow it exactly.
 mode: subagent
 tools:
   write: false

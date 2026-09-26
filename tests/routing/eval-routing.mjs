@@ -265,6 +265,29 @@ if (negativeHits < e1Cases.length) {
   failed++;
 }
 
+console.log("\nCheck 3b — E1 must-not-fire (target skill must stay out of top-k):");
+const mustNotFireCases = e1Catalog.must_not_fire ?? [];
+let mustNotFireHits = 0;
+const mustNotFireMisses = [];
+for (const entry of mustNotFireCases) {
+  const query = tfidfVec(tokenize(entry.prompt));
+  const ranked = skillVecs
+    .map((skill) => ({ name: skill.name, score: cosine(query, skill.v) }))
+    .sort((left, right) => right.score - left.score);
+  const targetRank = ranked.findIndex((skill) => skill.name === entry.skill) + 1;
+  const topK = entry.top_k ?? 1;
+  if (targetRank === 0 || targetRank > topK) {
+    mustNotFireHits++;
+  } else {
+    mustNotFireMisses.push(`${entry.skill} must stay out of top-${topK} for "${entry.prompt}" (rank ${targetRank})`);
+  }
+}
+console.log(`  must-not-fire: ${mustNotFireHits}/${mustNotFireCases.length}`);
+if (mustNotFireHits < mustNotFireCases.length) {
+  for (const miss of mustNotFireMisses) console.log(`  MISS: ${miss}`);
+  failed++;
+}
+
 function persistMisses(path, label, misses, scoreText) {
   const missBody = misses.length ? `${misses.join("\n")}\n` : "";
   const header = `# ${label}, last run ${new Date().toISOString().split("T")[0]}: ${scoreText}`;

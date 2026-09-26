@@ -182,6 +182,38 @@ export function validateEvalCatalog(catalog, { repoRoot }) {
     if (!caseSkills.has(skill)) errors.push(`missing skill case: ${skill}`);
   }
 
+  // Must-not-fire cases: a skill whose description is over-broad can win a
+  // prompt that belongs to another skill. These are deterministic routing
+  // negatives, the E1 analogue of a plugin eval that must stay quiet.
+  if (catalog.must_not_fire !== undefined) {
+    if (!Array.isArray(catalog.must_not_fire)) {
+      errors.push("must_not_fire must be an array when present");
+    } else {
+      const mustNotFireIds = new Set();
+      for (const [index, entry] of catalog.must_not_fire.entries()) {
+        const label = `must_not_fire[${index}]`;
+        if (!entry || typeof entry !== "object" || Array.isArray(entry)) {
+          errors.push(`${label} must be an object`);
+          continue;
+        }
+        if (!isNonEmptyString(entry.id)) {
+          errors.push(`${label}.id must be a non-empty string`);
+        } else if (mustNotFireIds.has(entry.id)) {
+          errors.push(`duplicate must_not_fire id: ${entry.id}`);
+        } else {
+          mustNotFireIds.add(entry.id);
+        }
+        if (!isNonEmptyString(entry.skill) || !skillNames.has(entry.skill)) {
+          errors.push(`${label}.skill must name a known skill`);
+        }
+        if (!isNonEmptyString(entry.prompt)) errors.push(`${label}.prompt must be a non-empty string`);
+        if (!Number.isInteger(entry.top_k) || entry.top_k < 1 || entry.top_k > 3) {
+          errors.push(`${label}.top_k must be an integer from 1 to 3`);
+        }
+      }
+    }
+  }
+
   return {
     valid: errors.length === 0,
     errors,

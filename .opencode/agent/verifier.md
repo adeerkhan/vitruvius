@@ -1,4 +1,4 @@
-﻿---
+---
 description: Vitruvius verifier role (independent claim verification (blind)). Canonical definition: agents/verifier.md - Read it and follow it exactly.
 mode: subagent
 tools:

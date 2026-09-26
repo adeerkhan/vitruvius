@@ -120,5 +120,25 @@
         ]
       }
     }
+  ],
+  "must_not_fire": [
+    {
+      "id": "habit-not-for-source-discovery",
+      "skill": "habit",
+      "prompt": "discover primary sources, read them, synthesize findings, and verify an engineering claim",
+      "top_k": 3
+    },
+    {
+      "id": "proposal-not-for-gap-analysis",
+      "skill": "proposal",
+      "prompt": "find research gaps in FRP bonding literature for civil structures",
+      "top_k": 3
+    },
+    {
+      "id": "verifier-not-for-summarizing",
+      "skill": "verifier",
+      "prompt": "summarize this datasheet into a digestible brief",
+      "top_k": 3
+    }
   ]
 }

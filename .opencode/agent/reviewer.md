@@ -1,4 +1,4 @@
-﻿---
+---
 description: Vitruvius reviewer role (adversarial review of the cited draft). Canonical definition: agents/reviewer.md - Read it and follow it exactly.
 mode: subagent
 tools:

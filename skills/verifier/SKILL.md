@@ -16,7 +16,7 @@ argument-hint: "<claim or calculation> [--direct | --blind]"
 allowed-tools: Read Grep Glob Bash
 license: MIT
 metadata:
-  version: "0.3.1"
+  version: "0.3.2"
 
 ---
 
@@ -116,6 +116,7 @@ conclusion could be wrong. When in doubt, return PARTIAL or BLOCKED.
 5. Any material finding (Severity→verdict gate below) → verdict CANNOT be PASS; cap at PARTIAL unless a blocker forces BLOCKED
 6. Sweep for margin claims and cited-but-unused answer-changing evidence → either exists, verdict CANNOT be PASS
 7. Required-value check: question asks minimum/maximum/required value, evidence supports a different one the conclusion does not acknowledge → verdict MUST be BLOCKED (safety/oversizing does not rescue a wrong direct answer). If the conclusion explicitly quantifies the acknowledged alternative (e.g. two theories both quoted by evidence), the conservative choice is sound and this gate does not fire
+8. No-op loop: if every material finding is unrepairable (no named source to fetch, no wrong value to correct, no obtainable evidence), do not request another pass — return the capped verdict and name the unrepairable finding
 
 ### Severity→verdict gate (findings cap the verdict)
 

@@ -63,3 +63,8 @@ verify first, then review).
 
 A draft with open FATAL findings is not delivered. The lead fixes and, for
 FATAL, re-runs verification on the affected claims.
+
+A finding that names no required fix is not actionable. If every finding is
+unrepairable (no location to correct, no source to supply), do not send the
+draft back again: report ISSUES with the unrepairable finding named. A second
+pass that cannot change a finding is a no-op, not review.

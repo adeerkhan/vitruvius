@@ -64,6 +64,13 @@ check("verifier: PARTIAL-vs-BLOCKED decision rule", /PARTIAL vs BLOCKED|Conserva
 check("verifier: FAIL is not a verdict value", /never a verdict value|never the bare word FAIL/i.test(verifier));
 check("verifier: quality gate has 7 items incl. required-value check", /Required-value check/.test(verifier));
 check("verifier: 8 adversarial checks", /8\.\s+\*\*Citation entailment/.test(verifier));
+check("verifier: no-op loop stop", /No-op loop stop/i.test(verifier) && /unrepairable/i.test(verifier));
+const reviewerText = read(join(AGENTS_DIR, "reviewer.md")) ?? "";
+check("reviewer: no-op loop stop", /no-op/i.test(reviewerText));
+check(
+  "verifier skill: no-op loop gate",
+  /No-op loop/i.test(read(join(REPO_ROOT, "skills", "verifier", "SKILL.md")) ?? ""),
+);
 
 // --- 4. Goal-checker specifics ---
 const goalChecker = read(join(AGENTS_DIR, "goal-checker.md")) ?? "";

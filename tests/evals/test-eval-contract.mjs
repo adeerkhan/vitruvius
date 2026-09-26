@@ -63,5 +63,17 @@ assert.match(
   errorsFor((value) => { value.cases[0].behavior.execution = "model-call"; }).join("\n"),
   /execution must be npm-test/i,
 );
+assert.match(
+  errorsFor((value) => { value.must_not_fire[0].skill = "not-a-skill"; }).join("\n"),
+  /must_not_fire\[0\]\.skill must name a known skill/i,
+);
+assert.match(
+  errorsFor((value) => { value.must_not_fire[0].top_k = 9; }).join("\n"),
+  /must_not_fire\[0\]\.top_k must be an integer from 1 to 3/i,
+);
+assert.match(
+  errorsFor((value) => value.must_not_fire.push(structuredClone(value.must_not_fire[0]))).join("\n"),
+  /duplicate must_not_fire id/i,
+);
 
 console.log("PASS: E1 catalog contract accepts the pilot and refuses malformed cases");

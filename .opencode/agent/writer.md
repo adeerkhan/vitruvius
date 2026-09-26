@@ -1,4 +1,4 @@
-﻿---
+---
 description: Vitruvius writer role (synthesis of evidence into the cited draft). Canonical definition: agents/writer.md - Read it and follow it exactly.
 mode: subagent
 tools:

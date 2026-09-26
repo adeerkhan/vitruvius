@@ -1,4 +1,4 @@
-﻿---
+---
 description: Vitruvius researcher role (evidence gathering). Canonical definition: agents/researcher.md - Read it and follow it exactly.
 mode: subagent
 tools:

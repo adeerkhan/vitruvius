@@ -50,7 +50,7 @@ function readVerdictLines(content) {
   return { verdicts, malformed };
 }
 
-function classify(groundTruth, machineVerdict) {
+export function classify(groundTruth, machineVerdict) {
   const verdictMatch = machineVerdict.verdict === groundTruth.verdict;
   const flawMatch =
     machineVerdict.flaw.toLowerCase() === groundTruth.flaw.toLowerCase() ||
