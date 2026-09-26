@@ -104,6 +104,9 @@ npm run test:problem-anchor
 npm run test:package-contract
 npm run test:package-consumer
 npm run test:input-gate
+npm run test:node
+npm run test:artifact-paths
+npm run test:docs
 node tests/routing/eval-routing.mjs
 node scripts/fixed-case.mjs case evals/cases/local-evidence-suite.json
 node scripts/fixed-case.mjs results evals/results/manifest.json evals/results
@@ -138,6 +141,7 @@ Named engineering jobs over the shared loop:
 | Command | What it does |
 |---------|--------------|
 | `/gap-analysis` | Systematic literature gap identification via triangulation (OpenAlex, arXiv, web) |
+| `/evidence-ranking` | Rank and score engineering evidence by quality using the tier system |
 | `/design-alternatives` | Generate and compare 3+ engineering approaches with scored trade-off matrices |
 | `/fmea-brainstorm` | FMEA-style failure mode brainstorming with S/O/D ratings and RPN ranking |
 | `/hypothesis-generation` | Freeze rival hypotheses with dated evidence boundaries and discriminating tests |
@@ -261,6 +265,7 @@ End-to-end workflows for specific tasks:
 | `/electrical "research question"` | Runs research loop with electrical/electronics evidence landscape |
 | `/architectural "research question"` | Runs research loop with architectural evidence landscape |
 | `/gap-analysis civil FRP-bonding` | Finds research gaps via OpenAlex + arXiv triangulation |
+| `/evidence-ranking "question"` | Ranks and scores evidence by quality tier |
 | `/design-alternatives "problem"` | Compares 3+ engineering approaches with scored trade-off matrix |
 | `/fmea-brainstorm "system"` | Brainstorms failure modes with S/O/D ratings and RPN ranking |
 | `/hypothesis-generation "observation"` | Freezes rival hypotheses with dated evidence boundaries |

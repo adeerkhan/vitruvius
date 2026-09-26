@@ -7,12 +7,13 @@ description: >
   uses optional tooling and URL/image inputs require an explicitly recorded
   fetch or transcription before intake. The workflow researches professor/lab, identifies
   lab-specific gaps, and generates a targeted proposal with deep fit analysis.
+  Use when the user wants a targeted proposal from a posting, CV, or statement.
   Wraps /gap-analysis, /evidence-ranking, and /verifier as isolated subagents.
 argument-hint: "[--posting <path>] [--cv <path>] [--statement <path>] [--sample <path>]"
 allowed-tools: Write Edit Bash Read
 license: MIT
 metadata:
-  version: "0.1.10"
+  version: "0.1.11"
 
 ---
 

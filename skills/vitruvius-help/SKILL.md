@@ -2,12 +2,13 @@
 name: vitruvius-help
 description: >
   Quick-reference card for all Vitruvius commands, disciplines, and the shared
-  research method. One-shot display, not a persistent mode. Trigger:
-  /vitruvius-help, "vitruvius help", "what vitruvius commands", "how do I use
-  vitruvius".
+  research method. One-shot display, not a persistent mode. Use when the user
+  asks for Vitruvius commands, disciplines, or the shared research method.
+  Trigger: /vitruvius-help, "vitruvius help", "what vitruvius commands", "how
+  do I use vitruvius".
 license: MIT
 metadata:
-  version: "0.1.2"
+  version: "0.1.4"
 ---
 
 # Vitruvius Help
@@ -38,6 +39,12 @@ with auditable provenance.
 | `/vitruvius:artifact-reading <doc>` | Anchored document reading + extraction. |
 | `/vitruvius:scholarly-research <topic>` | Academic literature discovery (OpenAlex, arXiv, etc.). |
 | `/vitruvius:standards-lookup <standard>` | Engineering standards (AISC, ACI, ASCE, IEEE, Eurocode). |
+| `/vitruvius:gap-analysis <discipline> <topic>` | Systematic literature gap identification via triangulation. |
+| `/vitruvius:evidence-ranking <question>` | Rank and score evidence by quality tier. |
+| `/vitruvius:design-alternatives <problem>` | Compare 3+ engineering approaches with scored trade-offs. |
+| `/vitruvius:fmea-brainstorm <system>` | Failure-mode brainstorming with S/O/D ratings and RPN. |
+| `/vitruvius:proposal --posting X --cv Y` | Targeted Ph.D./Masters proposal workflow. |
+| `/vitruvius:habit` | Extract research preferences for validation and approval. |
 | `/vitruvius:engineering-research <question>` | Shared research method (discover → read → verify → review). |
 | `/vitruvius:hypothesis-generation <observation>` | Freeze rival hypotheses with dated evidence boundaries. |
 | `/vitruvius:peer-review <artifact>` | Adversarial peer review with severity-graded findings. |

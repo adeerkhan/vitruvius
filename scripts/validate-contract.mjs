@@ -1,11 +1,14 @@
 import { readdirSync, readFileSync, statSync, existsSync } from "node:fs";
-import { join, relative } from "node:path";
+import { join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { readYamlFrontmatter, parseFrontmatterEntries } from "./yaml-frontmatter.mjs";
+import { readYamlFrontmatter, parseFrontmatterEntries, readSkillDescription } from "./yaml-frontmatter.mjs";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const REPO_ROOT = join(__dirname, "..");
-const SKILLS_DIR = join(REPO_ROOT, "skills");
+// Tests point this at a fixture tree to prove a check can fail.
+const SKILLS_DIR = process.env.VITRUVIUS_SKILLS_DIR
+  ? resolve(REPO_ROOT, process.env.VITRUVIUS_SKILLS_DIR)
+  : join(REPO_ROOT, "skills");
 
 const MAX_SKILL_MD_LINES = 500;
 const ALLOWED_FRONTMATTER_FIELDS = new Set([
@@ -220,9 +223,89 @@ function skillMentionProblems(skill, knownSkills) {
 const skillDirs = [...allSkillNames()].map((n) => join(SKILLS_DIR, n));
 const knownSkills = new Set(skillDirs.map((s) => relative(SKILLS_DIR, s)));
 
+// A directory with no regular file at any depth is noise (skill-anatomy
+// "Supporting Files" transfer from ref/agent-skills).
+function isEffectivelyEmpty(dir) {
+  let entries;
+  try {
+    entries = readdirSync(dir, { withFileTypes: true });
+  } catch {
+    return true;
+  }
+  for (const entry of entries) {
+    if (entry.isDirectory()) {
+      if (!isEffectivelyEmpty(join(dir, entry.name))) return false;
+    } else {
+      return false;
+    }
+  }
+  return true;
+}
+
+// Supporting .md files are lowercase-hyphen-separated (skill-anatomy "Naming
+// Conventions"). Layout violations, so they fail rather than warn.
+function skillLayoutProblems(skill) {
+  const problems = [];
+  const name = relative(SKILLS_DIR, skill);
+  const walk = (dir, relBase) => {
+    let entries;
+    try {
+      entries = readdirSync(dir, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const entry of entries) {
+      const rel = relBase ? `${relBase}/${entry.name}` : entry.name;
+      const abs = join(dir, entry.name);
+      if (entry.isDirectory()) {
+        if (isEffectivelyEmpty(abs)) problems.push(`${name}: empty directory \`${rel}/\``);
+        else walk(abs, rel);
+      } else if (
+        entry.name.endsWith(".md") &&
+        entry.name !== "SKILL.md" &&
+        !/^[a-z0-9]+(-[a-z0-9]+)*\.md$/.test(entry.name)
+      ) {
+        problems.push(`${name}: supporting file \`${rel}\` is not lowercase-hyphen-separated`);
+      }
+    }
+  };
+  walk(skill, "");
+  return problems;
+}
+
+// Description needs a positive trigger. Strip *every* negated clause before
+// testing, so two "Do not use when" clauses cannot leave a stray positive
+// match behind (ref/agent-skills skill-lint.js, commit fc3026e).
+const DESCRIPTION_TRIGGER = /\buse (?:this )?(?:when|before|after|during)\b|\buse (?:for|to)\b/i;
+const DESCRIPTION_TRIGGER_NEGATE_ALL =
+  /\b(?:do not|don't|never)\s+use (?:this )?(?:when|before|after|during|for|to)\b/gi;
+
+function descriptionTriggerProblems(skill) {
+  const name = relative(SKILLS_DIR, skill);
+  let text;
+  try {
+    text = readFileSync(join(skill, "SKILL.md"), "utf-8");
+  } catch {
+    return [];
+  }
+  const description = readSkillDescription(text);
+  if (!description) return [`${name}: SKILL.md has no description`];
+  const hasTrigger = DESCRIPTION_TRIGGER.test(description);
+  const onlyNegated =
+    hasTrigger && !description.replace(DESCRIPTION_TRIGGER_NEGATE_ALL, "").match(DESCRIPTION_TRIGGER);
+  if (!hasTrigger || onlyNegated) {
+    return [
+      `${name}: description has no positive "use when/for" trigger after negated clauses are stripped`,
+    ];
+  }
+  return [];
+}
+
 const CHECKS = {
   frontmatter: frontmatterProblems,
   skill_md_length: lengthProblems,
+  skill_layout: skillLayoutProblems,
+  description_trigger: descriptionTriggerProblems,
   no_tests_under_skills: strayTestProblems,
   local_links_resolve: linkProblems,
   skill_references_resolve: (skill) => skillMentionProblems(skill, knownSkills),
