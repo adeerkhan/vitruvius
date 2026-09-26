@@ -70,7 +70,8 @@ Scope for what it cannot do.
   `background`, and is mandatory. This is the "so what" field: every finding
   declares its landing site.
 - `status` is one of `verified`, `partial`, `blocked`, `unverified`, `inferred`,
-  `failed`. A `verified` finding needs either a resolvable anchor or a locator.
+  `failed`. A `verified` finding needs either a resolvable anchor or a locator,
+  and for a `repo` finding it must additionally survive the entailment proxy below.
 - `anchor` is `{ path, line }`. The path must be confined and `/`-separated, the
   line must exist, and it must not be blank. The path is resolved through links
   before the containment test, so a junction inside the root cannot reach
@@ -82,6 +83,45 @@ Scope for what it cannot do.
   artifact's path. It is rejected on any other finding.
 - `product` and `background` findings cannot carry an `anchor`. An `external`
   finding must carry a `locator` and may not carry an `anchor`.
+
+## The entailment proxy
+
+An anchor that resolves proves a claim *points at* code. It does not prove the
+code says what the claim says. For a `repo` finding marked `verified`, the
+validator therefore requires the anchored line to carry the claim's
+high-precision content:
+
+| Token in the claim | Must appear in the anchored line |
+|---|---|
+| `quoted span` | as a case-insensitive substring |
+| `dotted.snake_or-kebab` identifier | as a substring |
+| a number with a unit | as a matching measure, compared after unit conversion within 0.5% |
+
+So a claim that reads `the corridor minimum is 1050 mm` passes against a line
+reading `1,050 mm`, and against `1.05 m` too. A claim reading `1.05 m`
+against a line that only carries `1,200 mm` is refused.
+
+This is why `verified` is now a stronger word than it was. A finding that
+paraphrases rather than quotes is `partial`, and the check is gated on the
+status so that a paraphrase is not punished as a falsehood.
+
+### What the proxy cannot do
+
+State these as limits, not as features:
+
+1. **Presence, not attribution.** A figure on the line satisfies the claim even
+   when the claim names the wrong subject. "The entrance hall is 1,05 m" passes
+   against a line that reads `corridors minimum 1,050 mm; entrance halls minimum
+   1,200 mm`, because the figure is present. Deciding which noun a number
+   belongs to is reading comprehension, and it stays with the verifier.
+2. **A unitless line value cannot satisfy a unit-bearing claim.** `minDepth:
+   3.0` does not support "3.0 m". Supplying the unit is your inference, so the
+   finding is `partial`. The failure direction is deliberate.
+3. **Negative claims are invisible.** "No universal geometric slack factor
+   exists" contains no checkable token. Absence claims stay with the verifier.
+
+None of the three is a defect to fix by loosening the check. Loosening it is
+how a contract starts overstating what it proves.
 
 ## Negative coverage
 

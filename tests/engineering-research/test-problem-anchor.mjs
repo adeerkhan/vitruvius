@@ -18,7 +18,12 @@ const researcher = readFileSync(join(repoRoot, "agents", "researcher.md"), "utf8
 const writer = readFileSync(join(repoRoot, "agents", "writer.md"), "utf8");
 const goalChecker = readFileSync(join(repoRoot, "agents", "goal-checker.md"), "utf8");
 
-assert.match(method, /version: "0\.2\.5"/, "engineering-research version bumped");
+assert.match(method, /version: "0\.2\.6"/, "engineering-research version bumped");
+assert.match(
+  method,
+  /entailment proxy|entailment/i,
+  "the method states that a verified repo claim must survive the entailment proxy",
+);
 assert.match(method, /`repo`/, "method documents the repo evidence type");
 assert.match(method, /path:line/, "method requires a path:line anchor for repo claims");
 assert.match(method, /What we did not find/i, "method requires negative coverage");
@@ -53,7 +58,7 @@ function digest(path) {
 
 function fixture(overrides = {}) {
   write("solver/squarify.ts", "export const fill = true;\nexport const scale = 2;\n");
-  write("solver/RoomProfile.ts", "export const usableWallM = 1.2;\n");
+  write("solver/RoomProfile.ts", "export const usableWallM = 1.2; // usable-wall contract per room kind\n");
   const artifactA = join(root, "solver", "squarify.ts");
   const artifactB = join(root, "solver", "RoomProfile.ts");
   const finalPath = write(
@@ -108,7 +113,7 @@ function fixture(overrides = {}) {
       {
         id: "F2",
         decision_id: "D1",
-        claim: "Rooms already carry a usable-wall contract, so do not add a furniture evaluator",
+        claim: "Rooms already carry a `usableWallM` contract, so do not add a furniture evaluator",
         type: "repo",
         anchor: { path: "solver/RoomProfile.ts", line: 1 },
         artifact_id: "A2",

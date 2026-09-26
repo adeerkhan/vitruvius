@@ -17,6 +17,7 @@ import { createHash } from "node:crypto";
 import { readFileSync, realpathSync, statSync } from "node:fs";
 import { isAbsolute, dirname, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
+import { unsupportedTokens } from "./entailment.mjs";
 
 const SCHEMA = "vitruvius-problem-anchor.v1";
 const SHA256_PATTERN = /^[0-9a-f]{64}$/;
@@ -338,7 +339,9 @@ export function validateProblemAnchor(record, { anchorRoot: anchorRootOption, re
         errors.push(`${label}.artifact_id is only valid on a repo finding or an action`);
       }
 
-      // resolve the anchor against real bytes
+      // resolve the anchor against real bytes, and check that a `verified`
+      // repo claim's high-precision content is actually carried by that line
+      let anchoredLine = null;
       if (anchored) {
         const anchorLabel = `${label}.anchor`;
         if (!isConfinedRelativePath(finding.anchor.path)) {
@@ -353,8 +356,29 @@ export function validateProblemAnchor(record, { anchorRoot: anchorRootOption, re
               errors.push(`${anchorLabel}.line ${finding.anchor.line} is past end of file (${lines.length} lines)`);
             } else if ((lines[finding.anchor.line - 1] ?? "").trim() === "") {
               errors.push(`${anchorLabel}.line ${finding.anchor.line} is blank; anchor a line that carries the claim`);
+            } else {
+              anchoredLine = lines[finding.anchor.line - 1];
             }
           }
+        }
+      }
+
+      // Entailment proxy. `verified` now means: the anchor resolved AND it
+      // carries the claim's quoted spans, identifiers, and measures. A finding
+      // that paraphrases should be `partial`, which is why this is gated on
+      // the status rather than applied to everything. See references/
+      // problem-anchor-contract.md for what this still cannot catch.
+      if (
+        finding.type === "repo" &&
+        finding.status === "verified" &&
+        isText(finding.claim) &&
+        anchoredLine !== null
+      ) {
+        for (const { token, kind } of unsupportedTokens(finding.claim, anchoredLine)) {
+          errors.push(
+            `${label} is verified but the anchored line does not carry its ${kind} ${token}; ` +
+              `downgrade to partial or anchor the line that does`,
+          );
         }
       }
 

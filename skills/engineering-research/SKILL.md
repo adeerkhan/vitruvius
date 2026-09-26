@@ -15,7 +15,7 @@ argument-hint: "<research question or artifact to review> [--deep | --quick]"
 allowed-tools: Write Edit Bash Read
 license: MIT
 metadata:
-  version: "0.2.5"
+  version: "0.2.6"
 
 ---
 
@@ -112,24 +112,17 @@ degrade — note the gate resolution in the plan's Decision log.
 
 ### Problem anchor (freeze before searching)
 
-Before any search, name what the report is *about*, not just what it will
-look up. Write these into the plan and keep them stable for the whole run:
+Before any search, name what the report is *about*, not just what it will look
+up, and keep it stable for the run: the **artifacts under study** with the commit
+that pins them, the **2-5 decisions** the reader will make with this report, and
+the **non-goals** (usually product policy and jurisdiction choice). A run with
+no artifact is a literature review; say so rather than implying a codebase was
+read. Research that cannot name its decisions is scope drift.
 
-- **Artifacts under study** — the files, repos, or documents this run is
-  actually about, with the commit or revision that pins them. A run with no
-  artifact is a literature review; say so in the plan rather than implying a
-  codebase was read.
-- **Decisions to inform** — the 2-5 concrete decisions the reader will make
-  with this report (ship / defer / profile / measure / policy). Research that
-  cannot name them is scope drift, and the goal-checker will catch it.
-- **Non-goals** — what this run will not settle (usually product policy and
-  jurisdiction choice).
-
-These three become the `decisions` and `artifacts` of the machine record in
-`references/problem-anchor-contract.md`, which is written beside the candidate
-and validated with `vitruvius-problem-anchor`. Anchors are resolved against real
-bytes, so a `repo` claim that does not match the snapshot fails closed instead
-of reaching review.
+These become the `artifacts` and `decisions` of the machine record in
+`references/problem-anchor-contract.md`, written beside the candidate and
+validated with `vitruvius-problem-anchor`. Anchors resolve against real bytes,
+so a `repo` claim that does not match the snapshot fails closed before review.
 
 Create `outputs/.plans/<slug>.md` immediately. The plan must include:
 
@@ -284,8 +277,14 @@ Then write the `vitruvius-problem-anchor.v1` record beside the candidate from
 <record>` (or `node scripts/problem-anchor-contract.mjs <record>` in a
 checkout). It must pass before the brief moves to verification: every decision
 reached a position, every `repo` anchor resolves to a non-blank line on disk,
-and the candidate actually cites them. Repair a failed record by fixing the
-claim or the anchor — never by deleting the finding.
+and the candidate actually cites them.
+
+`verified` also requires the entailment proxy: the anchored line must carry the
+claim's quoted spans, identifiers, and measures. A paraphrase is `partial`;
+attribution and negative claims stay with the verifier.
+
+Repair a failed record by fixing the claim or the anchor — never by deleting
+the finding.
 
 Before citation, sweep the draft: every critical claim, number, figure, or
 table must map to a source reference, research note, raw artifact path, or
@@ -345,10 +344,9 @@ verdicts. Majority wins; all three disagree returns BLOCKED with documentation.
 
 #### Documenting Disagreement and Independence
 
-When verifiers disagree, the provenance sidecar records one `## Verifier
-Disagreement` block: each verdict and reason, the arbiter's verdict and reason,
-and the resolution. A disagreement with no recorded resolution is an open
-finding, not a closed one.
+On disagreement the provenance sidecar records one `## Verifier Disagreement` block:
+each verdict and reason, the arbiter's, and the resolution. No recorded
+resolution means an open finding, not a closed one.
 
 Every verifier/reviewer MUST be a fresh subagent instance; no agent reviews
 work it authored; concurrent verifiers share no verdict channel; negative
