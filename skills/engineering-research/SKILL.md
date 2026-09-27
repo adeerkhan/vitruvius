@@ -203,6 +203,10 @@ Route information needs to preferred sources using
 `references/source-routing-table.md`. Do not search the same way for every
 question — different question types have different authoritative sources.
 
+Follow `references/context-hygiene-rules.md` for all evidence gathering:
+write findings to disk progressively, extract and discard immediately, triage
+by title/snippet first, and return one-line summaries to the parent.
+
 If direct search was chosen:
 
 - Skip researcher spawning entirely.
@@ -345,7 +349,8 @@ Full rules, arbiter independence requirements, and disagreement documentation:
 
 After the verifier passes, do a final self-review: check that all PARTIAL
 qualifications are noted in Open Questions, all FATAL issues are fixed, and
-the provenance sidecar is complete.
+the provenance sidecar is complete. Use the FATAL/MAJOR/MINOR classification
+from `references/reviewer-severity-levels.md` for every finding.
 
 ## Step 6.5: Post-Edit Verification Audit (MANDATORY)
 
