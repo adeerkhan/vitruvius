@@ -1,15 +1,23 @@
 {
   "schema": "vitruvius-e1.v1",
   "coverage": {
-    "status": "pilot",
+    "status": "extended",
     "complete": false,
-    "scope": "Four fixture-backed P0/P1 skills; broader 25-skill behavioral coverage remains open."
+    "scope": "Twelve fixture-backed priority skills; broader 25-skill behavioral coverage remains open."
   },
   "priority_skills": [
     "engineering-research",
     "habit",
     "proposal",
-    "verifier"
+    "verifier",
+    "civil",
+    "mechanical",
+    "electrical",
+    "architectural",
+    "scholarly-research",
+    "compare",
+    "audit",
+    "review"
   ],
   "cases": [
     {
@@ -119,6 +127,222 @@
           }
         ]
       }
+    },
+    {
+      "id": "civil-structural-verification",
+      "skill": "civil",
+      "positive": {
+        "prompt": "Verify a steel connection design against AISC 360 and return a severity-gated verdict",
+        "top_k": 3
+      },
+      "negative": {
+        "prompt": "Research the history of bridge design for a literature review",
+        "owner": "engineering-research",
+        "top_k": 1
+      },
+      "behavior": {
+        "test": "tests/verifier/test-verifier.mjs",
+        "execution": "npm-test",
+        "artifact": {
+          "kind": "runtime-fixture",
+          "path": "tasks/benchmark/results/civil-edge-01-result.md"
+        },
+        "expectations": [
+          {
+            "statement": "Civil discipline skill routes to the shared engineering-research method with the civil evidence landscape.",
+            "marker": "PASS: verifier benchmark integrity and controls"
+          }
+        ]
+      }
+    },
+    {
+      "id": "mechanical-design-verification",
+      "skill": "mechanical",
+      "positive": {
+        "prompt": "Verify a shaft design against AGMA standards and return a severity-gated verdict",
+        "top_k": 3
+      },
+      "negative": {
+        "prompt": "Research the history of gear design for a literature review",
+        "owner": "engineering-research",
+        "top_k": 1
+      },
+      "behavior": {
+        "test": "tests/verifier/test-verifier.mjs",
+        "execution": "npm-test",
+        "artifact": {
+          "kind": "runtime-fixture",
+          "path": "tasks/benchmark/results/mechanical-edge-01-result.md"
+        },
+        "expectations": [
+          {
+            "statement": "Mechanical discipline skill routes to the shared engineering-research method with the mechanical evidence landscape.",
+            "marker": "PASS: verifier benchmark integrity and controls"
+          }
+        ]
+      }
+    },
+    {
+      "id": "electrical-circuit-verification",
+      "skill": "electrical",
+      "positive": {
+        "prompt": "Verify a circuit design against IEEE standards and return a severity-gated verdict",
+        "top_k": 3
+      },
+      "negative": {
+        "prompt": "Research the history of circuit design for a literature review",
+        "owner": "engineering-research",
+        "top_k": 1
+      },
+      "behavior": {
+        "test": "tests/verifier/test-verifier.mjs",
+        "execution": "npm-test",
+        "artifact": {
+          "kind": "runtime-fixture",
+          "path": "tasks/benchmark/results/electrical-edge-01-result.md"
+        },
+        "expectations": [
+          {
+            "statement": "Electrical discipline skill routes to the shared engineering-research method with the electrical evidence landscape.",
+            "marker": "PASS: verifier benchmark integrity and controls"
+          }
+        ]
+      }
+    },
+    {
+      "id": "architectural-code-verification",
+      "skill": "architectural",
+      "positive": {
+        "prompt": "Verify a building design against IBC and return a severity-gated verdict",
+        "top_k": 3
+      },
+      "negative": {
+        "prompt": "Research the history of architectural design for a literature review",
+        "owner": "engineering-research",
+        "top_k": 1
+      },
+      "behavior": {
+        "test": "tests/verifier/test-verifier.mjs",
+        "execution": "npm-test",
+        "artifact": {
+          "kind": "runtime-fixture",
+          "path": "tasks/benchmark/results/architectural-edge-01-result.md"
+        },
+        "expectations": [
+          {
+            "statement": "Architectural discipline skill routes to the shared engineering-research method with the architectural evidence landscape.",
+            "marker": "PASS: verifier benchmark integrity and controls"
+          }
+        ]
+      }
+    },
+    {
+      "id": "scholarly-research-discovery",
+      "skill": "scholarly-research",
+      "positive": {
+        "prompt": "Find recent papers on transformer architectures for a literature review",
+        "top_k": 3
+      },
+      "negative": {
+        "prompt": "Verify a structural claim against AISC 360",
+        "owner": "verifier",
+        "top_k": 1
+      },
+      "behavior": {
+        "test": "tests/scholarly-research/test-scholarly-routing.mjs",
+        "execution": "npm-test",
+        "artifact": {
+          "kind": "runtime-fixture",
+          "path": "tests/scholarly-research/test-scholarly-routing.mjs"
+        },
+        "expectations": [
+          {
+            "statement": "Scholarly research skill declares routing modes and exact-first source identity.",
+            "marker": "PASS: scholarly-research declares routing modes and exact-first source identity"
+          }
+        ]
+      }
+    },
+    {
+      "id": "compare-design-alternatives",
+      "skill": "compare",
+      "positive": {
+        "prompt": "Compare steel vs concrete for a building frame and produce a comparison matrix",
+        "top_k": 3
+      },
+      "negative": {
+        "prompt": "Verify a specific structural claim against AISC 360",
+        "owner": "verifier",
+        "top_k": 1
+      },
+      "behavior": {
+        "test": "tests/design-alternatives/test-design-alternatives.mjs",
+        "execution": "npm-test",
+        "artifact": {
+          "kind": "runtime-fixture",
+          "path": "tests/design-alternatives/test-design-alternatives.mjs"
+        },
+        "expectations": [
+          {
+            "statement": "Compare skill produces a source-grounded comparison matrix with scored criteria.",
+            "marker": "PASS: design-alternatives comparison matrix"
+          }
+        ]
+      }
+    },
+    {
+      "id": "audit-claim-vs-implementation",
+      "skill": "audit",
+      "positive": {
+        "prompt": "Audit whether the paper's claims match its published code",
+        "top_k": 3
+      },
+      "negative": {
+        "prompt": "Verify a specific structural claim against AISC 360",
+        "owner": "verifier",
+        "top_k": 1
+      },
+      "behavior": {
+        "test": "tests/audit/test-audit.mjs",
+        "execution": "npm-test",
+        "artifact": {
+          "kind": "runtime-fixture",
+          "path": "tests/audit/test-audit.mjs"
+        },
+        "expectations": [
+          {
+            "statement": "Audit skill checks claim-vs-implementation consistency and flags mismatches.",
+            "marker": "PASS: audit claim-vs-implementation consistency"
+          }
+        ]
+      }
+    },
+    {
+      "id": "review-research-artifact",
+      "skill": "review",
+      "positive": {
+        "prompt": "Review this research brief and find weaknesses before submission",
+        "top_k": 3
+      },
+      "negative": {
+        "prompt": "Verify a specific structural claim against AISC 360",
+        "owner": "verifier",
+        "top_k": 1
+      },
+      "behavior": {
+        "test": "tests/review/test-review.mjs",
+        "execution": "npm-test",
+        "artifact": {
+          "kind": "runtime-fixture",
+          "path": "tests/review/test-review.mjs"
+        },
+        "expectations": [
+          {
+            "statement": "Review skill produces severity-graded findings with a concrete revision plan.",
+            "marker": "PASS: review severity-graded findings"
+          }
+        ]
+      }
     }
   ],
   "must_not_fire": [
@@ -139,6 +363,62 @@
       "skill": "verifier",
       "prompt": "summarize this datasheet into a digestible brief",
       "top_k": 3
+    },
+    {
+      "id": "civil-not-for-software",
+      "skill": "civil",
+      "prompt": "Investigate the technical landscape and architecture options for this software system",
+      "owner": "software",
+      "top_k": 1
+    },
+    {
+      "id": "mechanical-not-for-software",
+      "skill": "mechanical",
+      "prompt": "Investigate the technical landscape and architecture options for this software system",
+      "owner": "software",
+      "top_k": 1
+    },
+    {
+      "id": "electrical-not-for-software",
+      "skill": "electrical",
+      "prompt": "Investigate the technical landscape and architecture options for this software system",
+      "owner": "software",
+      "top_k": 1
+    },
+    {
+      "id": "architectural-not-for-software",
+      "skill": "architectural",
+      "prompt": "Investigate the technical landscape and architecture options for this software system",
+      "owner": "software",
+      "top_k": 1
+    },
+    {
+      "id": "scholarly-not-for-verification",
+      "skill": "scholarly-research",
+      "prompt": "Verify a structural claim against AISC 360",
+      "owner": "verifier",
+      "top_k": 1
+    },
+    {
+      "id": "compare-not-for-verification",
+      "skill": "compare",
+      "prompt": "Verify a specific structural claim against AISC 360",
+      "owner": "verifier",
+      "top_k": 1
+    },
+    {
+      "id": "audit-not-for-verification",
+      "skill": "audit",
+      "prompt": "Verify a specific structural claim against AISC 360",
+      "owner": "verifier",
+      "top_k": 1
+    },
+    {
+      "id": "review-not-for-verification",
+      "skill": "review",
+      "prompt": "Verify a specific structural claim against AISC 360",
+      "owner": "verifier",
+      "top_k": 1
     }
   ]
 }
