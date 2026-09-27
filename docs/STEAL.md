@@ -1,7 +1,7 @@
 # Steal Map: Reference Patterns for Vitruvius
 
 **Snapshot:** 2026-09-27  
-**Implementation HEAD:** `0acb3ae`  
+**Implementation HEAD:** `d37b5ec`  
 **Scope:** local projects under `ref/`, the current Vitruvius tree, and the
 `tasks/benchmark` + `evals` artifacts.  
 **Rule:** steal design patterns, not domain scope or incompatible code. Every
@@ -65,11 +65,17 @@ Cognee and Ponytail appear in older notes but have no checkout.
 
 | # | Item | Commit |
 |---|------|--------|
-| 1 | B1 three-run majority certification | `312f65b` + this session |
+| 1 | B1 three-run majority certification | `312f65b` + `3d5c6fe` |
 | 2 | Progressive disclosure for `engineering-research` | `6a9d0b6` |
 | 3 | Plan as working memory | `be3f320` |
 | 4 | Prompt-authoring checklist | `9348e6d` |
-| 6 | Trust-boundary negative tests | `0acb3ae` |
+| 5 | Anti-rationalization tables (agent-skills) | `ae641c8` |
+| 6 | Research state machine (autoprompt-skill) | `39e386e` |
+| 7 | Scale decision framework (feynman) | `4ff43a6` |
+| 8 | Source routing table (feynman) | `246eb26` |
+| 9 | Reviewer severity levels (feynman) | `30498fa` |
+| 10 | Context hygiene rules (feynman) | `d37b5ec` |
+| 11 | Trust-boundary negative tests | `0acb3ae` |
 
 ## What's next (ranked)
 
@@ -98,8 +104,8 @@ None of 1–2 is a new skill. Everything else in the map is either done or gated
 **Reject:** persona consensus, confidence arithmetic, fail-open validation, success-only learning, offensive tooling.
 
 ### Feynman
-**Taken:** fixed-case end-to-end evals, final/provenance pairing, need-based scholarly routing, docs/code parity, declared+checked Node range, package budget, exact-tarball provenance, majority harness.  
-**Open:** plan-as-working-memory enforcement; a real multi-run outcome record.  
+**Taken:** fixed-case end-to-end evals, final/provenance pairing, need-based scholarly routing, docs/code parity, declared+checked Node range, package budget, exact-tarball provenance, majority harness, scale decision framework, source routing table, reviewer severity levels, context hygiene rules.  
+**Open:** verifier citation rules; result provenance audit.  
 **Reject:** CLI/Pi runtime, editing verifier, automatic memory, workbench, telemetry, broad database suite, provider sprawl.
 
 ### Humanizer
