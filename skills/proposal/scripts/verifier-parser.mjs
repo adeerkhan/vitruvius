@@ -9,6 +9,7 @@ export const FLAW_TYPE_PATTERN = /\*\*Flaw type:\*\*\s*(\S+)\s*$/im;
 const FLAW_TYPES = new Set([
   "none", "code_misapplication", "unit_sign_error", "omission", "missing_factor",
   "calculation_error", "synthesis_overreach", "conflicting_standard", "criterion_mismatch", "entailment_failure",
+  "unverifiable_source", "criterion_mismatch_qualification",
 ]);
 const GROUND_TRUTH_FLAWS = FLAW_TYPES;
 const GROUND_TRUTH_MARKER = /\*\*Ground-truth verdict:\*\*/gi;
