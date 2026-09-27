@@ -79,6 +79,13 @@ When writing a prompt, plan, or instruction for any agent or subagent:
 - **Set the effort bound.** "Stop after 3 rounds" or "continue until evidence saturates" — never leave it implicit.
 - **Include the integrity reminder.** Every prompt that touches sources must carry at least one integrity commandment reference.
 
+### Anti-Rationalization Tables
+
+Agents skip mandatory steps by rationalizing. Pair each excuse with a factual
+counter-argument. Add a "Common Rationalizations" section to any skill that has
+a mandatory gate the agent might try to skip. See `references/anti-rationalization.md`
+for the full table and usage pattern.
+
 ## Provenance and verification
 
 - Every research output must include a `.provenance.md` sidecar.
