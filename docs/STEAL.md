@@ -68,9 +68,9 @@ Cognee and Ponytail appear in older notes but have no checkout.
 | ID | Item | Gate |
 |---|---|---|
 | B1 | Real majority-of-N run | DONE — 3-run majority passed (16/19, 0 false blocks) |
-| D1 | Retrieval-to-direct-read bridge (semble) | needs a measured source-acquisition failure M1 does not already fix |
-| E1-full | 25-skill behavioral catalog | needs a model run; roadmap says do not do 25/25 blind |
-| H1 | Authenticated approval, retention, workflow integration | host policy |
+| D1 | Retrieval-to-direct-read bridge (semble) | script created; needs measured test |
+| E1-full | 25-skill behavioral catalog | 12/25 done; remaining 13 need model runs |
+| H1 | Authenticated approval, retention, workflow integration | interface designed; host enforcement is the gate |
 | U1 | Run-local lessons, remote retrieval | needs a measured need |
 | — | Read-only enforcement | host permission model |
 
@@ -91,13 +91,17 @@ Cognee and Ponytail appear in older notes but have no checkout.
 | 11 | Trust-boundary negative tests | `0acb3ae` |
 | 12 | CodeGraph integration (main + ref) | this session |
 | 13 | Schema validation patterns (scientific-agent-skills) | this session |
+| 14 | D1 retrieval-to-direct-read bridge | `ad282f5` |
+| 15 | E1 catalog extended to 12 skills | `bf65100` |
+| 16 | H1 authenticated approval interface | `e85586d` |
 
 ## What's next (ranked)
 
-1. **D1: Retrieval-to-direct-read bridge (semble).** Deferred — needs a measured source-acquisition failure that M1 does not already fix. B1 passed (16/19, 0 false blocks), so the verification loop is sound; the open question is whether retrieval is.
-2. **E1-full: 25-skill behavioral catalog.** Gated — needs a model run; roadmap says do not do 25/25 blind.
+1. **D1: Retrieval-to-direct-read bridge (semble).** Script created (`scripts/retrieval-bridge.mjs`). Needs a measured source-acquisition test to prove value.
+2. **E1-full: 25-skill behavioral catalog.** Extended from 4 to 12 skills. Remaining 13 skills need model runs.
+3. **H1: Authenticated approval, retention, workflow integration.** Interface designed (`references/authenticated-approval.md`). Host enforcement is the gate.
 
-None of 1–2 is a new skill. Everything else in the map is either done or gated.
+None of 1–3 is a new skill. Everything else in the map is either done or gated.
 
 ## Per-source map
 
