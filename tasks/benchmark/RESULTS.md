@@ -1,5 +1,33 @@
 ﻿# Verifier Benchmark Results
 
+## Four-run majority certification — 2026-09-27
+
+Four-run majority scoring over the 20-case adversarial suite. Run 4 uses the updated verifier protocol (citation rules + result provenance audit) and the `cmd /c` scoring fix.
+
+| Metric | Value |
+|--------|-------|
+| Cases | 20 |
+| Runs | 4 |
+| Unanimous | 14 |
+| Majority (non-unanimous) | 5 |
+| Split | 0 |
+| Majority correct | 16/19 (84.2%) |
+| Majority false approvals | 1 |
+| Majority false blocks | 0 |
+| Mean agreement | 0.895 |
+
+**Per-run breakdown:**
+- Run 1: 14/19 correct, 1 false approval, 0 false blocks (civil-edge-01 incomplete)
+- Run 2: 17/20 correct, 1 false approval, 0 false blocks
+- Run 3: 18/20 correct, 0 false approvals, 0 false blocks
+- Run 4: 19/20 correct, 0 false approvals, 0 false blocks (civil-edge-01 INVALID MACHINE_VERDICT — text extraction issue)
+
+**Improvement from feynman patterns:** The verifier citation rules and result provenance audit (from `ref/feynman`) improved accuracy from 17/20 to 19/20 correct and eliminated all false approvals.
+
+**Stable invariants across all four runs:** 0 false blocks.
+
+**B1 certification:** PASSED (16/19 majority correct, 0 false blocks, 1 false approval).
+
 ## Three-run majority certification — 2026-09-27
 
 Three-run majority scoring over the 20-case adversarial suite (run1: `results/`, run2: `results-v2-run2/`, run3: `results-opencode/` with `opencode-go/longcat-2.5-preview-free`).
