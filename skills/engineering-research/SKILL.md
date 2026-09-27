@@ -158,7 +158,9 @@ Task/Verification/Decision logs before moving to the next phase:
   dropped sources, revised claims).
 
 This keeps the plan synchronized with reality so that an interrupted run can
-resume from disk without losing state.
+resume from disk without losing state. The formal state machine (states,
+transitions, crash recovery, GOAL-CHECK integration) is in
+`references/research-state-machine.md`.
 
 ## Step 2: Scale
 
