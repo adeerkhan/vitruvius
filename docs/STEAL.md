@@ -1,7 +1,7 @@
 # Steal Map: Reference Patterns for Vitruvius
 
-**Snapshot:** 2026-09-26  
-**Implementation HEAD:** `bf192d2`  
+**Snapshot:** 2026-09-27  
+**Implementation HEAD:** `0acb3ae`  
 **Scope:** local projects under `ref/`, the current Vitruvius tree, and the
 `tasks/benchmark` + `evals` artifacts.  
 **Rule:** steal design patterns, not domain scope or incompatible code. Every
@@ -45,7 +45,7 @@ Cognee and Ponytail appear in older notes but have no checkout.
 ### Partial
 
 - **Habit** lifecycle: validator/approval/local activation/load/revoke ship; authenticated approval identity, retention/deletion policy, and automatic workflow integration are open (host/policy).
-- **Q1** ledger is local-only; B1 is a harness with no real multi-run result; E1 covers 4 of 25 skills; C1 is three local cases.
+- **Q1** ledger is local-only; B1 harness ships but no 3-run majority has been certified; E1 covers 4 of 25 skills; C1 is three local cases.
 - **Read-only judges** (verifier/reviewer/arbiter/goal-checker/habit) are declared policy; the verifier needs Bash to hash mission pointers, so technical enforcement is a host concern.
 - **`isSafeRelativePath`/two PDF extractors** are intentionally not unified (differing contracts; self-contained copied-skill installs).
 - **General YAML** is out of scope by design; the parser is a bounded subset.
@@ -61,16 +61,21 @@ Cognee and Ponytail appear in older notes but have no checkout.
 | U1 | Run-local lessons, remote retrieval | needs a measured need |
 | — | Read-only enforcement | host permission model |
 
+### Done this session
+
+| # | Item | Commit |
+|---|------|--------|
+| 2 | Progressive disclosure for `engineering-research` | `6a9d0b6` |
+| 3 | Plan as working memory | `be3f320` |
+| 4 | Prompt-authoring checklist | `9348e6d` |
+| 6 | Trust-boundary negative tests | `0acb3ae` |
+
 ## What's next (ranked)
 
 1. **Run B1 on real questions.** `npm run benchmark:majority -- <run1> <run2> <run3>` over three fresh blind runs. This is the only step that turns the scaffolding into a measurable claim, and its residuals decide whether D1/E1-full are worth anything. Needs a model.
-2. **Progressive disclosure for `engineering-research`.** It sits at the 500-line cap; move stable detail into `skills/engineering-research/references/` and link it. Cheap, lowers activation cost, and is the scientific-agent-skills transfer still untaken.
-3. **Plan as working memory.** The method's plan already has Task/Verification/Decision logs; make a run update it at phase boundaries (AGENTS.md convention, feynman `project-scaffold.ts` transfer). Cheap doc + one checklist line.
-4. **Prompt-authoring checklist.** A short positive-prompt note beside the integrity prohibitions (humanizer transfer). Cheap.
-5. **Autoprompt content-addressed installed-payload manifest.** Only if `generate-adapters.mjs --check` proves insufficient for adapter drift; today content equality already gates it.
-6. **abrt trust-boundary negative tests + positive controls.** Idea-only (repo has no worktree); extend the existing path-escape/hash fixtures where a new boundary appears.
+2. **Autoprompt content-addressed installed-payload manifest.** Only if `generate-adapters.mjs --check` proves insufficient for adapter drift; today content equality already gates it.
 
-None of 1–6 is a new skill. Everything else in the map is either done or gated.
+None of 1–2 is a new skill. Everything else in the map is either done or gated.
 
 ## Per-source map
 
@@ -136,4 +141,4 @@ None of 1–6 is a new skill. Everything else in the map is either done or gated
 
 ### Scale
 
-- scripts: 27 files · tests: 45 files · skills: 25 · agents: 7 canonical roles + 7 OpenCode adapters.
+- scripts: 27 files · tests: 46 files · skills: 25 · agents: 7 canonical roles + 7 OpenCode adapters.
