@@ -1,13 +1,26 @@
 # Steal Map: Reference Patterns for Vitruvius
 
 **Snapshot:** 2026-09-27  
-**Implementation HEAD:** `d37b5ec`  
+**Implementation HEAD:** pending commit  
 **Scope:** local projects under `ref/`, the current Vitruvius tree, and the
 `tasks/benchmark` + `evals` artifacts.  
 **Rule:** steal design patterns, not domain scope or incompatible code. Every
 transfer resolves to a local path.
 
 This is the live status map. Historical audit prose lives in git history.
+
+## CodeGraph Integration
+
+Both the main repo and `ref/` are indexed with CodeGraph:
+
+| Index | Files | Nodes | Edges | Built |
+|-------|-------|-------|-------|-------|
+| `vitruvius/` | 97 | 2,011 | 4,773 | 1.7s |
+| `vitruvius/ref/` | 1,711 | 39,041 | 125,821 | 10.1s |
+
+The `codegraph_explore` MCP tool is available for semantic code search, impact
+analysis, and call-path tracing. Use it before grep/find when understanding
+or locating code.
 
 ## Source inventory
 
@@ -76,6 +89,8 @@ Cognee and Ponytail appear in older notes but have no checkout.
 | 9 | Reviewer severity levels (feynman) | `30498fa` |
 | 10 | Context hygiene rules (feynman) | `d37b5ec` |
 | 11 | Trust-boundary negative tests | `0acb3ae` |
+| 12 | CodeGraph integration (main + ref) | this session |
+| 13 | Schema validation patterns (scientific-agent-skills) | this session |
 
 ## What's next (ranked)
 
@@ -114,8 +129,8 @@ None of 1–2 is a new skill. Everything else in the map is either done or gated
 **Reject:** single-root layout, one-version architecture, style catalog, package-only quality gate.
 
 ### Scientific Agent Skills
-**Taken:** source/search/claim ledgers, input gates, fixture mutation tests (checked-in valid record + negative mutations), scope discipline, tests outside skills.  
-**Open:** selective progressive disclosure for `engineering-research`.  
+**Taken:** source/search/claim ledgers, input gates, fixture mutation tests (checked-in valid record + negative mutations), scope discipline, tests outside skills, schema validation patterns.  
+**Open:** isolated test environments; security scanning integration; skill diagram generation.  
 **Reject:** biology/chemistry breadth, adjacent productivity tooling, passive capture, fail-open external scanning.
 
 ### Semble
