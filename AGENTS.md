@@ -69,6 +69,16 @@ The source of truth for their behavior is the canonical role definitions in `age
 5. **Read before you summarize.** Do not infer a code provision, a spec value, or a material property from a title, a snippet, or memory when a direct read is possible.
 6. **Mark status honestly.** Distinguish `verified`, `inferred`, `blocked`, and `unverified`. Never smooth over missing checks.
 
+### Prompt-Authoring Checklist (positive)
+
+When writing a prompt, plan, or instruction for any agent or subagent:
+
+- **State what TO do, not just what NOT to do.** Pair each prohibition with a positive action ("cite the section that supports this claim" not just "do not fabricate").
+- **Name the artifact.** "Check `packages/solver/src/x.ts:42`" beats "check the code."
+- **Specify the output format.** "Return a table with columns #, Source, Reference, Status, Verdict" beats "summarize your findings."
+- **Set the effort bound.** "Stop after 3 rounds" or "continue until evidence saturates" — never leave it implicit.
+- **Include the integrity reminder.** Every prompt that touches sources must carry at least one integrity commandment reference.
+
 ## Provenance and verification
 
 - Every research output must include a `.provenance.md` sidecar.
