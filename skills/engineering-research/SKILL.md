@@ -135,6 +135,7 @@ Create `outputs/.plans/<slug>.md` immediately. The plan must include:
 - Task ledger
 - Verification log
 - Decision log
+- Phase-boundary update reminder (update logs at each phase transition)
 
 Make the scale decision before assigning owners. If the topic is a narrow
 "what is X" explainer, the plan must use lead-owned direct search tasks only;
@@ -143,6 +144,21 @@ do not allocate researcher subagents.
 After writing the plan, proceed immediately to Step 2. Do not stop for
 confirmation — the plan is written to disk for the user to review, but the
 research loop continues without blocking.
+
+### Plan as Working Memory
+
+The plan is a living document, not a one-time contract. At each phase boundary
+(after Gather, after Draft, after Verify, after Review), update the plan's
+Task/Verification/Decision logs before moving to the next phase:
+
+- **Task log** — check off completed tasks; add new ones if the phase revealed
+  unplanned work.
+- **Verification log** — record verifier verdicts and escalation outcomes.
+- **Decision log** — record any decisions made during the phase (scale changes,
+  dropped sources, revised claims).
+
+This keeps the plan synchronized with reality so that an interrupted run can
+resume from disk without losing state.
 
 ## Step 2: Scale
 
