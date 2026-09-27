@@ -164,6 +164,10 @@ transitions, crash recovery, GOAL-CHECK integration) is in
 
 ## Step 2: Scale
 
+Make the scale decision before assigning owners. The full framework —
+decision flow, anti-patterns, and recording convention — is in
+`references/scale-decision-framework.md`.
+
 Use direct search for:
 
 - Single fact or narrow question, including "what is X" explainers
@@ -194,6 +198,10 @@ analysis + evidence ranking, or researcher subagents on different topics). Do
 - [ ] No AI-generated or undated sources; search terms recorded in research notes
 
 If any checkbox is unchecked, continue searching before drafting.
+
+Route information needs to preferred sources using
+`references/source-routing-table.md`. Do not search the same way for every
+question — different question types have different authoritative sources.
 
 If direct search was chosen:
 
