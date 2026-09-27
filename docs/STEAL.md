@@ -72,8 +72,8 @@ Cognee and Ponytail appear in older notes but have no checkout.
 
 ## What's next (ranked)
 
-1. **Complete B1 three-run certification.** Two-run majority scored (14/19 correct, 0 false blocks). Third run needed for full certification. Residuals from the two-run split (electrical-omission-01, mechanical-code_misapplication-01) decide whether D1/E1-full are worth anything. Needs a model.
-2. **Autoprompt content-addressed installed-payload manifest.** Only if `generate-adapters.mjs --check` proves insufficient for adapter drift; today content equality already gates it.
+1. **Complete B1 three-run certification.** Two-run majority scored (14/19 correct, 0 false blocks). Third run needed for full certification. Blocked: OpenCode model API returns 402 (insufficient credits). `tasks/benchmark/run-opencode.sh` is ready to run when credits are available.
+2. **Autoprompt content-addressed installed-payload manifest.** Resolved — `generate-adapters.mjs --check` passes; content equality gates drift. Not needed.
 
 None of 1–2 is a new skill. Everything else in the map is either done or gated.
 
