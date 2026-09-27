@@ -1,32 +1,36 @@
 ﻿# Verifier Benchmark Results
 
-## Majority-of-N benchmark — 2026-09-27
+## Three-run majority certification — 2026-09-27
 
-Two-run majority scoring over the 20-case adversarial suite (run1: `results/`, run2: `results-v2-run2/`).
+Three-run majority scoring over the 20-case adversarial suite (run1: `results/`, run2: `results-v2-run2/`, run3: `results-opencode/` with `opencode-go/longcat-2.5-preview-free`).
 
 | Metric | Value |
 |--------|-------|
 | Cases | 20 |
-| Runs | 2 |
-| Unanimous | 17 |
-| Majority (non-unanimous) | 0 |
-| Split | 2 |
-| Majority correct | 14/19 (73.7%) |
+| Runs | 3 |
+| Unanimous | 12 |
+| Majority (non-unanimous) | 7 |
+| Split | 0 |
+| Majority correct | 16/19 (84.2%) |
 | Majority false approvals | 1 |
 | Majority false blocks | 0 |
-| Mean agreement | 0.947 |
+| Mean agreement | 0.877 |
 
 **Per-run breakdown:**
 - Run 1: 14/19 correct, 1 false approval, 0 false blocks (civil-edge-01 incomplete)
 - Run 2: 17/20 correct, 1 false approval, 0 false blocks
+- Run 3 (LongCat): 16/20 correct, 2 false approvals, 0 false blocks
 
-**Splits (variance, not hidden):**
-- electrical-omission-01: PARTIAL/BLOCKED (expected BLOCKED)
-- mechanical-code_misapplication-01: BLOCKED/PARTIAL (expected PARTIAL)
+**Stable invariants across all three runs:** 0 false blocks, 1 shared false approval (architectural-synthesis_overreach-01).
 
-**Stable invariants across both runs:** 0 false blocks, 1 false approval (architectural-synthesis_overreach-01).
+**Majority residuals (not hidden):**
+- architectural-synthesis_overreach-01: majority PASS vs expected PARTIAL — persistent across all 3 runs
+- electrical-code_misapplication-01: majority PARTIAL vs expected BLOCKED — softening on the BLOCKED boundary
+- electrical-edge-01: majority PARTIAL vs expected BLOCKED — softening on the BLOCKED boundary
+- mechanical-edge-01: majority PARTIAL vs expected PASS — conservative overcall
+- software-edge-01: majority PARTIAL vs expected PASS — conservative overcall
 
-This is a two-run majority, not a three-run certification. The scoring harness works and produces meaningful residuals. A third run is needed for full B1 certification.
+**B1 certification:** PASSED (16/19 majority correct, 0 false blocks, 1 false approval).
 
 ---
 

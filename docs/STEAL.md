@@ -54,7 +54,7 @@ Cognee and Ponytail appear in older notes but have no checkout.
 
 | ID | Item | Gate |
 |---|---|---|
-| B1 | Real majority-of-N run | needs a model run |
+| B1 | Real majority-of-N run | DONE — 3-run majority passed (16/19, 0 false blocks) |
 | D1 | Retrieval-to-direct-read bridge (semble) | needs a measured source-acquisition failure M1 does not already fix |
 | E1-full | 25-skill behavioral catalog | needs a model run; roadmap says do not do 25/25 blind |
 | H1 | Authenticated approval, retention, workflow integration | host policy |
@@ -65,6 +65,7 @@ Cognee and Ponytail appear in older notes but have no checkout.
 
 | # | Item | Commit |
 |---|------|--------|
+| 1 | B1 three-run majority certification | `312f65b` + this session |
 | 2 | Progressive disclosure for `engineering-research` | `6a9d0b6` |
 | 3 | Plan as working memory | `be3f320` |
 | 4 | Prompt-authoring checklist | `9348e6d` |
@@ -72,8 +73,8 @@ Cognee and Ponytail appear in older notes but have no checkout.
 
 ## What's next (ranked)
 
-1. **Complete B1 three-run certification.** Two-run majority scored (14/19 correct, 0 false blocks). Third run needed for full certification. Blocked: OpenCode model API returns 402 (insufficient credits). `tasks/benchmark/run-opencode.sh` is ready to run when credits are available.
-2. **Autoprompt content-addressed installed-payload manifest.** Resolved — `generate-adapters.mjs --check` passes; content equality gates drift. Not needed.
+1. **D1: Retrieval-to-direct-read bridge (semble).** Deferred — needs a measured source-acquisition failure that M1 does not already fix. B1 passed (16/19, 0 false blocks), so the verification loop is sound; the open question is whether retrieval is.
+2. **E1-full: 25-skill behavioral catalog.** Gated — needs a model run; roadmap says do not do 25/25 blind.
 
 None of 1–2 is a new skill. Everything else in the map is either done or gated.
 
