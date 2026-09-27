@@ -45,7 +45,7 @@ Cognee and Ponytail appear in older notes but have no checkout.
 ### Partial
 
 - **Habit** lifecycle: validator/approval/local activation/load/revoke ship; authenticated approval identity, retention/deletion policy, and automatic workflow integration are open (host/policy).
-- **Q1** ledger is local-only; B1 harness ships but no 3-run majority has been certified; E1 covers 4 of 25 skills; C1 is three local cases.
+- **Q1** ledger is local-only; B1 two-run majority scored (14/19 correct, 0 false blocks); E1 covers 4 of 25 skills; C1 is three local cases.
 - **Read-only judges** (verifier/reviewer/arbiter/goal-checker/habit) are declared policy; the verifier needs Bash to hash mission pointers, so technical enforcement is a host concern.
 - **`isSafeRelativePath`/two PDF extractors** are intentionally not unified (differing contracts; self-contained copied-skill installs).
 - **General YAML** is out of scope by design; the parser is a bounded subset.
@@ -72,7 +72,7 @@ Cognee and Ponytail appear in older notes but have no checkout.
 
 ## What's next (ranked)
 
-1. **Run B1 on real questions.** `npm run benchmark:majority -- <run1> <run2> <run3>` over three fresh blind runs. This is the only step that turns the scaffolding into a measurable claim, and its residuals decide whether D1/E1-full are worth anything. Needs a model.
+1. **Complete B1 three-run certification.** Two-run majority scored (14/19 correct, 0 false blocks). Third run needed for full certification. Residuals from the two-run split (electrical-omission-01, mechanical-code_misapplication-01) decide whether D1/E1-full are worth anything. Needs a model.
 2. **Autoprompt content-addressed installed-payload manifest.** Only if `generate-adapters.mjs --check` proves insufficient for adapter drift; today content equality already gates it.
 
 None of 1–2 is a new skill. Everything else in the map is either done or gated.

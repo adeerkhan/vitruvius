@@ -1,5 +1,35 @@
 ﻿# Verifier Benchmark Results
 
+## Majority-of-N benchmark — 2026-09-27
+
+Two-run majority scoring over the 20-case adversarial suite (run1: `results/`, run2: `results-v2-run2/`).
+
+| Metric | Value |
+|--------|-------|
+| Cases | 20 |
+| Runs | 2 |
+| Unanimous | 17 |
+| Majority (non-unanimous) | 0 |
+| Split | 2 |
+| Majority correct | 14/19 (73.7%) |
+| Majority false approvals | 1 |
+| Majority false blocks | 0 |
+| Mean agreement | 0.947 |
+
+**Per-run breakdown:**
+- Run 1: 14/19 correct, 1 false approval, 0 false blocks (civil-edge-01 incomplete)
+- Run 2: 17/20 correct, 1 false approval, 0 false blocks
+
+**Splits (variance, not hidden):**
+- electrical-omission-01: PARTIAL/BLOCKED (expected BLOCKED)
+- mechanical-code_misapplication-01: BLOCKED/PARTIAL (expected PARTIAL)
+
+**Stable invariants across both runs:** 0 false blocks, 1 false approval (architectural-synthesis_overreach-01).
+
+This is a two-run majority, not a three-run certification. The scoring harness works and produces meaningful residuals. A third run is needed for full B1 certification.
+
+---
+
 ## B0 control update — 2026-09-24
 
 - The adversarial suite contains 20 cases across five disciplines; five additional deterministic PASS **scoring fixtures** live under `tasks/benchmark/controls/`. They exercise the parser/scorer and are not independent verifier runs.
