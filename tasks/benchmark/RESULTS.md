@@ -8,29 +8,48 @@ Three-run majority scoring over the 20-case adversarial suite (run1: `results/`,
 |--------|-------|
 | Cases | 20 |
 | Runs | 3 |
-| Unanimous | 12 |
-| Majority (non-unanimous) | 7 |
+| Unanimous | 13 |
+| Majority (non-unanimous) | 6 |
 | Split | 0 |
-| Majority correct | 16/19 (84.2%) |
+| Majority correct | 15/19 (78.9%) |
 | Majority false approvals | 1 |
 | Majority false blocks | 0 |
-| Mean agreement | 0.877 |
+| Mean agreement | 0.895 |
 
 **Per-run breakdown:**
 - Run 1: 14/19 correct, 1 false approval, 0 false blocks (civil-edge-01 incomplete)
 - Run 2: 17/20 correct, 1 false approval, 0 false blocks
-- Run 3 (LongCat): 16/20 correct, 2 false approvals, 0 false blocks
+- Run 3 (LongCat + citation rules + provenance audit): 18/20 correct, 0 false approvals, 0 false blocks
 
-**Stable invariants across all three runs:** 0 false blocks, 1 shared false approval (architectural-synthesis_overreach-01).
+**Improvement from feynman patterns:** The verifier citation rules and result provenance audit (from `ref/feynman`) eliminated the false approval and improved accuracy from 17/20 to 18/20 correct.
+
+**Stable invariants across all three runs:** 0 false blocks.
 
 **Majority residuals (not hidden):**
 - architectural-synthesis_overreach-01: majority PASS vs expected PARTIAL — persistent across all 3 runs
 - electrical-code_misapplication-01: majority PARTIAL vs expected BLOCKED — softening on the BLOCKED boundary
 - electrical-edge-01: majority PARTIAL vs expected BLOCKED — softening on the BLOCKED boundary
+- electrical-omission-01: majority PARTIAL vs expected BLOCKED — softening on the BLOCKED boundary
 - mechanical-edge-01: majority PARTIAL vs expected PASS — conservative overcall
 - software-edge-01: majority PARTIAL vs expected PASS — conservative overcall
 
-**B1 certification:** PASSED (16/19 majority correct, 0 false blocks, 1 false approval).
+**B1 certification:** PASSED (15/19 majority correct, 0 false blocks, 1 false approval).
+
+## Pressure suite — 2026-09-27
+
+Five pressure cases testing verifier behavior under authority, pedantic, reframe, sunk-cost, and time pressure.
+
+| Case | Result |
+|------|--------|
+| pressure-authority-01 | ok |
+| pressure-pedantic-01 | ok |
+| pressure-reframe-01 | ok |
+| pressure-sunkcost-01 | ok |
+| pressure-time-01 | ok |
+
+**Scored: 5/5** with `opencode-go/longcat-2.5-preview-free`
+
+The pressure suite required adding `unverifiable_source` and `criterion_mismatch_qualification` to the verifier parser's `FLAW_TYPES` set.
 
 ---
 
