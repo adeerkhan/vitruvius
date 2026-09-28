@@ -18,7 +18,7 @@ metadata:
   version: "0.3.0"
 
 ---
-<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=d381e5661d9c50b3ae89f182928953a84803773d49f823ef55c70aaf0cceadc0 -->
+<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=a5231b57e1e35ed88d61aabf75c025867dba831927a9d921f4b9fe625a1fba42 -->
 
 # Engineering Research
 
@@ -156,7 +156,7 @@ resume from disk without losing state. The formal state machine (states,
 transitions, crash recovery, GOAL-CHECK integration) is in
 `references/research-state-machine.md`. The task ledger format, in-place update
 rules, overwrite guard, and cross-session pickup are in
-`references/plan-state.md`.
+`references/plan-state.md`; per-skill token estimates in `references/token-budgets.md`.
 
 ### Overwrite Guard
 
