@@ -30,6 +30,15 @@ Always pair the IBC edition with its referenced standards — do not mix IBC
 - **Paywalled:** PDF download requires purchase.
 - **No API** but the free online viewer is searchable.
 
+## Mandatory-language conventions
+
+- **"shall"** - mandatory (the code requirement)
+- **"shall not"** - mandatory prohibition
+- **"should"** - recommended (advisory)
+- **"may"** - permitted (optional)
+- **"shall be permitted"** - the code explicitly allows the alternative; verify the stated conditions
+- **Commentary** - explanatory; never cite commentary as a requirement
+
 ## Organization
 
 | Chapter | Title | What it covers |

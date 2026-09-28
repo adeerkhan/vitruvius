@@ -48,6 +48,16 @@ effective-width calculations.
 
 ## When to use
 
+## Mandatory-language conventions
+
+- **"shall"** - mandatory (the Specification requirement)
+- **"shall not"** - mandatory prohibition
+- **"should"** - recommended (advisory)
+- **"may"** - permitted (optional)
+- **Commentary** - explanatory; never cite commentary as a requirement
+
+## When to use
+
 Use this reference when:
 - Designing cold-formed steel studs, joists, or tracks.
 - Calculating effective width or checking distortional buckling.

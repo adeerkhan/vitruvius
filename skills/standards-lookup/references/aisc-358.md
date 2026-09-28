@@ -49,6 +49,15 @@ web (WUF-W), and newer connections.
 
 ## When to use
 
+## Mandatory-language conventions
+
+- **"shall"** - mandatory (the code requirement)
+- **"shall not"** - mandatory prohibition
+- **"should"** - recommended (advisory)
+- **"may"** - permitted (optional)
+- **Commentary** - explanatory; never cite commentary as a requirement
+
+## When to use
 Use this reference when:
 - Designing SMF or IMF connections.
 - Selecting a prequalified moment frame connection.

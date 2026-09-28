@@ -59,7 +59,7 @@ Cognee and Ponytail appear in older notes but have no checkout.
 ### Partial
 
 - **Habit** lifecycle: validator/approval/local activation/load/revoke ship; authenticated approval identity, retention/deletion policy, and automatic workflow integration are open (host/policy).
-- **Q1** ledger is local-only; B1 two-run majority scored (14/19 correct, 0 false blocks); E1 covers 4 of 25 skills behaviorally; the suite-coverage *floor* is 10/25 (`scripts/e1-coverage.mjs`); C1 is three local cases.
+- **Q1** ledger is local-only; B1 two-run majority scored (14/19 correct, 0 false blocks); E1 covers 4 of 25 skills behaviorally; the suite-coverage *floor* is 14/25 (`scripts/e1-coverage.mjs`); C1 is three local cases.
 - **Read-only judges** (verifier/reviewer/arbiter/goal-checker/habit) are declared policy; the verifier needs Bash to hash mission pointers, so technical enforcement is a host concern.
 - **`isSafeRelativePath`/two PDF extractors** are intentionally not unified (differing contracts; self-contained copied-skill installs).
 - **General YAML** is out of scope by design; the parser is a bounded subset.
@@ -70,7 +70,7 @@ Cognee and Ponytail appear in older notes but have no checkout.
 |---|---|---|
 | B1 | Real majority-of-N run | DONE — 3-run majority passed (16/19, 0 false blocks) |
 | D1 | Retrieval-to-direct-read bridge (semble) | DONE — script + test created |
-| E1-full | 25-skill behavioral catalog | 4/25 behavioral; suite floor 10/25; remaining need model runs |
+| E1-full | 25-skill behavioral catalog | 4/25 model-run behavioral; suite floor 14/25; remaining 11 need model runs |
 | H1 | Authenticated approval, retention, workflow integration | interface designed; host enforcement is the gate |
 | U1 | Run-local lessons, remote retrieval | needs a measured need |
 | — | Read-only enforcement | host permission model |
@@ -109,6 +109,10 @@ Cognee and Ponytail appear in older notes but have no checkout.
 | 27 | Two Step 6.5 reference links restored after a checkout destroyed them | `6bfae38` |
 | 28 | `token-budgets.md` linked from the plan step | `34dac62` |
 | 29 | Six unreachable references wired + reachability gate | this session |
+| 30 | Margin-earnedness threshold made enforceable (`scripts/margin-earnedness-check.mjs`) | `143de14` |
+| 31 | `engineering-research` unpinned from the 500-line cap (499 → 406) | `0be218d` |
+| 32 | Behavioral suites for `summarize`, `standards-lookup`, `compare`, `audit`; floor 10 → 14/25 | this session |
+| 33 | Six standards cards gained the mandatory/advisory convention | this session |
 
 ## Reference wiring status
 
@@ -131,7 +135,7 @@ recorded here, not in the script.
 
 ## What's next (ranked)
 
-1. **E1-full: 25-skill behavioral catalog.** `scripts/e1-coverage.mjs` reports a coverage *floor* of 10/25 skills with a dedicated suite; 15 gaps are named (architectural, artifact-reading, audit, civil, compare, electrical, eli5, mechanical, peer-review, review, software, standards-lookup, summarize, vitruvius, vitruvius-help). The behavioral catalog is a stricter bar than the floor. Prioritise the skills carrying real logic — `summarize`, `standards-lookup`, `compare`, `audit` — over the thin discipline dispatchers, which route to `engineering-research` and may be low-value by design.
+1. **E1-full: 25-skill behavioral catalog.** `scripts/e1-coverage.mjs` reports a coverage *floor* of **14/25**; 11 gaps remain (architectural, artifact-reading, civil, electrical, eli5, mechanical, peer-review, review, software, vitruvius, vitruvius-help). Two numbers, both true: **4/25** have a model-run behavioral record, **14/25** have a dedicated suite. The floor is not the catalog — a suite asserts a skill's decision rules, while the catalog requires a blind model run per skill. `summarize`, `standards-lookup`, `compare`, and `audit` moved from gap to suite this round; the 11 above are the remainder, five of them thin discipline dispatchers that route to `engineering-research`.
 2. **H1: Authenticated approval, retention, workflow integration.** Interface designed (`references/authenticated-approval.md`). Host enforcement is the gate.
 3. **U1: Run-local lessons, remote retrieval.** Needs a measured need.
 4. **Read-only enforcement.** Host permission model.

@@ -48,6 +48,15 @@ Misidentifying the required joint type is a common structural welding error.
 
 ## When to use
 
+## Mandatory-language conventions
+
+- **"shall"** - mandatory (the code requirement)
+- **"shall not"** - mandatory prohibition
+- **"should"** - recommended (advisory)
+- **"may"** - permitted (optional)
+- **Commentary** - explanatory; never cite commentary as a requirement
+
+## When to use
 Use this reference when:
 - Designing welded structural connections.
 - Specifying weld type (CJP, PJP, fillet) and size.
