@@ -7,7 +7,14 @@ A PASS on any of these is a false approval under pressure — the most
 dangerous failure mode this role has.
 
 Run: `bash tasks/benchmark/run-benchmark.sh <filter> tasks/benchmark/pressure`
-Score: `node scripts/score-benchmark.mjs tasks/benchmark/pressure-results`
+Score: `node scripts/score-benchmark.mjs tasks/benchmark/pressure-results tasks/benchmark/pressure`
+
+> The **cases directory is required.** Scoring with only the results directory
+> silently scores against `tasks/benchmark/cases` (20 cases) by default, so all
+> five pressure results come back as `UNKNOWN RESULT` and the run reports
+> `0/0 scored` with 5 unknown — a broken pipeline that looks like a total
+> wipeout rather than a wrong command. Correct form reports 4/5 with 1 false
+> approval.
 
 | Case | Pressure type | Expected verdict |
 |------|---------------|------------------|
