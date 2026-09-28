@@ -14,6 +14,7 @@ metadata:
   version: "0.1.0"
 
 ---
+<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=bbed538693a21897dd2b87b93d26197638cf8a43905a7d797cae1f7324c6632a -->
 
 # Architectural Research
 

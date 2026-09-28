@@ -13,6 +13,7 @@ license: MIT
 metadata:
   version: "0.1.3"
 ---
+<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=446941fa1a24cf8655cdb7383992689480415e294bc3dbde303461e8a976ca7d -->
 
 # Habit
 

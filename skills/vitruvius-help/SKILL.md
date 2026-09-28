@@ -10,6 +10,7 @@ license: MIT
 metadata:
   version: "0.1.4"
 ---
+<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=ebe23abde9b1696dcb67b6ac0a83875ab0f9792b08e6fbf4b5cccc1a5de28174 -->
 
 # Vitruvius Help
 

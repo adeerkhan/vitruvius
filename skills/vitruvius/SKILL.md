@@ -16,6 +16,7 @@ metadata:
   version: "0.1.1"
 
 ---
+<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=818b28b4fc9c58e6524f2b560de53beb1a128bd6a03c2ad9c00d202ed93171a2 -->
 
 # Vitruvius
 

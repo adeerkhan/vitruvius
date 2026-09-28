@@ -15,6 +15,7 @@ metadata:
   version: "0.1.0"
 
 ---
+<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=ae5cc9583c53f9a9f46ec58bc5ec004410a0b30ac5170d413ba3eba174c6bdfc -->
 
 # Software Engineering Research
 

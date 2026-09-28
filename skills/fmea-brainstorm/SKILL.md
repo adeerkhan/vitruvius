@@ -14,6 +14,7 @@ metadata:
   version: "0.1.2"
 
 ---
+<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=bef3b34c0d26bdf07d006cc380f44a0952c3fbcff844076f735a69f5ad9447ef -->
 
 # FMEA Brainstorm
 

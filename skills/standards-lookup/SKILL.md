@@ -15,6 +15,7 @@ license: MIT
 metadata:
   version: "0.1.1"
 ---
+<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=21c7d3f46abeb622ef37ef776fd9c9072886545179492e7c1226a8c804014b3c -->
 
 # Standards Lookup
 

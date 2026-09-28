@@ -100,6 +100,28 @@ return BLOCKED. BLOCKED is a legitimate verdict, not a failure.
 - **Artifact sweep:** every number, figure, and table in the conclusion must
   trace to a source, a research note, or a raw artifact. Anything untraceable
   is removed or flagged — a number without provenance is noise, not evidence.
+- **Verify meaning, not just topic overlap.** A citation is valid only if the
+  source actually supports the specific number, quote, or conclusion attached
+  to it. (feynman verifier citation rules)
+- **Merge numbering across files.** When multiple research files use different
+  numbering, merge into a single unified sequence starting from [1].
+  Deduplicate sources that appear in multiple files. (feynman)
+
+## Result provenance audit (quantitative claim scan)
+
+Before returning the verdict, scan the conclusion for:
+
+- **Numeric scores or percentages** — "94.2%", "3.5x faster", "85% accuracy"
+- **Benchmark names and tables** — "MMLU", "HumanEval", "SWE-bench"
+- **Figure or image references** — "Figure 1", "Table 2", "Chart 3"
+- **Claims of improvement or superiority** — "outperforms", "state-of-the-art"
+- **Dataset sizes or experimental setup details**
+- **Charts or visualizations**
+
+For each item, verify it maps to a source URL, research note, raw artifact path,
+or script path. If not, remove it or flag it as unsupported. A numeric claim
+without a unit, sign convention, and source is not a claim — it is noise.
+(feynman result provenance audit)
 
 ## Quality gate (mandatory before returning)
 

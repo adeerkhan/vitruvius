@@ -8,6 +8,13 @@
  * - Prompt injection patterns
  * - Data exfiltration patterns
  * - __import__ usage (availability probes OK)
+ *
+ * Severity levels (stolen from Scientific Agent Skills):
+ * - HIGH: secrets, dangerous calls, exfiltration — fail CI
+ * - MEDIUM: personal paths — fail CI
+ * - LOW: suspicious patterns — warn only
+ *
+ * Known false positives: references/security-scan-false-positives.md
  */
 
 import { readFileSync, readdirSync } from "node:fs";
@@ -61,29 +68,29 @@ function scanFile(filePath) {
   for (const [i, line] of lines.entries()) {
     const lineNum = i + 1;
 
-    // Check for secrets
+    // Check for secrets (HIGH)
     for (const pattern of SECRET_PATTERNS) {
       if (pattern.test(line)) {
         problems.push(
-          `${relative(REPO_ROOT, filePath)}:${lineNum}: potential secret/credential`,
+          `HIGH: ${relative(REPO_ROOT, filePath)}:${lineNum}: potential secret/credential`,
         );
       }
     }
 
-    // Check for dangerous calls
+    // Check for dangerous calls (HIGH)
     for (const pattern of DANGEROUS_CALLS) {
       if (pattern.test(line)) {
         problems.push(
-          `${relative(REPO_ROOT, filePath)}:${lineNum}: dangerous function call`,
+          `HIGH: ${relative(REPO_ROOT, filePath)}:${lineNum}: dangerous function call`,
         );
       }
     }
 
-    // Check for exfiltration patterns
+    // Check for exfiltration patterns (HIGH)
     for (const pattern of EXFILTRATION_PATTERNS) {
       if (pattern.test(line)) {
         problems.push(
-          `${relative(REPO_ROOT, filePath)}:${lineNum}: potential data exfiltration`,
+          `HIGH: ${relative(REPO_ROOT, filePath)}:${lineNum}: potential data exfiltration`,
         );
       }
     }
@@ -111,7 +118,7 @@ function scanPersonalPaths(filePath) {
       ]);
       if (!generic.has(username)) {
         problems.push(
-          `${relative(REPO_ROOT, filePath)}:${i + 1}: personal path (/Users/${match[1]}/)`,
+          `MEDIUM: ${relative(REPO_ROOT, filePath)}:${i + 1}: personal path (/Users/${match[1]}/)`,
         );
       }
     }

@@ -14,6 +14,7 @@ metadata:
   version: "0.1.0"
 
 ---
+<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=4edbaa157efd41833148a88491610162b985ae4837a8d457f7eee166c08a1d50 -->
 
 # Mechanical Engineering Research
 

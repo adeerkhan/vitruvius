@@ -19,6 +19,7 @@ metadata:
   version: "0.3.2"
 
 ---
+<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=0aaaa67ba0e4bee2c06478eca439148aea478033d73df8cc5c067b1a4985b001 -->
 
 # Engineering Verifier
 

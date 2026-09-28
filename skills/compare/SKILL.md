@@ -13,6 +13,7 @@ metadata:
   version: "0.1.1"
 
 ---
+<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=4506766cda9959a45fd27795f701e41395abd3bdcb18f80ef0c50d1bb8229cf1 -->
 
 # Engineering Source Comparison
 

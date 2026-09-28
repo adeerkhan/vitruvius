@@ -15,6 +15,7 @@ metadata:
   version: "0.2.0"
 
 ---
+<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=75d7a0fe1e28aeaec07c2dae738a90fc878012edc98db71c2ca0fe56d3dcdbd1 -->
 
 # Scholarly Research
 

@@ -15,6 +15,7 @@ metadata:
   version: "0.1.2"
 
 ---
+<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=7e83a4aa9a36d1185f012bddbe645a9d1080496cf99cde95c21fad497ae37c37 -->
 
 # Hypothesis Generation
 

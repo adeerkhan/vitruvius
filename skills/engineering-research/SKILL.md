@@ -18,6 +18,7 @@ metadata:
   version: "0.2.9"
 
 ---
+<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=34e766b10ef5f6f9a0739cfc1ede0fdcb9efe2b3c819b4e15d076a0a1fd8cef7 -->
 
 # Engineering Research
 

@@ -342,6 +342,34 @@ function writerContractProblems(skill) {
   return problems;
 }
 
+// Version synchronization: plugin.json version must match package.json version.
+// Stolen from Humanizer's validate-package.py pattern.
+function versionSyncProblems() {
+  const problems = [];
+  let pkg;
+  try {
+    pkg = JSON.parse(readFileSync(join(REPO_ROOT, "package.json"), "utf-8"));
+  } catch {
+    return ["package.json missing or invalid"];
+  }
+
+  const manifestPath = join(REPO_ROOT, ".claude-plugin", "plugin.json");
+  if (existsSync(manifestPath)) {
+    try {
+      const manifest = JSON.parse(readFileSync(manifestPath, "utf-8"));
+      if (manifest.version !== pkg.version) {
+        problems.push(
+          `.claude-plugin/plugin.json version ${manifest.version} does not match package.json version ${pkg.version}`,
+        );
+      }
+    } catch {
+      problems.push(".claude-plugin/plugin.json invalid JSON");
+    }
+  }
+
+  return problems;
+}
+
 const CHECKS = {
   frontmatter: frontmatterProblems,
   skill_md_length: lengthProblems,
@@ -351,6 +379,7 @@ const CHECKS = {
   no_tests_under_skills: strayTestProblems,
   local_links_resolve: linkProblems,
   skill_references_resolve: (skill) => skillMentionProblems(skill, knownSkills),
+  version_sync: versionSyncProblems,
 };
 
 let totalProblems = 0;

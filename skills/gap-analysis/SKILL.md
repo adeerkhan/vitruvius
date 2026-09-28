@@ -15,6 +15,7 @@ metadata:
   version: "0.1.1"
 
 ---
+<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=4ee4131df62843ebd7cebe9f02e29d19ed6edb72628cdade9210467000111283 -->
 
 # Gap Analysis
 
