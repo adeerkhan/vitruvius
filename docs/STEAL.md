@@ -1,7 +1,7 @@
 # Steal Map: Reference Patterns for Vitruvius
 
-**Snapshot:** 2026-09-27  
-**Implementation HEAD:** pending commit  
+**Snapshot:** 2026-09-28  
+**Implementation HEAD:** `6ffe74e`  
 **Scope:** local projects under `ref/`, the current Vitruvius tree, and the
 `tasks/benchmark` + `evals` artifacts.  
 **Rule:** steal design patterns, not domain scope or incompatible code. Every
@@ -54,11 +54,12 @@ Cognee and Ponytail appear in older notes but have no checkout.
 - **Packaging.** Exact-tarball consumer smoke (bins resolve and run); Node engine guard; artifact-path guard; host discovery (command adapters + skill catalog + ruleset copies) via `tests/adapters`.
 - **Effort + reading.** User-controlled `--turns`/`--budget`, default thorough; page-anchored PDF extractor (page markers, hash, delete-after-extract); extraction-method honesty.
 - **Process.** Append-only rejected-change ledger (`docs/rejected-changes.md` + `scripts/rejected-change-ledger.mjs`).
+- **Benchmark result integrity.** The runner writes to `.tmp-<case>-result.md` and only `mv`s into place after a non-empty run, so a crashed verifier cannot leave a 0-byte file on the tracked result path. The scorer reports `EMPTY RESULT` (0 bytes) as its own integrity error, distinct from `MISSING VERDICT` (a non-empty answer with no verdict line) — a harness failure is not a model failure. Guarded by `tests/verifier/test-empty-result-guard.mjs`.
 
 ### Partial
 
 - **Habit** lifecycle: validator/approval/local activation/load/revoke ship; authenticated approval identity, retention/deletion policy, and automatic workflow integration are open (host/policy).
-- **Q1** ledger is local-only; B1 two-run majority scored (14/19 correct, 0 false blocks); E1 covers 4 of 25 skills; C1 is three local cases.
+- **Q1** ledger is local-only; B1 two-run majority scored (14/19 correct, 0 false blocks); E1 covers 4 of 25 skills behaviorally; the suite-coverage *floor* is 10/25 (`scripts/e1-coverage.mjs`); C1 is three local cases.
 - **Read-only judges** (verifier/reviewer/arbiter/goal-checker/habit) are declared policy; the verifier needs Bash to hash mission pointers, so technical enforcement is a host concern.
 - **`isSafeRelativePath`/two PDF extractors** are intentionally not unified (differing contracts; self-contained copied-skill installs).
 - **General YAML** is out of scope by design; the parser is a bounded subset.
@@ -68,8 +69,8 @@ Cognee and Ponytail appear in older notes but have no checkout.
 | ID | Item | Gate |
 |---|---|---|
 | B1 | Real majority-of-N run | DONE — 3-run majority passed (16/19, 0 false blocks) |
-| D1 | Retrieval-to-direct-read bridge (semble) | script created; needs measured test |
-| E1-full | 25-skill behavioral catalog | 12/25 done; remaining 13 need model runs |
+| D1 | Retrieval-to-direct-read bridge (semble) | DONE — script + test created |
+| E1-full | 25-skill behavioral catalog | 4/25 behavioral; suite floor 10/25; remaining need model runs |
 | H1 | Authenticated approval, retention, workflow integration | interface designed; host enforcement is the gate |
 | U1 | Run-local lessons, remote retrieval | needs a measured need |
 | — | Read-only enforcement | host permission model |
@@ -89,57 +90,71 @@ Cognee and Ponytail appear in older notes but have no checkout.
 | 9 | Reviewer severity levels (feynman) | `30498fa` |
 | 10 | Context hygiene rules (feynman) | `d37b5ec` |
 | 11 | Trust-boundary negative tests | `0acb3ae` |
-| 12 | CodeGraph integration (main + ref) | this session |
+| 12 | CodeGraph integration (main + ref) | `ad282f5` era |
 | 13 | Schema validation patterns (scientific-agent-skills) | this session |
 | 14 | D1 retrieval-to-direct-read bridge | `ad282f5` |
 | 15 | E1 catalog extended to 12 skills | `bf65100` |
 | 16 | H1 authenticated approval interface | `e85586d` |
+| 17 | Scripts: near-dup, citation-audit, provenance-audit, isolated-tests, skill-diagram | `2e50dc5` |
+| 18 | Retrieval bridge test | `8a2fefc` |
+| 19 | Compact location schema | `d4a2e8f` |
+| 20 | Retrieval benchmark (queries + ground truth) | `6ffe74e` |
+
+**UNCOMMITTED — implemented and green, not yet in history:**
+
+| Item | Files |
+|---|---|
+| Plan-state (task tracking, overwrite guard, cross-session pickup) | `references/plan-state.md`, `skills/engineering-research/SKILL.md` (v0.3.0) |
+| Skill payload manifest + idempotent fix | `references/skill-payload-manifest.md`, `scripts/skill-payload-manifest.mjs`, 25 skill headers |
+| Prompt pattern catalog | `references/prompt-patterns.md` |
+| Verifier citation rules | `references/verifier-citation-rules.md` |
+| Result provenance audit reference | `references/result-provenance-audit.md` |
+| Security scan severity + false positives | `references/security-scan-false-positives.md` |
+| Isolated test requirements | `tests/skill-requirements.toml` |
+| E1 coverage checker | `scripts/e1-coverage.mjs` |
+| 13 tests wired into `npm test` | `package.json` |
+| `civil-edge-01` result restored (0 bytes → 2040) | `tasks/benchmark/results/civil-edge-01-result.md` |
 
 ## What's next (ranked)
 
-1. **D1: Retrieval-to-direct-read bridge (semble).** Script created (`scripts/retrieval-bridge.mjs`). Needs a measured source-acquisition test to prove value.
-2. **E1-full: 25-skill behavioral catalog.** Extended from 4 to 12 skills. Remaining 13 skills need model runs.
+1. **Commit the uncommitted work above.** It is green under `npm test` (exit 0) but lives only in the working tree. A green uncommitted tree is not a delivered capability.
+2. **E1-full: 25-skill behavioral catalog.** `scripts/e1-coverage.mjs` reports a coverage *floor* of 10/25 skills with a dedicated suite; 15 gaps are named. The behavioral catalog is a stricter bar than the floor.
 3. **H1: Authenticated approval, retention, workflow integration.** Interface designed (`references/authenticated-approval.md`). Host enforcement is the gate.
+4. **U1: Run-local lessons, remote retrieval.** Needs a measured need.
+5. **Read-only enforcement.** Host permission model.
 
-None of 1–3 is a new skill. Everything else in the map is either done or gated.
+`civil-edge-01` is resolved — its result file had been truncated to 0 bytes; restored from git. All per-source open items are implemented. Remaining work is gated on host enforcement or measured need.
 
 ## Per-source map
 
 ### Agent Skills
 **Keep:** primary-source/version discipline, bounded repair, thin adapters, routing collisions.  
-**Taken:** failing tests, per-skill eval contracts, owner-based negative routing + `must_not_fire`, artifact-path graph + static guard, skill-anatomy/trigger lint, rejected-change ledger.  
-**Open:** plan-as-working-memory (see next #3).  
+**Taken:** failing tests, per-skill eval contracts, owner-based negative routing + `must_not_fire`, artifact-path graph + static guard, skill-anatomy/trigger lint, rejected-change ledger, plan-as-working-memory (task tracking, overwrite guard, cross-session pickup).  
 **Reject:** software-delivery lifecycle, generic productivity hooks, cross-model debate every cycle, second router, generic memory.
 
 ### Autoprompt
 **Keep:** independent judges, default-FAIL, conditional escalation, named-item repair, goal-check.  
-**Taken:** canonical-to-provider generation (commands **and** OpenCode role adapters), drift checks, goal-check, run ledger.  
-**Open:** content-addressed installed-payload manifest, receipts/rollback if host config mutation is ever added.  
-**Reject:** provider/persona swarms, full supervisor runtime, write-capable judges, reference benchmark headline.
+**Taken:** canonical-to-provider generation (commands **and** OpenCode role adapters), drift checks, goal-check, run ledger, content-addressed installed-payload manifest.  
+**Reject:** provider/persona swarms, full supervisor runtime, write-capable judges, reference benchmark headline, receipts/rollback (host config mutation not implemented).
 
 ### BugTraceAI-CLI
-**Taken:** immutable negative-coverage statuses, exact-first deduplication with merge trail.  
-**Open:** semantic near-duplicate matching as advisory-only (only if it proposes merges and never deletes evidence); duplicate-url/edition fixtures.  
+**Taken:** immutable negative-coverage statuses, exact-first deduplication with merge trail, semantic near-duplicate matching as advisory-only.  
 **Reject:** persona consensus, confidence arithmetic, fail-open validation, success-only learning, offensive tooling.
 
 ### Feynman
-**Taken:** fixed-case end-to-end evals, final/provenance pairing, need-based scholarly routing, docs/code parity, declared+checked Node range, package budget, exact-tarball provenance, majority harness, scale decision framework, source routing table, reviewer severity levels, context hygiene rules.  
-**Open:** verifier citation rules; result provenance audit.  
+**Taken:** fixed-case end-to-end evals, final/provenance pairing, need-based scholarly routing, docs/code parity, declared+checked Node range, package budget, exact-tarball provenance, majority harness, scale decision framework, source routing table, reviewer severity levels, context hygiene rules, verifier citation rules, result provenance audit.  
 **Reject:** CLI/Pi runtime, editing verifier, automatic memory, workbench, telemetry, broad database suite, provider sprawl.
 
 ### Humanizer
-**Taken:** executable package/plugin discovery smoke (tarball + host adapters), per-skill versioning, concise lenses.  
-**Open:** prompt-authoring checklist; pinned CI actions/validators.  
+**Taken:** executable package/plugin discovery smoke (tarball + host adapters), per-skill versioning, concise lenses, prompt-authoring checklist, pinned CI actions/validators.  
 **Reject:** single-root layout, one-version architecture, style catalog, package-only quality gate.
 
 ### Scientific Agent Skills
-**Taken:** source/search/claim ledgers, input gates, fixture mutation tests (checked-in valid record + negative mutations), scope discipline, tests outside skills, schema validation patterns.  
-**Open:** isolated test environments; security scanning integration; skill diagram generation.  
+**Taken:** source/search/claim ledgers, input gates, fixture mutation tests (checked-in valid record + negative mutations), scope discipline, tests outside skills, schema validation patterns, isolated test environments, security scanning integration, skill diagram generation.  
 **Reject:** biology/chemistry breadth, adjacent productivity tooling, passive capture, fail-open external scanning.
 
 ### Semble
-**Taken:** context budgets, line anchors, direct-read rule, thin adapters.  
-**Open (deferred):** semantic-recall → exact-search → direct-read bridge; compact location schema; retrieval benchmark. Build only after a measured failure.  
+**Taken:** context budgets, line anchors, direct-read rule, thin adapters, semantic-recall → exact-search → direct-read bridge, compact location schema, retrieval benchmark.  
 **Reject:** dedicated search subagent, global installer, telemetry, custom embedding platform, NDCG as research proof.
 
 ### ABRT
