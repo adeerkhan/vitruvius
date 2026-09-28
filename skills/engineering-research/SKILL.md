@@ -15,10 +15,10 @@ argument-hint: "<research question or artifact to review> [--deep | --quick]"
 allowed-tools: Write Edit Bash Read
 license: MIT
 metadata:
-  version: "0.2.9"
+  version: "0.3.0"
 
 ---
-<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=34e766b10ef5f6f9a0739cfc1ede0fdcb9efe2b3c819b4e15d076a0a1fd8cef7 -->
+<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=983e82a36d427b006d6e710c50dd50283fe709c54e662e0d77249992a982f1d1 -->
 
 # Engineering Research
 
@@ -33,10 +33,10 @@ disciplines unchanged.
 /engineering-research <question> [--deep | --quick] [--turns N | --budget N]
 ```
 
-- **`--deep`**: Force multi-agent mode. Spawns researcher subagents regardless of query complexity. Uses parallel verification lanes for all claims. Use when the user wants comprehensive coverage or the topic is safety-critical.
-- **`--quick`**: Force direct search mode. No subagents, no parallel verification. Lead agent searches and synthesizes alone. Use only when the user explicitly asks for a fast lookup.
-- **`--turns N` / `--budget N`**: The user's effort ceiling for this run (`N` research turns, or an approximate token budget). Record it in the plan and report when you approach it; it is a ceiling you honor, not an internal default you impose.
-- **No flag**: Default to thorough research, bounded by a user-set budget when one is given and by evidence saturation when not. The user can change the budget mid-run ("keep going", "stop here").
+- **`--deep`**: Force multi-agent mode. Spawns researcher subagents regardless of query complexity; uses parallel verification lanes. For comprehensive coverage or safety-critical topics.
+- **`--quick`**: Force direct search mode. No subagents, no parallel verification. Only when the user explicitly asks for a fast lookup.
+- **`--turns N` / `--budget N`**: The user's effort ceiling (`N` research turns, or an approximate token budget). Record it in the plan and report when you approach it; it is a ceiling you honor, not an internal default you impose.
+- **No flag**: Default to thorough research, bounded by a user-set budget when one is given and by evidence saturation when not. The user can change the budget mid-run.
 
 Discipline skills pass these flags through to this method.
 
@@ -53,9 +53,8 @@ Discipline skills pass these flags through to this method.
 - To ask the user a question, write plain chat text and wait. Do not invent
   tool names for asking questions.
 
-This is an execution request, not a request to explain the workflow. Execute
-it. Do not answer by describing the protocol. Your first actions should be
-tool calls that create the plan artifact.
+This is an execution request. Execute it; do not answer by describing the
+protocol. Your first actions should be tool calls that create the plan artifact.
 
 ## Context Management
 
@@ -79,21 +78,16 @@ files on disk:
 
 ## File Write Fallback
 
-The host must permit file writes for artifacts to persist. If a write fails:
-1. Return the plan/draft/provenance content directly in the chat response
-2. Continue the research loop — do not abort
-3. Note in the final response that artifacts were not persisted to disk
-
-Research content is valuable even without persistent artifacts. Never fail a
-research task solely because file writes are not permitted.
+If a write fails: return the content inline, continue the loop, and note that
+artifacts were not persisted. Never fail a research task solely because file
+writes are not permitted.
 
 Intermediate research goes to `<slug>-research-<scope>.md` in the working
-directory or `outputs/.drafts/`. Never use generic names like `research.md` or
-`brief.md`. Concurrent runs must not collide.
+directory or `outputs/.drafts/`. Never use generic names. Concurrent runs must
+not collide.
 
-After the user approves the plan, if any capability fails, continue in
-degraded mode and still write a blocked or partial final output and provenance
-sidecar. Never end with chat-only output after plan approval.
+After plan approval, if any capability fails, continue in degraded mode and
+still write a blocked or partial final output and provenance sidecar.
 
 ## Step 1: Plan
 
@@ -161,7 +155,23 @@ Task/Verification/Decision logs before moving to the next phase:
 This keeps the plan synchronized with reality so that an interrupted run can
 resume from disk without losing state. The formal state machine (states,
 transitions, crash recovery, GOAL-CHECK integration) is in
-`references/research-state-machine.md`.
+`references/research-state-machine.md`. The task ledger format, in-place update
+rules, overwrite guard, and cross-session pickup are in
+`references/plan-state.md`.
+
+### Overwrite Guard
+
+Before writing a plan, check whether `outputs/.plans/<slug>.md` already
+exists. If it has incomplete tasks for different work, stop and ask the user
+before writing — never silently overwrite an incomplete plan. If it has
+incomplete tasks for the same work, treat it as a plan pickup (below).
+
+### Cross-Session Plan Pickup
+
+When a plan already exists for the same slug with incomplete tasks for the
+same work: read it, identify the first incomplete task, resume from there.
+Do not start over. Note the resumed run in the Decision log. This is what
+makes long-running research sessions possible without context overflow.
 
 ## Step 2: Scale
 
