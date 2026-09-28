@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 # Run the verifier benchmark via opencode run (inside OpenCode).
-# Usage: bash tasks/benchmark/run-opencode.sh [case-name-filter] [cases-dir]
+# Usage: bash tasks/benchmark/run-opencode.sh [case-name-filter] [cases-dir] [model]
 set -u
 cd "$(dirname "$0")/../.."
-FILTER="${1:-}"
+FILTER="${1-}"
 CASES="${2:-tasks/benchmark/cases}"
+MODEL="${3:-opencode-go/longcat-2.5-preview-free}"
 OUT="tasks/benchmark/results-opencode"
 mkdir -p "$OUT"
 expected=0
@@ -34,15 +35,24 @@ for f in "$CASES"/*/*.md "$CASES"/*.md; do
 		exit 1
 	fi
 	echo "--- running $name"
-	if ! opencode run --agent verifier --format json \
-		"Blind verification dispatch. Verify the claimed conclusion below against its evidence items, following your verifier protocol. Ground truth is not provided. Return your report in your Output format, including the MACHINE_VERDICT line. Case:
-
-$(cat "$OUT/.blind-$name.md")" \
-		> "$OUT/$name-result.md" 2>"$OUT/.err-$name.log"; then
+	# Write to a temp file, then move into place only after the run produced
+	# output. Shell `>` truncates the target to 0 bytes *before* the command
+	# runs, so a crashed or killed run used to leave an empty result file where
+	# a tracked result belongs — indistinguishable from a real empty answer.
+	tmp="$OUT/.tmp-$name-result.md"
+	rm -f "$tmp"
+	if ! cmd.exe /c "opencode run --agent verifier --model $MODEL --format json -f $OUT/.blind-$name.md \"Blind verification dispatch. Verify the claimed conclusion below against its evidence items, following your verifier protocol. Ground truth is not provided. Return your report in your Output format, including the MACHINE_VERDICT line. Case:\"" \
+		> "$tmp" 2>"$OUT/.err-$name.log"; then
 		echo "    PROCESS FAILED (see $OUT/.err-$name.log)"
-		rm -f "$OUT/.blind-$name.md"
+		rm -f "$OUT/.blind-$name.md" "$tmp"
 		exit 1
 	fi
+	if [ ! -s "$tmp" ]; then
+		echo "    EMPTY OUTPUT: run produced no bytes (see $OUT/.err-$name.log)"
+		rm -f "$OUT/.blind-$name.md" "$tmp"
+		exit 1
+	fi
+	mv "$tmp" "$OUT/$name-result.md"
 	if node scripts/score-benchmark.mjs --case "$f" "$OUT/$name-result.md" >/dev/null; then
 		count=$((count+1)); echo "    ok"
 	else

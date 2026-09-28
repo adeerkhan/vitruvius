@@ -92,6 +92,13 @@ export function scoreCase(caseFile, resultFile) {
   }
 
   const resultContent = readFileSync(resultFile, "utf-8");
+  // An empty result is a harness failure (the writer truncated or the run
+  // produced no bytes), NOT a model failure. Reporting it as MISSING VERDICT
+  // blames the verifier for a crash in the runner and inflates the apparent
+  // error class, so it gets its own integrity error.
+  if (resultContent.trim().length === 0) {
+    return { caseName, error: `EMPTY RESULT: ${caseName}${RESULT_SUFFIX} (0 bytes — the run produced no output)` };
+  }
   const { verdicts, malformed } = readVerdictLines(resultContent);
   if (malformed.length > 0) {
     return { caseName, error: `MALFORMED VERDICT: ${caseName}` };
