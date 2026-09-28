@@ -48,11 +48,21 @@ for (const c of CASES) {
     continue;
   }
 
-  writeFileSync(c.file, mutated, "utf8");
-  const run = spawnSync("node", [c.test], { encoding: "utf8" });
-  writeFileSync(c.file, original, "utf8");
+  // The restore must run even if the child is killed or this process is
+  // interrupted. An earlier version restored unconditionally after the spawn
+  // and could leave a checked-in SKILL.md mutated if the run was cut short,
+  // which then failed the payload-manifest test on the *next* run with no
+  // obvious cause.
+  let status;
+  try {
+    writeFileSync(c.file, mutated, "utf8");
+    const run = spawnSync("node", [c.test], { encoding: "utf8" });
+    status = run.status;
+  } finally {
+    writeFileSync(c.file, original, "utf8");
+  }
 
-  if (run.status === 0) {
+  if (status === 0) {
     console.log(`  NOT DETECTED: ${c.name} — suite still passed`);
     allDetected = false;
   } else {
@@ -60,9 +70,24 @@ for (const c of CASES) {
   }
 }
 
+// A mutation harness that leaves the repo dirty is worse than no harness, so
+// prove the tree is byte-identical to what git has checked in. Compared against
+// git rather than an in-memory copy, because the copy is what we just wrote —
+// comparing it to itself would pass vacuously.
+const status = spawnSync("git", ["status", "--porcelain", "--", ...CASES.map((c) => c.file)], {
+  encoding: "utf8",
+});
+const dirtyFiles = (status.stdout ?? "").trim();
+if (dirtyFiles.length > 0) {
+  console.log(`\n  DIRTY AFTER RESTORE — the harness must leave the tree clean:\n${dirtyFiles}`);
+  allDetected = false;
+} else {
+  console.log("  tree clean after all mutations restored");
+}
+
 console.log(
   allDetected
-    ? "\nPASS: all four behavioural suites fail when their rule is removed"
-    : "\nFAIL: at least one suite is vacuous — it passed with its rule deleted",
+    ? "\nPASS: all four behavioural suites fail when their rule is removed, and the tree is left clean"
+    : "\nFAIL: at least one suite is vacuous, or the harness left the tree dirty",
 );
 process.exit(allDetected ? 0 : 1);
