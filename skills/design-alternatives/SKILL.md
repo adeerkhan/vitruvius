@@ -13,7 +13,7 @@ metadata:
   version: "0.1.2"
 
 ---
-<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=ee1e405e966a8ae9a4d53abbf65488095605280a4912b28e5221df95c726efdf -->
+<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=2e46c8c4601f96e95aac4ed3f5b135e6adfb6e569c050c9165b4590af911a985 -->
 
 # Design Alternatives
 

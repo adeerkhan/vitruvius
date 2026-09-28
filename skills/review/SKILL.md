@@ -13,7 +13,7 @@ metadata:
   version: "0.1.1"
 
 ---
-<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=d655f800a7e91815dbadc0de4210d7b0798f64883d0c4f335ea2434011533ee9 -->
+<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=9d42659f0d433d8db5368970c730d40c687c62a89e50583ff8d9e00a3c04fd25 -->
 
 # Engineering Artifact Review
 

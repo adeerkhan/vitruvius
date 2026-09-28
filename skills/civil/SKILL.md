@@ -14,7 +14,7 @@ metadata:
   version: "0.1.0"
 
 ---
-<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=7cf106464a9ac02f638d144c93fc7b1f757154cd4e97bbaa8d3749f080890ac1 -->
+<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=2f36664be35f51a287af2ba0fb0b8573631d4bfcf827c2ce4c528b0ae1fe9771 -->
 
 # Civil / Structural Engineering Research
 

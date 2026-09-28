@@ -5,8 +5,12 @@
 // Usage:
 //   node scripts/skill-payload-manifest.mjs --verify   check all skills
 //   node scripts/skill-payload-manifest.mjs --update   recompute and write headers
+//
+// The header sits immediately AFTER the `---` frontmatter, never on line 1: a
+// leading comment breaks frontmatter parsing for every skill in the repo.
+// The hashed body is everything after that header line.
 
-import { readdirSync, readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
+import { readdirSync, readFileSync, writeFileSync, existsSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createHash } from "node:crypto";
@@ -15,18 +19,45 @@ const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
 const skillsDir = join(repoRoot, "skills");
 const HEADER_PREFIX = "<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=";
 const HEADER_SUFFIX = " -->";
+const FRONTMATTER = /^---\r?\n[\s\S]*?\r?\n---\r?\n/;
 
-function computeHash(skillBody) {
-  return createHash("sha256").update(skillBody, "utf8").digest("hex");
+function computeHash(body) {
+  return createHash("sha256").update(body, "utf8").digest("hex");
 }
 
-function extractHeader(content) {
-  const firstLine = content.split("\n")[0];
-  if (!firstLine.startsWith(HEADER_PREFIX) || !firstLine.trimEnd().endsWith(HEADER_SUFFIX)) {
-    return null;
+function isHeaderLine(line) {
+  return line.startsWith(HEADER_PREFIX) && line.trimEnd().endsWith(HEADER_SUFFIX);
+}
+
+function headerHash(line) {
+  return line.slice(HEADER_PREFIX.length, line.trimEnd().length - HEADER_SUFFIX.length);
+}
+
+/**
+ * Split a SKILL.md into { frontmatter, header, body }. The header is the first
+ * line after the frontmatter when present. Any duplicate header lines are
+ * stripped from the body so `--update` is idempotent and cannot stack headers.
+ */
+function splitSkill(content) {
+  const fm = content.match(FRONTMATTER);
+  const frontmatter = fm ? fm[0] : "";
+  let rest = fm ? content.slice(fm[0].length) : content;
+
+  const firstBreak = rest.indexOf("\n");
+  const firstLine = firstBreak === -1 ? rest : rest.slice(0, firstBreak);
+  let header = null;
+  if (isHeaderLine(firstLine)) {
+    header = headerHash(firstLine);
+    rest = firstBreak === -1 ? "" : rest.slice(firstBreak + 1);
   }
-  const hash = firstLine.slice(HEADER_PREFIX.length, firstLine.trimEnd().length - HEADER_SUFFIX.length);
-  return { hash, headerLine: firstLine };
+
+  // Defensive: drop any stray header lines that ended up in the body.
+  const body = rest
+    .split("\n")
+    .filter((line) => !isHeaderLine(line))
+    .join("\n");
+
+  return { frontmatter, header, body };
 }
 
 function getSkillDirs() {
@@ -34,12 +65,10 @@ function getSkillDirs() {
   for (const entry of readdirSync(skillsDir, { withFileTypes: true })) {
     if (entry.isDirectory()) {
       const skillFile = join(skillsDir, entry.name, "SKILL.md");
-      if (existsSync(skillFile)) {
-        dirs.push({ name: entry.name, path: skillFile });
-      }
+      if (existsSync(skillFile)) dirs.push({ name: entry.name, path: skillFile });
     }
   }
-  return dirs;
+  return dirs.sort((a, b) => a.name.localeCompare(b.name));
 }
 
 function verify() {
@@ -48,22 +77,19 @@ function verify() {
   let fail = 0;
 
   for (const skill of skills) {
-    const content = readFileSync(skill.path, "utf8");
-    const header = extractHeader(content);
-
+    const { header, body } = splitSkill(readFileSync(skill.path, "utf8"));
     if (!header) {
-      console.log(`FAIL: ${skill.name} — missing or malformed header`);
+      console.log(`FAIL: ${skill.name} — no content-addressed header after frontmatter`);
       fail++;
       continue;
     }
-
-    const body = content.slice(content.indexOf("\n") + 1);
-    const actualHash = computeHash(body);
-
-    if (actualHash === header.hash) {
+    const actual = computeHash(body);
+    if (actual === header) {
       pass++;
     } else {
-      console.log(`FAIL: ${skill.name} — hash mismatch (expected ${header.hash.slice(0, 12)}…, got ${actualHash.slice(0, 12)}…)`);
+      console.log(
+        `FAIL: ${skill.name} — hash mismatch (header ${header.slice(0, 12)}…, body ${actual.slice(0, 12)}…)`,
+      );
       fail++;
     }
   }
@@ -74,43 +100,12 @@ function verify() {
 
 function update() {
   const skills = getSkillDirs();
-  let updated = 0;
-
   for (const skill of skills) {
-    const content = readFileSync(skill.path, "utf8");
-    const header = extractHeader(content);
-
-    let body;
-    if (header) {
-      body = content.slice(content.indexOf("\n") + 1);
-    } else {
-      body = content;
-    }
-
-    const hash = computeHash(body);
-    const newHeader = `${HEADER_PREFIX}${hash}${HEADER_SUFFIX}`;
-    // Insert header after frontmatter closing --- if present, otherwise at top
-    // The frontmatter starts with ---\n and ends with \n---\n
-    // We need to find the closing --- (the second one)
-    const firstFm = body.indexOf("---\n");
-    let insertPos;
-    if (firstFm !== -1) {
-      const secondFm = body.indexOf("\n---\n", firstFm + 1);
-      if (secondFm !== -1) {
-        insertPos = secondFm + 5; // after the closing ---\n
-      } else {
-        insertPos = firstFm + 4; // only one --- found, insert after it
-      }
-    } else {
-      insertPos = 0; // no frontmatter, insert at top
-    }
-    const newContent = body.slice(0, insertPos) + newHeader + "\n" + body.slice(insertPos);
-
-    writeFileSync(skill.path, newContent, "utf8");
-    updated++;
+    const { frontmatter, body } = splitSkill(readFileSync(skill.path, "utf8"));
+    const header = `${HEADER_PREFIX}${computeHash(body)}${HEADER_SUFFIX}`;
+    writeFileSync(skill.path, `${frontmatter}${header}\n${body}`, "utf8");
   }
-
-  console.log(`Updated ${updated} skill headers`);
+  console.log(`Updated ${skills.length} skill headers`);
 }
 
 const args = process.argv.slice(2);

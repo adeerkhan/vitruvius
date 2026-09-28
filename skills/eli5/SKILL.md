@@ -12,7 +12,7 @@ metadata:
   version: "0.1.0"
 
 ---
-<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=b70b4f43e3989eaa611811416269e8826bf63b2d5a076e58eed13017354c02c3 -->
+<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=ef0d14757eec735f76df643f9263ece1f6a71c215c9a1140548234eca85f5ef6 -->
 
 # Engineering Explain Like I'm 5
 

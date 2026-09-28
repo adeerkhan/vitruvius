@@ -16,7 +16,7 @@ metadata:
   version: "0.1.11"
 
 ---
-<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=e05b1c9255f84386d576f72f5b672f35b2e38670f99016b279cdfb473e37dc90 -->
+<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=2e0ed2afeb73446bb6613f8bdf2990f7b343aa2c3dd1986476e2d80865dd0087 -->
 
 # Research Proposal Generator
 

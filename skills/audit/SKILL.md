@@ -14,7 +14,7 @@ metadata:
   version: "0.1.1"
 
 ---
-<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=60871ed7f160833690da7b0359310ee495bf979bc179dd7437b704e2c9eeedcd -->
+<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=fe7753477500f28f85e7fec0e8229ec5dc6a20d5ba5e6be6615a4b7bbb7942a3 -->
 
 # Engineering Audit
 
