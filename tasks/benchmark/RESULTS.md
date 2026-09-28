@@ -81,6 +81,52 @@ The pressure suite required adding `unverifiable_source` and `criterion_mismatch
 
 ---
 
+## architectural-synthesis_overreach-01 — determination, 2026-09-28
+
+The suite's single false approval was investigated and is a **verifier
+protocol-adherence gap**, not a mis-specified case.
+
+`agents/verifier.md` (and `skills/verifier/SKILL.md`) state the rule explicitly:
+
+> Margin/compliance language in the conclusion ("exceeds the minimum",
+> "provides margin", "safely above") must be quantified against the actual
+> numbers. Unqualified margin language with a margin under ~10% caps the verdict
+> at PARTIAL.
+
+Ordered check 6 in the same file adds: if a margin claim exists, the verdict
+CANNOT be PASS.
+
+The checked-in run did detect the issue. Its evidence trail reads:
+
+> **Margin wording:** "exceeds the minimum" is a 96 vs 90 in margin of 6.7%
+> (< 10%) ... I judge this compliant rather than material.
+
+So the run named the phrasing, computed the margin, recognised it was under the
+cap, and then returned PASS anyway — overriding the rule in the same response
+that applied it. The rule even quotes the compliant phrasing ("exceeds by 6.7%")
+that the run then produced in its own corrected conclusion.
+
+**Fix, at the cause:** `scripts/margin-earnedness-check.mjs` makes the threshold
+a deterministic integrity check over the result artifact. A PASS verdict whose
+own trail reports unqualified margin language with a sub-10% margin now fails
+closed. It cannot change the model's reasoning; it makes the override visible
+and non-shippable. Deliberately, quantifying the margin in a *corrected
+conclusion* does not clear the violation — the gate is on the verdict, and a
+repaired conclusion with a sub-cap margin is precisely what the cap exists for.
+
+The benchmark number is deliberately **unchanged** at 15/20 with 1 false
+approval. Fixing the verdict requires a fresh verifier run, which this round
+does not have. Re-specifying the ground truth to PASS would have turned 16/20
+and 0 false approvals, and would have laundered a real defect into a fixture
+change; that was attempted and reverted.
+
+Secondary correction: the ground-truth explanation previously read "48-inch
+stairs sit at the code-minimum stair width (45 in)". That was wrong — Evidence 2
+(IBC 1005.3) defines 45 in as half the *total required width* for this occupant
+load, not a stair-width code minimum, and 48 in does not equal 45 in. The
+explanation is corrected. The PARTIAL verdict does not depend on that error; it
+rests on the margin-earnedness threshold alone.
+
 ## B0 control update — 2026-09-24
 
 - The adversarial suite contains 20 cases across five disciplines; five additional deterministic PASS **scoring fixtures** live under `tasks/benchmark/controls/`. They exercise the parser/scorer and are not independent verifier runs.
