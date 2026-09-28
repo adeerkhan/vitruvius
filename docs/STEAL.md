@@ -1,7 +1,7 @@
 # Steal Map: Reference Patterns for Vitruvius
 
 **Snapshot:** 2026-09-28  
-**Implementation HEAD:** `2c0b1f0`  
+**Implementation HEAD:** `70c00c0`  
 **Scope:** local projects under `ref/`, the current Vitruvius tree, and the
 `tasks/benchmark` + `evals` artifacts.  
 **Rule:** steal design patterns, not domain scope or incompatible code. Every

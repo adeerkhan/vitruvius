@@ -35,19 +35,40 @@ const sh = (cmd, args) => {
   }
 };
 
-// --- 1. Implementation HEAD must be the current commit ---------------------
-// The map claims a HEAD. If it does not match, every "what is done" statement
-// in the document is describing an older tree than the one on disk.
+// --- 1. Implementation HEAD must be a real commit in this history -----------
+// A map cannot name its own commit hash: committing the map changes HEAD, so
+// the hash is always one behind by construction. The first version of this check
+// required equality and therefore could never pass its own commit.
+//
+// What IS worth enforcing: the hash resolves, and it is an ANCESTOR of HEAD
+// rather than something from an unrelated line. That is the real failure this
+// repo already had - a fabricated hash that read as evidence. Lagging behind is
+// normal and unavoidable, so that is a warning, not a failure.
 {
   const claimed = /\*\*Implementation HEAD:\*\*\s*`([0-9a-f]{7,40})`/.exec(text);
   const actual = sh("git", ["rev-parse", "--short", "HEAD"]);
   if (!claimed) {
     problems.push("no '**Implementation HEAD:** `hash`' line found; the map must pin the tree it describes");
-  } else if (actual && !claimed[1].startsWith(actual) && !actual.startsWith(claimed[1])) {
-    problems.push(
-      `Implementation HEAD is \`${claimed[1]}\` but the tree is at \`${actual}\`. The map describes an ` +
-        `older tree than the one on disk, so its "done" statements may be stale.`,
-    );
+  } else {
+    const hash = claimed[1];
+    if (sh("git", ["cat-file", "-e", `${hash}^{commit}`]) === null) {
+      problems.push(
+        `Implementation HEAD \`${hash}\` is not a commit in this repository. A status map citing an ` +
+          `unresolvable hash is the failure this repo has already had once.`,
+      );
+    } else if (sh("git", ["merge-base", "--is-ancestor", hash, "HEAD"]) === null) {
+      problems.push(
+        `Implementation HEAD \`${hash}\` exists but is not an ancestor of HEAD (\`${actual}\`). The map ` +
+          `describes a different line of history than the tree it sits in.`,
+      );
+    } else if (actual && !actual.startsWith(hash) && !hash.startsWith(actual)) {
+      const behind = sh("git", ["rev-list", "--count", `${hash}..HEAD`]);
+      warnings.push(
+        `Implementation HEAD is \`${hash}\`, ${behind ?? "?"} commit(s) behind \`${actual}\`. Unavoidable for ` +
+          `a file that names a commit — committing the map moves HEAD — so this is reported, not failed. ` +
+          `Check the "done" claims above are still true of the newer tree.`,
+      );
+    }
   }
 }
 
