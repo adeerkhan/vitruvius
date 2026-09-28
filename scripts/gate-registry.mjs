@@ -64,7 +64,11 @@ export const REGISTRY = {
   "majority-benchmark.mjs": { kind: "npm", via: "benchmark:majority" },
 
   // --- Reached by tests, invoked only via npm sub-scripts ----------------
-  "e1-coverage.mjs": { kind: "test" },
+  // Promoted from "test" to "chain" on 2026-09-28. It used to always exit 0,
+  // so it could print a coverage number that nothing could contradict: a skill
+  // could have lost its suite with a green build. It is a reporter only under
+  // --report, which exists so a human can inspect state without the gate firing.
+  "e1-coverage.mjs": { kind: "chain" },
   "skill-payload-manifest.mjs": { kind: "test" },
   "generate-skill-diagram.mjs": { kind: "test" },
   "generate-adapters.mjs": { kind: "test" },

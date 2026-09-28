@@ -1,5 +1,6 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -180,22 +181,99 @@ const CASES = [
   },
 ];
 
+/**
+ * Every SKILL.md carries a content-addressed header (sha256 of its body), checked
+ * by tests/engineering-research/test-skill-payload-manifest.mjs. Mutating a body
+ * invalidates that header, so the file is rewritten with a freshly computed one —
+ * otherwise this harness leaves the repo in a state that legitimately fails the
+ * manifest test, and a reader has to work out which of the two broke.
+ *
+ * This was not hypothetical: an early run left skills/review/SKILL.md mutated
+ * and git checkout was needed to recover it.
+ */
+function rewriteWithFreshHash(path, content) {
+  const match = /<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=([0-9a-f]{64}) -->/.exec(content);
+  if (!match) return content; // No header to refresh; leave as-is.
+  const [, oldHash] = match;
+  const bodyStart = content.indexOf("-->", match.index) + 3;
+  const body = content.slice(bodyStart);
+  const newHash = createHash("sha256").update(body).digest("hex");
+  return content.replace(oldHash, newHash);
+}
+
 let allDetected = true;
 const notDetected = [];
 const brokenHarness = [];
-const touchedFiles = new Set();
+
+/**
+ * Windows intermittently fails a write with errno -4094 (UNKNOWN) when a file
+ * is briefly locked — by a virus scanner, or by git touching the file between
+ * cases. A bare writeFileSync then throws, the finally block never runs, and the
+ * SKILL.md is left MUTATED in the working tree.
+ *
+ * That is not hypothetical: it happened here, and the harness died leaving
+ * skills/electrical/SKILL.md weakened, which failed the payload-manifest test
+ * on the next npm run with no obvious cause. Restore is retried, and the
+ * originals are snapshotted up front so a full sweep can always run.
+ */
+function writeWithRetry(path, contents, attempts = 5) {
+  for (let i = 1; ; i++) {
+    try {
+      writeFileSync(path, contents, "utf8");
+      return;
+    } catch (err) {
+      if (i >= attempts) throw err;
+      // Brief backoff. A locked file usually clears in milliseconds.
+      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 50 * i);
+    }
+  }
+}
+
+// Snapshot keys are absolute (REPO_ROOT-prefixed) so they work from any cwd.
+// The per-case loop looks up by RELATIVE path, so keep a map for that too.
+const snapshots = new Map();
+for (const c of CASES) {
+  const file = join(REPO_ROOT, "skills", c.skill, "SKILL.md");
+  if (!snapshots.has(file)) snapshots.set(file, readFileSync(file, "utf8"));
+}
+const originalFor = (relativePath) => snapshots.get(join(REPO_ROOT, relativePath));
+
+/** Put every touched file back, whatever happened to the run above. */
+function restoreAll() {
+  const failed = [];
+  for (const [file, original] of snapshots) {
+    try {
+      writeWithRetry(file, original);
+    } catch (err) {
+      failed.push(`${file}: ${err.message}`);
+    }
+  }
+  return failed;
+}
+
+// A restore that fails is fatal and must not be swallowed: a dirty skills/ tree
+// breaks the payload manifest and, worse, ships a weakened skill.
+process.on("exit", () => {
+  if (snapshots.size === 0) return;
+  const failed = restoreAll();
+  if (failed.length > 0) {
+    console.error(`\nFATAL: could not restore ${failed.length} mutated file(s):\n  ${failed.join("\n  ")}`);
+    process.exitCode = 1;
+  }
+});
 
 for (const c of CASES) {
-  const file = join("skills", c.skill, "SKILL.md");
+  const relFile = join("skills", c.skill, "SKILL.md");
+  const file = join(REPO_ROOT, relFile);
   const test = join("tests", c.skill, `test-${c.skill}.mjs`);
-  const original = readFileSync(file, "utf8");
-  const mutated = original.replace(c.find, c.replace);
-  touchedFiles.add(file);
+  const original = originalFor(relFile);
+  const afterReplace = original.replace(c.find, c.replace);
+  const mutated = rewriteWithFreshHash(relFile, afterReplace);
 
   // A mutation that does not land is a broken harness, not a pass. This exact
   // failure mode made a mutation harness report success while asserting nothing.
-  if (mutated === original) {
-    console.log(`  BROKEN HARNESS: ${c.skill} — "${c.rule}" did not match anything in ${file}`);
+  if (afterReplace === original) {
+    console.log(`  BROKEN HARNESS: ${c.skill} — "${c.rule}" did not match anything in ${relFile}`);
     allDetected = false;
     brokenHarness.push(`${c.skill}: ${c.rule}`);
     continue;
@@ -204,16 +282,12 @@ for (const c of CASES) {
   let status;
   let output = "";
   try {
-    writeFileSync(file, mutated, "utf8");
+    writeWithRetry(file, mutated);
     const run = spawnSync("node", [test], { encoding: "utf8", cwd: REPO_ROOT });
     status = run.status;
     output = `${run.stdout ?? ""}${run.stderr ?? ""}`;
   } finally {
-    // Restore even if the child is killed or this run is interrupted. An
-    // earlier version restored only on the success path and could leave a
-    // checked-in SKILL.md gutted, which then failed the payload manifest on
-    // the NEXT run with no obvious cause.
-    writeFileSync(file, original, "utf8");
+    writeWithRetry(file, original);
   }
 
   if (status === 0) {
@@ -232,7 +306,7 @@ for (const c of CASES) {
 // The harness must leave the tree byte-identical to what git has checked in.
 // Compared against git, not an in-memory copy, because the copy is what we just
 // wrote — comparing it to itself would pass vacuously.
-const g = spawnSync("git", ["status", "--porcelain", "--", ...[...touchedFiles]], {
+const g = spawnSync("git", ["status", "--porcelain", "--", ...[...snapshots.keys()]], {
   encoding: "utf8",
   cwd: REPO_ROOT,
 });

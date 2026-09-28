@@ -116,6 +116,10 @@ Cognee and Ponytail appear in older notes but have no checkout.
 | 34 | Published benchmark numbers machine-verified (`scripts/benchmark-claims-check.mjs`) | `60a9e1f` |
 | 35 | Gate registry: every script declares how it is reached (`scripts/gate-registry.mjs`) | `06591d4` |
 | 36 | Margin-earnedness finding cleared by 5/5 canonical re-runs; benchmark 75 → 80% | `9eb4016` |
+| 37 | Behavioral suites for the five discipline dispatchers (civil, electrical, mechanical, architectural, software) | `e0fb936` |
+| 38 | Behavioral suites for `peer-review` and `artifact-reading`, + teeth harness for all 11 | `30b34cf` |
+| 39 | Behavioral suites for `review`, `eli5`, `vitruvius`, `vitruvius-help`; floor 14 → 25/25 | `66a16e9` |
+| 40 | E1 floor promoted from always-exit-0 reporter to a gate (`skills/e1-suite-manifest.json`) | this session |
 
 ## Self-description is now checked
 
@@ -176,13 +180,55 @@ node scripts/reference-reachability.mjs --allow <file>   # waive, reason in this
 An unreferenced reference file is a dead file, not a capability. A waiver is
 recorded here, not in the script.
 
+## E1 coverage: three numbers, not one
+
+These are routinely conflated, and the confusion is what made the old "14/25"
+look like a weaker version of a claim it was not. `scripts/e1-coverage.mjs`
+(wired into `npm test`) now prints and gates the distinction:
+
+| # | Number | Who computes it | Status |
+|---|--------|-----------------|--------|
+| 1 | **Model-run catalog** — a blind model run per skill | **nobody** — needs a model run per skill | **4/25**, hand-recorded in `skills/e1-suite-manifest.json` |
+| 2 | **Suite floor** — a `tests/<skill>/` directory exists | the script, against the manifest | **25/25**, now a gate |
+| 3 | **Teeth** — the suite can actually fail | `tests/all-skills/test-e1-suites-have-teeth.mjs` | all 25 proven by mutation |
+
+A suite asserts a skill's decision rules; the catalog requires a blind model run
+per skill. They are not the same measurement, and the first is not
+machine-computable here — so the script refuses to derive it rather than printing
+a number nothing can contradict.
+
+**The floor is now a gate.** It previously always exited 0, so a skill could
+lose its suite with a green build — the same class of false self-report this
+repo spent a round eliminating, one layer down. The recorded floor lives in
+`skills/e1-suite-manifest.json`; removing a suite deliberately means deleting its
+entry in the same commit. Verified: moving `tests/civil/` aside makes the gate
+fail and name it. `--report` prints state without gating.
+
+**Teeth is the number that mattered most.** Eleven suites were added this round
+(civil, electrical, mechanical, architectural, software, peer-review,
+artifact-reading, review, eli5, vitruvius, vitruvius-help) and each is proven
+by weakening one named rule and asserting its suite goes red. Two of the 23
+mutation cases initially reported NOT DETECTED; both were harness bugs where the
+edit landed without weakening the rule, which is how the earlier mutation
+harness in this repo came to pass while asserting nothing.
+
+**What is still open:** the model-run catalog stands at **4/25** and the script
+deliberately cannot move it. To raise it, a blind model run per skill is needed
+— the runner exists (`tasks/benchmark/run-opencode.sh`), but it has never been
+pointed at the skill catalog. That is real remaining work, not a formatting gap.
+
 ## What's next (ranked)
 
-1. **E1-full: 25-skill behavioral catalog.** `scripts/e1-coverage.mjs` reports a coverage *floor* of **14/25**; 11 gaps remain (architectural, artifact-reading, civil, electrical, eli5, mechanical, peer-review, review, software, vitruvius, vitruvius-help). Two numbers, both true: **4/25** have a model-run behavioral record, **14/25** have a dedicated suite. The floor is not the catalog — a suite asserts a skill's decision rules, while the catalog requires a blind model run per skill. `summarize`, `standards-lookup`, `compare`, and `audit` moved from gap to suite this round; the 11 above are the remainder, five of them thin discipline dispatchers that route to `engineering-research`.
+1. **E1 model-run catalog: 4/25.** The suite floor is 25/25 and gated, so the
+   remaining E1 work is the *other* number: a blind model run per skill. Nothing
+   scripts this yet. The 4 existing records are in `tasks/benchmark/`; the
+   runner to extend it is `tasks/benchmark/run-opencode.sh`, adapted to
+   dispatch each skill against a held-out prompt set with no ground truth in
+   context. Expensive, and the only E1 work left.
 2. **H1: Authenticated approval, retention, workflow integration.** Interface designed (`references/authenticated-approval.md`). Host enforcement is the gate.
 3. **U1: Run-local lessons, remote retrieval.** Needs a measured need.
 4. **Read-only enforcement.** Host permission model.
-5. **Rebuild the CodeGraph index.** The main index is stale (locked by the MCP daemon) and `STEAL.md` still quotes pre-session node counts.
+5. **Rebuild the CodeGraph index.** The main index is stale (locked by the MCP daemon); this table quotes 97 indexed files against 129 source files on disk.
 
 `civil-edge-01` is resolved at the cause: the runner writes to a temp path and only publishes a non-empty result, and the scorer separates `EMPTY RESULT` from `MISSING VERDICT`. All per-source open items are implemented and committed. Remaining work is gated on host enforcement or measured need.
 
@@ -243,4 +289,4 @@ recorded here, not in the script.
 
 ### Scale
 
-- scripts: 27 files · tests: 46 files · skills: 25 · agents: 7 canonical roles + 7 OpenCode adapters.
+- scripts: 39 files · tests: 82 files · skills: 25 · agents: 7 canonical roles + 7 OpenCode adapters.
