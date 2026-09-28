@@ -1,0 +1,95 @@
+{
+  "description": "Retrieval benchmark queries for Vitruvius source acquisition",
+  "methodology": "Queries test the retrieval bridge's ability to find relevant source code",
+  "categories": {
+    "semantic": "Code that implements a specific behavior or concept",
+    "architecture": "Design decisions, module boundaries, structural patterns",
+    "symbol": "Named entity lookup (function, class, type, variable)"
+  },
+  "queries": [
+    {
+      "id": "Q001",
+      "category": "semantic",
+      "query": "How does the problem anchor contract validate findings?",
+      "expected_files": [
+        "scripts/problem-anchor-contract.mjs",
+        "references/problem-anchor-contract.md"
+      ]
+    },
+    {
+      "id": "Q002",
+      "category": "semantic",
+      "query": "How does the evidence ledger track source verification status?",
+      "expected_files": [
+        "scripts/evidence-ledger.mjs",
+        "references/evidence-ledger.md"
+      ]
+    },
+    {
+      "id": "Q003",
+      "category": "architecture",
+      "query": "How does the verification loop escalate from 1 to 3 verifiers?",
+      "expected_files": [
+        "skills/engineering-research/SKILL.md",
+        "references/verification-escalation.md"
+      ]
+    },
+    {
+      "id": "Q004",
+      "category": "architecture",
+      "query": "How does the goal-check contract integrate with the research loop?",
+      "expected_files": [
+        "scripts/goal-check-contract.mjs",
+        "agents/goal-checker.md"
+      ]
+    },
+    {
+      "id": "Q005",
+      "category": "symbol",
+      "query": "Where is the validateEvidenceLedger function defined?",
+      "expected_files": [
+        "skills/engineering-research/scripts/evidence-ledger.mjs"
+      ]
+    },
+    {
+      "id": "Q006",
+      "category": "symbol",
+      "query": "Where is the scoreBenchmark function defined?",
+      "expected_files": [
+        "scripts/benchmark-scoring.mjs"
+      ]
+    },
+    {
+      "id": "Q007",
+      "category": "semantic",
+      "query": "How does the security scan detect personal paths?",
+      "expected_files": [
+        "scripts/security-scan.mjs"
+      ]
+    },
+    {
+      "id": "Q008",
+      "category": "semantic",
+      "query": "How does the artifact closure validate provenance sidecars?",
+      "expected_files": [
+        "scripts/artifact-closure.mjs"
+      ]
+    },
+    {
+      "id": "Q009",
+      "category": "architecture",
+      "query": "How does the routing eval test skill trigger matching?",
+      "expected_files": [
+        "tests/routing/eval-routing.mjs"
+      ]
+    },
+    {
+      "id": "Q010",
+      "category": "symbol",
+      "query": "Where is the runTests function defined?",
+      "expected_files": [
+        "scripts/run-isolated-tests.mjs"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,88 @@
+{
+  "description": "Ground truth relevance labels for the retrieval benchmark",
+  "methodology": "Each query has a set of relevant files. A file is relevant if it contains information that answers the query.",
+  "metrics": {
+    "ndcg_at_10": "Normalized Discounted Cumulative Gain at rank 10",
+    "recall_at_10": "Fraction of relevant files in the top 10 results",
+    "precision_at_10": "Fraction of top 10 results that are relevant"
+  },
+  "labels": {
+    "Q001": {
+      "relevant": [
+        "scripts/problem-anchor-contract.mjs",
+        "references/problem-anchor-contract.md"
+      ],
+      "partially_relevant": [
+        "tests/engineering-research/test-problem-anchor.mjs"
+      ]
+    },
+    "Q002": {
+      "relevant": [
+        "scripts/evidence-ledger.mjs",
+        "references/evidence-ledger.md"
+      ],
+      "partially_relevant": [
+        "tests/engineering-research/test-evidence-contract.mjs"
+      ]
+    },
+    "Q003": {
+      "relevant": [
+        "skills/engineering-research/SKILL.md",
+        "references/verification-escalation.md"
+      ],
+      "partially_relevant": [
+        "agents/verifier.md",
+        "agents/arbiter.md"
+      ]
+    },
+    "Q004": {
+      "relevant": [
+        "scripts/goal-check-contract.mjs",
+        "agents/goal-checker.md"
+      ],
+      "partially_relevant": [
+        "references/goal-check-contract.md"
+      ]
+    },
+    "Q005": {
+      "relevant": [
+        "skills/engineering-research/scripts/evidence-ledger.mjs"
+      ],
+      "partially_relevant": []
+    },
+    "Q006": {
+      "relevant": [
+        "scripts/benchmark-scoring.mjs"
+      ],
+      "partially_relevant": [
+        "tests/verifier/test-benchmark-scoring.mjs"
+      ]
+    },
+    "Q007": {
+      "relevant": [
+        "scripts/security-scan.mjs"
+      ],
+      "partially_relevant": []
+    },
+    "Q008": {
+      "relevant": [
+        "scripts/artifact-closure.mjs"
+      ],
+      "partially_relevant": [
+        "tests/artifacts/test-validate-artifact-closure.mjs"
+      ]
+    },
+    "Q009": {
+      "relevant": [
+        "tests/routing/eval-routing.mjs"
+      ],
+      "partially_relevant": []
+    },
+    "Q010": {
+      "relevant": [
+        "scripts/run-isolated-tests.mjs"
+      ],
+      "partially_relevant": []
+    }
+  }
+}
