@@ -18,7 +18,7 @@ metadata:
   version: "0.3.0"
 
 ---
-<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=983e82a36d427b006d6e710c50dd50283fe709c54e662e0d77249992a982f1d1 -->
+<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=d381e5661d9c50b3ae89f182928953a84803773d49f823ef55c70aaf0cceadc0 -->
 
 # Engineering Research
 
@@ -66,8 +66,7 @@ turn count. See `references/context-management.md`.
 ## Required Artifacts
 
 Derive a short **slug** from the topic: lowercase, hyphenated, no filler
-words, at most 5 words (e.g. `steel-brace-connection`). Every run must leave
-files on disk:
+words, ≤5 words (e.g. `steel-brace-connection`). Every run must leave on disk:
 
 - `outputs/.plans/<slug>.md`
 - `outputs/.drafts/<slug>-draft.md`
@@ -96,8 +95,8 @@ still write a blocked or partial final output and provenance sidecar.
 1. The request is a research question, artifact review, or verification task —
    not routine coding, a direct design request, or an inline calculation the
    user wants performed.
-2. The question is stated specifically enough to derive a slug and evidence
-   needs. If it is too vague, ask ONE clarifying question, then proceed.
+2. The question is specific enough to derive a slug and evidence needs. If it
+   is too vague, ask ONE clarifying question, then proceed.
 3. The user's jurisdiction/edition context is known or the run will mark
    edition-sensitive claims `partial`.
 4. File writes are available OR the File Write Fallback below is acceptable.
@@ -117,7 +116,7 @@ read. Research that cannot name its decisions is scope drift.
 These become the `artifacts` and `decisions` of the machine record in
 `references/problem-anchor-contract.md`, written beside the candidate and
 validated with `vitruvius-problem-anchor`. Anchors resolve against real bytes,
-so a `repo` claim that does not match the snapshot fails closed before review.
+so a `repo` claim that does not match the snapshot fails closed.
 
 Create `outputs/.plans/<slug>.md` immediately. The plan must include:
 
@@ -185,8 +184,8 @@ Use direct search for:
 - Work you can answer with 3–10 tool calls
 
 For "what is X" explainer topics, do NOT spawn researcher subagents unless the
-user explicitly asks for comprehensive coverage or a broad survey. Do not
-inflate a simple explainer into a multi-agent survey.
+user explicitly asks for comprehensive coverage. Do not inflate a simple
+explainer into a multi-agent survey.
 
 Use subagents only when decomposition clearly helps:
 
@@ -235,11 +234,10 @@ If direct search was chosen:
 If subagents were chosen:
 
 - Write a per-researcher brief first (e.g. `outputs/.plans/<slug>-T1.md`).
-  Researcher subagents are dispatched from the canonical role definition in
-  `agents/researcher.md`; they write findings to their output file and return
-  a one-line summary.
-- Keep tool-call JSON small and valid; do not place multi-paragraph
-  instructions inside the `subagent` JSON.
+  Researcher subagents are dispatched from `agents/researcher.md`; they write
+  findings to their output file and return a one-line summary.
+- Keep tool-call JSON small and valid; no multi-paragraph instructions in the
+  `subagent` JSON.
 - Always set `failFast: false`.
 - Do not name exact tool commands in subagent tasks unless those tool names
   are visible in the current tool set. Prefer broad guidance: "use standards
@@ -248,18 +246,17 @@ If subagents were chosen:
   file and returns a one-line summary; the lead reads the file.
 
 Evidence-gathering rules (researcher role): the six integrity commandments in
-`AGENTS.md` are non-negotiable here. In brief — never fabricate a source, never
+`AGENTS.md` are non-negotiable. In brief — never fabricate a source, never
 claim something exists without checking it, never describe a source you have
 not read, give a checkable locator for every entry, read before you summarize,
 and mark status honestly.
 
-Source quality: **prefer** official standards bodies, code text, primary vendor
-documentation, datasheets, peer-reviewed engineering literature, and reputable
-government/industry sources. **Accept with caveats** well-cited secondary
-sources and established trade publications. **Deprioritize** undated blog posts,
-content aggregators, primary-less forum posts, and SEO listicles. **Reject**
-anything with no author and no date, or that appears AI-generated with no
-primary backing.
+Source quality: **prefer** standards bodies, code text, primary vendor docs,
+datasheets, peer-reviewed literature, reputable government/industry sources.
+**Accept with caveats** well-cited secondary sources and trade publications.
+**Deprioritize** undated blog posts, aggregators, primary-less forum posts,
+SEO listicles. **Reject** anything with no author and no date, or that appears
+AI-generated with no primary backing.
 
 Evidence table format — assign each source a stable numeric ID for downstream
 traceability:
@@ -273,7 +270,7 @@ traceability:
 claim about the artifact under study, so it must carry a `path:line` anchor
 that resolves on disk. Never assert what a codebase does, lacks, or needs
 without opening it — the most expensive research failure is a confident finding
-about code nobody read. Full anchor rules: `references/problem-anchor-contract.md`.
+about code nobody read. Anchor rules: `references/problem-anchor-contract.md`.
 
 Write findings with inline source references `[1]`, `[2]`. Label inferences as
 inferences in the prose. End with a numbered Sources section matching the
@@ -312,10 +309,10 @@ Then write the `vitruvius-problem-anchor.v1` record beside the candidate from
 `vitruvius-problem-anchor <record>` (or
 `node scripts/problem-anchor-contract.mjs <record>` in a checkout). **The record
 is mandatory even when the validator is not installed**: with no validator,
-keep the record and mark its validation `BLOCKED` in the provenance — never
-drop the record. It must pass (or be explicitly blocked) before the brief moves
-to verification: every decision reached a position, every `repo` anchor
-resolves to a non-blank line on disk, and the candidate actually cites them.
+keep the record and mark its validation `BLOCKED` — never drop it. It must
+pass (or be explicitly blocked) before the brief moves to verification: every
+decision reached a position, every `repo` anchor resolves to a non-blank line on
+disk, and the candidate actually cites them.
 
 `verified` also requires the entailment proxy: the anchored line must carry the
 claim's quoted spans, identifiers, and measures. A paraphrase is `partial`;
@@ -325,25 +322,23 @@ Repair a failed record by fixing the claim or the anchor — never by deleting
 the finding.
 
 Before citation, sweep the draft: every critical claim, number, figure, or
-table must map to a source reference, research note, raw artifact path, or
-calculation. Remove or downgrade unsupported claims. Mark inferences as
+table must map to a source reference, research note, artifact path, or
+calculation. Remove or downgrade unsupported claims; mark inferences as
 inferences. **A numeric claim without a unit, sign convention, and source is
 not a claim — it is noise.** Flag it.
 
 ## Step 5: Verify (Blind Verifier)
 
 After the cited brief exists, run the **Blind Verifier** as a subagent with
-FRESH context. This is mandatory for all non-trivial research. The role's
-canonical definition is `agents/verifier.md` — dispatch it with that file's
-content as the subagent prompt. The verifier receives:
-- The research question
-- The gathered evidence (with source locations)
-- The claimed conclusion
+FRESH context. Mandatory for all non-trivial research. The canonical definition
+is `agents/verifier.md` — dispatch it with that file's content as the prompt.
+The verifier receives the research question, the gathered evidence (with source
+locations), and the claimed conclusion.
 
 It does **NOT** receive your reasoning chain — that separation is the point.
-It must have NO write/edit capability: the verifier reports, it never repairs.
+It must have NO write/edit capability: the verifier reports, never repairs.
 It returns PASS / PARTIAL / BLOCKED with an evidence trail and default-FAIL
-posture (it actively looks for flaws).
+posture.
 
 If the verifier returns BLOCKED, fix the fatal issues and re-run. If PARTIAL,
 note the qualifications in Open Questions. Do not run the verifier and any
@@ -358,10 +353,10 @@ Full rules, arbiter independence requirements, and disagreement documentation:
 
 ## Step 6: Review
 
-After the verifier passes, do a final self-review: check that all PARTIAL
-qualifications are noted in Open Questions, all FATAL issues are fixed, and
-the provenance sidecar is complete. Use the FATAL/MAJOR/MINOR classification
-from `references/reviewer-severity-levels.md` for every finding.
+After the verifier passes, do a final self-review: all PARTIAL qualifications
+noted in Open Questions, all FATAL issues fixed, provenance sidecar complete.
+Use the FATAL/MAJOR/MINOR classification from
+`references/reviewer-severity-levels.md` for every finding.
 
 ## Step 6.5: Post-Edit Verification Audit (MANDATORY)
 
@@ -376,6 +371,11 @@ THIS STEP IS MANDATORY — do not skip.
 6. **If evidence is paywalled**, mark `blocked` — never guess at contents. See
    `references/blocked-access-policy.md` for the full rules.
 
+Use `references/verifier-citation-rules.md` for formal citation requirements
+(every factual claim gets a citation, no orphan citations, no orphan sources)
+and `references/result-provenance-audit.md` for the quantitative claim scan
+(numeric scores, benchmark names, figure references, claims of improvement).
+
 **Quality Gate (mandatory before delivering):**
 1. **Claim coverage** — ≥80% of claims are `verified` or `partial`. If < 80%, re-search unverified claims.
 2. **Line pinning** — ≥80% of findings are line-pinned to specific §/line. If < 80%, re-read sources.
@@ -384,9 +384,9 @@ THIS STEP IS MANDATORY — do not skip.
 
 **Retry logic:** If quality gate fails, fix the specific failures and re-run the audit. If it fails again, deliver with `Verification: PARTIAL` and list all unresolved issues in the provenance sidecar.
 
-This is the Feynman post-edit verification pattern. The goal: every claim in the
-final output traces to a checkable source. If verification could not be completed,
-set `Verification: BLOCKED` in the provenance sidecar and list the missing checks.
+The goal: every claim in the final output traces to a checkable source. If
+verification could not be completed, set `Verification: BLOCKED` in the
+provenance sidecar and list the missing checks.
 
 The final candidate is `outputs/.drafts/<slug>-revised.md` if it exists,
 otherwise `outputs/.drafts/<slug>-cited.md`.
