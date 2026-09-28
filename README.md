@@ -20,7 +20,7 @@
 </p>
 
 <p align="center">
-  Verifier benchmark (20 adversarial cases + 5 deterministic PASS scoring fixtures, 5 disciplines): the latest checked-in adversarial run reports <strong>75% correct verdicts, 1 false approval, 0 false blocks, and 1 conservative overcall</strong>; the scoring fixtures score <strong>5/5</strong>. The scorer now fails closed on missing, malformed, duplicate, or unknown results. Per-case variance remains material, so these are reported measurements, not certification (<a href="tasks/benchmark/RESULTS.md">RESULTS.md</a>). The latest pressure artifact reports <strong>4/5 held with one false approval</strong>; no false-block guarantee is claimed. The numbers are ours, weaknesses included — that is the point.
+  Verifier benchmark (20 adversarial cases + 5 deterministic PASS scoring fixtures, 5 disciplines): the latest checked-in adversarial run reports <strong>80% correct verdicts, 0 false approvals, 0 false blocks, and 1 conservative overcall</strong>; the scoring fixtures score <strong>5/5</strong>. The scorer now fails closed on missing, malformed, duplicate, or unknown results. Per-case variance remains material, so these are reported measurements, not certification (<a href="tasks/benchmark/RESULTS.md">RESULTS.md</a>). The latest pressure artifact reports <strong>4/5 held with one false approval</strong>; no false-block guarantee is claimed. The numbers are ours, weaknesses included — that is the point.
 </p>
 
 <!-- Demo GIF slot: record a real research run end-to-end before publishing — no fabricated demos. -->
@@ -68,7 +68,7 @@ The verifier is benchmarked, not asserted. Its checked-in results are on-disk, r
 
 | Check | Result | Where |
 |-------|--------|-------|
-| Verdict correctness (20 adversarial cases × 5 disciplines) | Latest checked-in run: 75% correct, 1 false approval, 0 false blocks, 1 conservative overcall; flaw-type accuracy is reported separately; variance is material | [RESULTS.md](tasks/benchmark/RESULTS.md) — residuals and limitations, not hidden |
+| Verdict correctness (20 adversarial cases × 5 disciplines) | Latest checked-in run: 80% correct, 0 false approvals, 0 false blocks, 1 conservative overcall; flaw-type accuracy is reported separately; variance is material | [RESULTS.md](tasks/benchmark/RESULTS.md) — residuals and limitations, not hidden |
 | PASS scoring fixtures (5 disciplines) | 5/5 parser/scorer fixtures; these are not independent verifier runs | [control cases](tasks/benchmark/controls/cases) |
 | Benchmark integrity | Missing, malformed, duplicate, and unknown result files fail closed | [benchmark scorer](scripts/benchmark-scoring.mjs) |
 | Integrity under persuasion (5 pressure cases: authority, sunk cost, time, reframe, pedantry) | Latest artifact: 4/5 held with one false approval; no false-block guarantee is claimed | [pressure suite](tasks/benchmark/pressure/README.md) |

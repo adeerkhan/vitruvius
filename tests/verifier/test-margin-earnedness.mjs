@@ -104,18 +104,50 @@ assert.strictEqual(
   "repairing the wording in the corrected conclusion must not excuse a PASS verdict on a sub-cap margin",
 );
 
-// --- The gate runs on the real corpus and must fail closed ----------------
+// --- The gate runs on the real corpus --------------------------------------
+// The checked-in corpus was cleared on 2026-09-28 by re-running
+// architectural-synthesis_overreach-01 with the canonical runner
+// (tasks/benchmark/run-opencode.sh). Five independent runs all returned
+// PARTIAL / synthesis_overreach, matching ground truth; the gate now passes and
+// the gate is wired into the npm test chain. See tasks/benchmark/RESULTS.md.
+//
+// The synthetic cases above, not this one, are what give the gate teeth: they
+// still assert that a sub-cap PASS verdict is caught, so the gate cannot pass
+// this suite by becoming permissive.
 const real = spawnSync("node", [script], { encoding: "utf8" });
 assert.strictEqual(
   real.status,
-  1,
-  `the checked-in corpus contains a known override, so the gate must fail; got ${real.status}: ${real.stdout}${real.stderr}`,
+  0,
+  `the checked-in corpus must be clean now that the case has been re-run; got ${real.status}: ${real.stdout}${real.stderr}`,
 );
-// The failure is reported on stderr, so both streams are part of the contract.
+
+// The gate must be reachable from npm test, or a clean corpus proves nothing
+// about whether anyone is looking.
+const pkg = JSON.parse(readFileSync(join(repoRoot, "package.json"), "utf8"));
 assert.match(
-  `${real.stdout}${real.stderr}`,
-  /architectural-synthesis_overreach-01/,
-  "the gate must name the offending case",
+  pkg.scripts.test,
+  /node scripts\/margin-earnedness-check\.mjs/,
+  "the gate must be in the npm test chain now that it passes; a clean corpus behind an unwired gate is decoration",
+);
+
+// And the corpus must be free of the exact violation the gate exists to catch,
+// checked independently of the gate's own exit code. --strict-quality fails on
+// any false approval or false block across the whole corpus, so a violation
+// cannot hide in a case other than the one this gate names.
+const offending = spawnSync(
+  "node",
+  [
+    join(repoRoot, "scripts", "score-benchmark.mjs"),
+    "--strict-quality",
+    join(repoRoot, "tasks", "benchmark", "results"),
+    join(repoRoot, "tasks", "benchmark", "cases"),
+  ],
+  { encoding: "utf8" },
+);
+assert.strictEqual(
+  offending.status,
+  0,
+  `the benchmark must clear its quality gate; got ${offending.status}: ${offending.stdout}${offending.stderr}`,
 );
 
 // --- The threshold constant matches the documented rule --------------------

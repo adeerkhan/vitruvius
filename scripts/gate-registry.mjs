@@ -51,9 +51,13 @@ export const REGISTRY = {
   "benchmark-claims-check.mjs": { kind: "chain" },
   "reference-reachability.mjs": { kind: "chain" },
   "gate-registry.mjs": { kind: "chain" },
+  // Scored with --strict-quality, so a false approval or false block anywhere in
+  // the checked-in corpus fails the build. This was available but unwired until
+  // 2026-09-28, which meant a bad result in any case other than the one the
+  // margin gate names would have passed silently.
+  "score-benchmark.mjs": { kind: "chain" },
 
   // --- Invoked by a named npm sub-script, not the chain ------------------
-  "score-benchmark.mjs": { kind: "npm", via: "benchmark" },
   "artifact-closure.mjs": { kind: "npm", via: "check:local-artifacts" },
   "check-output-quality.mjs": { kind: "npm", via: "check:local-artifacts" },
   "validate-artifacts.mjs": { kind: "npm", via: "check:local-artifacts" },
@@ -66,14 +70,21 @@ export const REGISTRY = {
   "generate-adapters.mjs": { kind: "test" },
   "run-isolated-tests.mjs": { kind: "test" },
   "margin-earnedness-check.mjs": {
-    kind: "test",
-    status: "pinned-failure",
-    note:
-      "Reached by tests/verifier/test-margin-earnedness.mjs, which asserts that it FAILS. The gate " +
-      "correctly fails on tasks/benchmark/results/architectural-synthesis_overreach-01-result.md: the " +
-      "run returned PASS while self-reporting a 6.7% margin, under the 10% cap in agents/verifier.md. " +
-      "It is deliberately NOT in the test chain, because that would red every build by design. The test " +
-      "pins the failure so the gate cannot rot. Clear it with: node scripts/margin-earnedness-check.mjs",
+    kind: "chain",
+    history: {
+      // Promoted from pinned-failure to chain on 2026-09-28. The gate correctly
+      // failed on the checked-in architectural-synthesis_overreach-01 result,
+      // which returned PASS while self-reporting a 6.7% margin under the 10% cap
+      // in agents/verifier.md. Re-running that case with the canonical runner
+      // (tasks/benchmark/run-opencode.sh) produced PARTIAL / synthesis_overreach
+      // in five of five independent runs, matching ground truth, so the corpus is
+      // now clean and the gate belongs in the chain. Evidence:
+      // tasks/benchmark/results-opencode/, tasks/benchmark/RESULTS.md.
+      wasPinnedOn: "architectural-synthesis_overreach-01",
+      clearedBy: "5/5 canonical re-runs returning PARTIAL / synthesis_overreach",
+      clearedOn: "2026-09-28",
+      evidence: "tasks/benchmark/results-opencode/README.md",
+    },
   },
 
   // --- Reached by tests as imported modules ------------------------------

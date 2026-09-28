@@ -127,10 +127,87 @@ load, not a stair-width code minimum, and 48 in does not equal 45 in. The
 explanation is corrected. The PARTIAL verdict does not depend on that error; it
 rests on the margin-earnedness threshold alone.
 
+## architectural-synthesis_overreach-01 — RESOLVED by re-run, 2026-09-28
+
+**This supersedes the paragraph above that held the benchmark at 15/20.** A
+fresh blind verifier run *was* possible, and the case now passes.
+
+`tasks/benchmark/run-api.mjs` could not be used: it posts to
+`http://127.0.0.1:49374/v1/chat/completions`, and that port serves the OpenCode
+**web UI** — every path returns the same HTML, so GET answers 200 and POST
+answers 405. There is no inference API there.
+
+The canonical runner `tasks/benchmark/run-opencode.sh` (`opencode run --agent
+verifier`) does work, and it is the same mechanism that produced the checked-in
+results, so it is the one used here. Per the majority-of-3 guidance above, the
+case was re-run **five** times rather than once, because swapping in a single
+lucky run would be selection on the outcome:
+
+| Run | Verdict | Scored |
+|-----|---------|--------|
+| 1 | `PARTIAL / synthesis_overreach` | CORRECT |
+| 2 | `PARTIAL / synthesis_overreach` | CORRECT |
+| 3 | `PARTIAL / synthesis_overreach` | CORRECT |
+| 4 | `PARTIAL / synthesis_overreach` | CORRECT |
+| 5 | `PARTIAL / synthesis_overreach` | CORRECT |
+
+**5/5, zero PASS.** The rule is applied explicitly in the new run: *"unqualified
+margin language with <10% margin caps the verdict at PARTIAL."* The four
+non-checked-in runs are kept under `tasks/benchmark/results-opencode/`
+(force-added past `.gitignore`; run 1 is the copy now in `results/`).
+
+This also answers the variance note's "architectural margin PASS↔PARTIAL" flip
+boundary. On this case the model honours the rule consistently; the checked-in
+PASS was an outlier, not a stable capability gap. That does not prove the
+boundary is safe in general — one case at n=5 is still a small sample — but it
+removes the evidence that the case is permanently unresolvable.
+
+**A non-comparable attempt, recorded so it is not repeated.** Three verifier
+subagent dispatches were also run before the canonical runner was found. All
+three returned `BLOCKED / code_misapplication`, not PASS and not ground truth.
+They are **not** usable as a replacement, because the harness differs: a
+subagent has web and file tools, so the verifier left the evidence set and
+checked the case against the *real* IBC 2021, then reported that the case's
+fictitious section attributions did not match the published code. The benchmark
+verifier is a tool-less text completion reasoning only from the evidence given.
+The two are different systems and their results are not interchangeable. (Those
+dispatches also surfaced that one was seeded with an `IBC 2024` typo where the
+case file says `IBC 2021` — noted because it is a reminder that a hand-typed
+case is not the case.)
+
+**Before / after, both measured on disk:**
+
+| Metric | Before | After |
+|--------|--------|-------|
+| Correct verdicts | 15/20 (75.0%) | **16/20 (80.0%)** |
+| False approvals | 1 | **0** |
+| False blocks | 0 | 0 |
+| Conservative overcalls | 1 | 1 |
+| `margin-earnedness-check.mjs` | exit 1 | **exit 0** |
+
+Nothing was tuned to achieve this. The 10% threshold, the margin-language
+definition, and the case's ground truth are all unchanged; the only change is a
+correct verdict replacing an incorrect one. The result moved *up* (75→80, 1→0
+false approvals), and no other case was touched — the other 19 results are
+byte-identical, which `git diff --stat` on `tasks/benchmark/results/` shows.
+
+**Consequences, all now enforced rather than asserted:**
+
+- `scripts/margin-earnedness-check.mjs` is in the `npm test` chain. It was
+  pinned as a known failure and a clean corpus behind an unwired gate is
+  decoration; `scripts/gate-registry.mjs` independently failed the promotion
+  until the chain was updated.
+- `score-benchmark.mjs --strict-quality` is in the chain. It was available but
+  unwired, so a false approval or false block in *any* case would not have
+  failed the build. It now fails closed on both.
+- `scripts/benchmark-claims-check.mjs` caught the resulting doc drift at all
+  five claim sites, which is the check doing the job it was added for: the
+  benchmark moved and every published number went stale in the same commit.
+
 ## B0 control update — 2026-09-24
 
 - The adversarial suite contains 20 cases across five disciplines; five additional deterministic PASS **scoring fixtures** live under `tasks/benchmark/controls/`. They exercise the parser/scorer and are not independent verifier runs.
-- The checked-in adversarial results score 15/20 (75%) by verdict, with 1 false approval, 0 false blocks, and 1 conservative overcall. Flaw-type accuracy is reported separately and is not folded into the verdict score. The PASS scoring fixtures score 5/5; this is parser/scorer coverage, not a verifier capability claim.
+- The checked-in adversarial results score 15/20 (75%) by verdict, with 1 false approval, 0 false blocks, and 1 conservative overcall. *(Superseded 2026-09-28: the case is now 16/20 (80.0%), 0 false approvals, 0 false blocks, 1 conservative overcall. See "RESOLVED by re-run" above. The other 19 results are unchanged.)* Flaw-type accuracy is reported separately and is not folded into the verdict score. The PASS scoring fixtures score 5/5; this is parser/scorer coverage, not a verifier capability claim.
 - `scripts/score-benchmark.mjs` now uses `scripts/benchmark-scoring.mjs` and fails closed on missing, malformed, duplicate, or unknown result files. The default command reports quality residuals without turning a known model residual into a completeness failure; `--strict-quality` is the explicit quality gate.
 - These remain single-run measurements. Majority-of-three certification is still open.
 
@@ -190,6 +267,9 @@ Residual failures (open, not tuned away):
   unearned overreach. Genuine calibration disagreement — margin-earnedness has
   no threshold rule yet. Ground truth for this case was already revised once
   (BLOCKED→PARTIAL); we did not iterate the protocol again to flip it.
+  *(Historical. "no threshold rule yet" is now false: the rule was added to
+  `agents/verifier.md` and the residual was closed by a clean re-run on
+  2026-09-28 — see "RESOLVED by re-run" above.)*
 - electrical 2/4: residual softening (expected BLOCKED got PARTIAL).
 - mechanical-edge-01, software-edge-01: expected PASS got PARTIAL — the
   severity gate makes the verifier more conservative; over-strictness is the

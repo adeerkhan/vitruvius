@@ -1,5 +1,5 @@
 import { strict as assert } from "node:assert";
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
@@ -33,6 +33,7 @@ function fixture(scripts, { chain = [], npm = {}, tests = {} } = {}) {
 }
 
 const roots = [];
+const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 function f(...args) {
   const r = fixture(...args);
   roots.push(r);
@@ -194,21 +195,36 @@ clean();
   const r = audit();
   assert.deepStrictEqual(r.problems, [], `the real registry must be clean; got: ${r.problems}`);
 
-  // Every script on disk must be registered, and the registry must not claim
-  // coverage the tree does not have. Belt and braces over the CLI.
+  // The margin gate was a pinned failure until 2026-09-28, when re-running the
+  // case cleared the corpus. It must now be a wired, passing gate - NOT still
+  // carrying a pinned-failure label, which is the excuse the audit exists to
+  // prevent (case 10 proves a stale label is caught, but only if the real entry
+  // is actually re-verified).
   const margin = r.rows.find((row) => row.name === "margin-earnedness-check.mjs");
   assert.ok(margin, "margin-earnedness-check.mjs must be registered");
-  assert.strictEqual(margin.status, "pinned-failure", "it must be recorded as a pinned failure, not a passing gate");
-  assert.strictEqual(margin.declared, "test", "it is reached by its test, not left unregistered");
-  assert.ok(
-    /architectural-synthesis_overreach-01/.test(REGISTRY["margin-earnedness-check.mjs"].note),
-    "the entry must name the case that fails",
+  assert.strictEqual(margin.declared, "chain", "a passing gate must be in the npm test chain");
+  assert.strictEqual(margin.status, "passing", "the gate passes; it must not still be labelled pinned-failure");
+  const history = REGISTRY["margin-earnedness-check.mjs"].history;
+  assert.ok(history, "a promoted gate must keep the record of what it was pinned on");
+  assert.strictEqual(
+    history.wasPinnedOn,
+    "architectural-synthesis_overreach-01",
+    "the entry must name the case that failed",
   );
-  assert.ok(
-    /node scripts\/margin-earnedness-check\.mjs/.test(REGISTRY["margin-earnedness-check.mjs"].note),
-    "the entry must give the exact command that clears it",
+  assert.match(history.clearedBy, /5\/5/, "the entry must record how the corpus was cleared");
+  assert.ok(history.evidence, "the entry must point at the run artifacts");
+
+  // And the corpus-wide quality gate must be wired, so a false approval in a
+  // case the margin gate does not name still fails the build.
+  const score = r.rows.find((row) => row.name === "score-benchmark.mjs");
+  assert.strictEqual(score.declared, "chain", "score-benchmark must be in the chain, not just an npm sub-script");
+  const pkg = JSON.parse(readFileSync(join(repoRoot, "package.json"), "utf8"));
+  assert.match(
+    pkg.scripts.test,
+    /score-benchmark\.mjs --strict-quality/,
+    "the chain must score the checked-in corpus with --strict-quality, or a false approval anywhere passes silently",
   );
-  console.log("  confirmed: the real registry is clean and records the pinned failure");
+  console.log("  confirmed: the real registry is clean, and both the margin gate and the quality gate are wired");
 }
 
 console.log(
