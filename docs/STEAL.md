@@ -150,6 +150,13 @@ node scripts/score-benchmark.mjs --strict-quality tasks/benchmark/results tasks/
 `results-opencode/` is covered by `.gitignore`; the five re-run artifacts are
 force-added because a 5/5 consistency claim is not reproducible without them.
 
+**Not committed, on purpose.** `tasks/benchmark/run-api.mjs` is untracked and
+stays that way: it has a hardcoded API key as an `||` fallback behind the env
+var, which must not land in the repo. It is also non-functional here — the port
+it posts to serves the OpenCode web UI, not an inference API. The tracked runner
+is `run-opencode.sh`. Fix the credential handling before committing it, if it is
+ever worth keeping.
+
 ## Reference wiring status
 
 `references/` holds 24 files. **All 24 are cited from a loadable surface**

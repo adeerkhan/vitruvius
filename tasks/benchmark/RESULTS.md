@@ -135,7 +135,11 @@ fresh blind verifier run *was* possible, and the case now passes.
 `tasks/benchmark/run-api.mjs` could not be used: it posts to
 `http://127.0.0.1:49374/v1/chat/completions`, and that port serves the OpenCode
 **web UI** — every path returns the same HTML, so GET answers 200 and POST
-answers 405. There is no inference API there.
+answers 405. There is no inference API there. That runner is also **untracked
+and deliberately not committed**: it carries a hardcoded API key as an
+`||` fallback behind the env var, which must not land in the repo. Anyone
+reusing it should read the key from the environment and commit the runner only
+after that is fixed. The tracked runner is `run-opencode.sh`.
 
 The canonical runner `tasks/benchmark/run-opencode.sh` (`opencode run --agent
 verifier`) does work, and it is the same mechanism that produced the checked-in
