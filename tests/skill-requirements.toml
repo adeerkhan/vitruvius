@@ -1,0 +1,31 @@
+# Per-skill test requirements.
+# Each entry defines the test environment for a skill.
+# The full isolated sweep is not run in CI — run locally before release.
+
+[skills]
+# Skills with no special requirements
+architectural = { runtime = "node", packages = [] }
+artifact-reading = { runtime = "node", packages = [] }
+audit = { runtime = "node", packages = [] }
+civil = { runtime = "node", packages = [] }
+compare = { runtime = "node", packages = [] }
+design-alternatives = { runtime = "node", packages = [] }
+electrical = { runtime = "node", packages = [] }
+eli5 = { runtime = "node", packages = [] }
+engineering-research = { runtime = "node", packages = [] }
+evidence-ranking = { runtime = "node", packages = [] }
+fmea-brainstorm = { runtime = "node", packages = [] }
+gap-analysis = { runtime = "node", packages = [] }
+habit = { runtime = "node", packages = [] }
+hypothesis-generation = { runtime = "node", packages = [] }
+mechanical = { runtime = "node", packages = [] }
+peer-review = { runtime = "node", packages = [] }
+proposal = { runtime = "node", packages = [] }
+review = { runtime = "node", packages = [] }
+scholarly-research = { runtime = "node", packages = [] }
+software = { runtime = "node", packages = [] }
+standards-lookup = { runtime = "node", packages = [] }
+summarize = { runtime = "node", packages = [] }
+verifier = { runtime = "node", packages = [] }
+vitruvius = { runtime = "node", packages = [] }
+vitruvius-help = { runtime = "node", packages = [] }
