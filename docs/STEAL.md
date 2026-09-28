@@ -100,30 +100,21 @@ Cognee and Ponytail appear in older notes but have no checkout.
 | 19 | Compact location schema | `d4a2e8f` |
 | 20 | Retrieval benchmark (queries + ground truth) | `6ffe74e` |
 
-**UNCOMMITTED — implemented and green, not yet in history:**
-
-| Item | Files |
-|---|---|
-| Plan-state (task tracking, overwrite guard, cross-session pickup) | `references/plan-state.md`, `skills/engineering-research/SKILL.md` (v0.3.0) |
-| Skill payload manifest + idempotent fix | `references/skill-payload-manifest.md`, `scripts/skill-payload-manifest.mjs`, 25 skill headers |
-| Prompt pattern catalog | `references/prompt-patterns.md` |
-| Verifier citation rules | `references/verifier-citation-rules.md` |
-| Result provenance audit reference | `references/result-provenance-audit.md` |
-| Security scan severity + false positives | `references/security-scan-false-positives.md` |
-| Isolated test requirements | `tests/skill-requirements.toml` |
-| E1 coverage checker | `scripts/e1-coverage.mjs` |
-| 13 tests wired into `npm test` | `package.json` |
-| `civil-edge-01` result restored (0 bytes → 2040) | `tasks/benchmark/results/civil-edge-01-result.md` |
+| 21 | Plan-state (task tracking, overwrite guard, cross-session pickup) | `cdd1515` |
+| 22 | Skill payload manifest + idempotent fix (25 skill headers) | `abda562` |
+| 23 | Prompt pattern, citation, provenance, security references | `219fed4` |
+| 24 | E1 coverage floor report + `skill-requirements.toml` | `5b87740` |
+| 25 | Benchmark empty-result guard (writer temp-file + `EMPTY RESULT` error class) | `4f46087` |
+| 26 | 13 orphaned suites wired into `npm test` | `091925f` |
 
 ## What's next (ranked)
 
-1. **Commit the uncommitted work above.** It is green under `npm test` (exit 0) but lives only in the working tree. A green uncommitted tree is not a delivered capability.
-2. **E1-full: 25-skill behavioral catalog.** `scripts/e1-coverage.mjs` reports a coverage *floor* of 10/25 skills with a dedicated suite; 15 gaps are named. The behavioral catalog is a stricter bar than the floor.
-3. **H1: Authenticated approval, retention, workflow integration.** Interface designed (`references/authenticated-approval.md`). Host enforcement is the gate.
-4. **U1: Run-local lessons, remote retrieval.** Needs a measured need.
-5. **Read-only enforcement.** Host permission model.
+1. **E1-full: 25-skill behavioral catalog.** `scripts/e1-coverage.mjs` reports a coverage *floor* of 10/25 skills with a dedicated suite; 15 gaps are named (architectural, artifact-reading, audit, civil, compare, electrical, eli5, mechanical, peer-review, review, software, standards-lookup, summarize, vitruvius, vitruvius-help). The behavioral catalog is a stricter bar than the floor.
+2. **H1: Authenticated approval, retention, workflow integration.** Interface designed (`references/authenticated-approval.md`). Host enforcement is the gate.
+3. **U1: Run-local lessons, remote retrieval.** Needs a measured need.
+4. **Read-only enforcement.** Host permission model.
 
-`civil-edge-01` is resolved — its result file had been truncated to 0 bytes; restored from git. All per-source open items are implemented. Remaining work is gated on host enforcement or measured need.
+`civil-edge-01` is resolved at the cause: the runner writes to a temp path and only publishes a non-empty result, and the scorer separates `EMPTY RESULT` from `MISSING VERDICT`. All per-source open items are implemented and committed. Remaining work is gated on host enforcement or measured need.
 
 ## Per-source map
 
