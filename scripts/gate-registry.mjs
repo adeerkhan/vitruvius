@@ -141,6 +141,40 @@ function testFiles(root) {
 }
 
 /**
+ * Does this test file genuinely EXECUTE the script, or merely name it?
+ *
+ * A mention is not coverage. `existsSync(join(root, "scripts", name))` in an
+ * assertion, or the filename in a comment, proves the file is on disk — which
+ * is the "weakly accept a script that is merely present" failure this registry
+ * exists to prevent. Counting those as `test` let a script with a syntax error
+ * sit in the tree declaring itself covered: scripts/run-isolated-tests.mjs used
+ * `await` inside a non-async function, so it could never run, and the only test
+ * referencing it called existsSync on it.
+ */
+const SPAWNS_A_PROCESS = /\b(spawnSync|spawn|execFileSync|execSync|exec)\s*\(/;
+
+function executesIn(name, text) {
+  const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const referenced = new RegExp(escaped).test(text);
+  if (!referenced) return false;
+
+  // A module import is execution by definition: the code is loaded and its
+  // exports run in this process.
+  if (new RegExp(`from\\s+["'][^"']*scripts/${escaped}["']`).test(text)) return true;
+
+  // Otherwise the script is a child process, which requires the file to spawn
+  // something. Requiring BOTH the name and a spawn call is what separates
+  // real execution from an existence check: existsSync(join(root, "scripts",
+  // "name.mjs")) names the script and nothing else, and it proves only that
+  // the file is on disk.
+  return SPAWNS_A_PROCESS.test(text);
+}
+
+function mentionedIn(name, text) {
+  return new RegExp(name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).test(text);
+}
+
+/**
  * Reachability, derived not declared.
  *
  * Basename matching is deliberate. Tests reference scripts as
@@ -162,6 +196,7 @@ function reach(name, root) {
     }
   }
 
+  let mentionedOnly = null;
   for (const t of testFiles(root)) {
     let text;
     try {
@@ -169,10 +204,17 @@ function reach(name, root) {
     } catch {
       continue;
     }
-    if (text.includes(name)) return { reached: true, how: "test", via: t.split(/[\\/]/).slice(-2).join("/") };
+    if (executesIn(name, text)) {
+      return { reached: true, how: "test", via: t.split(/[\\/]/).slice(-2).join("/") };
+    }
+    if (!mentionedOnly && mentionedIn(name, text)) {
+      mentionedOnly = t.split(/[\\/]/).slice(-2).join("/");
+    }
   }
 
-  return { reached: false, how: null };
+  // Named but never executed. Reported separately so it cannot be mistaken for
+  // coverage — this is the "present on disk" case the registry must reject.
+  return mentionedOnly ? { reached: false, how: "mentioned-only", via: mentionedOnly } : { reached: false, how: null };
 }
 
 export function audit({ root = REPO_ROOT, registry = REGISTRY } = {}) {

@@ -10,7 +10,7 @@
 // tests/skill-requirements.toml. The full isolated sweep is not run in CI;
 // run it locally before a release.
 
-import { readFileSync, existsSync } from "node:fs";
+import { readFileSync, existsSync, readdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
@@ -68,7 +68,6 @@ function runSkillTests(skillName) {
   console.log(`\nRunning tests for ${skillName} (runtime: ${req.runtime})...`);
 
   // Find all test files in the skill's test directory
-  const { readdirSync } = await import("node:fs");
   const testFiles = readdirSync(testDir)
     .filter((f) => f.endsWith(".mjs"))
     .map((f) => join(testDir, f));

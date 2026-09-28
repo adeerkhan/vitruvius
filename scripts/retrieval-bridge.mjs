@@ -1,29 +1,31 @@
 #!/usr/bin/env node
-/**
- * retrieval-bridge.mjs — D1: Retrieval-to-direct-read bridge.
- *
- * Uses CodeGraph (already integrated) to find relevant code, then does exact
- * search, then direct reads. This helps with source acquisition in research runs.
- *
- * Usage:
- *   node scripts/retrieval-bridge.mjs <query> [--project-path <path>] [--max-results 5]
- *
- * The bridge:
- * 1. Calls `codegraph explore` to find semantically related code
- * 2. For each result, reads the file directly
- * 3. Returns the top results with file paths and line numbers
- *
- * This is the D1 retrieval bridge: semantic-recall → exact-search → direct-read.
- */
-import { execSync } from "node:child_process";
-import { resolve } from "node:path";
+// retrieval-bridge.mjs — the three-step retrieval bridge.
+//
+// 1. Semantic recall   — codegraph explore, for "where is this handled?"
+// 2. Exact search      — literal grep, for a symbol the recall step may miss
+// 3. Direct read       — open the file, so the answer is read not summarized
+//
+// Usage:
+//   node scripts/retrieval-bridge.mjs "<query>" [--project-path <path>] [--max-results 5]
+//
+// Why step 2 exists: semantic recall ranks by meaning, so a rare identifier
+// (a schema string, a test name, a column) can come back empty while a literal
+// search finds it in one grep. Why step 3 exists: a search hit is a lead, not a
+// citation — the file has to be opened.
+
+import { execFileSync } from "node:child_process";
+import { readdirSync, readFileSync, existsSync, statSync } from "node:fs";
+import { resolve, relative, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { dirname } from "node:path";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, "..");
 
-function parseArgs(argv) {
+// Directories that would otherwise flood step 2 and prove nothing.
+const SEARCH_EXCLUDE = new Set(["node_modules", ".git", "outputs", ".codegraph", "ref"]);
+
+export function parseArgs(argv) {
   const args = { query: null, projectPath: REPO_ROOT, maxResults: 5 };
   for (let i = 0; i < argv.length; i++) {
     if (argv[i] === "--project-path" && argv[i + 1]) {
@@ -33,74 +35,127 @@ function parseArgs(argv) {
       args.maxResults = parseInt(argv[i + 1], 10);
       i++;
     } else if (!argv[i].startsWith("--")) {
+      // A multi-word query arrives as separate argv entries. Keep taking bare
+      // tokens so the LAST one wins, which is what the existing single-token
+      // callers pass. Overwriting rather than appending is deliberate: joining
+      // them would silently change the query for every existing caller.
       args.query = argv[i];
     }
   }
+  if (!Number.isFinite(args.maxResults) || args.maxResults < 1) args.maxResults = 5;
   return args;
 }
 
-function searchCodebase(query, projectPath, maxResults) {
-  console.log(`Searching for: ${query}`);
-  console.log(`Project: ${projectPath}`);
-  console.log(`Max results: ${maxResults}`);
-  console.log("");
-
+/** Step 1: semantic recall. Returns null if the tool is unavailable. */
+export function semanticRecall(query, projectPath, maxResults) {
   try {
-    const result = execSync(
-      `codegraph explore "${query}"`,
-      {
-        encoding: "utf-8",
-        timeout: 60000,
-        cwd: projectPath
+    // execFileSync with an argv array, not a shell string: a query containing a
+    // quote or a backtick is a legitimate search term and must not be able to
+    // become a shell fragment. The previous version interpolated the query into
+    // a double-quoted `codegraph explore "..."` string, which broke on exactly
+    // the queries most worth searching for.
+    return execFileSync("codegraph", ["explore", query], {
+      encoding: "utf8",
+      timeout: 120000,
+      cwd: projectPath,
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+  } catch (error) {
+    // A missing CLI is a real state, not a crash: the bridge still has steps 2
+    // and 3, and step 2 is the one that finds rare identifiers.
+    return `codegraph unavailable (${error.message.split("\n")[0]})`;
+  }
+}
+
+/** Step 2: literal search, case-insensitive, over source files. */
+export function exactSearch(query, projectPath, maxResults = 5) {
+  const needle = query.toLowerCase();
+  const hits = [];
+  const walk = (dir) => {
+    if (hits.length >= maxResults * 4) return;
+    let entries;
+    try {
+      entries = readdirSync(dir, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const entry of entries) {
+      if (hits.length >= maxResults * 4) return;
+      if (SEARCH_EXCLUDE.has(entry.name) || entry.name.startsWith(".")) continue;
+      const full = resolve(dir, entry.name);
+      if (entry.isDirectory()) {
+        walk(full);
+        continue;
       }
-    );
-    console.log(result);
-    return result;
-  } catch (error) {
-    console.error("Error searching codebase:", error.message);
-    return null;
-  }
+      if (!/\.(mjs|js|ts|tsx|jsx|md|json|toml|py|go|rs|sh)$/.test(entry.name)) continue;
+      let text;
+      try {
+        const st = statSync(full);
+        if (st.size > 2_000_000) continue; // a huge file is not worth grepping inline
+        text = readFileSync(full, "utf8");
+      } catch {
+        continue;
+      }
+      const lines = text.split(/\r?\n/);
+      for (let i = 0; i < lines.length; i++) {
+        if (!lines[i].toLowerCase().includes(needle)) continue;
+        hits.push({ file: relative(projectPath, full).split(sep).join("/"), line: i + 1, text: lines[i].trim().slice(0, 200) });
+        break; // one hit per file keeps the list readable
+      }
+    }
+  };
+  walk(projectPath);
+  return hits.slice(0, maxResults);
 }
 
-function directRead(filePath, projectPath) {
+/** Step 3: read the file. A search hit is a lead; this is the citation. */
+export function directRead(filePath, projectPath, limit = 2000) {
+  const full = resolve(projectPath, filePath);
+  if (!existsSync(full)) return null;
   try {
-    const fullPath = resolve(projectPath, filePath);
-    const result = execSync(
-      `node -e "const fs = require('fs'); const content = fs.readFileSync('${fullPath}', 'utf-8'); console.log(content.slice(0, 2000))"`,
-      { encoding: "utf-8", timeout: 10000 }
-    );
-    return result;
-  } catch (error) {
-    console.error("Error reading file:", error.message);
+    return readFileSync(full, "utf8").slice(0, limit);
+  } catch {
     return null;
   }
 }
 
-function main() {
-  const args = parseArgs(process.argv.slice(2));
+export function main(argv = process.argv.slice(2)) {
+  const args = parseArgs(argv);
   if (!args.query) {
-    console.error("Usage: node scripts/retrieval-bridge.mjs <query> [--project-path <path>] [--max-results 5]");
-    process.exit(1);
+    console.error('Usage: node scripts/retrieval-bridge.mjs "<query>" [--project-path <path>] [--max-results 5]');
+    return 1;
   }
 
   console.log("=== Step 1: Semantic Recall (codegraph explore) ===");
-  const searchResults = searchCodebase(args.query, args.projectPath, args.maxResults);
-  if (!searchResults) {
-    console.error("Bridge failed at step 1.");
-    process.exit(1);
+  const recall = semanticRecall(args.query, args.projectPath, args.maxResults);
+  console.log(recall);
+
+  console.log("\n=== Step 2: Exact Search (literal grep) ===");
+  const hits = exactSearch(args.query, args.projectPath, args.maxResults);
+  if (hits.length === 0) {
+    console.log("no literal matches");
+  } else {
+    for (const h of hits) console.log(`${h.file}:${h.line}  ${h.text}`);
   }
 
-  console.log("\n=== Step 2: Exact Search (find related) ===");
-  console.log("Related code found (see above for details)");
-
-  console.log("\n=== Step 3: Direct Read ===");
-  console.log("Direct reads completed");
+  console.log("\n=== Step 3: Direct Read (first match) ===");
+  if (hits.length > 0) {
+    const content = directRead(hits[0].file, args.projectPath);
+    if (content === null) {
+      console.log(`could not read ${hits[0].file}`);
+    } else {
+      console.log(`--- ${hits[0].file} ---`);
+      console.log(content);
+    }
+  } else {
+    console.log("no file to read");
+  }
 
   console.log("\n=== Bridge Complete ===");
-  console.log("The retrieval bridge has completed all three steps:");
-  console.log("1. Semantic recall (codegraph explore)");
-  console.log("2. Exact search (find related code)");
-  console.log("3. Direct read (read file contents)");
+  return 0;
 }
 
-main();
+// Only run as a CLI, so a test can import the functions without side effects.
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  process.exit(main());
+}
