@@ -23,7 +23,7 @@
 
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, rmSync } from "node:fs";
 import { join, dirname, basename } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { execFileSync, spawnSync } from "node:child_process";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -86,21 +86,29 @@ function discoverCases(casesDir, filter) {
 }
 
 // --- blind cut, identical to run-opencode.sh -------------------------------
-function blindCase(casePath) {
+// Defined above as blindCaseText and re-exported here for local use.
+const blindCase = blindCaseText;
+
+// Exported so certify-fidelity-check.mjs can compare the real values rather
+// than regex-scraping this source. Scraping a concatenated string literal is
+// exactly the kind of check that passes for the wrong reason.
+export const PROMPT =
+  "Blind verification dispatch. Verify the claimed conclusion below against its evidence items, " +
+  "following your verifier protocol. Ground truth is not provided. Return your report in your " +
+  "Output format, including the MACHINE_VERDICT line. Case:";
+
+/** Exported for the same reason: the blind cut is an input, so it is compared, not re-derived. */
+export function blindCaseText(casePath) {
   const full = readFileSync(casePath, "utf8");
   const lines = full.split(/\r?\n/);
   const idx = lines.findIndex((l) => /^\*\*Ground-truth verdict:\*\*/.test(l));
   if (idx === -1) throw new Error(`no ground-truth marker in ${casePath}`);
   const blind = `${lines.slice(0, idx).join("\n").replace(/\s+$/, "")}\n`;
-  // Leak guard, same as the runner: a blind case must not carry the answer.
   if (/ground.truth|flaw type/i.test(blind)) throw new Error(`LEAK GUARD tripped for ${casePath}`);
   return blind;
 }
 
-const PROMPT =
-  "Blind verification dispatch. Verify the claimed conclusion below against its evidence items, " +
-  "following your verifier protocol. Ground truth is not provided. Return your report in your " +
-  "Output format, including the MACHINE_VERDICT line. Case:";
+export const MODEL_NAME = MODEL;
 
 function parseVerdict(text) {
   const m = /MACHINE_VERDICT:\s*(\S+)\s*\|\s*FLAW:\s*(\S+)(?:\s*\|\s*CONFIDENCE:\s*([\d.]+))?(?:\s*\|\s*CHECKS_PASSED:\s*([^|]+))?/.exec(text);
@@ -312,4 +320,9 @@ function main() {
   return 0;
 }
 
-process.exit(main());
+// Only run as a CLI. certify-fidelity-check.mjs imports PROMPT, MODEL_NAME and
+// blindCaseText from this module; without this guard the import would start a
+// benchmark sweep as a side effect.
+if (process.argv[1] && pathToFileURL(process.argv[1]).href === import.meta.url) {
+  process.exit(main());
+}
