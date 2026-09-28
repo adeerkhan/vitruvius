@@ -1,7 +1,7 @@
 import { strict as assert } from "node:assert";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
@@ -12,7 +12,21 @@ const validator = join(repoRoot, "scripts", "problem-anchor-contract.mjs");
 
 // The skill and agent contracts must actually carry the new rules; a validator
 // nobody is told to run changes nothing.
-const method = readFileSync(join(repoRoot, "skills", "engineering-research", "SKILL.md"), "utf8");
+//
+// `method` is the skill body alone. `methodSurface` additionally includes the
+// skill's own references/ directory, because progressive disclosure moved
+// detail out of SKILL.md on 2026-09-28 (commit for Part 2). A rule that moved
+// to a reference the skill points at is still documented, so content
+// assertions read `methodSurface`. Assertions that must stay inline — the
+// version bump and the anchor pointer — keep reading `method`.
+const methodDir = join(repoRoot, "skills", "engineering-research");
+const method = readFileSync(join(methodDir, "SKILL.md"), "utf8");
+const methodSurface = [
+  method,
+  ...readdirSync(join(methodDir, "references"))
+    .filter((f) => f.endsWith(".md"))
+    .map((f) => readFileSync(join(methodDir, "references", f), "utf8")),
+].join("\n");
 const scholarly = readFileSync(join(repoRoot, "skills", "scholarly-research", "SKILL.md"), "utf8");
 const researcher = readFileSync(join(repoRoot, "agents", "researcher.md"), "utf8");
 const writer = readFileSync(join(repoRoot, "agents", "writer.md"), "utf8");
@@ -20,14 +34,14 @@ const goalChecker = readFileSync(join(repoRoot, "agents", "goal-checker.md"), "u
 
 assert.match(method, /version: "0\.[2-9]\.\d+"/, "engineering-research version bumped");
 assert.match(
-  method,
+  methodSurface,
   /entailment proxy|entailment/i,
   "the method states that a verified repo claim must survive the entailment proxy",
 );
-assert.match(method, /`repo`/, "method documents the repo evidence type");
-assert.match(method, /path:line/, "method requires a path:line anchor for repo claims");
-assert.match(method, /What we did not find/i, "method requires negative coverage");
-assert.match(method, /Impact vs\. evidence/i, "method requires impact-vs-evidence");
+assert.match(methodSurface, /`repo`/, "method documents the repo evidence type");
+assert.match(methodSurface, /path:line/, "method requires a path:line anchor for repo claims");
+assert.match(methodSurface, /What we did not find/i, "method requires negative coverage");
+assert.match(methodSurface, /Impact vs\. evidence/i, "method requires impact-vs-evidence");
 assert.match(method, /problem-anchor-contract\.md/, "method points at the contract reference");
 assert.match(method, /decisions to inform/i, "method freezes the decisions to inform");
 

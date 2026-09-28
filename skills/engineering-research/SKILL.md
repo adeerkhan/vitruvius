@@ -15,10 +15,10 @@ argument-hint: "<research question or artifact to review> [--deep | --quick]"
 allowed-tools: Write Edit Bash Read
 license: MIT
 metadata:
-  version: "0.3.0"
+  version: "0.4.0"
 
 ---
-<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=afa012bbb4d8f4179184092ab6782055e50af7ad82dc53586abb73caf54608fa -->
+<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=aac448186d1bc3868c1d6414c7c5f38d0df12d54b5ad8f86bc8cfbf85c35c317 -->
 
 # Engineering Research
 
@@ -202,131 +202,38 @@ analysis + evidence ranking, or researcher subagents on different topics). Do
 
 ## Step 3: Gather Evidence
 
-### Increment Checklist (complete before moving to Step 4)
+Full recipes, the increment checklist, the evidence table format, and the
+source-quality tiers are in `references/evidence-gathering.md`. Read it before
+gathering. Three things stay inline because they gate the step:
 
-- [ ] ≥3 distinct search queries run; ≥5 sources found and evaluated; ≥2 source tiers represented
-- [ ] Numeric claims carry units + sign convention; standard citations carry section + edition
-- [ ] No AI-generated or undated sources; search terms recorded in research notes
-
-If any checkbox is unchecked, continue searching before drafting.
-
-Route information needs to preferred sources using
-`references/source-routing-table.md`. Do not search the same way for every
-question — different question types have different authoritative sources.
-
-Follow `references/context-hygiene-rules.md` for all evidence gathering:
-write findings to disk progressively, extract and discard immediately, triage
-by title/snippet first, and return one-line summaries to the parent.
-
-If direct search was chosen:
-
-- Skip researcher spawning entirely.
-- Search and fetch sources yourself.
-- Use multiple search terms/angles before drafting. Minimum: 3 distinct
-  queries for direct-mode research.
-- When the question is scholarly (papers, prior art, standards research),
-  use the `/skill:scholarly-research` discovery layers: OpenAlex first
-  (keyless REST), then Semantic Scholar / arXiv / alphaXiv fast search, and
-  the host's own web or browser tools when visible.
-- Record the exact search terms used and write notes to
-  `outputs/.drafts/<slug>-research-direct.md`.
-- Continue to synthesis.
-
-If subagents were chosen:
-
-- Write a per-researcher brief first (e.g. `outputs/.plans/<slug>-T1.md`).
-  Researcher subagents are dispatched from `agents/researcher.md`; they write
-  findings to their output file and return a one-line summary.
-- Keep tool-call JSON small and valid; no multi-paragraph instructions in the
-  `subagent` JSON.
-- Always set `failFast: false`.
-- Do not name exact tool commands in subagent tasks unless those tool names
-  are visible in the current tool set. Prefer broad guidance: "use standards
-  search and web search".
-- Prefer file-based handoffs: the researcher writes findings to its output
-  file and returns a one-line summary; the lead reads the file.
-
-Evidence-gathering rules (researcher role): the six integrity commandments in
-`AGENTS.md` are non-negotiable. In brief — never fabricate a source, never
-claim something exists without checking it, never describe a source you have
-not read, give a checkable locator for every entry, read before you summarize,
-and mark status honestly.
-
-Source quality: **prefer** standards bodies, code text, primary vendor docs,
-datasheets, peer-reviewed literature, reputable government/industry sources.
-**Accept with caveats** well-cited secondary sources and trade publications.
-**Deprioritize** undated blog posts, aggregators, primary-less forum posts,
-SEO listicles. **Reject** anything with no author and no date, or that appears
-AI-generated with no primary backing.
-
-Evidence table format — assign each source a stable numeric ID for downstream
-traceability:
-
-| # | Source | Reference (std+sec / URL / path) | Key claim | Type | Status |
-|---|--------|----------------------------------|-----------|------|--------|
-| 1 | ASME B31.3 | §304.1.2 | min wall thickness formula | code | verified |
-| 2 | this repo | `packages/solver/src/x.ts:42` | treemap fills the host exactly | repo | verified |
-
-`Type` is `code`, `standard`, `paper`, `vendor`, or `repo`. A `repo` row is a
-claim about the artifact under study, so it must carry a `path:line` anchor
-that resolves on disk. Never assert what a codebase does, lacks, or needs
-without opening it — the most expensive research failure is a confident finding
-about code nobody read. Anchor rules: `references/problem-anchor-contract.md`.
-
-Write findings with inline source references `[1]`, `[2]`. Label inferences as
-inferences in the prose. End with a numbered Sources section matching the
-table.
+- Complete the increment checklist there (≥3 distinct queries, ≥5 sources
+  evaluated, ≥2 tiers) before moving to Step 4. Unchecked boxes mean keep
+  searching, not drafting.
+- A `repo` claim about the artifact under study needs a `path:line` anchor that
+  resolves on disk. Never assert what a codebase does, lacks, or needs without
+  opening it.
+- Route question types to their authoritative sources via
+  `references/source-routing-table.md`; do not search every question the same way.
 
 ## Step 4: Draft
 
-Write the brief yourself. Do not delegate synthesis.
+Write the brief yourself — do not delegate synthesis. Save to
+`outputs/.drafts/<slug>-draft.md`. The full drafting contract, the two
+mandatory sections, the problem-anchor record rules, and the pre-citation sweep
+are in `references/draft-and-anchor.md`.
 
-Save to `outputs/.drafts/<slug>-draft.md`. Include:
+Three things stay inline because they are load-bearing:
 
-- Executive summary
-- Findings organized by question/theme
-- Evidence-backed caveats and disagreements
-- Open questions
-- No invented sources, numbers, figures, tables, or claims
-
-Every finding carries an ID, a `type`, and a **changes** line naming its landing
-site: `change`, `measure`, `defer`, `product-decision`, or `background`. This is
-what separates an engineering report from a survey. A finding with no landing
-site is either background or a product decision, and must say which. A finding
-that recommends building something must first show it is absent — with an
-anchor, not an assertion.
-
-Two sections are mandatory, not optional:
-
-- **`## What we did not find`** — what you searched for, did not find, and the
-  boundary of the search. Silence reads as "no problems exist"; this section
-  makes the gap itself evidence.
-- **`## Impact vs. evidence`** — for each recommendation, the evidence behind
-  it and the cost of being wrong. An unsupported priority ranking is a guess
-  wearing a table.
-
-Then write the `vitruvius-problem-anchor.v1` record beside the candidate from
-`references/problem-anchor-contract.md`. Validate it with
-`vitruvius-problem-anchor <record>` (or
-`node scripts/problem-anchor-contract.mjs <record>` in a checkout). **The record
-is mandatory even when the validator is not installed**: with no validator,
-keep the record and mark its validation `BLOCKED` — never drop it. It must
-pass (or be explicitly blocked) before the brief moves to verification: every
-decision reached a position, every `repo` anchor resolves to a non-blank line on
-disk, and the candidate actually cites them.
-
-`verified` also requires the entailment proxy: the anchored line must carry the
-claim's quoted spans, identifiers, and measures. A paraphrase is `partial`;
-attribution and negative claims stay with the verifier.
-
-Repair a failed record by fixing the claim or the anchor — never by deleting
-the finding.
-
-Before citation, sweep the draft: every critical claim, number, figure, or
-table must map to a source reference, research note, artifact path, or
-calculation. Remove or downgrade unsupported claims; mark inferences as
-inferences. **A numeric claim without a unit, sign convention, and source is
-not a claim — it is noise.** Flag it.
+- Every finding carries an ID, a `type`, and a **changes** line naming its
+  landing site: `change`, `measure`, `defer`, `product-decision`, or
+  `background`. A finding with no landing site must say which it is.
+- `## What we did not find` and `## Impact vs. evidence` are mandatory.
+  Silence reads as "no problems exist"; an unsupported priority ranking is a
+  guess wearing a table.
+- The `vitruvius-problem-anchor.v1` record is **mandatory even when the
+  validator is not installed** — keep it and mark validation `BLOCKED`, never
+  drop it. Repair a failed record by fixing the claim or the anchor, never by
+  deleting the finding.
 
 ## Step 5: Verify (Blind Verifier)
 
