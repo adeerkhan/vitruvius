@@ -1,5 +1,60 @@
 ﻿# Verifier Benchmark Results
 
+## Majority-of-3 certification — IN PROGRESS, 2026-09-28
+
+The published 16/20 (80%), 0 FA, 0 FB, 1 OC comes from a **single run**. This
+round replaces that point estimate with a majority-of-3 measurement, at the
+decision rule fixed before the first run. Runner:
+`tasks/benchmark/certify-runner.mjs`. Full determination lands here when the
+sweep finishes.
+
+### Pilot finding: the documented variance axis is wrong
+
+Pilot: 3 runs x 3 cases, chosen because the sections below name them as sitting
+on the variance line.
+
+| case | run 1 | run 2 | run 3 | majority | expected |
+|------|-------|-------|-------|----------|----------|
+| architectural-synthesis_overreach-01 | PARTIAL | PARTIAL | PARTIAL | PARTIAL | PARTIAL |
+| electrical-edge-01 | PARTIAL | PARTIAL | PARTIAL | PARTIAL | BLOCKED |
+| mechanical-code_misapplication-01 | PARTIAL | PARTIAL | PARTIAL | PARTIAL | PARTIAL |
+
+`RESULTS.md` has documented variance as **verdict** flips (see "Variance
+finding" below: electrical BLOCKED<->PARTIAL, architectural PASS<->PARTIAL).
+**That did not reproduce.** 9/9 pilot runs were unanimous on verdict;
+`scripts/majority-benchmark.mjs` independently reports `agreement=1.00` for all
+three.
+
+What is unstable is the `FLAW:` field:
+
+| case | flaw r1 | flaw r2 | flaw r3 | unanimous |
+|------|---------|---------|---------|-----------|
+| architectural-synthesis_overreach-01 | synthesis_overreach | synthesis_overreach | synthesis_overreach | yes |
+| electrical-edge-01 | calculation_error | entailment_failure | calculation_error | no |
+| mechanical-code_misapplication-01 | code_misapplication | synthesis_overreach | omission | **no — 3 distinct** |
+
+Consequences, flagged now rather than buried:
+
+1. The **+/-10% variance assumption and the CI floors** are built on the
+   verdict-flip model. If verdicts are stable and flaw types are not, the
+   variance that actually exists is not the variance planned for. That is a
+   finding about this file's own assumptions, not about the model.
+2. **"Flaw-type accuracy" (10/20) is probably not decision-grade** at n=3. It
+   is published as a headline number. If per-case flaw identification is close
+   to unstable, that number moves several points between identical runs.
+3. It does **not** mean the model is better than advertised: `electrical-edge-01`
+   is unanimously *wrong* (PARTIAL vs BLOCKED ground truth), a conservative
+   overcall reproduced 3/3. Stable and wrong is still counted wrong.
+
+Caveat: n=3 on 3 cases. Enough to challenge a documented assumption because the
+effect is stark; not enough to certify any case. The full sweep tests whether it
+generalises. No case, ground truth, threshold, model, or scorer was changed.
+
+### Cost (Phase 0)
+
+Single run 55s; pilot 9 runs in 12.8 min; per-run range 27s-127s. Extrapolated:
+**~100 min** for 3 x 20 adversarial, **~25 min** for 3 x 5 pressure.
+
 ## Four-run majority certification — 2026-09-27
 
 Four-run majority scoring over the 20-case adversarial suite. Run 4 uses the updated verifier protocol (citation rules + result provenance audit) and the `cmd /c` scoring fix.
