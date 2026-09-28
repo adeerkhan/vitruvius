@@ -113,6 +113,42 @@ Cognee and Ponytail appear in older notes but have no checkout.
 | 31 | `engineering-research` unpinned from the 500-line cap (499 → 406) | `0be218d` |
 | 32 | Behavioral suites for `summarize`, `standards-lookup`, `compare`, `audit`; floor 10 → 14/25 | this session |
 | 33 | Six standards cards gained the mandatory/advisory convention | this session |
+| 34 | Published benchmark numbers machine-verified (`scripts/benchmark-claims-check.mjs`) | `60a9e1f` |
+| 35 | Gate registry: every script declares how it is reached (`scripts/gate-registry.mjs`) | `06591d4` |
+| 36 | Margin-earnedness finding cleared by 5/5 canonical re-runs; benchmark 75 → 80% | `9eb4016` |
+
+## Self-description is now checked
+
+The repo verified that skills parse, that contracts hold, that references
+resolve — and did **not** verify that the numbers it publishes about itself are
+true. That is closed as of 2026-09-28.
+
+```bash
+node scripts/benchmark-claims-check.mjs    # docs vs the scorer, 5 claim sites, 20 figures
+node scripts/gate-registry.mjs             # every script classified and re-verified
+node scripts/gate-registry.mjs --explain margin-earnedness-check.mjs
+node scripts/score-benchmark.mjs --strict-quality tasks/benchmark/results tasks/benchmark/cases
+```
+
+- **Claim check.** Re-scores the corpus and compares it to every published
+  figure in `README.md` and `docs/VITRUVIUS.md`. It reads the numbers *from the
+  scorer*: a check carrying its own copy of `75%` would be the stale artifact it
+  exists to catch. The pressure suite ("4/5 held with one false approval") and
+  the routing floor are separate measurements and are never compared against the
+  benchmark. It found one real disagreement on first run —
+  `docs/VITRUVIUS.md:202` published `75%` adversarial correctness with no
+  accompanying counts while the next clause gave the pressure suite its
+  weakness. Corrected, then the score moved and it caught all five sites again.
+- **Gate registry.** A gate that is added and never wired produces the same
+  silence as a gate that does not exist, but reads as coverage. Every script
+  under `scripts/` declares how it is reached, and each declaration is
+  re-derived from the tree — a stale claim fails. A `pinned-failure` label is
+  re-**run** by the audit, so it cannot harden into a permanent excuse.
+- **Quality gate.** `--strict-quality` existed but was unwired, so a false
+  approval in any case would not have failed the build. Now it is in the chain.
+
+`results-opencode/` is covered by `.gitignore`; the five re-run artifacts are
+force-added because a 5/5 consistency claim is not reproducible without them.
 
 ## Reference wiring status
 
