@@ -6,6 +6,9 @@
  * answered. It validates the structured result returned by the goal-checker and
  * binds it to the candidate artifact. A valid NOT-DONE result is useful evidence
  * but is never promotable.
+ *
+ * Pattern reference: references/schema-validation-patterns.md
+ * (exact-key refusal, path confinement, hash/byte binding, serialization stability)
  */
 
 import { createHash } from "node:crypto";

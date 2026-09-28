@@ -9,6 +9,9 @@
 //   - sources: [id1, id2]
 //   - reason: string
 //   - confidence: "high" | "medium" | "low"
+//
+// Pattern reference: references/semantic-near-duplicate-matching.md
+// (advisory-only rule, type-normalizer families, confidence tiers)
 
 import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";

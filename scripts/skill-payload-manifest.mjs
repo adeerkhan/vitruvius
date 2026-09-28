@@ -9,6 +9,9 @@
 // The header sits immediately AFTER the `---` frontmatter, never on line 1: a
 // leading comment breaks frontmatter parsing for every skill in the repo.
 // The hashed body is everything after that header line.
+//
+// Pattern reference: references/skill-payload-manifest.md
+// (header format, hash coverage, what a content address does and does not prove)
 
 import { readdirSync, readFileSync, writeFileSync, existsSync } from "node:fs";
 import { join, dirname } from "node:path";

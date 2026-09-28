@@ -18,7 +18,7 @@ metadata:
   version: "0.3.0"
 
 ---
-<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=a5231b57e1e35ed88d61aabf75c025867dba831927a9d921f4b9fe625a1fba42 -->
+<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=afa012bbb4d8f4179184092ab6782055e50af7ad82dc53586abb73caf54608fa -->
 
 # Engineering Research
 
@@ -48,7 +48,7 @@ Discipline skills pass these flags through to this method.
 - Prefer official standards portals, code body text, primary vendor
   documentation, and primary data over secondary summaries.
 - When a source is paywalled or unreachable, cite it from search metadata and
-  mark full-text access as `blocked` instead of guessing at its contents. See
+  mark it `blocked` instead of guessing at its contents. See
   `references/blocked-access-policy.md` for the full rules.
 - To ask the user a question, write plain chat text and wait. Do not invent
   tool names for asking questions.
@@ -108,15 +108,16 @@ degrade — note the gate resolution in the plan's Decision log.
 
 Before any search, name what the report is *about*, not just what it will look
 up, and keep it stable for the run: the **artifacts under study** with the commit
-that pins them, the **2-5 decisions** the reader will make with this report, and
-the **non-goals** (usually product policy and jurisdiction choice). A run with
-no artifact is a literature review; say so rather than implying a codebase was
-read. Research that cannot name its decisions is scope drift.
+that pins them, the **2-5 decisions** the reader will make, and the **non-goals**
+(usually product policy and jurisdiction choice). A run with no artifact is a
+literature review; say so rather than implying a codebase was read. Research
+that cannot name its decisions is scope drift.
 
 These become the `artifacts` and `decisions` of the machine record in
 `references/problem-anchor-contract.md`, written beside the candidate and
 validated with `vitruvius-problem-anchor`. Anchors resolve against real bytes,
-so a `repo` claim that does not match the snapshot fails closed.
+so a `repo` claim that does not match the snapshot fails closed. The `path:line`
+anchor format is specified in `references/compact-location-schema.md`.
 
 Create `outputs/.plans/<slug>.md` immediately. The plan must include:
 
@@ -371,10 +372,9 @@ THIS STEP IS MANDATORY — do not skip.
 6. **If evidence is paywalled**, mark `blocked` — never guess at contents. See
    `references/blocked-access-policy.md` for the full rules.
 
-Use `references/verifier-citation-rules.md` for formal citation requirements
-(every factual claim gets a citation, no orphan citations, no orphan sources)
-and `references/result-provenance-audit.md` for the quantitative claim scan
-(numeric scores, benchmark names, figure references, claims of improvement).
+Use `references/verifier-citation-rules.md` for citation requirements (no orphan
+citations, no orphan sources) and `references/result-provenance-audit.md` for
+the quantitative claim scan (scores, benchmarks, figures, claims of gain).
 
 **Quality Gate (mandatory before delivering):**
 1. **Claim coverage** — ≥80% of claims are `verified` or `partial`. If < 80%, re-search unverified claims.

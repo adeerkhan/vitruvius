@@ -79,6 +79,11 @@ When writing a prompt, plan, or instruction for any agent or subagent:
 - **Set the effort bound.** "Stop after 3 rounds" or "continue until evidence saturates" — never leave it implicit.
 - **Include the integrity reminder.** Every prompt that touches sources must carry at least one integrity commandment reference.
 
+`references/prompt-patterns.md` catalogs the failure modes to catch on review —
+vague quantifiers, unspecified authority, false precision, citation laundering,
+and others — numbered by strength, each with what to watch for and why it is a
+tell. Read it before reviewing or rewriting a prompt.
+
 ### Anti-Rationalization Tables
 
 Agents skip mandatory steps by rationalizing. Pair each excuse with a factual
