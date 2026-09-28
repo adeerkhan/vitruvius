@@ -51,6 +51,7 @@ export const REGISTRY = {
   "benchmark-claims-check.mjs": { kind: "chain" },
   "reference-reachability.mjs": { kind: "chain" },
   "gate-registry.mjs": { kind: "chain" },
+  "steal-selfcheck.mjs": { kind: "chain" },
   // Scored with --strict-quality, so a false approval or false block anywhere in
   // the checked-in corpus fails the build. This was available but unwired until
   // 2026-09-28, which meant a bad result in any case other than the one the

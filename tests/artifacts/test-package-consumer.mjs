@@ -102,8 +102,45 @@ try {
   assert.equal(closure.status, 0, closure.stderr);
   assert.match(closure.stdout, /PASS/);
 
+  // 5. The re-export shims must resolve INSIDE the installed package.
+  //
+  // scripts/verifier-parser.mjs is a one-line `export * from
+  // '../skills/proposal/scripts/...'`. It works in the repo and breaks silently
+  // in the tarball if `skills/` is ever trimmed from package.json#files, and it
+  // is what scripts/benchmark-scoring.mjs imports. Nothing imported it from the
+  // installed package, so that break would ship. Import it for real, by path,
+  // from the consumer's copy.
+  const shim = join(pkgDir, "scripts", "verifier-parser.mjs");
+  assert.ok(existsSync(shim), `tarball ships ${shim.split(/[\\/]/).slice(-2).join("/")}`);
+  // A probe file rather than `-e`: on Windows a dynamic import of an absolute
+  // path needs a file:// URL, and pathToFileURL is the only correct way to build
+  // one. Inlining it into a shell string is how this ended up wrong first time.
+  const probe = join(temp, "probe-shim.mjs");
+  writeFileSync(
+    probe,
+    `import { pathToFileURL } from "node:url";
+const m = await import(pathToFileURL(${JSON.stringify(shim)}).href);
+const names = Object.keys(m).sort();
+if (!names.includes("parseMachineVerdict")) {
+  console.error("missing parseMachineVerdict; exports: " + names.join(","));
+  process.exit(1);
+}
+console.log("ok:" + names.length);
+`,
+    "utf8",
+  );
+  const importShim = spawnSync(process.execPath, [probe], { encoding: "utf8", cwd: temp });
+  assert.equal(
+    importShim.status,
+    0,
+    `the published re-export shim must resolve inside the installed package; it imports from ` +
+      `skills/, so a trimmed tarball would ship a broken module: ${importShim.stderr}`,
+  );
+  assert.match(importShim.stdout, /^ok:\d+/m, "the shim must export a usable surface");
+
   console.log(
-    `PASS: package tarball (${entry.size} bytes, ${files.length} files) installs into a clean consumer and exposes ${bins.length} validator bins`,
+    `PASS: package tarball (${entry.size} bytes, ${files.length} files) installs into a clean consumer, ` +
+      `exposes ${bins.length} validator bins, and its re-export shims resolve inside the install`,
   );
 } finally {
   rmSync(temp, { recursive: true, force: true });

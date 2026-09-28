@@ -1,7 +1,7 @@
 # Steal Map: Reference Patterns for Vitruvius
 
 **Snapshot:** 2026-09-28  
-**Implementation HEAD:** `6ffe74e`  
+**Implementation HEAD:** `2c0b1f0`  
 **Scope:** local projects under `ref/`, the current Vitruvius tree, and the
 `tasks/benchmark` + `evals` artifacts.  
 **Rule:** steal design patterns, not domain scope or incompatible code. Every
@@ -9,14 +9,25 @@ transfer resolves to a local path.
 
 This is the live status map. Historical audit prose lives in git history.
 
+`scripts/steal-selfcheck.mjs` (wired into `npm test`) verifies the numbers in
+this file against the tree: the HEAD above, every commit hash in the tables
+below, the scale line, the reference count, and the E1 figures. A status map
+whose own numbers drift is the failure this repo spent two rounds eliminating
+elsewhere, and this file is what a reader trusts when deciding what to work on
+next. It does **not** check whether the ranked list is the right judgement —
+that is a human call — nor the CodeGraph node/edge columns, which need a
+rebuild.
+
 ## CodeGraph Integration
 
-Both the main repo and `ref/` are indexed with CodeGraph:
+Both the main repo and `ref/` were indexed with CodeGraph. **The main index is
+stale** — locked by the MCP daemon, with the figures below predating the 9
+local commits and the 11 suites added since:
 
-| Index | Files | Nodes | Edges | Built |
-|-------|-------|-------|-------|-------|
-| `vitruvius/` | 97 | 2,011 | 4,773 | 1.7s |
-| `vitruvius/ref/` | 1,711 | 39,041 | 125,821 | 10.1s |
+| Index | Files | Nodes | Edges | Built | State |
+|-------|-------|-------|-------|-------|-------|
+| `vitruvius/` | 97 | 2,011 | 4,773 | 1.7s | **stale** — 143 source files now on disk |
+| `vitruvius/ref/` | 1,711 | 39,041 | 125,821 | 10.1s | current |
 
 The `codegraph_explore` MCP tool is available for semantic code search, impact
 analysis, and call-path tracing. Use it before grep/find when understanding
@@ -119,7 +130,45 @@ Cognee and Ponytail appear in older notes but have no checkout.
 | 37 | Behavioral suites for the five discipline dispatchers (civil, electrical, mechanical, architectural, software) | `e0fb936` |
 | 38 | Behavioral suites for `peer-review` and `artifact-reading`, + teeth harness for all 11 | `30b34cf` |
 | 39 | Behavioral suites for `review`, `eli5`, `vitruvius`, `vitruvius-help`; floor 14 → 25/25 | `66a16e9` |
-| 40 | E1 floor promoted from always-exit-0 reporter to a gate (`skills/e1-suite-manifest.json`) | this session |
+| 40 | E1 floor promoted from always-exit-0 reporter to a gate (`skills/e1-suite-manifest.json`) | `bce9cb2` |
+| 41 | Two scripts repaired that were "covered" by tests which never ran them (`run-isolated-tests.mjs`, `retrieval-bridge.mjs`) | `2c0b1f0` |
+| 42 | `scripts/steal-selfcheck.mjs` — this map's own numbers checked against the tree | this session |
+
+## What the 2026-09-28 CodeGraph audit found
+
+A pass over this map with `codegraph_explore`, plus a mechanical check of every
+number it publishes. Four drifts — all in the map itself, all now fixed or
+machine-checked:
+
+1. **`Implementation HEAD` was five commits stale** (`6ffe74e`, describing the
+   tree as of the reference-wiring round), so every "done" statement in the map
+   referred to an older tree. Now pinned and checked by `steal-selfcheck.mjs`.
+2. **The scale line understated the tree** — 39 scripts / 82 tests against 40
+   and 83 on disk. Corrected, and now checked.
+3. **The CodeGraph table presented a stale count as current**: 97 indexed files
+   against 143 source files, with the node/edge figures older still. The row is
+   now marked **stale** rather than deleted, because an unmarked stale number
+   reads as current. The self-check accepts a stale figure only when the row
+   says so.
+4. **Two scripts were declared "covered" by tests that never executed them.**
+   `run-isolated-tests.mjs` had a syntax error (`await` inside a non-async
+   function) and had never run; `retrieval-bridge.mjs` was a facade whose
+   steps 2 and 3 printed "completed" without doing anything, and its test
+   asserted only that its *source text* contained the words "semantic recall",
+   "exact search", and "direct read". Both repaired in `2c0b1f0`.
+
+The generalisable lesson is item 4, and it is the same one as E1's teeth: **a
+name match is not execution.** The gate registry's `reach()` counted any
+filename mention as coverage — precisely the "weakly accept a script that is
+merely present on disk" failure the registry was written to prevent. It now
+requires a module import or a spawn call and reports a named-but-never-run
+script separately. The stricter check found two on its first run.
+
+Also added: the published tarball's re-export shims
+(`scripts/verifier-parser.mjs` → `skills/proposal/scripts/…`) are now imported
+**from the installed package** in `test-package-consumer.mjs`. They worked in
+the repo and would have broken silently in the tarball if `skills/` were ever
+trimmed from `package.json#files` — and nothing imported them from the install.
 
 ## Self-description is now checked
 
@@ -289,4 +338,4 @@ pointed at the skill catalog. That is real remaining work, not a formatting gap.
 
 ### Scale
 
-- scripts: 39 files · tests: 82 files · skills: 25 · agents: 7 canonical roles + 7 OpenCode adapters.
+- scripts: 40 files · tests: 83 files · skills: 25 · agents: 7 canonical roles + 7 OpenCode adapters.
