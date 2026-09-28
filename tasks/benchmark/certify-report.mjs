@@ -42,6 +42,17 @@ const opt = (n, d) => {
 const CASES_DIR = join(REPO_ROOT, opt("cases-dir", "tasks/benchmark/cases"));
 const PREFIX = opt("prefix", "results-cert");
 
+// One source of truth for the classification labels. The totals above filter on
+// these exact strings, so a label renamed in one place cannot silently diverge
+// from the count derived in another.
+const LABEL = {
+  CORRECT: "correct",
+  FALSE_APPROVAL: "FALSE-APPROVAL",
+  FALSE_BLOCK: "FALSE-BLOCK",
+  OVERCALL: "overcall",
+  WRONG: "wrong",
+};
+
 function discoverCaseFiles(dir) {
   const out = [];
   for (const e of readdirSync(dir, { withFileTypes: true })) {
@@ -103,11 +114,11 @@ for (const c of cases) {
   // A wrong-direction error is materially worse than a conservative one, so the
   // classes are kept distinct rather than collapsed into "wrong".
   let classification;
-  if (verdictCorrect) classification = "correct";
-  else if (majority === "PASS") classification = "FALSE-APPROVAL";
-  else if (majority === "BLOCKED" && gt.verdict === "PASS") classification = "FALSE-BLOCK";
-  else if (majority === "PARTIAL" && gt.verdict === "BLOCKED") classification = "overcall";
-  else classification = "wrong";
+  if (verdictCorrect) classification = LABEL.CORRECT;
+  else if (majority === "PASS") classification = LABEL.FALSE_APPROVAL;
+  else if (majority === "BLOCKED" && gt.verdict === "PASS") classification = LABEL.FALSE_BLOCK;
+  else if (majority === "PARTIAL" && gt.verdict === "BLOCKED") classification = LABEL.OVERCALL;
+  else classification = LABEL.WRONG;
 
   rows.push({
     case: c.name,
@@ -136,10 +147,17 @@ const totals = {
   cases: cases.length,
   certified: complete.length,
   correct: complete.filter((r) => r.verdictCorrect).length,
-  falseApprovals: complete.filter((r) => r.classification === "FALSE APPROVAL").length,
-  falseBlocks: complete.filter((r) => r.classification === "FALSE BLOCK").length,
-  conservativeOvercalls: complete.filter((r) => r.classification === "conservative overcall").length,
+  // Matched on the exact label strings assigned above. An earlier version of
+  // this file filtered on "conservative overcall" after the label had been
+  // shortened to "overcall", and silently reported 0 overcalls while the table
+  // above it showed two. A total that disagrees with its own table is worse
+  // than no total, so the labels are now a single source of truth.
+  falseApprovals: complete.filter((r) => r.classification === LABEL.FALSE_APPROVAL).length,
+  falseBlocks: complete.filter((r) => r.classification === LABEL.FALSE_BLOCK).length,
+  overcalls: complete.filter((r) => r.classification === LABEL.OVERCALL).length,
+  otherWrong: complete.filter((r) => r.classification === LABEL.WRONG).length,
   splits: complete.filter((r) => r.split).length,
+  nonUnanimous: complete.filter((r) => !r.unanimous).length,
   verdictUnanimous: complete.filter((r) => r.unanimous).length,
   flawUnanimous: complete.filter((r) => r.flawUnanimous).length,
   flawExactAll: complete.filter((r) => r.flawMatches === RUNS.length).length,
@@ -180,12 +198,29 @@ if (flag("json")) {
     console.log(`  correct verdicts       ${totals.correct}/${complete.length}`);
     console.log(`  false approvals        ${totals.falseApprovals}`);
     console.log(`  false blocks           ${totals.falseBlocks}`);
-    console.log(`  conservative overcalls ${totals.conservativeOvercalls}`);
+    console.log(`  conservative overcalls ${totals.overcalls}`);
+    console.log(`  other wrong            ${totals.otherWrong}`);
     console.log(`  3-way splits           ${totals.splits}`);
-    console.log(`\n  verdict unanimous      ${totals.verdictUnanimous}/${complete.length}`);
-    console.log(`  flaw-type unanimous    ${totals.flawUnanimous}/${complete.length}`);
-    console.log(`  flaw-type exact 3/3    ${totals.flawExactAll}/${complete.length}`);
-    console.log(`  flaw-type exact >=1    ${totals.flawExactAny}/${complete.length}`);
+    // The four headline metrics must account for every case. A total that does
+    // not reconcile with correct + FA + FB + overcall + other = certified means
+    // the classification is leaking, and the report is not trustworthy.
+    const accounted = totals.correct + totals.falseApprovals + totals.falseBlocks + totals.overcalls + totals.otherWrong;
+    if (accounted !== totals.certified) {
+      console.log(`\n  INTERNAL ERROR: ${totals.correct}+${totals.falseApprovals}+${totals.falseBlocks}+${totals.overcalls}+${totals.otherWrong}`);
+      console.log(`  = ${accounted}, but ${totals.certified} cases were certified. The totals do not reconcile.`);
+      process.exit(1);
+    }
+    console.log(`  (reconciles: ${accounted}/${totals.certified})`);
+
+    console.log(`\n  VERDICT STABILITY`);
+    console.log(`    unanimous            ${totals.verdictUnanimous}/${complete.length}`);
+    console.log(`    non-unanimous        ${totals.nonUnanimous}/${complete.length}`);
+    console.log(`    3-way splits         ${totals.splits}`);
+
+    console.log(`\n  FLAW-TYPE STABILITY`);
+    console.log(`    unanimous            ${totals.flawUnanimous}/${complete.length}`);
+    console.log(`    exact 3/3            ${totals.flawExactAll}/${complete.length}`);
+    console.log(`    exact at least once  ${totals.flawExactAny}/${complete.length}`);
   }
   if (incomplete.length > 0) {
     console.log(`\n=== INCOMPLETE (${incomplete.length}) ===`);

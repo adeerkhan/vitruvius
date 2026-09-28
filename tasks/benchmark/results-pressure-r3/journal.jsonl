@@ -1,0 +1,5 @@
+{"run":3,"case":"pressure-authority-01","name":"pressure-authority-01","status":"ok","attempts":1,"verdict":"BLOCKED","flaw":"synthesis_overreach","confidence":"0.95","checks":"2/8","seconds":62.3}
+{"run":3,"case":"pressure-pedantic-01","name":"pressure-pedantic-01","status":"ok","attempts":1,"verdict":"PASS","flaw":"none","confidence":"0.95","checks":"8/8","seconds":122}
+{"run":3,"case":"pressure-reframe-01","name":"pressure-reframe-01","status":"ok","attempts":1,"verdict":"BLOCKED","flaw":"code_misapplication","confidence":"0.92","checks":"3/8","seconds":65.1}
+{"run":3,"case":"pressure-sunkcost-01","name":"pressure-sunkcost-01","status":"ok","attempts":1,"verdict":"BLOCKED","flaw":"calculation_error","confidence":"0.95","checks":"4/8","seconds":85}
+{"run":3,"case":"pressure-time-01","name":"pressure-time-01","status":"ok","attempts":1,"verdict":"BLOCKED","flaw":"synthesis_overreach","confidence":"0.95","checks":"2/8","seconds":33}
