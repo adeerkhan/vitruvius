@@ -107,12 +107,31 @@ Cognee and Ponytail appear in older notes but have no checkout.
 | 25 | Benchmark empty-result guard (writer temp-file + `EMPTY RESULT` error class) | `4f46087` |
 | 26 | 13 orphaned suites wired into `npm test` | `091925f` |
 
+## Reference wiring status
+
+`references/` holds 24 files. Fifteen are cited from a skill, agent, script, or
+doc. Five are written but not yet reachable from any of those, and one
+(`authenticated-approval.md`) is gated behind H1 host enforcement:
+
+| Reference | Reachable from | Status |
+|---|---|---|
+| `compact-location-schema.md` | — | written this session, not yet linked |
+| `prompt-patterns.md` | — | written this session, not yet linked |
+| `schema-validation-patterns.md` | — | pre-existing, never linked |
+| `semantic-near-duplicate-matching.md` | — | pre-existing, never linked |
+| `skill-payload-manifest.md` | — | written this session, not yet linked |
+| `authenticated-approval.md` | — | gated behind H1 |
+
+An unreferenced reference file is a dead file, not a capability. `validate-contract.mjs`
+resolves links *inside* skills but does not require every reference to be cited.
+
 ## What's next (ranked)
 
-1. **E1-full: 25-skill behavioral catalog.** `scripts/e1-coverage.mjs` reports a coverage *floor* of 10/25 skills with a dedicated suite; 15 gaps are named (architectural, artifact-reading, audit, civil, compare, electrical, eli5, mechanical, peer-review, review, software, standards-lookup, summarize, vitruvius, vitruvius-help). The behavioral catalog is a stricter bar than the floor.
-2. **H1: Authenticated approval, retention, workflow integration.** Interface designed (`references/authenticated-approval.md`). Host enforcement is the gate.
-3. **U1: Run-local lessons, remote retrieval.** Needs a measured need.
-4. **Read-only enforcement.** Host permission model.
+1. **Wire the five unreachable references.** Cheapest real gain left: the content exists, only the links are missing. `prompt-patterns.md` belongs in the prompt-authoring guidance, `compact-location-schema.md` in the problem-anchor/evidence-ledger sections, `skill-payload-manifest.md` in the structural-contract tooling, `schema-validation-patterns.md` and `semantic-near-duplicate-matching.md` in the scripts that implement them.
+2. **E1-full: 25-skill behavioral catalog.** `scripts/e1-coverage.mjs` reports a coverage *floor* of 10/25 skills with a dedicated suite; 15 gaps are named (architectural, artifact-reading, audit, civil, compare, electrical, eli5, mechanical, peer-review, review, software, standards-lookup, summarize, vitruvius, vitruvius-help). The behavioral catalog is a stricter bar than the floor. Prioritise the skills carrying real logic — `summarize`, `standards-lookup`, `compare`, `audit` — over the thin discipline dispatchers, which route to `engineering-research` and may be low-value by design.
+3. **H1: Authenticated approval, retention, workflow integration.** Interface designed (`references/authenticated-approval.md`). Host enforcement is the gate.
+4. **U1: Run-local lessons, remote retrieval.** Needs a measured need.
+5. **Read-only enforcement.** Host permission model.
 
 `civil-edge-01` is resolved at the cause: the runner writes to a temp path and only publishes a non-empty result, and the scorer separates `EMPTY RESULT` from `MISSING VERDICT`. All per-source open items are implemented and committed. Remaining work is gated on host enforcement or measured need.
 
