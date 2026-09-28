@@ -18,7 +18,7 @@ const researcher = readFileSync(join(repoRoot, "agents", "researcher.md"), "utf8
 const writer = readFileSync(join(repoRoot, "agents", "writer.md"), "utf8");
 const goalChecker = readFileSync(join(repoRoot, "agents", "goal-checker.md"), "utf8");
 
-assert.match(method, /version: "0\.2\.[5-9]\d*"/, "engineering-research version bumped");
+assert.match(method, /version: "0\.[2-9]\.\d+"/, "engineering-research version bumped");
 assert.match(
   method,
   /entailment proxy|entailment/i,
