@@ -184,6 +184,18 @@ const CASES = [
     replace: "const composed = signal ? signal : budget;",
     test: "tests/scholarly-research/test-extract-pdf.mjs",
   },
+  // The ledger test dated its own fixtures 2026-09-26. The append-only guard
+  // refuses a row older than the newest real rejection, so the first 2026-09-29
+  // ledger entry made this suite fail — on a date it had written itself, while
+  // asserting a valid ledger was malformed. Restoring the hardcoded date would
+  // re-break it at the next rejection, so the case removes the derivation.
+  {
+    file: "tests/contracts/test-rejected-change-ledger.mjs",
+    rule: "ledger fixtures are dated relative to the newest real row",
+    find: /const lastRowDate = \[\.\.\.base\.matchAll\(.*\)\]\.at\(-1\)\?\.\[1\];/,
+    replace: 'const lastRowDate = "2026-09-26";',
+    test: "tests/contracts/test-rejected-change-ledger.mjs",
+  },
 ];
 
 function writeWithRetry(path, contents, attempts = 5) {

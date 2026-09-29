@@ -139,6 +139,7 @@ Cognee and Ponytail appear in older notes but have no checkout.
 | 46 | `steal-selfcheck.mjs` CodeGraph count narrowed to indexed extensions | `189a3b9` |
 | 47 | P5 landed: plugin manifests discovered, name+version checked against `package.json` + 3 mutation cases | this session |
 | 48 | P1 landed: 60s download budget composed via `AbortSignal.any` in `downloadToTemp` + 3 mutation cases; verdict flipped from reject after the plan's "no network fetch" fact was found to be scoped to `scripts/` | this session |
+| 49 | P3/P4/P6 rejected on evidence, three ledger rows; stale-date fixture in the ledger test derived from the newest row + mutation case | this session |
 
 ## What the 2026-09-29 pull found, and what was done about it
 
@@ -287,6 +288,27 @@ mention that is not a real skill in `skills/`. The property is already covered.
 `MAX_SKILL_MD_LINES = 500` and enforces it. A word cap is a second gate on the
 size axis, and the repo chose lines deliberately (S9 in `AGENTS.md`). Two
 numbers for one property is maintenance cost, not a new guarantee.
+
+### A test that asserted a date it had written itself
+
+Recording the first rejection (`P3`) into `docs/rejected-changes.md` turned the
+chain red — not in the ledger, which passed, but in
+`tests/contracts/test-rejected-change-ledger.mjs`. That test dated its own
+fixtures `2026-09-26`, and the append-only guard refuses a row older than the
+newest real entry. The first 2026-09-29 rejection made the test fail on a date
+it had written itself, while asserting that a *valid* ledger was malformed.
+
+Restoring the literal would have re-broken it at the next rejection, so the
+fixture dates are now derived from the ledger's newest row, and a mutation case
+pins that derivation. The same class of defect appears in the doc example at the
+top of that file, which carried the same stale date and would have failed the
+next append; it is now dated to the current month with a note saying why.
+
+Two things worth naming. The ledger's own guard behaved correctly here — it
+refused an out-of-order row, exactly as designed. And `npm test` caught a
+problem that had nothing to do with the pattern being stolen, which is the
+argument for a full chain after a small change rather than only the suite you
+touched.
 
 ## What the 2026-09-28 CodeGraph audit found
 
@@ -511,11 +533,12 @@ pointed at the skill catalog. That is real remaining work, not a formatting gap.
 
 ### Feynman
 **Taken:** fixed-case end-to-end evals, final/provenance pairing, need-based scholarly routing, docs/code parity, declared+checked Node range, package budget, exact-tarball provenance, majority harness, scale decision framework, source routing table, reviewer severity levels, context hygiene rules, verifier citation rules, result provenance audit, npm-audit with documented exceptions, Crossref pacing + single 429 retry, dual-platform install scripts, conditional tool registration by auth state, README minimalism, allowlist-where-every-entry-carries-a-reason-and-a-removal-condition.  
-**Rejected:** telemetry timeout budget and Crossref pacing in Vitruvius — no code path issues an HTTP request; CLI/Pi runtime, editing verifier, automatic memory, workbench, telemetry, broad database suite, provider sprawl.
+**Rejected:** Crossref/OpenAlex/Semantic Scholar pacing and 429 retry — no shipped code calls those APIs, so a pacing rule has nothing to pace (ledger row, 2026-09-29); CLI/Pi runtime, editing verifier, automatic memory, workbench, telemetry, broad database suite, provider sprawl.  
+**Kept (2026-09-29):** the bounded-request-budget shape, landed on the one outbound fetch that did exist — `downloadToTemp` — at 60s rather than 1.5s. See P1 above.
 
 ### Humanizer
 **Taken:** executable package/plugin discovery smoke (tarball + host adapters), per-skill versioning, concise lenses, prompt-authoring checklist, pinned CI actions/validators, cross-manifest version + name consistency (discovered, not listed), multi-platform plugin manifests, separate CHANGELOG.  
-**Rejected in Vitruvius:** description prefix match (three published descriptions genuinely differ; rewriting host copy is a docs decision, not a research capability), `§N` cross-reference validation (this repo has no numbered-pattern scheme and `validate-contract.mjs:204` already resolves `/skill-name` mentions), word budget (`validate-contract.mjs:13` already caps SKILL.md at 500 lines).  
+**Rejected in Vitruvius:** description prefix match (three published descriptions genuinely differ; rewriting host copy is a docs decision, not a research capability), `§N` cross-reference validation (this repo has no numbered-pattern scheme and `validate-contract.mjs:204` already resolves `/skill-name` mentions), word budget (`validate-contract.mjs:13` already caps SKILL.md at 500 lines). See `docs/rejected-changes.md` for the three ledger rows.  
 **Reject:** single-root layout, one-version architecture, style catalog, package-only quality gate.
 
 ### Scientific Agent Skills
