@@ -70,7 +70,7 @@ Cognee and Ponytail appear in older notes but have no checkout.
 ### Partial
 
 - **Habit** lifecycle: validator/approval/local activation/load/revoke ship; authenticated approval identity, retention/deletion policy, and automatic workflow integration are open (host/policy).
-- **Q1** ledger is local-only; B1 two-run majority scored (14/19 correct, 0 false blocks); E1 covers 4 of 25 skills behaviorally; the suite-coverage *floor* is 14/25 (`scripts/e1-coverage.mjs`); C1 is three local cases.
+- **Q1** ledger is local-only; B1 three-run majority certified (16/19 correct, 0 false blocks); E1 covers 4 of 25 skills behaviorally; the suite-coverage *floor* is 25/25 and is a gate (`scripts/e1-coverage.mjs`); C1 is three local cases.
 - **Read-only judges** (verifier/reviewer/arbiter/goal-checker/habit) are declared policy; the verifier needs Bash to hash mission pointers, so technical enforcement is a host concern.
 - **`isSafeRelativePath`/two PDF extractors** are intentionally not unified (differing contracts; self-contained copied-skill installs).
 - **General YAML** is out of scope by design; the parser is a bounded subset.
@@ -81,7 +81,7 @@ Cognee and Ponytail appear in older notes but have no checkout.
 |---|---|---|
 | B1 | Real majority-of-N run | DONE — 3-run majority passed (16/19, 0 false blocks) |
 | D1 | Retrieval-to-direct-read bridge (semble) | DONE — script + test created |
-| E1-full | 25-skill behavioral catalog | 4/25 model-run behavioral; suite floor 14/25; remaining 11 need model runs |
+| E1-full | 25-skill behavioral catalog | 4/25 model-run behavioral; suite floor 25/25 (a gate); remaining 21 need model runs |
 | H1 | Authenticated approval, retention, workflow integration | interface designed; host enforcement is the gate |
 | U1 | Run-local lessons, remote retrieval | needs a measured need |
 | — | Read-only enforcement | host permission model |
@@ -511,7 +511,7 @@ pointed at the skill catalog. That is real remaining work, not a formatting gap.
 2. **H1: Authenticated approval, retention, workflow integration.** Interface designed (`references/authenticated-approval.md`). Host enforcement is the gate.
 3. **U1: Run-local lessons, remote retrieval.** Needs a measured need.
 4. **Read-only enforcement.** Host permission model.
-5. **Steal the new feynman patterns.** Telemetry timeout budget, npm-audit with documented exceptions, Crossref pacing/retry, and dual-platform install scripts are all now in `ref/feynman` and none are in Vitruvius yet.
+5. **Redirect handling in the PDF fetch.** `skills/scholarly-research/scripts/extract-pdf.mjs:213` still passes `redirect: 'follow'` to a caller-supplied URL, so a source URL steered by a prompt-injected document can be followed to a link-local metadata address or a local port. Needs a private-range block or a host allowlist. The 60s budget stopped the hang, not the traversal.
 
 `civil-edge-01` is resolved at the cause: the runner writes to a temp path and only publishes a non-empty result, and the scorer separates `EMPTY RESULT` from `MISSING VERDICT`. All per-source open items are implemented and committed. Remaining work is gated on host enforcement or measured need.
 
@@ -574,4 +574,4 @@ pointed at the skill catalog. That is real remaining work, not a formatting gap.
 
 ### Scale
 
-- scripts: 41 files · tests: 85 files · skills: 25 · agents: 7 canonical roles + 7 OpenCode adapters.
+- scripts: 41 files · tests: 86 files · skills: 25 · agents: 7 canonical roles + 7 OpenCode adapters.

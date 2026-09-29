@@ -179,26 +179,82 @@ const sh = (cmd, args) => {
   if (r === null) problems.push("scripts/reference-reachability.mjs could not be run to confirm the claim");
 }
 
+/**
+ * Every suite-floor claim in the map, checked against the real count.
+ *
+ * Pure, so a test can drive it with synthetic lines. This function had three
+ * false positives on its first run against the real map, all of them correct
+ * text: the model-run catalog (4/25) on lines that also mention the floor, and a
+ * historical "floor 10 -> 14/25" entry recording what the floor used to be.
+ * Guessing which of two same-denominator counters a number means is how a check
+ * cries wolf, so attribution is by the words immediately before each pair.
+ *
+ * @param {string} text         the map's contents
+ * @param {number} onDisk       skills in skills/
+ * @param {number} withSuite    skills with a tests/<skill>/ suite
+ * @returns {string[]} problems
+ */
+export function checkSuiteFloor(text, onDisk, withSuite) {
+  const problems = [];
+
+  for (const line of text.matchAll(/^.*\bfloor\b.*$/gim).map((m) => m[0])) {
+    // "floor 10 -> 14/25" records what the floor WAS, not what it is.
+    if (/->|→|\bwas\b|formerly/i.test(line)) continue;
+
+    for (const m of line.matchAll(/\*\*(\d+)\/(\d+)\*\*|\b(\d+)\/(\d+)\b/g)) {
+      const bold = m[1] !== undefined;
+      const claimed = +(m[1] ?? m[3]);
+      const total = +(m[2] ?? m[4]);
+      if (total !== onDisk) continue; // a different denominator, not a skill count
+
+      // Attribute the pair to a counter by the words immediately before it, then
+      // make ONE decision. An earlier version split this across two `continue`
+      // guards, and they shadowed each other: removing either one changed
+      // nothing observable, so the mutation harness reported both as vacuous.
+      // One decision point, so each rule can fail on its own.
+      const lead = line.slice(Math.max(0, m.index - 60), m.index);
+      const saysCatalog = /model[- ]run|catalog|blind|behaviou?ral run/i.test(lead);
+      const saysSuite = /suite|tests\/<skill>|directory|coverage/i.test(lead);
+      // Catalog wins when it is the nearer name. A bold pair with no name at all
+      // is the map's own canonical statement, so it counts as the floor. A bare
+      // pair with no name is unattributable and is not this check's business.
+      const counter = saysCatalog && !saysSuite ? "catalog" : saysSuite || bold ? "suite" : null;
+      if (counter !== "suite") continue;
+
+      if (claimed !== withSuite) {
+        problems.push(
+          `map states a suite floor of ${claimed}/${total} on a line reading "${line.trim().slice(0, 70)}", ` +
+            `but ${withSuite} of ${onDisk} skills actually have a tests/<skill>/ suite`,
+        );
+      }
+    }
+  }
+
+  return problems;
+}
+
 // --- 6. The E1 numbers must match the gate -------------------------------
-// The map now states all three. Two are machine-checked here; the third is
-// recorded in the manifest and read from it rather than re-derived.
+// The map states all three. Two are machine-checked here; the third is recorded
+// in the manifest and read from it rather than re-derived.
+//
+// This used to match the suite floor only when the map wrote it BOLD, as
+// `suite floor … **25/25**`. Two lines reading "suite floor 14/25" unbolded
+// slipped past the gate while a bold line 80-odd lines away said 25/25 — the
+// map contradicting itself and the check passing anyway. The rule now reads a
+// claim in any emphasis, and lives in checkSuiteFloor so it can be tested.
 {
   const coverage = JSON.parse(readFileSync(join(REPO_ROOT, "skills", "e1-suite-manifest.json"), "utf8"));
-  const stated = /\*\*(\d+)\/25\*\*/.exec(text);
   const onDisk = readdirSync(join(REPO_ROOT, "skills")).filter((n) =>
     existsSync(join(REPO_ROOT, "skills", n, "SKILL.md")),
   ).length;
-  const withSuite = readdirSync(join(REPO_ROOT, "skills")).filter(
+  const withSuite = readdirSync(join(REPO_ROOT, "tests")).filter(
     (n) => existsSync(join(REPO_ROOT, "skills", n, "SKILL.md")) &&
       existsSync(join(REPO_ROOT, "tests", n)) &&
       readdirSync(join(REPO_ROOT, "tests", n)).some((f) => f.endsWith(".mjs")),
   ).length;
-  if (stated && withSuite !== +stated[1] && `${withSuite}/${onDisk}` !== stated[1].replace(/\*\*\d+\//, "")) {
-    // Only flag when the map is clearly asserting the suite floor.
-    if (new RegExp(`suite floor[^\\n]*\\*\\*${stated[1]}\\*\\*`, "i").test(text) && withSuite !== +stated[1]) {
-      problems.push(`map states a suite floor of ${stated[1]}; ${withSuite} skills actually have a suite`);
-    }
-  }
+
+  problems.push(...checkSuiteFloor(text, onDisk, withSuite));
+
   if (coverage.model_run_recorded && !text.includes(`**${coverage.model_run_recorded}/25**`)) {
     problems.push(
       `skills/e1-suite-manifest.json records a model-run catalog of ${coverage.model_run_recorded}/25 but the ` +

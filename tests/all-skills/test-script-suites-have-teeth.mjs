@@ -196,6 +196,37 @@ const CASES = [
     replace: 'const lastRowDate = "2026-09-26";',
     test: "tests/contracts/test-rejected-change-ledger.mjs",
   },
+  // The map's own self-check, added 2026-09-29. It runs in npm test and gates
+  // this repo's published numbers, and until now nothing proved any of its rules
+  // could fail. These cases remove the rule and require the suite to notice.
+  {
+    file: "scripts/steal-selfcheck.mjs",
+    rule: "a bold pair with no adjacent name is still the suite floor",
+    find: /: saysSuite \|\| bold \? "suite" : null;/,
+    replace: ': saysSuite ? "suite" : null; // mutated: the bold signal is gone',
+    test: "tests/engineering-research/test-steal-selfcheck.mjs",
+  },
+  {
+    file: "scripts/steal-selfcheck.mjs",
+    rule: "a wrong suite floor is refused",
+    find: /if \(claimed !== withSuite\) \{/,
+    replace: "if (false) {",
+    test: "tests/engineering-research/test-steal-selfcheck.mjs",
+  },
+  {
+    file: "scripts/steal-selfcheck.mjs",
+    rule: "the model-run catalog is not misread as the suite floor",
+    find: /const counter = saysCatalog && !saysSuite \? "catalog"/,
+    replace: 'const counter = saysSuite || bold ? "suite" : null; const _unused = saysCatalog && "catalog"',
+    test: "tests/engineering-research/test-steal-selfcheck.mjs",
+  },
+  {
+    file: "scripts/steal-selfcheck.mjs",
+    rule: "a historical floor value is not read as a present-tense claim",
+    find: /if \(\/->\|→\|\\bwas\\b\|formerly\/i\.test\(line\)\) continue;/,
+    replace: "// mutated: history is read as a live claim",
+    test: "tests/engineering-research/test-steal-selfcheck.mjs",
+  },
   // The commit rule, added 2026-09-29. A commit-message checker is the easiest
   // gate in the repo to write as decoration: it can pass every message forever
   // while refusing nothing. Each case below removes one rule and requires the
