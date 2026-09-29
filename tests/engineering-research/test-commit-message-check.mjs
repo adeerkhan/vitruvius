@@ -245,6 +245,44 @@ for (const subject of [
   );
 }
 
+// --- 9b. --file mode must ALSO check the staged diff ------------------------
+// A commit-msg hook only ever receives a message FILE. N7 therefore has to be
+// reachable from --file --staged, or the hook does not enforce it. It was not:
+// --file checked only the message, --commit checked the message and the diff,
+// and both AGENTS.md and references/commit-rule.md claimed the hook enforced
+// N7. A skill edit with no version bump sailed through the real hook. This case
+// pins the staged path so that cannot reopen silently.
+{
+  const staged = run(["diff", "--cached", "--name-only", "--diff-filter=ACMR"]);
+  // Whatever is staged right now, --staged must agree with the direct call on
+  // the same paths, and must not throw on an empty index.
+  const result = spawnSync(
+    process.execPath,
+    [join(repoRoot, "scripts", "commit-message-check.mjs"), "--staged"],
+    { encoding: "utf8", cwd: repoRoot },
+  );
+  assert.ok(
+    result.status === 0 || result.status === 1,
+    `--staged must exit 0 or 1, got ${result.status}: ${result.stderr}`,
+  );
+  const stagedPaths = (staged ?? "").split("\n").filter(Boolean);
+  if (stagedPaths.length === 0) {
+    assert.equal(
+      result.status,
+      0,
+      "--staged against a clean index must pass; an unbumpable check should not fire on nothing",
+    );
+  }
+
+  // The hook must pass --staged. If it is edited to drop the flag, this fails.
+  const hook = readFileSync(join(repoRoot, ".githooks", "commit-msg"), "utf8");
+  assert.match(
+    hook,
+    /--file "\$1" --staged/,
+    "the commit-msg hook must pass --staged, or N7 is unenforced on every real commit",
+  );
+}
+
 // --- 10. N7 does not fire for files that are not a SKILL.md ---------------
 {
   const changes = [
