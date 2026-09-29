@@ -137,6 +137,7 @@ Cognee and Ponytail appear in older notes but have no checkout.
 | 44 | CodeGraph sync — `ref/` current (1,717 files); main index rebuilt attempt blocked by the MCP daemon lock, row marked stale | this session |
 | 45 | P2 landed: machine-enforced allowlist for `security-scan.mjs` + 6 mutation cases | `67e4f29` |
 | 46 | `steal-selfcheck.mjs` CodeGraph count narrowed to indexed extensions | `189a3b9` |
+| 47 | P5 landed: plugin manifests discovered, name+version checked against `package.json` + 3 mutation cases | this session |
 
 ## What the 2026-09-29 pull found, and what was done about it
 
@@ -155,7 +156,7 @@ genuinely moved.
 | # | Pattern | Verdict | Landing site | Class | Benchmark delta |
 |---|---------|---------|--------------|-------|-----------------|
 | P2 | Allowlist where every entry carries a reason and a removal condition | **stolen** (retargeted) | `scripts/security-scan.mjs` | A | 16/20 → 16/20, unchanged, build gate only |
-| P5 | Cross-manifest version/description consistency | see below | `tests/engineering-research/test-version-sync.mjs` | A | pending |
+| P5 | Cross-manifest version/description consistency | **partly stolen** (1 of 4) | `tests/engineering-research/test-version-sync.mjs` | A | 16/20 → 16/20, unchanged, build gate only |
 | P1 | Bounded request budget, composed cancellation | **rejected** | none | B | n/a |
 | P3 | Rate-limit pacing + one 429 retry | **rejected** (folded into P1) | none | B | n/a |
 | P4 | Dual-platform install script | **rejected** | none | A | n/a |
@@ -192,6 +193,46 @@ Three details beyond the feynman original, each earning its place:
 `WAIVERS` is empty because the scanner reports zero findings. That is the
 correct state, and the suite asserts it stays structurally valid rather than
 asserting it is non-empty.
+
+### P5 was one steal and three declines, adjudicated separately
+
+The humanizer validator bundles four ideas. They do not transfer together, and
+bundling them would have meant shipping two gates for properties this repo
+already owns.
+
+**Stolen — one version and one name across every manifest.** The old
+`test-version-sync.mjs:10` read a single hardcoded path,
+`.claude-plugin/plugin.json`. `.qoder-plugin/plugin.json` sat beside it
+carrying the same `0.1.0` and nothing checked it, so a release that bumped one
+manifest would have shipped two that disagree with a green build. The check now
+**discovers** every top-level `*-plugin/plugin.json` rather than listing them,
+because the old failure mode was a check that could not see a file that already
+existed; a hardcoded list would only be one host behind next time. It also
+asserts it found at least two manifests, so a broken glob fails here instead of
+passing vacuously. Three mutation cases prove the teeth, replacing the version
+by regex so a release bump cannot disarm them.
+
+**Declined — description prefix match.** Not a formatting preference: the three
+descriptions genuinely differ today, `package.json` naming the five
+disciplines, `.claude-plugin` naming blind verification and the scored
+benchmark, `.qoder-plugin` naming auditable provenance. Forcing one canonical
+string means rewriting published packaging copy for three hosts, which is a
+docs decision and not a research capability. The humanizer rule is also
+single-skill shaped — one `SKILL.md` description propagating to its manifests —
+whereas this package has 25 skills and three package-level surfaces, so the rule
+has no direct mapping. **The drift is recorded here as a verified finding, not
+silently resolved.**
+
+**Declined — internal cross-reference validation.** The humanizer rule checks
+`§N` references against its numbered pattern headings. This repo has no `§N`
+pattern scheme; skills cross-reference each other as `/skill-name`, and
+`validate-contract.mjs:204` (`skillMentionProblems`) already fails on any
+mention that is not a real skill in `skills/`. The property is already covered.
+
+**Declined — word budget.** `validate-contract.mjs:13` sets
+`MAX_SKILL_MD_LINES = 500` and enforces it. A word cap is a second gate on the
+size axis, and the repo chose lines deliberately (S9 in `AGENTS.md`). Two
+numbers for one property is maintenance cost, not a new guarantee.
 
 ## What the 2026-09-28 CodeGraph audit found
 
@@ -415,11 +456,12 @@ pointed at the skill catalog. That is real remaining work, not a formatting gap.
 **Reject:** persona consensus, confidence arithmetic, fail-open validation, success-only learning, offensive tooling.
 
 ### Feynman
-**Taken:** fixed-case end-to-end evals, final/provenance pairing, need-based scholarly routing, docs/code parity, declared+checked Node range, package budget, exact-tarball provenance, majority harness, scale decision framework, source routing table, reviewer severity levels, context hygiene rules, verifier citation rules, result provenance audit, telemetry timeout budget (`AbortSignal.any`), npm-audit with documented exceptions, Crossref pacing + single 429 retry, dual-platform install scripts, conditional tool registration by auth state, README minimalism.  
-**Reject:** CLI/Pi runtime, editing verifier, automatic memory, workbench, telemetry, broad database suite, provider sprawl.
+**Taken:** fixed-case end-to-end evals, final/provenance pairing, need-based scholarly routing, docs/code parity, declared+checked Node range, package budget, exact-tarball provenance, majority harness, scale decision framework, source routing table, reviewer severity levels, context hygiene rules, verifier citation rules, result provenance audit, npm-audit with documented exceptions, Crossref pacing + single 429 retry, dual-platform install scripts, conditional tool registration by auth state, README minimalism, allowlist-where-every-entry-carries-a-reason-and-a-removal-condition.  
+**Rejected:** telemetry timeout budget and Crossref pacing in Vitruvius — no code path issues an HTTP request; CLI/Pi runtime, editing verifier, automatic memory, workbench, telemetry, broad database suite, provider sprawl.
 
 ### Humanizer
-**Taken:** executable package/plugin discovery smoke (tarball + host adapters), per-skill versioning, concise lenses, prompt-authoring checklist, pinned CI actions/validators, cross-manifest version + description consistency check, internal cross-reference validation (`§N` → pattern), word-budget enforcement, multi-platform plugin manifests (Claude + Cursor), separate CHANGELOG.  
+**Taken:** executable package/plugin discovery smoke (tarball + host adapters), per-skill versioning, concise lenses, prompt-authoring checklist, pinned CI actions/validators, cross-manifest version + name consistency (discovered, not listed), multi-platform plugin manifests, separate CHANGELOG.  
+**Rejected in Vitruvius:** description prefix match (three published descriptions genuinely differ; rewriting host copy is a docs decision, not a research capability), `§N` cross-reference validation (this repo has no numbered-pattern scheme and `validate-contract.mjs:204` already resolves `/skill-name` mentions), word budget (`validate-contract.mjs:13` already caps SKILL.md at 500 lines).  
 **Reject:** single-root layout, one-version architecture, style catalog, package-only quality gate.
 
 ### Scientific Agent Skills

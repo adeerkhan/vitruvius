@@ -133,6 +133,32 @@ const CASES = [
     replace: "const match = usable.find((w) => w.file === finding.file);",
     test: "tests/engineering-research/test-security-scan-waivers.mjs",
   },
+  // P5, stolen from ref/humanizer/scripts/validate-package.py:61 (MIT, 225a6f3).
+  // The old test hardcoded `.claude-plugin/plugin.json`, which is how
+  // `.qoder-plugin/plugin.json` came to sit unchecked beside it. These cases
+  // mutate the manifests, not a script, so the version is replaced by
+  // regex rather than a literal — a release bump must not silently disarm them.
+  {
+    file: ".qoder-plugin/plugin.json",
+    rule: "a plugin manifest whose version drifts from package.json is caught",
+    find: /"version":\s*"[^"]+"/,
+    replace: '"version": "0.0.0-drift"',
+    test: "tests/engineering-research/test-version-sync.mjs",
+  },
+  {
+    file: ".claude-plugin/plugin.json",
+    rule: "a plugin manifest whose version drifts from package.json is caught",
+    find: /"version":\s*"[^"]+"/,
+    replace: '"version": "0.0.0-drift"',
+    test: "tests/engineering-research/test-version-sync.mjs",
+  },
+  {
+    file: ".qoder-plugin/plugin.json",
+    rule: "a plugin manifest whose name drifts from package.json is caught",
+    find: /"name":\s*"[^"]+"/,
+    replace: '"name": "not-vitruvius"',
+    test: "tests/engineering-research/test-version-sync.mjs",
+  },
 ];
 
 function writeWithRetry(path, contents, attempts = 5) {
