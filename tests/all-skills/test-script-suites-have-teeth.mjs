@@ -86,6 +86,53 @@ const CASES = [
     replace: "if (result.status !== 999) {",
     test: "tests/engineering-research/test-isolated-tests.mjs",
   },
+  // The security-scan allowlist, stolen from ref/feynman/scripts/npm-audit.mjs
+  // on 2026-09-29. A waiver list is the easiest thing in this repo to add as
+  // decoration: it can be written, referenced, and never once suppress
+  // anything. Each case below removes one rule and requires the suite to notice.
+  {
+    file: "scripts/security-scan.mjs",
+    rule: "a waiver without a reason is invalid",
+    find: /const WAIVER_FIELDS = \["file", "rule", "reason", "removeWhen"\];/,
+    replace: 'const WAIVER_FIELDS = ["file", "rule", "removeWhen"];',
+    test: "tests/engineering-research/test-security-scan-waivers.mjs",
+  },
+  {
+    file: "scripts/security-scan.mjs",
+    rule: "a waiver without a removal condition is invalid",
+    find: /const WAIVER_FIELDS = \["file", "rule", "reason", "removeWhen"\];/,
+    replace: 'const WAIVER_FIELDS = ["file", "rule", "reason"];',
+    test: "tests/engineering-research/test-security-scan-waivers.mjs",
+  },
+  {
+    file: "scripts/security-scan.mjs",
+    rule: "an incomplete waiver cannot suppress the finding it names",
+    find: /const usable = waivers\.filter\(\(w\) =>\n    WAIVER_FIELDS\.every\(\(k\) => typeof w\?\.\[k\] === "string" && w\[k\]\.trim\(\) !== ""\),\n  \);/,
+    replace: "const usable = waivers;",
+    test: "tests/engineering-research/test-security-scan-waivers.mjs",
+  },
+  {
+    file: "scripts/security-scan.mjs",
+    rule: "a waiver matching no finding is reported stale",
+    find: /const stale = usable\.filter\(\(w\) => !used\.has\(`\$\{w\.file\}\|\$\{w\.rule\}`\)\);/,
+    replace: "const stale = [];",
+    test: "tests/engineering-research/test-security-scan-waivers.mjs",
+  },
+  {
+    file: "scripts/security-scan.mjs",
+    rule: "a waiver survives the finding moving down the file",
+    find: /const match = usable\.find\(\(w\) => w\.file === finding\.file && w\.rule === finding\.rule\);/,
+    replace:
+      "const match = usable.find((w) => w.file === finding.file && w.rule === finding.rule && w.line === finding.line);",
+    test: "tests/engineering-research/test-security-scan-waivers.mjs",
+  },
+  {
+    file: "scripts/security-scan.mjs",
+    rule: "a waiver for one rule does not allow a different rule",
+    find: /const match = usable\.find\(\(w\) => w\.file === finding\.file && w\.rule === finding\.rule\);/,
+    replace: "const match = usable.find((w) => w.file === finding.file);",
+    test: "tests/engineering-research/test-security-scan-waivers.mjs",
+  },
 ];
 
 function writeWithRetry(path, contents, attempts = 5) {
