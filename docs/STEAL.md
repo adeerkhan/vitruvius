@@ -1,7 +1,7 @@
 # Steal Map: Reference Patterns for Vitruvius
 
-**Snapshot:** 2026-09-28  
-**Implementation HEAD:** `70c00c0`  
+**Snapshot:** 2026-09-29  
+**Implementation HEAD:** `f5a0286`  
 **Scope:** local projects under `ref/`, the current Vitruvius tree, and the
 `tasks/benchmark` + `evals` artifacts.  
 **Rule:** steal design patterns, not domain scope or incompatible code. Every
@@ -20,14 +20,14 @@ rebuild.
 
 ## CodeGraph Integration
 
-Both the main repo and `ref/` were indexed with CodeGraph. **The main index is
-stale** — locked by the MCP daemon, with the figures below predating the 9
-local commits and the 11 suites added since:
+Both the main repo and `ref/` were indexed with CodeGraph. `ref/` was synced
+on 2026-09-29 (30 changed files). **The main index is stale** — locked by the
+MCP daemon, with the figures below predating the work since:
 
 | Index | Files | Nodes | Edges | Built | State |
 |-------|-------|-------|-------|-------|-------|
-| `vitruvius/` | 97 | 2,011 | 4,773 | 1.7s | **stale** — 143 source files now on disk |
-| `vitruvius/ref/` | 1,711 | 39,041 | 125,821 | 10.1s | current |
+| `vitruvius/` | 67 | 1,120 | 2,363 | — | **stale** — 150 indexable source files on disk |
+| `vitruvius/ref/` | 1,717 | 39,069 | 125,901 | 2.8s | current |
 
 The `codegraph_explore` MCP tool is available for semantic code search, impact
 analysis, and call-path tracing. Use it before grep/find when understanding
@@ -41,9 +41,9 @@ or locating code.
 | `ref/agent-skills` | `2686b620fc1fed2e8f60c704839c766b8594c6b6` | MIT | mostly taken | Evaluation/contract mechanics |
 | `ref/autoprompt-skill` | `b6516cf52a7891d797621fdd2a8ca0311e1ae0a9` | MIT | mostly taken | Generation, drift checks, receipts, manifests |
 | `ref/BugTraceAI-CLI` | `ddb1b207f4c369d7e7f9d307fb10b82f544e5594` | Apache-2.0 | taken (core) | Negative coverage + auditable deduplication |
-| `ref/feynman` | `fe3fd94943df8c5b519fed14c8485215b206aba8` | MIT | mostly taken | End-to-end evals, artifact pairing, release budgets |
-| `ref/humanizer` | `9862685f575c65a8247f90369951df1b3416e3d6` | MIT | partly taken | Package smoke tests + prompt clarity |
-| `ref/scientific-agent-skills` | `49c6e97775eaa18ba791bebe23162a70ae601c18` | MIT | mostly taken | Ledgers, input gates, fixtures, scope discipline |
+| `ref/feynman` | `cd72f97421805a7f08d58dfbc8998abd3ff796b0` | MIT | mostly taken | End-to-end evals, artifact pairing, release budgets |
+| `ref/humanizer` | `225a6f39ac85f76ee48dbad772ea4abe4ed6c9d8` | MIT | partly taken | Package smoke tests + prompt clarity |
+| `ref/scientific-agent-skills` | `065b734670d7d990627dbc06a05b5a99be33f1f1` | MIT | mostly taken | Ledgers, input gates, fixtures, scope discipline |
 | `ref/semble` | `24497845460960db1839c8485319df189a889225` | MIT | deferred | Retrieval-to-direct-read bridge + benchmark method |
 
 `ref/abrt` has no materialized worktree; only its committed tree is inspectable.
@@ -133,6 +133,65 @@ Cognee and Ponytail appear in older notes but have no checkout.
 | 40 | E1 floor promoted from always-exit-0 reporter to a gate (`skills/e1-suite-manifest.json`) | `bce9cb2` |
 | 41 | Two scripts repaired that were "covered" by tests which never ran them (`run-isolated-tests.mjs`, `retrieval-bridge.mjs`) | `2c0b1f0` |
 | 42 | `scripts/steal-selfcheck.mjs` — this map's own numbers checked against the tree | this session |
+| 43 | `git pull` across all 8 `ref/` repos; 4 updated (feynman, humanizer, scientific-agent-skills, autoprompt-skill new branch) | this session |
+| 44 | CodeGraph sync — `ref/` current (1,717 files); main index rebuilt attempt blocked by the MCP daemon lock, row marked stale | this session |
+| 45 | P2 landed: machine-enforced allowlist for `security-scan.mjs` + 6 mutation cases | `67e4f29` |
+| 46 | `steal-selfcheck.mjs` CodeGraph count narrowed to indexed extensions | `189a3b9` |
+
+## What the 2026-09-29 pull found, and what was done about it
+
+Six candidates were pre-registered with a verdict rule each, and a baseline was
+captured first (`outputs/.plans/ref-pull-2026-09-29-baseline.md`). Verdicts are
+recorded here as they land; rejection is a result, not a gap.
+
+**Say what the benchmark can and cannot see.** The 20-case corpus measures
+verifier verdict accuracy. A pattern that touches no skill prose and no verifier
+rule cannot move it, so a no-delta result here is expected rather than a
+disappointment — and reporting that such a change "should have improved the
+score" would be a fabricated measurement. Every landed pattern below therefore
+reports its Class C delta as `unchanged, and not in the scored path` unless it
+genuinely moved.
+
+| # | Pattern | Verdict | Landing site | Class | Benchmark delta |
+|---|---------|---------|--------------|-------|-----------------|
+| P2 | Allowlist where every entry carries a reason and a removal condition | **stolen** (retargeted) | `scripts/security-scan.mjs` | A | 16/20 → 16/20, unchanged, build gate only |
+| P5 | Cross-manifest version/description consistency | see below | `tests/engineering-research/test-version-sync.mjs` | A | pending |
+| P1 | Bounded request budget, composed cancellation | **rejected** | none | B | n/a |
+| P3 | Rate-limit pacing + one 429 retry | **rejected** (folded into P1) | none | B | n/a |
+| P4 | Dual-platform install script | **rejected** | none | A | n/a |
+| P6 | Cursor plugin manifest | **rejected** by F1 | none | A | n/a |
+
+### P2 was retargeted, because the stated landing site had no substrate
+
+The plan named `scripts/dependency-audit.mjs` as the landing site. That is not
+buildable here, and the reason is worth recording: `package.json` declares zero
+dependencies and one `optionalDependencies` entry, and there is no
+`package-lock.json`, so `npm audit --omit=dev --json` exits `ENOLOCK` — it
+cannot run at all. A gate that always fails for a reason unrelated to security
+is a gate that gets deleted, so it was not written.
+
+The *shape* of the pattern did have a real substrate, in the place where the
+repo had already documented a mechanism that did not exist.
+`references/security-scan-false-positives.md:60` instructed the reader to
+"update `scripts/security-scan.mjs` to whitelist the pattern"; the scanner had
+no whitelist and exited 1 on every finding. So a genuine false positive could
+only be resolved by deleting working code or by disabling the scanner — the
+latter explicitly forbidden 30 lines later. The allowlist landed there.
+
+Three details beyond the feynman original, each earning its place:
+
+- **A waiver missing `reason` or `removeWhen` fails the build and suppresses
+  nothing.** A half-written waiver must not become quiet permission.
+- **A waiver matching no finding is reported stale.** The list cannot rot into
+  blanket permission, which is the same rot the gate registry exists to catch
+  for scripts.
+- **Waivers key on file + rule, never on line.** Line numbers move on every
+  edit above the finding, so a line-keyed waiver goes stale the moment anyone
+  touches the file.
+
+`WAIVERS` is empty because the scanner reports zero findings. That is the
+correct state, and the suite asserts it stays structurally valid rather than
+asserting it is non-empty.
 
 ## What the 2026-09-28 CodeGraph audit found
 
@@ -210,6 +269,64 @@ it posts to serves the OpenCode web UI, not an inference API. The tracked runner
 is `run-opencode.sh`. Fix the credential handling before committing it, if it is
 ever worth keeping.
 
+## What the 2026-09-29 pull contained, by repo
+
+What each repo actually shipped. Verdicts on stealing it are in
+"What the 2026-09-29 pull found, and what was done about it" above.
+
+A `git pull` across all 8 `ref/` repos brought 4 updates. Three carry patterns
+worth stealing; one is a security-report-only refresh.
+
+### feynman (`fe3fd94` → `cd72f97`, 40 files)
+
+- **Telemetry timeout budget** (`src/telemetry/posthog.ts`): each send gets a
+  1.5s `AbortSignal.timeout`, combined with any caller signal via
+  `AbortSignal.any`. On a slow network the library's 10s deadline made every
+  command wait; the short budget ends it quietly as a transport failure.
+  **Steal:** bounded external-call budgets with `AbortSignal.any` for composed
+  cancellation.
+- **npm audit with documented exceptions** (`scripts/npm-audit.mjs`): runs
+  `npm audit --omit=dev --json` and fails on every advisory except a named
+  allowlist. Each exception names why it cannot be fixed here and what removes
+  it. **Steal:** a security-audit script that allows exceptions only with a
+  written reason and a removal condition.
+- **Crossref pacing + retry** (`extensions/research-tools/science-databases.ts`):
+  pace requests to the pool limits, add a margin, and retry one 429. **Steal:**
+  rate-limit-aware external API calls with a single bounded retry.
+- **PowerShell installer** (`scripts/install/install.ps1`): a full Windows
+  installer alongside the Bash one. **Steal:** dual-platform install scripts.
+- **Subagent tool registration**: foreground subagents get Feynman's research
+  and web tools; alphaXiv tools register only when signed in. **Steal:**
+  conditional tool availability based on auth state.
+- **README trim** (164 → ~50 lines): landing page stripped to a screenshot and
+  install command. **Steal:** aggressive README minimalism.
+
+### humanizer (`9862685` → `225a6f3`, 11 files)
+
+- **`validate-package.py` expanded**: now checks version consistency across
+  SKILL.md + CHANGELOG.md + two plugin manifests (4 files), description
+  consistency (first sentence of SKILL.md description must prefix every plugin
+  description), pattern name matching between SKILL.md and README tables,
+  section-reference validation (every `§N` points at a real pattern), and a
+  5,500-word budget. **Steal:** a package validator that cross-checks version
+  and description across every manifest, and validates internal cross-references.
+- **Cursor plugin manifest** (`.cursor-plugin/plugin.json`): second platform
+  target alongside Claude. **Steal:** multi-platform plugin manifests.
+- **CHANGELOG.md**: release history moved out of README. **Steal:** separate
+  changelog file.
+- **New patterns** (#26, #277): over-explaining conversational replies,
+  self-describing text. **Steal:** prompt-clarity patterns for the humanizer.
+
+### scientific-agent-skills (`49c6e97` → `065b734`, 2 files)
+
+- Security scan report only — no code changes. Nothing to steal this round.
+
+### autoprompt-skill
+
+- `main` unchanged (`b6516cf`); a new branch
+  `codex/issue-27-native-platform-support` was fetched. No new patterns on
+  `main`.
+
 ## Reference wiring status
 
 `references/` holds 24 files. **All 24 are cited from a loadable surface**
@@ -277,7 +394,7 @@ pointed at the skill catalog. That is real remaining work, not a formatting gap.
 2. **H1: Authenticated approval, retention, workflow integration.** Interface designed (`references/authenticated-approval.md`). Host enforcement is the gate.
 3. **U1: Run-local lessons, remote retrieval.** Needs a measured need.
 4. **Read-only enforcement.** Host permission model.
-5. **Rebuild the CodeGraph index.** The main index is stale (locked by the MCP daemon); this table quotes 97 indexed files against 129 source files on disk.
+5. **Steal the new feynman patterns.** Telemetry timeout budget, npm-audit with documented exceptions, Crossref pacing/retry, and dual-platform install scripts are all now in `ref/feynman` and none are in Vitruvius yet.
 
 `civil-edge-01` is resolved at the cause: the runner writes to a temp path and only publishes a non-empty result, and the scorer separates `EMPTY RESULT` from `MISSING VERDICT`. All per-source open items are implemented and committed. Remaining work is gated on host enforcement or measured need.
 
@@ -298,11 +415,11 @@ pointed at the skill catalog. That is real remaining work, not a formatting gap.
 **Reject:** persona consensus, confidence arithmetic, fail-open validation, success-only learning, offensive tooling.
 
 ### Feynman
-**Taken:** fixed-case end-to-end evals, final/provenance pairing, need-based scholarly routing, docs/code parity, declared+checked Node range, package budget, exact-tarball provenance, majority harness, scale decision framework, source routing table, reviewer severity levels, context hygiene rules, verifier citation rules, result provenance audit.  
+**Taken:** fixed-case end-to-end evals, final/provenance pairing, need-based scholarly routing, docs/code parity, declared+checked Node range, package budget, exact-tarball provenance, majority harness, scale decision framework, source routing table, reviewer severity levels, context hygiene rules, verifier citation rules, result provenance audit, telemetry timeout budget (`AbortSignal.any`), npm-audit with documented exceptions, Crossref pacing + single 429 retry, dual-platform install scripts, conditional tool registration by auth state, README minimalism.  
 **Reject:** CLI/Pi runtime, editing verifier, automatic memory, workbench, telemetry, broad database suite, provider sprawl.
 
 ### Humanizer
-**Taken:** executable package/plugin discovery smoke (tarball + host adapters), per-skill versioning, concise lenses, prompt-authoring checklist, pinned CI actions/validators.  
+**Taken:** executable package/plugin discovery smoke (tarball + host adapters), per-skill versioning, concise lenses, prompt-authoring checklist, pinned CI actions/validators, cross-manifest version + description consistency check, internal cross-reference validation (`§N` → pattern), word-budget enforcement, multi-platform plugin manifests (Claude + Cursor), separate CHANGELOG.  
 **Reject:** single-root layout, one-version architecture, style catalog, package-only quality gate.
 
 ### Scientific Agent Skills
@@ -338,4 +455,4 @@ pointed at the skill catalog. That is real remaining work, not a formatting gap.
 
 ### Scale
 
-- scripts: 40 files · tests: 83 files · skills: 25 · agents: 7 canonical roles + 7 OpenCode adapters.
+- scripts: 40 files · tests: 84 files · skills: 25 · agents: 7 canonical roles + 7 OpenCode adapters.
