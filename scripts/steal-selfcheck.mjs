@@ -129,12 +129,15 @@ const sh = (cmd, args) => {
 // Node/edge counts need a rebuild, and rebuilding is locked, so they are not
 // checked. The FILE count is checkable, and a stale one misleads a reader about
 // how much of the tree the index covers.
+//
+// CodeGraph indexes JS/TS/YAML only, so the on-disk count is restricted to
+// those extensions — comparing against all source files would always fail.
 {
   const m = /\|\s*`vitruvius\/`\s*\|\s*([\d,]+)\s*\|\s*[\d,]+\s*\|/.exec(text);
   if (m) {
     const claimed = +m[1].replace(/,/g, "");
     let onDisk = 0;
-    const exts = /\.(ts|tsx|js|jsx|mjs|cjs|py|go|rs|java|c|cpp|cs|rb|swift|kt)$/;
+    const exts = /\.(ts|tsx|js|jsx|mjs|cjs|yaml|yml)$/;
     (function walk(dir) {
       for (const e of readdirSync(dir, { withFileTypes: true })) {
         if (["node_modules", ".git", "ref", "outputs"].includes(e.name)) continue;
@@ -150,8 +153,8 @@ const sh = (cmd, args) => {
       const rowLine = text.split("\n").find((l) => /`vitruvius\/`/.test(l)) ?? "";
       const markedStale = /stale/i.test(rowLine);
       const message =
-        `CodeGraph table lists ${claimed} indexed files; ${onDisk} source files are on disk. ` +
-        `The index is stale and locked by the MCP daemon, so the node/edge columns are older still.`;
+        `CodeGraph table lists ${claimed} indexed files; ${onDisk} indexable source files are on disk. ` +
+        `The index is stale, so the node/edge columns are older still.`;
       if (markedStale) {
         // Informational: the map is honest about it, so nothing to fix.
         console.error(`  note: ${message} The row is marked stale, which is correct.\n`);
