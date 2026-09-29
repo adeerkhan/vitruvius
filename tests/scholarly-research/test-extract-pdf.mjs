@@ -6,12 +6,14 @@
  * line reconstruction, page-marker stamping, hashing, and fail-closed errors.
  */
 
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, rmSync, writeFileSync, existsSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { check } from '../_contract/contract.mjs';
 import {
+  DOWNLOAD_BUDGET_MS,
+  downloadToTemp,
   extractPdf,
   isScannedPdf,
   makePagerender,
@@ -104,6 +106,183 @@ check(actionable, 'extractPdf reports an actionable error for an unreadable/fake
 
 check(isScannedPdf('') === true, 'isScannedPdf treats empty text as scanned');
 check(isScannedPdf('Dummy PDF file') === false, 'isScannedPdf accepts a text layer');
+
+// --- download budget (P1, stolen from ref/feynman/src/telemetry/posthog.ts:51)
+//
+// The defect this guards is a hang, so every case here is offline: a fake fetch
+// that never settles is precisely the host that accepted the connection and
+// then stopped sending. No test may depend on a real network to prove a timeout.
+
+check(
+  Number.isFinite(DOWNLOAD_BUDGET_MS) && DOWNLOAD_BUDGET_MS > 0,
+  `DOWNLOAD_BUDGET_MS must be a positive finite budget, got ${DOWNLOAD_BUDGET_MS}`,
+);
+
+// A fetch that never settles must reject at the budget instead of hanging.
+//
+// Three details make this case real rather than decorative, and all three were
+// found by watching it fail:
+//
+// 1. The fake honours `init.signal` the way real `fetch` does. An AbortSignal
+//    only fires for a consumer that listens, so a signal-ignoring fake hangs
+//    here whether or not downloadToTemp sent one.
+// 2. The fake holds no OS handle, so nothing keeps the event loop alive and
+//    Node exits with an unsettled top-level await before the unref'd budget
+//    timer fires. The real fetch holds a socket; the giveUp timer below stands
+//    in for it, and doubles as the bound.
+// 3. Because the defect being tested IS a hang, each case races the download
+//    against its own giveUp timer. Without that, deleting the budget turns a
+//    failing test into a suite that hangs for an hour — which is how this
+//    harness was found wedged rather than reporting a failure.
+function stallingFetch(onSignal) {
+  return (_url, init) =>
+    new Promise((_resolve, reject) => {
+      onSignal(init.signal);
+      init.signal.addEventListener('abort', () => reject(new Error('aborted')));
+    });
+}
+
+const GAVE_UP = 'the test gave up waiting — the deadline never fired';
+
+async function raceGiveUp(promise, ms = 3000) {
+  let timer;
+  const giveUp = new Promise((_resolve, reject) => {
+    timer = setTimeout(() => reject(new Error(GAVE_UP)), ms);
+  });
+  try {
+    return await Promise.race([promise, giveUp]);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+// The budget is the deadline: a stalled download rejects promptly.
+{
+  let sawSignal = null;
+  const started = Date.now();
+  let rejected = null;
+  try {
+    await raceGiveUp(
+      downloadToTemp('https://example.invalid/paper.pdf', {
+        budgetMs: 60,
+        fetchImpl: stallingFetch((s) => {
+          sawSignal = s;
+        }),
+      }),
+    );
+  } catch (error) {
+    rejected = error;
+  }
+  const elapsed = Date.now() - started;
+  check(
+    rejected !== null && rejected.message !== GAVE_UP,
+    `a download that exceeds its budget must reject on the budget, not hang (${rejected?.message ?? "no error"})`,
+  );
+  check(elapsed < 5000, `the budget fired promptly (took ${elapsed}ms)`);
+  check(sawSignal !== null, 'downloadToTemp must pass an AbortSignal to fetch');
+  check(
+    sawSignal !== null && sawSignal.aborted,
+    'the signal handed to fetch must be aborted once the budget expires',
+  );
+}
+
+// A caller-supplied signal composes: with an enormous budget, the caller's own
+// deadline is what stops the download. Without AbortSignal.any the caller's
+// signal would be replaced by the budget.
+{
+  const ac = new AbortController();
+  const abortSoon = setTimeout(() => ac.abort(), 40);
+  let rejected = null;
+  try {
+    await raceGiveUp(
+      downloadToTemp('https://example.invalid/paper.pdf', {
+        budgetMs: 3_600_000,
+        signal: ac.signal,
+        fetchImpl: stallingFetch(() => {}),
+      }),
+    );
+  } catch (error) {
+    rejected = error;
+  }
+  clearTimeout(abortSoon);
+  check(rejected !== null, "a caller's own AbortSignal must still cancel the download");
+}
+
+// Dropping the composition (using the budget alone) must break the case above —
+// asserted directly, so the behaviour is pinned rather than implied.
+{
+  const budgetOnly = AbortSignal.timeout(3_600_000);
+  const caller = new AbortController();
+  const composed = AbortSignal.any([caller.signal, budgetOnly]);
+  caller.abort();
+  check(
+    composed.aborted,
+    'AbortSignal.any must abort when the caller signal aborts, even with an unexpired budget',
+  );
+}
+
+// A caller signal that never fires must not disable the budget. This is the
+// case that fails if the composition is `signal ?? budget` instead of
+// `AbortSignal.any([signal, budget])`: the caller's live-but-silent signal
+// would be used on its own and the short budget would never be consulted.
+{
+  const silent = new AbortController();
+  const started = Date.now();
+  let rejected = null;
+  try {
+    await raceGiveUp(
+      downloadToTemp('https://example.invalid/paper.pdf', {
+        budgetMs: 60,
+        signal: silent.signal,
+        fetchImpl: stallingFetch(() => {}),
+      }),
+    );
+  } catch (error) {
+    rejected = error;
+  }
+  const elapsed = Date.now() - started;
+  check(
+    rejected !== null && rejected.message !== GAVE_UP,
+    `a silent caller signal must not suppress the budget (${rejected?.message ?? "no error"})`,
+  );
+  check(elapsed < 5000, `the budget still fired under a silent caller signal (took ${elapsed}ms)`);
+}
+
+// The happy path is unchanged: a small successful response still lands on disk.
+{
+  const bytes = Buffer.from('%PDF-1.4\nbounded download');
+  const okFetch = async () => ({
+    ok: true,
+    status: 200,
+    statusText: 'OK',
+    arrayBuffer: async () => bytes,
+  });
+  const dest = await downloadToTemp('https://example.invalid/paper.pdf', {
+    budgetMs: 1000,
+    fetchImpl: okFetch,
+  });
+  check(existsSync(dest), 'a successful bounded download still writes a temp file');
+  check(
+    readFileSync(dest, 'utf-8') === bytes.toString('utf-8'),
+    'the downloaded bytes are written unchanged',
+  );
+  rmSync(dest, { force: true });
+}
+
+// A non-OK response still fails loudly rather than writing an empty PDF.
+{
+  const notFound = async () => ({ ok: false, status: 404, statusText: 'Not Found' });
+  let rejected = null;
+  try {
+    await downloadToTemp('https://example.invalid/missing.pdf', {
+      budgetMs: 1000,
+      fetchImpl: notFound,
+    });
+  } catch (error) {
+    rejected = error;
+  }
+  check(rejected !== null && /404/.test(rejected.message), 'a non-OK response still throws with its status');
+}
 
 rmSync(dir, { recursive: true, force: true });
 

@@ -180,10 +180,38 @@ export async function extractPdf(filePath, { removeSource = false } = {}) {
   };
 }
 
-/** Download a URL to a temporary `.pdf` path and return that path. */
-export async function downloadToTemp(url) {
-  const response = await fetch(url, {
+/**
+ * Wall-clock budget for one download.
+ *
+ * Before this existed the fetch had no signal at all, so a host that accepted
+ * the connection and then stalled left the extractor waiting indefinitely —
+ * the failure mode described for feynman's telemetry at
+ * ref/feynman/src/telemetry/posthog.ts:47 (MIT, cd72f97), where a pending send
+ * made every command wait for the library's 10s deadline.
+ *
+ * 60s, not feynman's 1.5s: this downloads whole papers, often several
+ * megabytes over a slow link. The shape is what transfers, not the number —
+ * a budget that fires on a legitimate 8 MB PDF would be a worse bug than the
+ * hang. Override per call for a known-large source.
+ */
+export const DOWNLOAD_BUDGET_MS = 60_000;
+
+/**
+ * Download a URL to a temporary `.pdf` path and return that path.
+ *
+ * The budget is composed with any caller signal via `AbortSignal.any`, so a
+ * caller that already has its own deadline keeps it and whichever fires first
+ * wins. `fetchImpl` is injectable so the budget can be proven without a
+ * network: a fake that never settles is exactly the stall this guards.
+ */
+export async function downloadToTemp(url, { budgetMs = DOWNLOAD_BUDGET_MS, signal, fetchImpl } = {}) {
+  const doFetch = fetchImpl ?? fetch;
+  const budget = AbortSignal.timeout(budgetMs);
+  const composed = signal ? AbortSignal.any([signal, budget]) : budget;
+
+  const response = await doFetch(url, {
     redirect: 'follow',
+    signal: composed,
     headers: { 'User-Agent': 'vitruvius-research/1.0 (+https://github.com/adeerkhan/vitruvius)' },
   });
   if (!response.ok) {

@@ -159,6 +159,31 @@ const CASES = [
     replace: '"name": "not-vitruvius"',
     test: "tests/engineering-research/test-version-sync.mjs",
   },
+  // P1, stolen from ref/feynman/src/telemetry/posthog.ts:51 (MIT, cd72f97).
+  // The defect is a hang, so each mutation below must make the suite stop
+  // rather than merely print something different. Two of the three do that by
+  // removing the deadline entirely, which is why the suite bounds its own cases.
+  {
+    file: "skills/scholarly-research/scripts/extract-pdf.mjs",
+    rule: "a download is bounded — no AbortSignal reaches fetch",
+    find: /    signal: composed,\n/,
+    replace: "",
+    test: "tests/scholarly-research/test-extract-pdf.mjs",
+  },
+  {
+    file: "skills/scholarly-research/scripts/extract-pdf.mjs",
+    rule: "the caller's budget is the one applied",
+    find: /const budget = AbortSignal\.timeout\(budgetMs\);/,
+    replace: "const budget = AbortSignal.timeout(3_600_000);",
+    test: "tests/scholarly-research/test-extract-pdf.mjs",
+  },
+  {
+    file: "skills/scholarly-research/scripts/extract-pdf.mjs",
+    rule: "the budget is composed with the caller's signal, not replaced by it",
+    find: /const composed = signal \? AbortSignal\.any\(\[signal, budget\]\) : budget;/,
+    replace: "const composed = signal ? signal : budget;",
+    test: "tests/scholarly-research/test-extract-pdf.mjs",
+  },
 ];
 
 function writeWithRetry(path, contents, attempts = 5) {

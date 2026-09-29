@@ -138,6 +138,7 @@ Cognee and Ponytail appear in older notes but have no checkout.
 | 45 | P2 landed: machine-enforced allowlist for `security-scan.mjs` + 6 mutation cases | `67e4f29` |
 | 46 | `steal-selfcheck.mjs` CodeGraph count narrowed to indexed extensions | `189a3b9` |
 | 47 | P5 landed: plugin manifests discovered, name+version checked against `package.json` + 3 mutation cases | this session |
+| 48 | P1 landed: 60s download budget composed via `AbortSignal.any` in `downloadToTemp` + 3 mutation cases; verdict flipped from reject after the plan's "no network fetch" fact was found to be scoped to `scripts/` | this session |
 
 ## What the 2026-09-29 pull found, and what was done about it
 
@@ -155,12 +156,65 @@ genuinely moved.
 
 | # | Pattern | Verdict | Landing site | Class | Benchmark delta |
 |---|---------|---------|--------------|-------|-----------------|
+| P1 | Bounded request budget, composed cancellation | **stolen** (premise corrected) | `skills/scholarly-research/scripts/extract-pdf.mjs` | A | 16/20 → 16/20, unchanged, build gate only |
 | P2 | Allowlist where every entry carries a reason and a removal condition | **stolen** (retargeted) | `scripts/security-scan.mjs` | A | 16/20 → 16/20, unchanged, build gate only |
 | P5 | Cross-manifest version/description consistency | **partly stolen** (1 of 4) | `tests/engineering-research/test-version-sync.mjs` | A | 16/20 → 16/20, unchanged, build gate only |
-| P1 | Bounded request budget, composed cancellation | **rejected** | none | B | n/a |
-| P3 | Rate-limit pacing + one 429 retry | **rejected** (folded into P1) | none | B | n/a |
+| P3 | Rate-limit pacing + one 429 retry | **rejected** | none | B | n/a |
 | P4 | Dual-platform install script | **rejected** | none | A | n/a |
 | P6 | Cursor plugin manifest | **rejected** by F1 | none | A | n/a |
+
+### P1 was rejected in the plan, and the plan was wrong
+
+The pre-registered table carried a "verified fact" beside P1: *no `scripts/*.mjs`
+performs any network fetch*. That was true, and it was worthless — it came from
+a grep scoped to `scripts/`, then got carried forward as a statement about the
+repo. Re-run across the tree, it found a shipped outbound fetch:
+
+`skills/scholarly-research/scripts/extract-pdf.mjs` `downloadToTemp()` called
+`fetch(url, { redirect: 'follow', headers })` with **no `signal` at all**. A host
+that accepted the connection and then stopped sending left the extractor waiting
+indefinitely. That is the exact defect feynman fixed at
+`ref/feynman/src/telemetry/posthog.ts:47` by giving each send a 1.5s budget,
+and the pre-registered rule said steal it *when the skill issues unbounded
+calls*. It does. The rule was applied against the real tree and the verdict
+flipped from reject to steal.
+
+The landing is the shape, not the number. `DOWNLOAD_BUDGET_MS` is **60s**, not
+feynman's 1.5s: this fetches whole papers of several megabytes over links that
+are sometimes slow, and a budget that fires on a legitimate 8 MB PDF would be a
+worse bug than the hang. The budget is composed with any caller signal through
+`AbortSignal.any`, so a caller holding its own deadline keeps it and whichever
+fires first wins.
+
+Three things the teeth harness taught while building this, each recorded in the
+code because each first looked like a passing test:
+
+1. **An AbortSignal only fires for a consumer that listens.** The first fake
+   fetch ignored `init.signal`, so the suite *hung* rather than passing or
+   failing — it proved nothing either way. The fake now rejects on abort, the
+   way real `fetch` does.
+2. **A fake fetch holds no socket, so nothing keeps the event loop alive** and
+   Node exits with an unsettled top-level await before the unref'd budget timer
+   fires.
+3. **A suite that tests a hang must be bounded in both directions.** The first
+   version awaited the stalled download directly, so deleting the budget did
+   not fail the test — it hung the suite for an hour, and the mutation harness
+   was found *wedged* instead of reporting a failure. Every case now races a
+   give-up timer, so removing the deadline produces a fast, named failure.
+
+Finding 3 carries a consequence: **killing the teeth harness mid-run leaves its
+mutation in the working tree.** It was killed here by a tool timeout with a
+mutation in place, leaving `AbortSignal.timeout(3_600_000)` sitting in
+`downloadToTemp` — a broken file that read as a passing implementation until
+the next test run caught it. The harness header predicts this ("a failed restore
+here leaves a real script broken in the working tree"); its
+`process.on("exit")` restore cannot run when the process is killed outright. If
+a mutation run is interrupted, read the mutated file before trusting it.
+
+**Not stolen from P1:** `redirect: 'follow'` is unchanged. Following redirects
+on a caller-supplied URL is a separate question — a redirect to an internal
+address is an SSRF concern — and it needs a decision about which hosts are
+allowed, not a timeout. Recorded as open, not silently kept.
 
 ### P2 was retargeted, because the stated landing site had no substrate
 
