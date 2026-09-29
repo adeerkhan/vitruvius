@@ -136,6 +136,44 @@ a correct one.
 `scholarly-research` supplies the evidence layer and does not write the report;
 `engineering-research` owns these rules.
 
+## Commit rule (read before every `git commit`)
+
+Full rule, with reasoning and the subjects it exists to refuse:
+`references/commit-rule.md`. Enforced by `scripts/commit-message-check.mjs`
+and, once per clone, `git config core.hooksPath .githooks`.
+
+- **Format:** `type(scope): subject`, where type is one of `feat`, `fix`,
+  `docs`, `test`, `refactor`, `build`, `chore`. Scope is the skill, script
+  family, or repo area. Subject is imperative, lowercase after the colon, no
+  trailing period, under 72 characters as a target.
+- **The subject names a finding, not an activity.** "bound the PDF download
+  that had no deadline", not "fix download bug". `lint fixes`, `cleanup`,
+  `CI pipeline failure`, and `wip` are refused by the checker.
+- **The body carries the honesty claims.** Never claim a fix landed, a number
+  was measured, or something is `verified`/`confirmed`/`checked` unless this
+  session ran the check that proves it, and the body says which one. If the
+  real state is BLOCKED, PARTIAL, or NOT-DONE, the subject says that.
+- **Before committing:** run the gate covering what you touched (`npm test` for
+  scripts, skills, contracts, docs), then read `git diff --staged` and confirm
+  every staged file was meant. `tests/routing/*.txt` are rewritten by the
+  routing eval on every run — do not stage them as part of your change.
+- **Never commit:** secrets, `tasks/benchmark/run-api.mjs` (hardcoded key,
+  deliberately untracked), or generated output under `outputs/`, `papers/`, and
+  benchmark `results-*`.
+- **One commit, one adjudicated change.** A behavior change, its gate, its
+  test, and its doc update belong together; unrelated cleanup does not. A
+  rejected experiment goes to `docs/rejected-changes.md` via
+  `scripts/rejected-change-ledger.mjs append`, never into the log disguised as
+  work.
+- **N7:** a commit touching `skills/<name>/SKILL.md` bumps that skill's
+  `metadata.version` in the same commit. The checker enforces this.
+
+The checker verifies message shape and the version bump. Two limits are stated
+in `--explain` and are worth knowing here: the vagueness list is a
+known-offender list, not a completeness guarantee (a vague subject it does not
+know about passes), and the checker cannot verify that a number was measured or
+a claim is true. Both need a reviewer, and the gate is not a substitute for one.
+
 ## Skill frontmatter rules (S9 — AGENTS.md rigor)
 
 Every skill's `SKILL.md` frontmatter MUST conform to the structural contract enforced by `scripts/validate-contract.mjs`:

@@ -446,7 +446,7 @@ worth stealing; one is a security-report-only refresh.
 
 ## Reference wiring status
 
-`references/` holds 24 files. **All 24 are cited from a loadable surface**
+`references/` holds 25 files. **All 25 are cited from a loadable surface**
 (`scripts/reference-reachability.mjs`, wired into `npm test`). This was not true
 until 2026-09-28, when six references were unreachable — three of them written
 and declared "done" in the same session that wrote them.
@@ -574,4 +574,4 @@ pointed at the skill catalog. That is real remaining work, not a formatting gap.
 
 ### Scale
 
-- scripts: 40 files · tests: 84 files · skills: 25 · agents: 7 canonical roles + 7 OpenCode adapters.
+- scripts: 41 files · tests: 85 files · skills: 25 · agents: 7 canonical roles + 7 OpenCode adapters.

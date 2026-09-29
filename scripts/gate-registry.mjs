@@ -49,6 +49,12 @@ export const REGISTRY = {
   "security-scan.mjs": { kind: "chain" },
   "rejected-change-ledger.mjs": { kind: "chain" },
   "benchmark-claims-check.mjs": { kind: "chain" },
+  // Checked by .githooks/commit-msg, which is opt-in per clone
+  // (`git config core.hooksPath .githooks`) — a committed hook is not run by
+  // anyone who has not enabled it, so the suite below is what makes the rule
+  // survive a fresh clone. Reached by tests/engineering-research/
+  // test-commit-message-check.mjs, which also asserts this entry exists.
+  "commit-message-check.mjs": { kind: "test" },
   "reference-reachability.mjs": { kind: "chain" },
   "gate-registry.mjs": { kind: "chain" },
   "steal-selfcheck.mjs": { kind: "chain" },

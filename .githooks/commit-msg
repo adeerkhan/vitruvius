@@ -1,0 +1,10 @@
+#!/bin/sh
+# commit-msg — the mechanical half of references/commit-rule.md.
+#
+# Install once per clone:
+#   git config core.hooksPath .githooks
+#
+# It checks the message shape and the N7 version-bump rule. It cannot check
+# whether a number in the body was measured or whether a claim of "fixed" is
+# true; that is the reviewer's job, and the hook is not a substitute for one.
+exec node "$(git rev-parse --show-toplevel)/scripts/commit-message-check.mjs" --file "$1"

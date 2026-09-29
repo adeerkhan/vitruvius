@@ -196,6 +196,59 @@ const CASES = [
     replace: 'const lastRowDate = "2026-09-26";',
     test: "tests/contracts/test-rejected-change-ledger.mjs",
   },
+  // The commit rule, added 2026-09-29. A commit-message checker is the easiest
+  // gate in the repo to write as decoration: it can pass every message forever
+  // while refusing nothing. Each case below removes one rule and requires the
+  // suite to notice.
+  {
+    file: "scripts/commit-message-check.mjs",
+    rule: "a vague subject asserting no finding is refused",
+    find: /export const VAGUE_SUBJECTS = \[/,
+    replace: "export const VAGUE_SUBJECTS = [\n];\nconst _unusedVague = [",
+    test: "tests/engineering-research/test-commit-message-check.mjs",
+  },
+  {
+    file: "scripts/commit-message-check.mjs",
+    rule: "a non-imperative subject is refused",
+    find: /const NON_IMPERATIVE = \[/,
+    replace: "const NON_IMPERATIVE = [\n];\nconst _unusedMood = [",
+    test: "tests/engineering-research/test-commit-message-check.mjs",
+  },
+  {
+    file: "scripts/commit-message-check.mjs",
+    rule: "a non-allowed type is refused",
+    find: /if \(!TYPES\.includes\(type\)\) \{/,
+    replace: "if (false) {",
+    test: "tests/engineering-research/test-commit-message-check.mjs",
+  },
+  {
+    file: "scripts/commit-message-check.mjs",
+    rule: "a message with no Conventional header is refused",
+    find: /if \(!match\) \{/,
+    replace: "if (false) {",
+    test: "tests/engineering-research/test-commit-message-check.mjs",
+  },
+  {
+    file: "scripts/commit-message-check.mjs",
+    rule: "a trailing period is refused",
+    find: /if \(\/\[\.\]\\s\*\$\/\.test\(subject\)\) \{/,
+    replace: "if (false) {",
+    test: "tests/engineering-research/test-commit-message-check.mjs",
+  },
+  {
+    file: "scripts/commit-message-check.mjs",
+    rule: "N7 — a skill edit without a version bump is refused",
+    find: /if \(before === after\) \{/,
+    replace: "if (false) {",
+    test: "tests/engineering-research/test-commit-message-check.mjs",
+  },
+  {
+    file: "scripts/commit-message-check.mjs",
+    rule: "N7 — a skill edit with an unreadable version is refused, not skipped",
+    find: /if \(before === undefined \|\| after === undefined\) \{/,
+    replace: "if (false) {",
+    test: "tests/engineering-research/test-commit-message-check.mjs",
+  },
 ];
 
 function writeWithRetry(path, contents, attempts = 5) {
