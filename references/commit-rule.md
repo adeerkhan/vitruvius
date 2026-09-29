@@ -1,67 +1,62 @@
 # Commit rule
 
-Every commit in this repo — from a human, a lead agent, or a subagent — is
-written to this rule. Read it before `git commit`, not after.
+Every commit in this repo — from a person or an agent — follows this rule.
+Read it before `git commit`, not after.
 
-The short version lives in `AGENTS.md`; this file is the detail and the
-reasoning. A rule a model can talk itself out of is not a rule, so the
-mechanical half of this is checked by `scripts/commit-message-check.mjs`.
+The short version is in `AGENTS.md`. This file has the detail.
+A rule an agent can argue its way out of is not a rule, so a script checks the
+parts a script can check: `scripts/commit-message-check.mjs`.
 
 ## The format
-
-Conventional Commits, which is what the history already uses:
 
 ```
 type(scope): subject
 
 Body. Why the change was needed and what it does, wrapped at 72 columns.
-Anything a future reader could not reconstruct from the diff.
+Anything a future reader could not work out from the diff.
 ```
 
 **Type** is one of: `feat`, `fix`, `docs`, `test`, `refactor`, `build`, `chore`.
 
-**Scope** is optional but preferred, and names the area: a skill name
+**Scope** is optional but preferred. Name the area: a skill
 (`verifier`, `proposal`, `scholarly-research`), a script family
-(`benchmark`, `security`, `steal-selfcheck`, `manifest`), or a repo area
+(`benchmark`, `security`, `manifest`), or a repo area
 (`repo`, `commands`, `references`).
 
-**Subject** is imperative mood ("bound the download", not "bounds" or "bound
-the download was"), lowercase after the colon, no trailing period. Keep it
-under 72 characters; the history averages 59 and the longest recent subject is
-87, which is the exception, not the target.
+**Subject** is a command, not a description. Write "bound the download", not
+"bounds" or "bound the download was". Start it lowercase after the colon. Do not
+end it with a period. Keep it short: 72 characters is the target.
 
-**Body** is where the honesty requirements below are met. Measured over the
-last 40 commits, 38 have one. A subject-only commit is allowed for a
-one-line typo fix and nothing else.
+**Body** carries the honest claims, which are the rules further down. Most
+commits in this repo have one. A subject-only commit is fine for a one-word
+typo fix and nothing else.
 
-## What a subject may not claim
+## The subject must name what was wrong
 
-This is the part that matters, and it is the same rule the rest of the repo
-runs on. See the integrity commandments in `AGENTS.md`.
+This is the part that matters most.
 
-- **Do not claim a fix landed without an on-disk proof.** If you did not read
-  the file, run the script, or watch the test go red and then green, the
-  subject cannot say the thing is fixed. It may say what you changed.
-- **Do not publish a number you did not measure.** A benchmark figure, a count,
-  or a coverage percentage must come from a command you ran in this session.
-  Not from memory, not from a doc that quotes an older run.
-- **Do not say "verified", "confirmed", or "checked"** unless the body names
-  what was checked and how a reader could repeat it.
-- **Do not mark a claim BLOCKED, PARTIAL, or NOT-DONE as done.** Those are
-  valid outcomes. Say so in the subject.
+- **Do not claim a fix landed unless you proved it.** If you did not read the
+  file, run the script, or watch the test go red and then green, the subject
+  cannot say the thing is fixed. It may say what you changed.
+- **Do not publish a number you did not measure.** A score, a count, or a
+  percentage must come from a command you ran. Not from memory. Not from a doc
+  that quotes an older run.
+- **Do not write "verified", "confirmed", or "checked"** unless the body says
+  what was checked and how someone could repeat it.
+- **Do not call something done when it is blocked.** A blocked or partial result
+  is a real result. Say so in the subject.
 
-Good subjects state the *finding*, not the activity:
+Subjects worth copying. Each names a real defect, and each says what the code
+does about it now:
 
 ```
-fix(steal-selfcheck): count only the file types CodeGraph actually indexes
 fix(scholarly): bound the PDF download that had no deadline
 fix(scripts): repair two scripts that were 'covered' but never ran
+test(gates): no gate may be silently unwired
+feat(security): give the scanner a machine-enforced allowlist
 ```
 
-These are the ones worth copying. Each names a specific defect a reader could
-have found, and each says what the code now does about it.
-
-Weak, and rejected here:
+Subjects that are refused, because each one says nothing:
 
 ```
 lint fixes & updated hero
@@ -72,81 +67,79 @@ removed the hard check(hasResults) that recorded a failure
 
 ## Before you commit
 
-1. Run the gate that covers what you touched. `npm test` for anything that
-   changes a script, a skill, a contract, or a doc. The focused suites named in
-   `package.json` are enough when you know the blast radius.
-2. Read `git diff --staged`. Confirm every file in it is one you meant to
-   change, and that no `outputs/`, `ref/`, or benchmark snapshot is staged.
-3. Confirm the working tree state you are describing. A commit that fixes a
-   broken file is fine; a commit made from a tree whose test run was never
-   observed is not.
+1. Run the check that covers what you touched. Use `npm test` for any change to
+   a script, a skill, a contract, or a doc. The smaller suites in `package.json`
+   are enough when you know what your change can reach.
+2. Read `git diff --staged`. Check that every file in it is one you meant to
+   change. Check that nothing generated is in it: not `outputs/`, not `papers/`,
+   not a benchmark snapshot, and not any vendored copy of another project.
+3. Check the tree state you are about to describe. Committing a fix to a broken
+   file is fine. Committing from a tree whose test run you never saw is not.
 
-`tests/routing/e1-misses.txt` and `tests/routing/last-misses.txt` are rewritten
-by the routing eval on every `npm test` — a date stamp with unchanged numbers.
-Do not stage them as if they were part of your change.
+Two files under `tests/routing/` are rewritten by the routing check on every
+`npm test`. The change is a date and nothing else. Do not stage them as part of
+your work.
 
 ## What the checker cannot do
 
 Run `node scripts/commit-message-check.mjs --explain` for the current list. Two
-limits are worth knowing before you trust a green run:
+limits are worth knowing before you trust a green run.
 
-- **The vagueness list is a known-offender list, not a completeness
-  guarantee.** Every pattern in it corresponds to a subject this repo has
-  actually produced. Deciding that "rename the label on the thing" asserts no
-  finding is a judgement, and a regex cannot make judgements. A vague subject
-  the list has not seen passes. The suite pins this boundary deliberately, so
-  nobody later reads a green run as proof that every subject names a finding.
-- **It cannot tell whether a claim is true.** A well-formed body claiming a fix
-  that did not land is still well-formed. That is a reviewer's job.
+- **The vague-subject list only knows the cases it has seen.** Every entry came
+  from a subject this repo has actually written. Deciding that "rename the label
+  on the thing" says nothing is a judgement call, and a pattern cannot make
+  judgements. A vague subject the list has not seen will pass. A test pins this
+  limit on purpose, so nobody later reads a green run as proof that every
+  subject names a defect.
+- **It cannot tell whether a claim is true.** A well-written body claiming a fix
+  that never landed is still well written. That takes a reader.
 
 ## Never commit
 
-- Secrets, tokens, or API keys. `scripts/security-scan.mjs` gates this, and a
-  waiver for a finding is a machine-checked entry in that script, not a comment
-  in the diff.
-- `tasks/benchmark/run-api.mjs`. It carries a hardcoded API key as a fallback
-  and is not functional here. It stays untracked on purpose; see `docs/STEAL.md`.
-- Generated research output: `outputs/`, `papers/`, benchmark `results-*`
-  snapshots. These are gitignored and are not evidence for a commit.
-- A rejected change as if it were accepted. Append it to
+- Secrets, tokens, or API keys. `scripts/security-scan.mjs` checks for them. If
+  one is a real false positive, the waiver is a checked entry in that script,
+  not a comment in the diff.
+- `tasks/benchmark/run-api.mjs`. It has a hardcoded API key in it and does not
+  work here. It stays untracked on purpose.
+- Generated research output: `outputs/`, `papers/`, and benchmark `results-*`
+  folders. These are ignored by git. They are not evidence for a commit.
+- A rejected change dressed up as accepted work. Rejections go into
   `docs/rejected-changes.md` with `node scripts/rejected-change-ledger.mjs
-  append ...` — the ledger is append-only, and a rejection is a real result
-  worth preserving.
+  append ...`. That file only ever grows, and a rejection is worth keeping.
 
-## One commit, one adjudicated change
+## One commit, one change
 
-The unit is a change that could have been reverted on its own. This matters
-most in this repo, where a single change often carries a behavior change, a
-gate, a test, and a doc update: those belong together, because the gate is
-what makes the behavior change trustworthy. What does not belong together is a
-behavior change and an unrelated cleanup, or two rejected experiments.
+A commit should be one change you could undo on its own. In this repo a change
+often touches several files on purpose: the behaviour, the check that guards it,
+the test, and the doc. Those belong together, because the check is what makes
+the behaviour trustworthy. What does not belong together is a behaviour change
+and an unrelated tidy-up, or two separate experiments.
 
-A commit that touches a skill's `SKILL.md` must bump that skill's
-`metadata.version` in the same commit. `scripts/commit-message-check.mjs`
-enforces this by comparing the file before and after the commit.
+A commit that changes a skill's `SKILL.md` must raise that skill's
+`metadata.version` in the same commit. The script checks this by comparing the
+file before and after.
 
-## Fixups and reverts
+## Fixes to earlier commits
 
-Use `git commit --fixup=<sha>` and `git rebase --autosquash` for corrections
-to a commit that has not shipped. Never amend a pushed commit; add a new one
-that says what changed and why, referencing the commit it corrects.
+Use `git commit --fixup=<sha>` and `git rebase --autosquash` for a correction to
+a commit that has not shipped. Never rewrite a commit that has been pushed. Add
+a new commit that says what changed and why, and name the commit it corrects.
 
-## Enforcement
+## Running the check
 
 ```bash
-node scripts/commit-message-check.mjs                  # HEAD
+node scripts/commit-message-check.mjs                  # the last commit
 node scripts/commit-message-check.mjs --commit <sha>   # any commit
 node scripts/commit-message-check.mjs --file <path>    # a message file
-npm run test:commit-message                            # the checks, with teeth
+npm run test:commit-message                            # the tests for the check
 ```
 
-To gate your own commits, point git at the repo's hook and run it once per
-clone:
+To have git run it for you, point git at the hook once per clone:
 
 ```bash
 git config core.hooksPath .githooks
 ```
 
-This checks the mechanical half — type, subject shape, length, and the version
-bump. It cannot check whether a claim in the body is true. That part is the
-committer's responsibility, and the only check for it is a reviewer.
+The check covers the type, the shape of the subject, the length, and the
+version bump. It cannot tell whether a sentence in the body is true. That is
+the writer's job, and the only real check for it is a reader.

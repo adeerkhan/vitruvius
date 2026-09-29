@@ -38,7 +38,7 @@ function history(count) {
     "downloadToTemp() called fetch with no signal, so a host that accepted the",
     "connection and then stopped sending left the extractor waiting forever.",
     "",
-    "Stolen as ref/feynman/src/telemetry/posthog.ts:51 (MIT, cd72f97).",
+    "Bounded with a 60s budget, composed with any caller deadline.",
   ].join("\n");
   assert.deepEqual(checkMessage(good), [], `a conforming message must pass: ${subjectOf(checkMessage(good))}`);
 }
@@ -286,7 +286,7 @@ for (const subject of [
 // --- 10. N7 does not fire for files that are not a SKILL.md ---------------
 {
   const changes = [
-    { path: "docs/STEAL.md", before: "a", after: "b" },
+    { path: "docs/rejected-changes.md", before: "a", after: "b" },
     { path: "skills/verifier/references/foo.md", before: "a", after: "b" },
     { path: "scripts/security-scan.mjs", before: "a", after: "b" },
   ];
@@ -340,6 +340,49 @@ for (const subject of [
     existsSync(join(repoRoot, "references", "commit-rule.md")),
     "references/commit-rule.md must exist",
   );
+}
+
+// --- 15. The rule itself stays plain ---------------------------------------
+// The commit rule is read by every agent, so it must not carry project jargon
+// or the names of vendored projects. Those belong in the file that tracks what
+// came from where; a rule for writing commit messages has no use for them.
+{
+  const rule = readFileSync(join(repoRoot, "references", "commit-rule.md"), "utf8");
+  const agents = readFileSync(join(repoRoot, "AGENTS.md"), "utf8");
+
+  const BANNED = [
+    // The internal name for the "what to copy" map, and the project shorthand
+    // it comes from. Neither tells an agent how to write a commit message.
+    /steal/i,
+    // Vendored project names, checked case-insensitively as bare words so a
+    // legitimate mention inside a longer identifier is not caught.
+    /\bfeynman\b/i,
+    /\bhumanizer\b/i,
+    /\bautoprompt\b/i,
+    /\bbugtrace/i,
+    /\bsemble\b/i,
+    /\bscientific-agent-skills\b/i,
+    /\babrt\b/i,
+  ];
+
+  for (const [label, text] of [
+    ["references/commit-rule.md", rule],
+    ["AGENTS.md", agents],
+  ]) {
+    for (const pattern of BANNED) {
+      const hit = pattern.exec(text);
+      assert.equal(
+        hit,
+        null,
+        `${label} must not mention "${hit?.[0]}" — the commit rule is read by every agent and ` +
+          `carries no project jargon. See references/commit-rule.md for what belongs there instead.`,
+      );
+    }
+  }
+
+  // The rule must still say the things that make it a rule.
+  assert.match(rule, /type\(scope\): subject/, "the format must stay documented");
+  assert.match(rule, /git config core\.hooksPath/, "how to install the hook must stay documented");
 }
 
 console.log(
