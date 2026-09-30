@@ -11,6 +11,49 @@ tasks/benchmark/*results*/
 !tasks/benchmark/controls/results/
 !tasks/benchmark/controls/results/*.md
 tasks/benchmark/results/.err-*.log4
-references/
+
+# Routing-eval diagnostics, rewritten on every `npm test`. e1-misses.txt stays
+# tracked on purpose: it is the regression record of which prompts failed to
+# route, so a fix can be seen to hold. last-misses.txt is the baseline report
+# from the same run, so tracking it only made every run dirty a tracked file for
+# no information a reader could act on.
 tests/routing/last-misses.txt
-docs/
+
+# Holds a credential supplied by whoever runs the benchmark. It was committed
+# and pushed once with a hardcoded `||` fallback key, which is how a secret gets
+# into a public repo: one `git add -A`. The script now reads the env var only
+# and exits when it is unset, so there is nothing here worth tracking.
+#
+# AGENTS.md and docs/STEAL.md both already said this file must never be
+# committed. The rule existed and nothing enforced it. That is a gate gap, not a
+# documentation problem.
+tasks/benchmark/run-api.mjs
+
+# Local benchmark scratch, written by run-api.mjs and regenerated per run, like
+# the other results-* trees above.
+tasks/benchmark/results-api/
+
+# Transcript-derived scratch: useful within a session, worthless in a clone.
+.scratch/
+
+# NOTE: a bare `tests/*` used to sit here. It matched the whole test tree, and
+# because the existing suites were added before it they stayed tracked while
+# every NEW test was silently ignored — so it ran locally and did not exist for
+# anyone who cloned the repo. That is the "a name match is not execution"
+# failure one layer down: a suite wired into `npm test` and absent from the
+# repository. The tests are the source of truth for what this repo claims; they
+# are not build output. scripts/tests-check.mjs now fails if this ever ignores a
+# test again.
+
+# `docs/` and `references/` are deliberately NOT ignored, and the reasoning is
+# recorded here because this looks like an obvious candidate and it is not:
+#
+#   docs/STEAL.md             read by scripts/steal-selfcheck.mjs        (npm test)
+#   docs/rejected-changes.md  read by scripts/rejected-change-ledger.mjs (npm test)
+#   references/*.md           read by scripts/reference-reachability.mjs (npm test)
+#   references/host-rules.md  the SOURCE for 112 generated host adapters
+#   references/               listed in package.json#files — it ships
+#
+# Ignoring either makes a fresh clone unable to run its own test suite, and
+# dropping references/ breaks the published package. Verified by hiding docs/:
+# steal-selfcheck.mjs dies with an ENOENT rather than a clean message.
