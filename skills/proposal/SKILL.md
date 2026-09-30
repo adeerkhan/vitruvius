@@ -13,7 +13,7 @@ argument-hint: "[--posting <path>] [--cv <path>] [--statement <path>] [--sample 
 allowed-tools: Write Edit Bash Read
 license: MIT
 metadata:
-  version: "0.1.11"
+  version: "0.1.12"
 
 ---
 <!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=41af538c8fa01bd51c09ca41daafc4d56a1c41335d3df2313b555fb20d083ad5 -->

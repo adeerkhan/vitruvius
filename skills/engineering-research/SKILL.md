@@ -15,7 +15,7 @@ argument-hint: "<research question or artifact to review> [--deep | --quick]"
 allowed-tools: Write Edit Bash Read
 license: MIT
 metadata:
-  version: "0.4.0"
+  version: "0.5.0"
 
 ---
 <!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=ff51abf4f018298bdc31577f8897fc6630e0a534b022ca944867f84ee7954f0a -->

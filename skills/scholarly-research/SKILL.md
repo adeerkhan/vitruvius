@@ -12,7 +12,7 @@ argument-hint: "<topic or paper identifier>"
 allowed-tools: Write Edit Bash Read
 license: MIT
 metadata:
-  version: "0.2.0"
+  version: "0.3.0"
 
 ---
 <!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=a1ccc8d5158c7503e34df0740b142f93ee66d4da3d1cd5f78401910c8d6677e3 -->
