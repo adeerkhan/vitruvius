@@ -232,7 +232,7 @@ const skillDirs = [...allSkillNames()].map((n) => join(SKILLS_DIR, n));
 const knownSkills = new Set(skillDirs.map((s) => relative(SKILLS_DIR, s)));
 
 // A directory with no regular file at any depth is noise (skill-anatomy
-// "Supporting Files" transfer from ref/agent-skills).
+// "Supporting Files" transfer from src-02).
 function isEffectivelyEmpty(dir) {
   let entries;
   try {
@@ -283,7 +283,7 @@ function skillLayoutProblems(skill) {
 
 // Description needs a positive trigger. Strip *every* negated clause before
 // testing, so two "Do not use when" clauses cannot leave a stray positive
-// match behind (ref/agent-skills skill-lint.js, commit fc3026e).
+// match behind (src-02 skill-lint.js, commit fc3026e).
 const DESCRIPTION_TRIGGER = /\buse (?:this )?(?:when|before|after|during)\b|\buse (?:for|to)\b/i;
 const DESCRIPTION_TRIGGER_NEGATE_ALL =
   /\b(?:do not|don't|never)\s+use (?:this )?(?:when|before|after|during|for|to)\b/gi;
@@ -343,7 +343,7 @@ function writerContractProblems(skill) {
 }
 
 // Version synchronization: plugin.json version must match package.json version.
-// Stolen from Humanizer's validate-package.py pattern.
+// Stolen from src-06's validate-package.py pattern.
 function versionSyncProblems() {
   const problems = [];
   let pkg;

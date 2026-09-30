@@ -1,5 +1,5 @@
 /**
- * eval-routing.mjs — Tier-2 trigger-routing evals (N3, from agent-skills).
+ * eval-routing.mjs — Tier-2 trigger-routing evals (N3, from src-02).
  *
  * Two checks over the 25 skill descriptions:
  * 1. Pairwise collision: description 3-gram similarity >= 70% flags two

@@ -1,7 +1,7 @@
 /**
  * DP1 — docs/code parity.
  *
- * Transfer from ref/feynman (5087ac8 "List only commands and tools that
+ * Transfer from src-05 (5087ac8 "List only commands and tools that
  * exist"; e18b7e3 "Check every docs page ... against the code"). Vitruvius had
  * command-contract parity but nothing that reads the README/help card back
  * against it, so a doc could name a dead command or omit a real one.

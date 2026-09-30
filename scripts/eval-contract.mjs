@@ -1,19 +1,16 @@
 import { existsSync, lstatSync, readFileSync, readdirSync, realpathSync } from "node:fs";
 import { isAbsolute, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
+import { isNonEmptyString, isSafeRelativePath as isSafeRelativePathShared } from "./path-safety.mjs";
 
 const VALID_STATUSES = new Set(["pilot", "partial", "complete"]);
 
-function isNonEmptyString(value) {
-  return typeof value === "string" && value.trim() !== "";
-}
-
+/**
+ * Positional-prefix wrapper, kept because every call site here passes the
+ * prefix as a second positional argument. The rule itself is the shared one.
+ */
 function isSafeRelativePath(value, prefix) {
-  if (!isNonEmptyString(value) || isAbsolute(value)) return false;
-  const normalized = value.replaceAll("\\", "/");
-  const segments = normalized.split("/");
-  if ((prefix && !normalized.startsWith(`${prefix}/`)) || segments.includes("..") || normalized.includes(":")) return false;
-  return true;
+  return isSafeRelativePathShared(value, { prefix });
 }
 
 function canonicalPath(path) {

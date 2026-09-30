@@ -58,6 +58,11 @@ export const REGISTRY = {
   "reference-reachability.mjs": { kind: "chain" },
   "gate-registry.mjs": { kind: "chain" },
   "steal-selfcheck.mjs": { kind: "chain" },
+  // Fails if .gitignore can hide a test, or a suite exists on disk without
+  // being tracked. A bare `tests/*` rule once did exactly that: 103 suites
+  // stayed tracked because they predated it, and every new test was silently
+  // ignored, so it ran locally and did not exist in any clone.
+  "tests-check.mjs": { kind: "chain" },
   // Scored with --strict-quality, so a false approval or false block anywhere in
   // the checked-in corpus fails the build. This was available but unwired until
   // 2026-09-28, which meant a bad result in any case other than the one the
@@ -99,6 +104,11 @@ export const REGISTRY = {
   },
 
   // --- Reached by tests as imported modules ------------------------------
+  // path-safety.mjs holds the single definition of isSafeRelativePath and
+  // isInside, which five and four call sites previously each re-implemented.
+  // A security control with four definitions is a control where a fix can land
+  // in one copy and leave the others vulnerable.
+  "path-safety.mjs": { kind: "test" },
   "yaml-frontmatter.mjs": { kind: "test" },
   "verifier-parser.mjs": { kind: "test" },
   "benchmark-scoring.mjs": { kind: "test" },

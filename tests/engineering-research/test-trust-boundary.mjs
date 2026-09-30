@@ -9,8 +9,8 @@ import { validateEvidenceLedger } from "../../skills/engineering-research/script
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const hash = (path) => createHash("sha256").update(readFileSync(join(repoRoot, path))).digest("hex");
 
-// --- Trust-boundary negative tests (abrt idea-only) -----------------------
-// abrt has no worktree; these patterns extend existing fixtures where a new
+// --- Trust-boundary negative tests (src-01 idea-only) -----------------------
+// src-01 has no worktree; these patterns extend existing fixtures where a new
 // boundary appears. Each test asserts that a path-escape or hash-mismatch
 // is refused by the evidence ledger contract.
 

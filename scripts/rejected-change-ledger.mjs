@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * rejected-change-ledger.mjs — append-only ledger of changes rejected on
- * evidence (transfer from ref/agent-skills/evals/skill-impact.md).
+ * evidence (transfer from src-02 evals/skill-impact.md).
  *
  * Usage:
  *   node scripts/rejected-change-ledger.mjs validate [path]

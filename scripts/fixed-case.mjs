@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { existsSync, lstatSync, readFileSync, readdirSync, realpathSync } from "node:fs";
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
+import { isInside as isInsideShared, isNonEmptyString, isSafeRelativePath } from "./path-safety.mjs";
 
 const CASE_SCHEMA = "vitruvius-c1.v1";
 const RESULT_SCHEMA = "vitruvius-c1-results.v1";
@@ -9,19 +10,14 @@ const RESEARCH_STATUSES = new Set(["verified", "partial", "blocked"]);
 const GRADE_STATUSES = new Set(["PASS", "PARTIAL", "BLOCKED"]);
 const SHA256_PATTERN = /^[0-9a-f]{64}$/;
 
-function isNonEmptyString(value) {
-  return typeof value === "string" && value.trim() !== "";
-}
-
-function isSafeRelativePath(value) {
-  if (!isNonEmptyString(value) || isAbsolute(value)) return false;
-  const segments = value.replaceAll("\\", "/").split("/");
-  return !segments.includes("..") && !segments.includes("") && !value.includes(":");
-}
-
+/**
+ * This script's original predicate excluded the root itself
+ * (`pathFromRoot !== ""`), the opposite of the other three. That behaviour is
+ * preserved deliberately through the option rather than papered over: a case
+ * naming the results root as its own output directory is refused here.
+ */
 function isInside(root, candidate) {
-  const pathFromRoot = relative(root, candidate);
-  return !isAbsolute(pathFromRoot) && pathFromRoot !== "" && pathFromRoot !== ".." && !pathFromRoot.startsWith(`..${sep}`);
+  return isInsideShared(root, candidate, { allowRoot: false });
 }
 
 function canonicalPath(path) {

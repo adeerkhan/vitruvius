@@ -24,6 +24,7 @@
  *     `[[page N]]` source before citing (see the artifact-reading skill).
  */
 import { createHash, randomUUID } from 'node:crypto';
+import { lookup } from 'node:dns/promises';
 import { existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { extname, join } from 'node:path';
@@ -185,11 +186,11 @@ export async function extractPdf(filePath, { removeSource = false } = {}) {
  *
  * Before this existed the fetch had no signal at all, so a host that accepted
  * the connection and then stalled left the extractor waiting indefinitely —
- * the failure mode described for feynman's telemetry at
- * ref/feynman/src/telemetry/posthog.ts:47 (MIT, cd72f97), where a pending send
+ * the failure mode described for src-05's telemetry at
+ * src-05 src/telemetry/posthog.ts:47 (MIT, cd72f97), where a pending send
  * made every command wait for the library's 10s deadline.
  *
- * 60s, not feynman's 1.5s: this downloads whole papers, often several
+ * 60s, not src-05's 1.5s: this downloads whole papers, often several
  * megabytes over a slow link. The shape is what transfers, not the number —
  * a budget that fires on a legitimate 8 MB PDF would be a worse bug than the
  * hang. Override per call for a known-large source.
@@ -197,31 +198,195 @@ export async function extractPdf(filePath, { removeSource = false } = {}) {
 export const DOWNLOAD_BUDGET_MS = 60_000;
 
 /**
+ * Redirect hops followed before giving up. `fetch` defaults to 20, which is far
+ * more than a PDF source needs and is attacker-controlled headroom.
+ */
+export const MAX_REDIRECTS = 5;
+
+/**
+ * Is this IP literal one the extractor must never reach?
+ *
+ * The list is the non-routable set plus the cloud metadata address. The
+ * metadata case is the reason this function exists: on a cloud host,
+ * 169.254.169.254 hands out instance credentials to anything that asks, so a
+ * fetched "paper URL" pointed there is an exfiltration primitive, not a
+ * malformed link.
+ *
+ * Written against a string rather than a parsed address type because Node has
+ * no built-in IP classifier and the shapes here are few and fixed.
+ *
+ * @param {string} address an IPv4 or IPv6 literal
+ * @returns {boolean} true when the address must be refused
+ */
+export function isPrivateAddress(address) {
+  const ip = String(address).trim().toLowerCase().replace(/^\[|\]$/g, "");
+
+  // IPv4-mapped and IPv4-compatible IPv6 (::ffff:169.254.169.254). Judged by
+  // the IPv4 rules below, or a mapped address is a one-token bypass of every
+  // range. The IPv4 half is extracted and classified INLINE rather than by
+  // recursing: the first version called isPrivateAddress(mapped[1]) and the
+  // pattern re-matched its own output, so every call blew the stack. A
+  // classifier that cannot classify a mapped address is not a classifier.
+  const mapped = /^(?:::ffff:)?(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})$/.exec(ip);
+  if (mapped) return isPrivateIpv4(mapped[1]);
+
+  if (ip === "::" || ip === "::1") return true;
+  // Unique-local (fc00::/7) and link-local (fe80::/10).
+  if (/^f[cd][0-9a-f]{2}:/.test(ip) || /^fe[89ab][0-9a-f]:/.test(ip)) return true;
+
+  if (!/^\d{1,3}(\.\d{1,3}){3}$/.test(ip)) return false; // a hostname: see assertPublicUrl
+  return isPrivateIpv4(ip);
+}
+
+/**
+ * The IPv4 half of {@link isPrivateAddress}, as a plain dotted quad.
+ *
+ * @param {string} ip
+ * @returns {boolean}
+ */
+function isPrivateIpv4(ip) {
+  const v4 = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/.exec(ip);
+  if (!v4) return false;
+  const a = Number(v4[1]);
+  const b = Number(v4[2]);
+  if (a === 0) return true;                         // 0.0.0.0/8   this network
+  if (a === 10) return true;                        // 10/8        private
+  if (a === 127) return true;                       // 127/8       loopback
+  if (a === 169 && b === 254) return true;          // 169.254/16  link-local + cloud metadata
+  if (a === 172 && b >= 16 && b <= 31) return true; // 172.16/12   private
+  if (a === 192 && b === 168) return true;          // 192.168/16  private
+  if (a === 100 && b >= 64 && b <= 127) return true; // 100.64/10   CGNAT
+  if (a === 192 && b === 0) return true;            // 192.0/24    IETF protocol assignments
+  if (a === 198 && (b === 18 || b === 19)) return true; // 198.18/15 benchmarking
+  if (a >= 224) return true;                        // multicast + reserved
+  return false;
+}
+
+/** Hostnames that resolve inside the machine without a public DNS answer. */
+const LOCAL_HOSTNAMES = new Set(["localhost", "metadata.google.internal", "instance-data"]);
+
+/**
+ * Refuse a URL that is not a public http(s) address.
+ *
+ * Checks, in order: the scheme, a hostname that is a literal private address,
+ * a known-local hostname, and finally every address the hostname resolves to.
+ * The DNS step is the one that matters — `evil.test` is a perfectly ordinary
+ * name that can hold a 127.0.0.1 A record, and a check that only looked at the
+ * string would wave it through.
+ *
+ * `lookup` is injected so this is provable without a network.
+ *
+ * @param {string} rawUrl
+ * @param {{ lookup?: Function }} [opts]
+ * @returns {Promise<URL>}
+ * @throws when the target is not publicly routable
+ */
+export async function assertPublicUrl(rawUrl, { lookup } = {}) {
+  let parsed;
+  try {
+    parsed = new URL(rawUrl);
+  } catch {
+    throw new Error(`refusing to fetch a malformed URL: ${rawUrl}`);
+  }
+  if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+    throw new Error(`refusing to fetch ${parsed.protocol}// — only http and https are allowed`);
+  }
+
+  const host = parsed.hostname.replace(/^\[|\]$/g, "").toLowerCase();
+  if (LOCAL_HOSTNAMES.has(host) || host.endsWith(".localhost") || host.endsWith(".local")) {
+    throw new Error(`refusing to fetch ${host} — a loopback or link-local host is not a paper source`);
+  }
+  // A literal address needs no DNS step and must still be judged.
+  if (isPrivateAddress(host)) {
+    throw new Error(`refusing to fetch ${host} — private, loopback, or link-local address`);
+  }
+
+  const resolve = lookup ?? dnsLookup;
+  let addresses;
+  try {
+    addresses = await resolve(host);
+  } catch (error) {
+    throw new Error(`cannot resolve ${host}: ${error.message}`);
+  }
+  for (const address of addresses) {
+    if (isPrivateAddress(address)) {
+      throw new Error(
+        `refusing to fetch ${host} — it resolves to ${address}, a private, loopback, or link-local address`,
+      );
+    }
+  }
+  return parsed;
+}
+
+/** `dns.lookup` in the shape this module needs, with every A/AAAA answer. */
+async function dnsLookup(hostname) {
+  const results = await lookup(hostname, { all: true, verbatim: true });
+  return results.map((r) => r.address);
+}
+
+/**
  * Download a URL to a temporary `.pdf` path and return that path.
  *
  * The budget is composed with any caller signal via `AbortSignal.any`, so a
  * caller that already has its own deadline keeps it and whichever fires first
- * wins. `fetchImpl` is injectable so the budget can be proven without a
- * network: a fake that never settles is exactly the stall this guards.
+ * wins. `fetchImpl` and `lookup` are injectable so both the budget and the
+ * address checks are provable without a network.
+ *
+ * Redirects are followed here rather than by `fetch`. `redirect: 'follow'`
+ * handed the destination of every hop to the transport without ever looking at
+ * it, so a public URL that answered `302 Location: http://169.254.169.254/…`
+ * reached the metadata service while every check above it passed. Following by
+ * hand means each hop is re-validated, and a redirect into a private range is
+ * refused with the same error as a direct request to one.
+ *
+ * Known limit: the address is checked, then `fetch` resolves the name again.
+ * A host that answers public to the first lookup and private to the second can
+ * still win that race. Closing it needs a pinned-IP connection, which `fetch`
+ * does not expose. Recorded rather than claimed as fixed.
  */
-export async function downloadToTemp(url, { budgetMs = DOWNLOAD_BUDGET_MS, signal, fetchImpl } = {}) {
+export async function downloadToTemp(
+  url,
+  { budgetMs = DOWNLOAD_BUDGET_MS, signal, fetchImpl, lookup, maxRedirects = MAX_REDIRECTS } = {},
+) {
   const doFetch = fetchImpl ?? fetch;
   const budget = AbortSignal.timeout(budgetMs);
   const composed = signal ? AbortSignal.any([signal, budget]) : budget;
 
-  const response = await doFetch(url, {
-    redirect: 'follow',
-    signal: composed,
-    headers: { 'User-Agent': 'vitruvius-research/1.0 (+https://github.com/adeerkhan/vitruvius)' },
-  });
-  if (!response.ok) {
-    throw new Error(`fetch failed: ${response.status} ${response.statusText}`);
+  let current = String(url);
+  for (let hop = 0; hop <= maxRedirects; hop++) {
+    await assertPublicUrl(current, { lookup });
+
+    const response = await doFetch(current, {
+      redirect: 'manual',
+      signal: composed,
+      headers: { 'User-Agent': 'vitruvius-research/1.0 (+https://github.com/adeerkhan/vitruvius)' },
+    });
+
+    if (REDIRECT_STATUSES.has(response.status)) {
+      const location = response.headers?.get?.('location');
+      if (!location) {
+        throw new Error(`fetch returned ${response.status} with no Location header`);
+      }
+      if (hop === maxRedirects) {
+        throw new Error(`refusing to follow more than ${maxRedirects} redirects from ${url}`);
+      }
+      current = new URL(location, current).toString();
+      continue;
+    }
+
+    if (!response.ok) {
+      throw new Error(`fetch failed: ${response.status} ${response.statusText}`);
+    }
+    const buffer = Buffer.from(await response.arrayBuffer());
+    const dest = join(tmpdir(), `vitruvius-${randomUUID()}.pdf`);
+    writeFileSync(dest, buffer);
+    return dest;
   }
-  const buffer = Buffer.from(await response.arrayBuffer());
-  const dest = join(tmpdir(), `vitruvius-${randomUUID()}.pdf`);
-  writeFileSync(dest, buffer);
-  return dest;
+  /* c8 ignore next */
+  throw new Error(`too many redirects from ${url}`);
 }
+
+const REDIRECT_STATUSES = new Set([301, 302, 303, 307, 308]);
 
 function formatResult(result, outputJson) {
   if (outputJson) return JSON.stringify(result, null, 2);

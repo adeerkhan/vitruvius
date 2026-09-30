@@ -2,7 +2,7 @@
  * check-node-version.mjs — fail when the running Node is outside the range
  * declared in package.json `engines.node`.
  *
- * Transfer from ref/feynman/scripts/check-node-version.mjs. The Node 24
+ * Transfer from src-05 scripts/check-node-version.mjs. The Node 24
  * pdf-parse `Buffer` failure showed that an undeclared runtime floor is a real
  * trap here. Dependency-free: supports a leading `>=X[.Y[.Z]]` range, which is
  * all this package declares.

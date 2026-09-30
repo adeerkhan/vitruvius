@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // result-provenance-audit.mjs — scan a draft for quantitative claims and
 // verify they map to traceable sources.
-// Stolen from Feynman's result provenance audit pattern.
+// Stolen from src-05's result provenance audit pattern.
 //
 // Usage:
 //   node scripts/result-provenance-audit.mjs <draft.md>

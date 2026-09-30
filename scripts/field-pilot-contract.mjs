@@ -12,6 +12,7 @@ import { dirname, isAbsolute, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { validateGoalCheck } from "./goal-check-contract.mjs";
 import { parseMachineVerdict } from "./verifier-parser.mjs";
+import { isInside, isNonEmptyString as isText, isSafeRelativePath } from "./path-safety.mjs";
 
 const SCHEMA = "vitruvius-field-pilot.v1";
 const SHA256_PATTERN = /^[0-9a-f]{64}$/;
@@ -35,10 +36,6 @@ function isObject(value) {
   return value !== null && typeof value === "object" && !Array.isArray(value);
 }
 
-function isText(value) {
-  return typeof value === "string" && value.trim() !== "";
-}
-
 function exactKeys(value, allowed, label, errors) {
   if (!isObject(value)) {
     errors.push(`${label} must be an object`);
@@ -46,18 +43,6 @@ function exactKeys(value, allowed, label, errors) {
   }
   for (const key of Object.keys(value)) if (!allowed.includes(key)) errors.push(`${label} has unknown field: ${key}`);
   return true;
-}
-
-function isSafeRelativePath(value) {
-  if (!isText(value) || isAbsolute(value) || value.includes("\\")) return false;
-  const normalized = value.replaceAll("\\", "/");
-  if (normalized.startsWith("/") || normalized.includes(":")) return false;
-  return normalized.split("/").every((segment) => segment !== "" && segment !== "." && segment !== "..");
-}
-
-function isInside(root, candidate) {
-  const pathFromRoot = relative(root, candidate);
-  return !isAbsolute(pathFromRoot) && pathFromRoot !== ".." && !pathFromRoot.startsWith(`..${sep}`);
 }
 
 function physicalKey(repoRoot, value) {

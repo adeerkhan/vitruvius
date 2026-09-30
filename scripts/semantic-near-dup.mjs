@@ -20,7 +20,7 @@ import { fileURLToPath } from "node:url";
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
 
 // Type-normalizer: canonicalize equivalent labels to a single type.
-// Stolen from BugTraceAI-CLI's dedup type-normalizer pattern.
+// Stolen from src-04's dedup type-normalizer pattern.
 const TYPE_NORMALIZER = {
   // RCE family
   "remote code execution": "rce",

@@ -11,7 +11,7 @@ const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 // `.qoder-plugin/plugin.json` sat next to it carrying the same version and
 // nothing checked it — so a version bump that missed it would ship two
 // manifests disagreeing, and the build would stay green. That is the failure
-// the humanizer validator (ref/humanizer/scripts/validate-package.py:61) is
+// the src-06 validator (src-06 scripts/validate-package.py:61) is
 // built to prevent, and it hardcodes its four files only because that repo
 // knows it will never have a fifth.
 //

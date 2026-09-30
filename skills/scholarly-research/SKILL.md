@@ -15,7 +15,7 @@ metadata:
   version: "0.2.0"
 
 ---
-<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=bd4b4d6f248db81ba8315836843b3c4742c41e4b52f60f03c9a05cbd2429eb9b -->
+<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=a1ccc8d5158c7503e34df0740b142f93ee66d4da3d1cd5f78401910c8d6677e3 -->
 
 # Scholarly Research
 
@@ -126,7 +126,7 @@ primary paper index. Do not point a browser at scholar.google.com.
 ## Routing modes
 
 Pick the mode from the need; do not default every question to keyword search.
-(Feynman source-routing transfer, mapped to the keyless indexes above and the
+(src-05 source-routing transfer, mapped to the keyless indexes above and the
 host's own tools.)
 
 | Need | Mode | Start | Then |

@@ -4,7 +4,7 @@ import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { checkSuiteFloor } from "../../scripts/steal-selfcheck.mjs";
+import { checkSuiteFloor, hashStatus, findThirdPartyNames } from "../../scripts/steal-selfcheck.mjs";
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
@@ -150,7 +150,115 @@ const WITH_SUITE = 25;
   assert.equal(gate.status, 0, `the real self-check must pass:\n${gate.stdout}\n${gate.stderr}`);
 }
 
+// --- 8. A shallow clone blocks the hash check; it does not fail it ---------
+// The bug this closes, from a real CI run. `actions/checkout` defaults to
+// fetch-depth 1, so a routine run reported all 38 commit hashes cited in
+// docs/STEAL.md as "not in this repository". Every one of them was in it — the
+// clone simply could not see them. The check had two outcomes where it needed
+// three, and the third ("cannot tell") resolved to the accusation.
+//
+// The severity is the point: a status map is what a reader trusts when
+// deciding what to work on. A check that cries wolf 38 times trains its reader
+// to ignore it, and the one real failure it was written to catch goes with it.
+{
+  const real = sh("git", ["rev-parse", "--short", "HEAD"]);
+
+  // A hash that certainly exists is BLOCKED, not ABSENT, under a shallow clone.
+  assert.equal(
+    hashStatus(real, true),
+    "blocked",
+    "a shallow clone must not be able to resolve any hash, not even HEAD's own",
+  );
+
+  // And it is still resolvable in a full clone, so the rule is not "always
+  // blocked" — that would silently disable the check everywhere.
+  assert.equal(
+    hashStatus(real, false),
+    "present",
+    "a real hash must still resolve in a full clone",
+  );
+
+  // A genuinely fabricated hash is still caught. The shallow carve-out must not
+  // become a hole: `blocked` covers "cannot see", never "does not exist".
+  assert.equal(
+    hashStatus("0000000000000000000000000000000000000000", false),
+    "absent",
+    "a fabricated hash must still be reported absent in a full clone",
+  );
+
+  // The three outcomes are distinct. This is the invariant the bug collapsed.
+  assert.equal(
+    new Set([hashStatus(real, true), hashStatus(real, false), hashStatus("0".repeat(40), false)]).size,
+    3,
+    "blocked, present, and absent must be three distinguishable outcomes",
+  );
+}
+
+/**
+ * Run a git command, returning null on failure. Mirrors the helper the
+ * self-check uses; scoped here so this test file does not import internals.
+ */
+function sh(cmd, args) {
+  const r = spawnSync(cmd, args, { encoding: "utf8", cwd: repoRoot });
+  return r.status === 0 ? r.stdout.trim() : null;
+}
+
+// --- 9. Third-party source names stay out of the tracked tree --------------
+// The policy: the tracked tree refers to local reference repositories as
+// `src-NN`, and the identifier-to-repository mapping lives in ref/SOURCES.md,
+// which is gitignored. A name in a tracked file advertises a third-party
+// project in a published package and implies a dependency a fresh clone does
+// not have.
+//
+// The risk in any such check is crying wolf. Two words in this repo are BOTH a
+// third-party project name and ordinary English or an npm keyword, and a naive
+// substring match corrupts real behaviour — it turned "a writing sample for
+// humanizer" into "a writing sample for src-06" and would delete an npm
+// discovery keyword. So the rule matches credit positions only, and these cases
+// pin that, because a check that false-positives on the repo's own vocabulary
+// gets deleted and takes the guarantee with it.
+{
+  // Attribution positions ARE caught, in every shape the tree actually used.
+  for (const leak of [
+    "Transfer from ref/feynman/scripts/npm-audit.mjs:6 (MIT, `cd72f97`).",
+    "// Stolen from Feynman's verifier citation rules.",
+    "Deduplicate sources. (feynman result provenance audit)",
+    "Transfer from ref/agent-skills/evals/skill-impact.md.",
+    "From BugTraceAI-CLI. Proposes merges for semantically similar sources.",
+  ]) {
+    const hits = findThirdPartyNames(leak, "fixture");
+    assert.ok(hits.length > 0, `a credit position must be caught: ${leak}`);
+  }
+
+  // The false-positive classes must NOT be caught. These are the exact strings
+  // that a blind replace broke.
+  assert.deepEqual(
+    findThirdPartyNames('writeFileSync(p, "# Voice Sample\\nNo student sample supplied; humanizer must use the neutral baseline.")', "fixture"),
+    [],
+    "`humanizer` as an ordinary noun is not a source credit — replacing it broke a real feature",
+  );
+  assert.deepEqual(
+    findThirdPartyNames('  "keywords": ["opencode-plugin", "agent-skills", "vitruvius"],', "fixture"),
+    [],
+    "the `agent-skills` npm keyword is discovery metadata, not an attribution",
+  );
+
+  // Clean prose is not a credit, either.
+  assert.deepEqual(
+    findThirdPartyNames("The src-05 reference contributed the budget shape. The src-06 validator bundles four ideas.", "fixture"),
+    [],
+    "an already-anonymised identifier must not re-trigger",
+  );
+
+  // The message must tell the reader what to do, not just that something is wrong.
+  const [msg] = findThirdPartyNames("ref/feynman/scripts/x.mjs", "docs/STEAL.md");
+  assert.match(msg, /docs\/STEAL\.md/, "the message must name the file");
+  assert.match(msg, /src-NN/, "the message must name the fix, so it is actionable");
+}
+
 console.log(
   "PASS: the suite-floor claim is read in any emphasis, the other counter is not " +
-    "misattributed, and history is not read as a present-tense claim",
+    "misattributed, history is not read as a present-tense claim, a shallow clone " +
+    "blocks the hash check instead of failing it, and third-party source names are " +
+    "caught in credit positions without false-positiving on the repo's own vocabulary",
 );

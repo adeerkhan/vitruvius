@@ -18,6 +18,7 @@ import { readFileSync, realpathSync, statSync } from "node:fs";
 import { isAbsolute, dirname, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { unsupportedTokens } from "./entailment.mjs";
+import { isInside, isNonEmptyString as isText, isSafeRelativePath } from "./path-safety.mjs";
 
 const SCHEMA = "vitruvius-problem-anchor.v1";
 const SHA256_PATTERN = /^[0-9a-f]{64}$/;
@@ -61,10 +62,6 @@ function isObject(value) {
   return value !== null && typeof value === "object" && !Array.isArray(value);
 }
 
-function isText(value) {
-  return typeof value === "string" && value.trim() !== "";
-}
-
 function isIdentifier(value) {
   return typeof value === "string" && IDENTIFIER_PATTERN.test(value);
 }
@@ -94,16 +91,12 @@ function normalize(value) {
   return value.replaceAll("\\", "/");
 }
 
-function isConfinedRelativePath(value) {
-  if (!isText(value) || value.includes("\\")) return false;
-  if (isAbsolute(value) || /^[A-Za-z]:/.test(value)) return false;
-  return value.split("/").every((segment) => segment !== "" && segment !== "." && segment !== "..");
-}
-
-function isInside(root, path) {
-  const from = relative(root, path);
-  return from === "" || (!from.startsWith(`..${sep}`) && from !== ".." && !isAbsolute(from));
-}
+// This file's own predicate was a sixth copy under a different name
+// (isConfinedRelativePath). `rejectBackslash` is required here and nowhere
+// else: this contract also promises callers that anchors use `/` separators,
+// which the segment check alone cannot keep. Dropping that option let
+// `solver\squarify.ts` through, and the suite caught it.
+const isConfinedRelativePath = (value) => isSafeRelativePath(value, { rejectBackslash: true });
 
 function lineCount(text) {
   return text.split(/\r?\n/).length;

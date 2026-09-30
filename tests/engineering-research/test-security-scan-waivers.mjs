@@ -132,7 +132,62 @@ const waiver = (over = {}) => ({
   );
 }
 
+// --- A waiver must not become a blanket permission -------------------------
+// The hole, found by adding the SSRF fix. A file+rule waiver written for two
+// RegExp.prototype.exec false positives ALSO silently allowed a real
+// `eval(...)` appended to the same file: same rule name, so the same waiver
+// matched it. The build went green with an eval in a shipped skill, and the
+// report said nothing about it — the reason and removeWhen were both true.
+//
+// So a waiver may pin how many findings it speaks for. Widening from 2 to 3
+// must become a visible edit, not a silent absorption.
+{
+  const waiver = (extra = {}) => ({
+    file: "skills/x/scripts/x.mjs",
+    rule: "dangerous function call",
+    reason: "test",
+    removeWhen: "test",
+    ...extra,
+  });
+  const finding = (line) => ({ file: "skills/x/scripts/x.mjs", rule: "dangerous function call", line, severity: "HIGH" });
+
+  // A pinned count covers exactly what it names.
+  const two = partitionFindings([finding(10), finding(20)], [waiver({ maxFindings: 2 })]);
+  assert.equal(two.blocking.length, 0, "two findings are covered by a waiver pinned to two");
+  assert.equal(two.allowed.length, 2, "both are reported as waived, not silently dropped");
+  assert.equal(two.stale.length, 0, "and the waiver is not reported stale");
+
+  // A third finding in the same file is NOT covered — this is the regression.
+  const three = partitionFindings([finding(10), finding(20), finding(30)], [waiver({ maxFindings: 2 })]);
+  assert.equal(three.blocking.length, 1, "a third dangerous call must not be absorbed by a waiver pinned to two");
+  assert.equal(three.blocking[0].line, 30, "and the un-waived finding must be the new one");
+  assert.equal(three.allowed.length, 2, "the two reviewed findings stay waived");
+
+  // An exact line pin is NOT supported, deliberately. It would be the
+  // narrowest waiver, but it goes stale the moment anyone edits a line above
+  // the finding, and a stale waiver that silently stops matching is worse than
+  // a broad one that is visible in the report. `maxFindings` is the
+  // line-rotation-safe way to narrow one.
+  assert.equal(
+    Object.keys(waiver({ line: 10 })).includes("line"),
+    true,
+    "sanity: a line field is still writable, so the assertion below is meaningful",
+  );
+  const withLineField = partitionFindings([finding(10), finding(20)], [waiver({ line: 10 })]);
+  assert.equal(
+    withLineField.blocking.length,
+    0,
+    "a stray `line` field is ignored rather than honoured — matching stays on file+rule+count",
+  );
+
+  // A waiver with neither stays usable, because pinning a line is wrong the
+  // moment anyone edits above the finding — but it is the loose form, and it is
+  // documented as such.
+  const loose = partitionFindings([finding(10), finding(20)], [waiver()]);
+  assert.equal(loose.blocking.length, 0, "an unpinned waiver still works, for compatibility");
+}
+
 console.log(
   "PASS: security-scan waivers require a reason and a removal condition, cannot suppress without both, " +
-    "and are reported stale when they match nothing",
+    "are reported stale when they match nothing, and cannot absorb a finding beyond the count they name",
 );

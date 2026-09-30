@@ -1,7 +1,7 @@
 /**
  * tests/_contract/contract.mjs — Shared test utilities for Vitruvius skills.
  *
- * Adapted from scientific-agent-skills' skill_contract pattern.
+ * Adapted from the src-07 skill_contract pattern.
  * Provides common assertions for frontmatter, structure, and methodology.
  */
 

@@ -53,7 +53,7 @@ an open ambiguity or negative coverage exists. Negative and ambiguous entries
 carry `id`, `search_id`, `claim_ids`, `status`, and `note`.
 
 Negative coverage records *what was actually done*, not just "nothing found"
-(BugTraceAI negative-evidence transfer). `status` is one of:
+(src-04 negative-evidence transfer). `status` is one of:
 
 | status | meaning | valid on | completion |
 |--------|---------|----------|------------|

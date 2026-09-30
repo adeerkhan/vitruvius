@@ -2,7 +2,7 @@
 /**
  * validate-artifact-paths.mjs — guard the canonical research artifact paths.
  *
- * Transfer from ref/agent-skills/scripts/validate-artifact-paths.js. The shared
+ * Transfer from src-02 scripts/validate-artifact-paths.js. The shared
  * method writes plans, drafts, finals, provenance, the problem-anchor and
  * GOAL-CHECK records, and the evidence ledger to a fixed set of paths that
  * other skills and docs read back. When one surface moves a path and another is

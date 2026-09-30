@@ -86,7 +86,7 @@ const CASES = [
     replace: "if (result.status !== 999) {",
     test: "tests/engineering-research/test-isolated-tests.mjs",
   },
-  // The security-scan allowlist, stolen from ref/feynman/scripts/npm-audit.mjs
+  // The security-scan allowlist, stolen from src-05 scripts/npm-audit.mjs
   // on 2026-09-29. A waiver list is the easiest thing in this repo to add as
   // decoration: it can be written, referenced, and never once suppress
   // anything. Each case below removes one rule and requires the suite to notice.
@@ -121,19 +121,38 @@ const CASES = [
   {
     file: "scripts/security-scan.mjs",
     rule: "a waiver survives the finding moving down the file",
-    find: /const match = usable\.find\(\(w\) => w\.file === finding\.file && w\.rule === finding\.rule\);/,
+    // Anchored on the current matcher. The old anchor was the single-line
+    // `usable.find((w) => w.file === ... && w.rule === ...)`, which the
+    // maxFindings work replaced with a multi-line predicate — so this pattern
+    // stopped matching and the case silently became vacuous. The teeth harness
+    // reporting a broken harness is what caught it.
+    //
+    // The mutation now introduces a line pin, which the suite must reject: a
+    // line-keyed waiver rots the moment anyone edits above the finding.
+    find: /      if \(w\.file !== finding\.file \|\| w\.rule !== finding\.rule\) return false;/,
     replace:
-      "const match = usable.find((w) => w.file === finding.file && w.rule === finding.rule && w.line === finding.line);",
+      "      if (w.file !== finding.file || w.rule !== finding.rule) return false;\n" +
+      "      if (typeof w.line === 'number' && w.line !== finding.line) return false;",
     test: "tests/engineering-research/test-security-scan-waivers.mjs",
   },
   {
     file: "scripts/security-scan.mjs",
     rule: "a waiver for one rule does not allow a different rule",
-    find: /const match = usable\.find\(\(w\) => w\.file === finding\.file && w\.rule === finding\.rule\);/,
-    replace: "const match = usable.find((w) => w.file === finding.file);",
+    find: /      if \(typeof w\.maxFindings === "number" && capOf\(w\) <= 0\) return false;/,
+    replace: "",
     test: "tests/engineering-research/test-security-scan-waivers.mjs",
   },
-  // P5, stolen from ref/humanizer/scripts/validate-package.py:61 (MIT, 225a6f3).
+  // The regression the maxFindings work was written for: a file+rule waiver
+  // must not absorb a THIRD dangerous call added to the same file. This is the
+  // case that would have caught the real `eval` that got waived silently.
+  {
+    file: "scripts/security-scan.mjs",
+    rule: "a waiver cannot absorb a finding beyond the count it names",
+    find: /      if \(typeof w\.maxFindings === "number" && capOf\(w\) <= 0\) return false;\n      return true;/,
+    replace: "      return true;",
+    test: "tests/engineering-research/test-security-scan-waivers.mjs",
+  },
+  // P5, stolen from src-06 scripts/validate-package.py:61 (MIT, 225a6f3).
   // The old test hardcoded `.claude-plugin/plugin.json`, which is how
   // `.qoder-plugin/plugin.json` came to sit unchecked beside it. These cases
   // mutate the manifests, not a script, so the version is replaced by
@@ -159,7 +178,7 @@ const CASES = [
     replace: '"name": "not-vitruvius"',
     test: "tests/engineering-research/test-version-sync.mjs",
   },
-  // P1, stolen from ref/feynman/src/telemetry/posthog.ts:51 (MIT, cd72f97).
+  // P1, stolen from src-05 src/telemetry/posthog.ts:51 (MIT, cd72f97).
   // The defect is a hang, so each mutation below must make the suite stop
   // rather than merely print something different. Two of the three do that by
   // removing the deadline entirely, which is why the suite bounds its own cases.
@@ -176,6 +195,26 @@ const CASES = [
     find: /const budget = AbortSignal\.timeout\(budgetMs\);/,
     replace: "const budget = AbortSignal.timeout(3_600_000);",
     test: "tests/scholarly-research/test-extract-pdf.mjs",
+  },
+  // --- SSRF: the redirect that was the traversal -------------------------
+  // `redirect: 'follow'` handed every hop to the transport unchecked, so a
+  // public URL answering 302 Location: http://169.254.169.254/ reached the
+  // cloud metadata service. These two cases are the SSRF guard's teeth: one
+  // removes the manual-redirect rule, the other removes the address check that
+  // the walk depends on.
+  {
+    file: "skills/scholarly-research/scripts/extract-pdf.mjs",
+    rule: "redirects are followed by hand so each hop is re-validated",
+    find: /      redirect: 'manual',\n/,
+    replace: "      redirect: 'follow',\n",
+    test: "tests/scholarly-research/test-extract-pdf-ssrf.mjs",
+  },
+  {
+    file: "skills/scholarly-research/scripts/extract-pdf.mjs",
+    rule: "a host that resolves to a private address is refused",
+    find: /  if \(isPrivateAddress\(host\)\) \{/,
+    replace: "  if (false) {",
+    test: "tests/scholarly-research/test-extract-pdf-ssrf.mjs",
   },
   {
     file: "skills/scholarly-research/scripts/extract-pdf.mjs",

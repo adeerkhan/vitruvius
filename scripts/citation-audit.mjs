@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // citation-audit.mjs — scan a draft for citation completeness.
-// Stolen from Feynman's verifier citation rules.
+// Stolen from src-05's verifier citation rules.
 //
 // Usage:
 //   node scripts/citation-audit.mjs <draft.md>

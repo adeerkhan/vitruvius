@@ -27,7 +27,7 @@ const VALID_VERDICTS = new Set([
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const LOCK_WAIT_MS = 10_000;
 const LOCK_POLL_MS = 25;
-// A crashed holder must not wedge the ledger forever (ref/autoprompt-skill
+// A crashed holder must not wedge the ledger forever (src-03
 // transfer). A holder writes a bounded lease; only an *expired* lease is
 // reclaimed, and only by one reclaimer at a time.
 const LOCK_TTL_MS = Number(process.env.VITRUVIUS_LOCK_TTL_MS || 60_000);

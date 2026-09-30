@@ -120,7 +120,7 @@ assert.equal(partialReport.valid, true, partialReport.errors.join("\n"));
 assert.equal(partialReport.completion, "partial");
 assert.match(validateEvidenceLedger(validLedger()).errors.join("\n"), /repoRoot is required/i);
 
-// --- N1: exact-first dedup merge trail (BugTraceAI exact-first keying) --------
+// --- N1: exact-first dedup merge trail (src-04 exact-first keying) --------
 const merged = clone();
 merged.sources.push({
   id: "SRC-003",
@@ -178,7 +178,7 @@ assert.match(errorsFor((value) => {
   value.sources[1].aliases = ["doi:10.1000/a"];
 }).join("\n"), /alias .* already owned/i);
 
-// --- N1: negative-coverage statuses (BugTraceAI negative evidence) -----------
+// --- N1: negative-coverage statuses (src-04 negative evidence) -----------
 // measured_zero is a complete negative on a completed search.
 const measured = clone();
 measured.coverage.negative[0].status = "measured_zero";

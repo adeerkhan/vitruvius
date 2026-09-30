@@ -15,6 +15,7 @@ import { createHash } from "node:crypto";
 import { lstatSync, readFileSync, realpathSync } from "node:fs";
 import { dirname, isAbsolute, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
+import { isInside, isNonEmptyString as isText, isSafeRelativePath } from "./path-safety.mjs";
 
 const SCHEMA = "vitruvius-goal-check.v1";
 const REQUIREMENTS_SCHEMA = "vitruvius-goal-requirements.v1";
@@ -37,10 +38,6 @@ function isObject(value) {
   return value !== null && typeof value === "object" && !Array.isArray(value);
 }
 
-function isText(value) {
-  return typeof value === "string" && value.trim() !== "";
-}
-
 function isIdentifier(value) {
   return typeof value === "string" && /^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(value);
 }
@@ -56,18 +53,6 @@ function exactKeys(value, allowed, label, errors) {
   return true;
 }
 
-function isSafeRelativePath(value) {
-  if (!isText(value) || isAbsolute(value) || value.includes("\\")) return false;
-  const normalized = value.replaceAll("\\", "/");
-  if (normalized.startsWith("/") || normalized.includes(":")) return false;
-  const segments = normalized.split("/");
-  return segments.every((segment) => segment !== "" && segment !== "." && segment !== "..");
-}
-
-function isInside(root, candidate) {
-  const pathFromRoot = relative(root, candidate);
-  return !isAbsolute(pathFromRoot) && pathFromRoot !== ".." && !pathFromRoot.startsWith(`..${sep}`);
-}
 
 function physicalKey(path) {
   try {

@@ -18,7 +18,7 @@ metadata:
   version: "0.4.0"
 
 ---
-<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=aac448186d1bc3868c1d6414c7c5f38d0df12d54b5ad8f86bc8cfbf85c35c317 -->
+<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=ff51abf4f018298bdc31577f8897fc6630e0a534b022ca944867f84ee7954f0a -->
 
 # Engineering Research
 
@@ -252,7 +252,7 @@ If the verifier returns BLOCKED, fix the fatal issues and re-run. If PARTIAL,
 note the qualifications in Open Questions. Do not run the verifier and any
 reviewer in the same parallel subagent call — verify first, then review.
 
-### Conditional Escalation (A4 — from Autoprompt L4 pattern)
+### Conditional Escalation (A4 — from src-03 L4 pattern)
 
 Verification escalates based on **claim criticality** and **verifier disagreement**.
 Keep the flat agent structure — escalation is conditional, not hierarchical.

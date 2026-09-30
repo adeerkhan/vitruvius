@@ -27,13 +27,62 @@ const warnings = [];
 
 const text = readFileSync(STEAL, "utf8");
 
+// `stdio: ["ignore", "pipe", "ignore"]` is not cosmetic. execFileSync defaults
+// to piping the child's stderr into this process's stderr, so every
+// `git cat-file -e` miss printed a raw `fatal: Not a valid object name` line
+// into the build log — 38 of them in a shallow-clone run, interleaved with the
+// check's own output and impossible to attribute. The check reports the finding
+// with the file and hash named; git's raw complaint adds nothing and buries it.
 const sh = (cmd, args) => {
   try {
-    return execFileSync(cmd, args, { encoding: "utf8", cwd: REPO_ROOT }).trim();
+    return execFileSync(cmd, args, {
+      encoding: "utf8",
+      cwd: REPO_ROOT,
+      stdio: ["ignore", "pipe", "ignore"],
+    }).trim();
   } catch (e) {
     return null;
   }
 };
+
+// --- Shallow-clone detection ----------------------------------------------
+// `git clone --depth=N` — and actions/checkout, whose default IS depth 1 —
+// fetches a truncated history. Every object outside that window is absent, so
+// `git cat-file -e <hash>^{commit}` fails on hashes that are genuinely in this
+// repository. Before this check existed, a routine CI run reported 38
+// fabricated hashes that were all real, and the map had committed hashes nobody
+// could see. The old behaviour conflated "this hash is a lie" with "I cannot
+// see this hash" and chose the accusation, which is the one reading a status map
+// must never take on faith (AGENTS.md commandment 6: distinguish `blocked` from
+// `failed`).
+//
+// So: detect the shallow case, and when it holds, report the hash checks as
+// UNVERIFIED rather than failed. The hashes are then exactly as trustworthy as
+// before — unknown — which is the honest state.
+const isShallow = sh("git", ["rev-parse", "--is-shallow-repository"]) === "true";
+if (isShallow) {
+  warnings.push(
+    "This is a SHALLOW clone, so commit-hash checks (#1, #2) could not run. " +
+      "The hashes are neither confirmed nor refuted — they are UNVERIFIED, not fabricated. " +
+      "If you expected them verified, fetch full history: `git fetch --unshallow`.",
+  );
+}
+
+/**
+ * Whether a cited commit hash resolves in this repository.
+ *
+ * Three outcomes, not two. The original returned a boolean and every
+ * unreachable hash became a problem accusing the map of fabrication. `blocked`
+ * is now a distinct result, and the caller reports it as a warning.
+ *
+ * @param {string} hash 7-40 hex chars
+ * @returns {"present"|"absent"|"blocked"} `blocked` when a shallow clone makes
+ *   the question unanswerable.
+ */
+export function hashStatus(hash, shallow = isShallow) {
+  if (shallow) return "blocked";
+  return sh("git", ["cat-file", "-e", `${hash}^{commit}`]) === null ? "absent" : "present";
+}
 
 // --- 1. Implementation HEAD must be a real commit in this history -----------
 // A map cannot name its own commit hash: committing the map changes HEAD, so
@@ -51,7 +100,13 @@ const sh = (cmd, args) => {
     problems.push("no '**Implementation HEAD:** `hash`' line found; the map must pin the tree it describes");
   } else {
     const hash = claimed[1];
-    if (sh("git", ["cat-file", "-e", `${hash}^{commit}`]) === null) {
+    const status = hashStatus(hash);
+    if (status === "blocked") {
+      warnings.push(
+        `Implementation HEAD \`${hash}\` is UNVERIFIED: this clone is shallow, so the hash cannot be ` +
+          `resolved either way. It is not evidence of a bad pin.`,
+      );
+    } else if (status === "absent") {
       problems.push(
         `Implementation HEAD \`${hash}\` is not a commit in this repository. A status map citing an ` +
           `unresolvable hash is the failure this repo has already had once.`,
@@ -77,11 +132,23 @@ const sh = (cmd, args) => {
 // evidence. This repo has already had that exact failure.
 {
   const rows = [...text.matchAll(/^\|\s*\d+\s*\|([^|]+)\|\s*`?([0-9a-f]{7,40})`?\s*\|/gm)];
+  let blocked = 0;
   for (const [, what, hash] of rows) {
-    const exists = sh("git", ["cat-file", "-e", `${hash}^{commit}`]);
-    if (exists === null) {
+    const status = hashStatus(hash);
+    if (status === "blocked") {
+      blocked++;
+    } else if (status === "absent") {
       problems.push(`cites commit ${hash} ("${what.trim().slice(0, 60)}"), which is not in this repository`);
     }
+  }
+  // One summary line, not one per hash. A shallow clone previously emitted 38
+  // accusations; a reader who sees 38 failures stops reading, and the one real
+  // cause (this is a shallow clone) is nowhere in the output.
+  if (blocked > 0) {
+    warnings.push(
+      `${blocked} cited commit hash(es) are UNVERIFIED — this clone is shallow, so they can be neither ` +
+        `confirmed nor refuted. They are not fabricated. \`git fetch --unshallow\` makes this check real.`,
+    );
   }
 }
 
@@ -261,6 +328,97 @@ export function checkSuiteFloor(text, onDisk, withSuite) {
         `map does not state it as **${coverage.model_run_recorded}/25**; the two numbers must agree`,
     );
   }
+}
+
+// --- 8. Third-party source names stay out of the tracked tree -------------
+// The tracked tree refers to reference repositories as `src-NN`; the private
+// mapping lives in ref/SOURCES.md, which is gitignored. This is a policy
+// enforcement, not a spelling rule: a name that leaks into a tracked file is
+// advertising a third-party project in a published package and implying a
+// dependency a fresh clone does not have (`ref/` is not tracked).
+//
+// The first version of this list was derived by hand and missed `abrt` and
+// `BugTraceAI-CLI`, which is why the check enumerates names rather than trusting
+// a hand-kept set to stay complete.
+export const THIRD_PARTY_SOURCE_NAMES = [
+  "abrt",
+  "agent-skills",
+  "autoprompt",
+  "BugTraceAI",
+  "feynman",
+  "humanizer",
+  "scientific-agent-skills",
+  "semble",
+];
+
+/**
+ * Find third-party source names in tracked text.
+ *
+ * Two false-positive classes are excluded, both of which are real words in this
+ * repo's own vocabulary and both of which a blind replace would corrupt:
+ *
+ *   - `humanizer` in skills/proposal/ is the ordinary English noun ("writing
+ *     sample for humanizer"), not the reference repository.
+ *   - `agent-skills` in package.json is an npm discovery keyword, not an
+ *     attribution. Removing it would drop the package out of search results.
+ *
+ * So a match is only reported when it appears in an attribution position: a
+ * `ref/<name>` path, a `<name>` in a parenthesised credit, or a possessive
+ * ("<name>'s", "Feynman's"). That is narrower than a bare substring match and it
+ * is what keeps this check from crying wolf, which is the failure mode that got
+ * the previous generation of checks deleted.
+ *
+ * @param {string} content
+ * @param {string} label path, used only in the message
+ * @returns {string[]} one message per hit
+ */
+export function findThirdPartyNames(content, label) {
+  const found = [];
+  for (const name of THIRD_PARTY_SOURCE_NAMES) {
+    // Credit shapes only. `(feynman verifier citation rules)`, `ref/feynman`,
+    // `Feynman's`, `the humanizer rule`. Deliberately not a bare mention.
+    const patterns = [
+      new RegExp(`ref/${name}(?![A-Za-z0-9-])`, "gi"),
+      new RegExp(`\\b${name}'s\\b`, "gi"),
+      new RegExp(`\\(${name}\\b[^)]*\\)`, "gi"),
+      new RegExp(`\\bfrom ${name}\\b`, "gi"),
+      new RegExp(`\\bby ${name}\\b`, "gi"),
+    ];
+    for (const re of patterns) {
+      for (const m of content.matchAll(re)) {
+        found.push(`${label}: third-party source name "${m[0]}" — use a src-NN identifier (mapping in ref/SOURCES.md)`);
+      }
+    }
+  }
+  return found;
+}
+
+// Only files git actually tracks. An untracked or ignored file is not published,
+// so a name there is nobody's business — and `ref/SOURCES.md`, which is where
+// every name is *supposed* to live, must not be reported.
+{
+  const tracked = sh("git", ["ls-files"]) ?? "";
+  const leaks = [];
+  for (const rel of tracked.split("\n").filter(Boolean)) {
+    if (!/\.(mjs|md|json|sh|ps1|yml|yaml)$/.test(rel)) continue;
+    // This file necessarily spells every name out, in order to search for it,
+    // and its test file must carry real leak fixtures to prove the search works.
+    // Neither exemption is a loophole: a test asserting a *leak is caught*
+    // requires a leak-shaped string, and both files are otherwise full of
+    // src-NN identifiers that the rule already scans.
+    if (rel === "scripts/steal-selfcheck.mjs") continue;
+    if (rel === "tests/engineering-research/test-steal-selfcheck.mjs") continue;
+    const path = join(REPO_ROOT, rel);
+    if (!existsSync(path)) continue;
+    let content;
+    try {
+      content = readFileSync(path, "utf8");
+    } catch {
+      continue;
+    }
+    leaks.push(...findThirdPartyNames(content, rel));
+  }
+  problems.push(...leaks);
 }
 
 // --- 7. Working-tree accuracy ---------------------------------------------

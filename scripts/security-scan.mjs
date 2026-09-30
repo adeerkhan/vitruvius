@@ -24,7 +24,7 @@
  * were to delete legitimate code or to disable the scanner, which the same
  * document forbids at line 64.
  *
- * Shape stolen from ref/feynman/scripts/npm-audit.mjs:6 (MIT, `cd72f97`): a
+ * Shape stolen from src-05 scripts/npm-audit.mjs:6 (MIT, `cd72f97`): a
  * named allowlist where every entry carries a written reason, and everything
  * not named blocks. Two additions that repo's version does not need:
  *
@@ -56,13 +56,24 @@ const SCRIPTS_DIR = join(REPO_ROOT, "scripts");
  * @type {ReadonlyArray<{file: string, rule: string, reason: string, removeWhen: string}>}
  */
 export const WAIVERS = [
-  // e.g.
-  // {
-  //   file: "scripts/extract-pdf.mjs",
-  //   rule: "dangerous function call",
-  //   reason: "spawns pdftotext with a fixed argument list, never a shell string",
-  //   removeWhen: "the PDF path moves to a pure-JS parser and the subprocess goes away",
-  // },
+  {
+    file: "skills/scholarly-research/scripts/extract-pdf.mjs",
+    rule: "dangerous function call",
+    // Exactly the two RegExp.prototype.exec calls in the address classifier.
+    // Pinned by count, so appending a THIRD dangerous call to this file is a
+    // build failure rather than something this waiver quietly absorbs. Found
+    // the hard way: a file+rule waiver also allowed a real eval added later.
+    maxFindings: 2,
+    reason:
+      "These are RegExp.prototype.exec calls in the SSRF address classifier, which pattern-matches " +
+      "a /\\bexec\\s*\\(/ written for subprocess execution. A regex literal cannot execute code; the " +
+      "pattern is static and the match target is a string. Widening or removing the rule would lose " +
+      "real coverage of eval/child_process across the whole tree, so the finding is waived at this " +
+      "file instead.",
+    removeWhen:
+      "the address classifier stops using RegExp.exec — e.g. it moves to net.isIP and string " +
+      "comparison, or the scanner learns to distinguish a regex exec from a process exec",
+  },
 ];
 
 const SECRET_PATTERNS = [
@@ -223,9 +234,49 @@ export function partitionFindings(findings, waivers = WAIVERS) {
     WAIVER_FIELDS.every((k) => typeof w?.[k] === "string" && w[k].trim() !== ""),
   );
 
+  // A waiver may pin how many findings it speaks for (`maxFindings`) and/or an
+  // exact `line`. Both narrow it to what was actually reviewed. The budget is
+  // per-waiver and decremented as findings are matched, so the FIRST N findings
+  // in file order are covered and anything past the cap blocks.
+  //
+  // The first attempt compared `findingCount(...) <= maxFindings` on every
+  // finding, which is wrong in the other direction: once the file had three
+  // findings, all three blocked, including the two the waiver had reviewed. The
+  // cap is a budget consumed as matches are made, not a threshold re-tested.
+  //
+  // Deliberately NOT supporting a `line` pin, even though it would be the
+  // narrowest possible waiver. A waiver keyed on a line goes stale the moment
+  // anyone edits a line above the finding, and a stale waiver that silently
+  // stops matching is worse than a broad one that is visible. The suite asserts
+  // the absence of the field so this stays a decision rather than a default.
+  const budget = new Map();
+  const capOf = (w) => {
+    if (typeof w.maxFindings !== "number") return Infinity;
+    const key = `${w.file}|${w.rule}`;
+    if (!budget.has(key)) budget.set(key, w.maxFindings);
+    return budget.get(key);
+  };
+
   for (const finding of findings) {
-    const match = usable.find((w) => w.file === finding.file && w.rule === finding.rule);
+    // A waiver suppresses the findings it NAMES, not every finding of its rule
+    // in its file.
+    //
+    // Keying on file+rule alone was a real hole, found by adding this SSRF fix:
+    // a waiver for a RegExp.prototype.exec false positive also silently allowed
+    // a genuine `eval(...)` appended to the same file, because both produce the
+    // same "dangerous function call" rule. The build went green with an eval in
+    // a shipped skill. The reason and removeWhen were true; the blast radius
+    // was not, and nothing in the report said so.
+    const match = usable.find((w) => {
+      if (w.file !== finding.file || w.rule !== finding.rule) return false;
+      if (typeof w.maxFindings === "number" && capOf(w) <= 0) return false;
+      return true;
+    });
     if (match) {
+      if (typeof match.maxFindings === "number") {
+        const key = `${match.file}|${match.rule}`;
+        budget.set(key, budget.get(key) - 1);
+      }
       used.add(`${match.file}|${match.rule}`);
       allowed.push({ finding, waiver: match });
     } else {

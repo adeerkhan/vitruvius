@@ -16,7 +16,7 @@ metadata:
   version: "0.1.11"
 
 ---
-<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=2e0ed2afeb73446bb6613f8bdf2990f7b343aa2c3dd1986476e2d80865dd0087 -->
+<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=41af538c8fa01bd51c09ca41daafc4d56a1c41335d3df2313b555fb20d083ad5 -->
 
 # Research Proposal Generator
 
@@ -335,9 +335,9 @@ projects/<student-slug>/
 
 | Pattern | Source | How /proposal Uses It |
 |---------|--------|----------------------|
-| Subagent isolation | autoprompt-skill | Each phase runs in fresh context, hands off via files |
-| Non-negotiable boundaries | scientific-agent-skills | Hard "NEVER" rules enforced at every phase |
+| Subagent isolation | src-03 | Each phase runs in fresh context, hands off via files |
+| Non-negotiable boundaries | src-07 | Hard "NEVER" rules enforced at every phase |
 | Voice matching | isolated tone-pass subagent | Matches student's own writing style |
-| Receipts reconciliation | autoprompt-skill | Every search/query logged in provenance |
-| Ledger-first audit | feynman | binder.provenance.md records every action |
-| Claim-vs-diff verification | autoprompt-skill | Verifier maps every claim to source line |
+| Receipts reconciliation | src-03 | Every search/query logged in provenance |
+| Ledger-first audit | src-05 | binder.provenance.md records every action |
+| Claim-vs-diff verification | src-03 | Verifier maps every claim to source line |

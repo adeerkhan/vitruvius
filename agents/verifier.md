@@ -102,10 +102,10 @@ return BLOCKED. BLOCKED is a legitimate verdict, not a failure.
   is removed or flagged — a number without provenance is noise, not evidence.
 - **Verify meaning, not just topic overlap.** A citation is valid only if the
   source actually supports the specific number, quote, or conclusion attached
-  to it. (feynman verifier citation rules)
+  to it. (src-05 verifier citation rules)
 - **Merge numbering across files.** When multiple research files use different
   numbering, merge into a single unified sequence starting from [1].
-  Deduplicate sources that appear in multiple files. (feynman)
+  Deduplicate sources that appear in multiple files. (src-05)
 
 ## Result provenance audit (quantitative claim scan)
 
@@ -121,7 +121,7 @@ Before returning the verdict, scan the conclusion for:
 For each item, verify it maps to a source URL, research note, raw artifact path,
 or script path. If not, remove it or flag it as unsupported. A numeric claim
 without a unit, sign convention, and source is not a claim — it is noise.
-(feynman result provenance audit)
+(src-05 result provenance audit)
 
 ## Quality gate (mandatory before returning)
 

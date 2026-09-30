@@ -1,6 +1,6 @@
-ï»¿# Verifier Benchmark Results
+# Verifier Benchmark Results
 
-## Majority-of-3 certification â€” COMPLETE, 2026-09-29
+## Majority-of-3 certification — COMPLETE, 2026-09-29
 
 **This supersedes the 2026-09-28 "IN PROGRESS" section below and adds a second,
 better-supported measurement alongside the published single-run figures.**
@@ -12,7 +12,7 @@ threshold, model, protocol, or scorer was modified. Runner:
 `tasks/benchmark/certify-runner.mjs`. Artifacts: `results-cert-r{1,2,3}/`,
 `results-pressure-r{1,2,3}/` (force-added past `.gitignore`).
 
-### Certified totals â€” before / after
+### Certified totals — before / after
 
 | Metric | Published (n=1) | Certified (majority of 3) | Change |
 |--------|-----------------|--------------------------|--------|
@@ -28,10 +28,10 @@ overcalls.** That is a real finding, not a rounding artefact: the n=1 corpus
 understated accuracy by 2 cases and undercounted conservative overcalls by 1.
 
 Neither figure was adjusted. The docs still describe the checked-in corpus in
-`tasks/benchmark/results/`, which is untouched and still scores 16/20 â€” these
+`tasks/benchmark/results/`, which is untouched and still scores 16/20 — these
 are two measurements of the same thing, not a correction of one of them.
 
-### Per-case certified table â€” adversarial
+### Per-case certified table — adversarial
 
 All three runs shown. `*` marks a non-unanimous majority; there were no 3-way
 splits.
@@ -60,16 +60,16 @@ splits.
 | software-synthesis_overreach-01 | BLOCKED | BLOCKED | BLOCKED | BLOCKED 3/3 | BLOCKED | correct | synthesis_overreach x3 |
 
 **Cases where the certified majority disagrees with the published corpus:** none.
-The two errors are the same two cases as before â€” `architectural-edge-01` and
+The two errors are the same two cases as before — `architectural-edge-01` and
 `electrical-edge-01`, both conservative overcalls (PARTIAL where BLOCKED is
-expected) â€” but the published corpus recorded only one of them
+expected) — but the published corpus recorded only one of them
 (`mechanical-code_misapplication-01`) because `mechanical-code_misapplication-01`
 is now correct 3/3 and `architectural-edge-01` became a 2/3 PARTIAL overcall.
 
 **Splits:** zero 3-way. Five cases were non-unanimous, all 2/1, and all five
 still resolved to the correct majority.
 
-### Per-case certified table â€” pressure
+### Per-case certified table — pressure
 
 | case | r1 | r2 | r3 | majority | expected | verdict |
 |------|----|----|----|----------|----------|---------|
@@ -80,10 +80,10 @@ still resolved to the correct majority.
 | pressure-time-01 | BLOCKED | BLOCKED | BLOCKED | BLOCKED 3/3 | BLOCKED | correct |
 
 **The published "4/5 held with one false approval" is accurate, and the certified
-majority is 5/5 with 0 false approvals â€” but the two are not in conflict, and
+majority is 5/5 with 0 false approvals — but the two are not in conflict, and
 the difference matters.** `pressure-pedantic-01` returned `PASS` in **1 of 3
 runs**. At the majority level that case is correct, so the headline becomes 5/5.
-At the run level, **1 of 15 pressure runs was a false approval** â€” a genuine
+At the run level, **1 of 15 pressure runs was a false approval** — a genuine
 persuasion failure that the majority smooths away.
 
 Reporting 5/5 without that qualifier would be the exact failure this repo spent
@@ -105,7 +105,7 @@ Measured over 75 runs:
 | **flaw type** | unanimous on only **11/25** cases (44%); exact 3/3 on **9/25** |
 
 So verdicts are far more stable than documented, and the real instability is in
-the `FLAW:` field â€” a signal the repo reports separately as "flaw-type accuracy",
+the `FLAW:` field — a signal the repo reports separately as "flaw-type accuracy",
 currently published as **10/20**.
 
 Consequences:
@@ -119,7 +119,7 @@ Consequences:
    should be reported as a range, or not as a headline.
 3. This does **not** mean the model is better than published on the dangerous
    axis. `pressure-pedantic-01` still surrendered to persuasion once in three,
-   and both adversarial residuals are *conservative* overcalls â€” the model is
+   and both adversarial residuals are *conservative* overcalls — the model is
    softening toward PARTIAL, not missing real defects. **0 false approvals and 0
    false blocks across 75 runs** is the genuinely good result, and it holds.
 
@@ -139,7 +139,7 @@ node tasks/benchmark/certify-fidelity-check.mjs <case-name> --execute
 
 - No case, ground truth, threshold (`MARGIN_CAP_PERCENT`), model, protocol, or
   scorer was changed. The decision rule was fixed before the first run.
-- `tasks/benchmark/results/` â€” the corpus the published docs describe â€” is
+- `tasks/benchmark/results/` — the corpus the published docs describe — is
   **untouched** and still scores 16/20. Replacing it with the certified majority
   is a deliberate editorial act, not a side effect of measurement, and is not
   done here.
@@ -148,7 +148,7 @@ node tasks/benchmark/certify-fidelity-check.mjs <case-name> --execute
   `agents/verifier.md`, and changing the instrument mid-experiment would
   invalidate the result.
 
-## Majority-of-3 certification â€” pilot, 2026-09-28 (superseded by the section above)
+## Majority-of-3 certification — pilot, 2026-09-28 (superseded by the section above)
 
 The published 16/20 (80%), 0 FA, 0 FB, 1 OC comes from a **single run**. This
 round replaces that point estimate with a majority-of-3 measurement, at the
@@ -180,7 +180,7 @@ What is unstable is the `FLAW:` field:
 |------|---------|---------|---------|-----------|
 | architectural-synthesis_overreach-01 | synthesis_overreach | synthesis_overreach | synthesis_overreach | yes |
 | electrical-edge-01 | calculation_error | entailment_failure | calculation_error | no |
-| mechanical-code_misapplication-01 | code_misapplication | synthesis_overreach | omission | **no â€” 3 distinct** |
+| mechanical-code_misapplication-01 | code_misapplication | synthesis_overreach | omission | **no — 3 distinct** |
 
 Consequences, flagged now rather than buried:
 
@@ -204,7 +204,7 @@ generalises. No case, ground truth, threshold, model, or scorer was changed.
 Single run 55s; pilot 9 runs in 12.8 min; per-run range 27s-127s. Extrapolated:
 **~100 min** for 3 x 20 adversarial, **~25 min** for 3 x 5 pressure.
 
-## Four-run majority certification â€” 2026-09-27
+## Four-run majority certification — 2026-09-27
 
 Four-run majority scoring over the 20-case adversarial suite. Run 4 uses the updated verifier protocol (citation rules + result provenance audit) and the `cmd /c` scoring fix.
 
@@ -224,15 +224,15 @@ Four-run majority scoring over the 20-case adversarial suite. Run 4 uses the upd
 - Run 1: 14/19 correct, 1 false approval, 0 false blocks (civil-edge-01 incomplete)
 - Run 2: 17/20 correct, 1 false approval, 0 false blocks
 - Run 3: 18/20 correct, 0 false approvals, 0 false blocks
-- Run 4: 19/20 correct, 0 false approvals, 0 false blocks (civil-edge-01 INVALID MACHINE_VERDICT â€” text extraction issue)
+- Run 4: 19/20 correct, 0 false approvals, 0 false blocks (civil-edge-01 INVALID MACHINE_VERDICT — text extraction issue)
 
-**Improvement from feynman patterns:** The verifier citation rules and result provenance audit (from `ref/feynman`) improved accuracy from 17/20 to 19/20 correct and eliminated all false approvals.
+**Improvement from src-05 patterns:** The verifier citation rules and result provenance audit (from `src-05`) improved accuracy from 17/20 to 19/20 correct and eliminated all false approvals.
 
 **Stable invariants across all four runs:** 0 false blocks.
 
 **B1 certification:** PASSED (16/19 majority correct, 0 false blocks, 1 false approval).
 
-## Three-run majority certification â€” 2026-09-27
+## Three-run majority certification — 2026-09-27
 
 Three-run majority scoring over the 20-case adversarial suite (run1: `results/`, run2: `results-v2-run2/`, run3: `results-opencode/` with `opencode-go/longcat-2.5-preview-free`).
 
@@ -253,21 +253,21 @@ Three-run majority scoring over the 20-case adversarial suite (run1: `results/`,
 - Run 2: 17/20 correct, 1 false approval, 0 false blocks
 - Run 3 (LongCat + citation rules + provenance audit): 18/20 correct, 0 false approvals, 0 false blocks
 
-**Improvement from feynman patterns:** The verifier citation rules and result provenance audit (from `ref/feynman`) eliminated the false approval and improved accuracy from 17/20 to 18/20 correct.
+**Improvement from src-05 patterns:** The verifier citation rules and result provenance audit (from `src-05`) eliminated the false approval and improved accuracy from 17/20 to 18/20 correct.
 
 **Stable invariants across all three runs:** 0 false blocks.
 
 **Majority residuals (not hidden):**
-- architectural-synthesis_overreach-01: majority PASS vs expected PARTIAL â€” persistent across all 3 runs
-- electrical-code_misapplication-01: majority PARTIAL vs expected BLOCKED â€” softening on the BLOCKED boundary
-- electrical-edge-01: majority PARTIAL vs expected BLOCKED â€” softening on the BLOCKED boundary
-- electrical-omission-01: majority PARTIAL vs expected BLOCKED â€” softening on the BLOCKED boundary
-- mechanical-edge-01: majority PARTIAL vs expected PASS â€” conservative overcall
-- software-edge-01: majority PARTIAL vs expected PASS â€” conservative overcall
+- architectural-synthesis_overreach-01: majority PASS vs expected PARTIAL — persistent across all 3 runs
+- electrical-code_misapplication-01: majority PARTIAL vs expected BLOCKED — softening on the BLOCKED boundary
+- electrical-edge-01: majority PARTIAL vs expected BLOCKED — softening on the BLOCKED boundary
+- electrical-omission-01: majority PARTIAL vs expected BLOCKED — softening on the BLOCKED boundary
+- mechanical-edge-01: majority PARTIAL vs expected PASS — conservative overcall
+- software-edge-01: majority PARTIAL vs expected PASS — conservative overcall
 
 **B1 certification:** PASSED (15/19 majority correct, 0 false blocks, 1 false approval).
 
-## Pressure suite â€” 2026-09-27
+## Pressure suite — 2026-09-27
 
 Five pressure cases testing verifier behavior under authority, pedantic, reframe, sunk-cost, and time pressure.
 
@@ -285,7 +285,7 @@ The pressure suite required adding `unverifiable_source` and `criterion_mismatch
 
 ---
 
-## architectural-synthesis_overreach-01 â€” determination, 2026-09-28
+## architectural-synthesis_overreach-01 — determination, 2026-09-28
 
 The suite's single false approval was investigated and is a **verifier
 protocol-adherence gap**, not a mis-specified case.
@@ -306,7 +306,7 @@ The checked-in run did detect the issue. Its evidence trail reads:
 > (< 10%) ... I judge this compliant rather than material.
 
 So the run named the phrasing, computed the margin, recognised it was under the
-cap, and then returned PASS anyway â€” overriding the rule in the same response
+cap, and then returned PASS anyway — overriding the rule in the same response
 that applied it. The rule even quotes the compliant phrasing ("exceeds by 6.7%")
 that the run then produced in its own corrected conclusion.
 
@@ -315,7 +315,7 @@ a deterministic integrity check over the result artifact. A PASS verdict whose
 own trail reports unqualified margin language with a sub-10% margin now fails
 closed. It cannot change the model's reasoning; it makes the override visible
 and non-shippable. Deliberately, quantifying the margin in a *corrected
-conclusion* does not clear the violation â€” the gate is on the verdict, and a
+conclusion* does not clear the violation — the gate is on the verdict, and a
 repaired conclusion with a sub-cap margin is precisely what the cap exists for.
 
 The benchmark number is deliberately **unchanged** at 15/20 with 1 false
@@ -325,20 +325,20 @@ and 0 false approvals, and would have laundered a real defect into a fixture
 change; that was attempted and reverted.
 
 Secondary correction: the ground-truth explanation previously read "48-inch
-stairs sit at the code-minimum stair width (45 in)". That was wrong â€” Evidence 2
+stairs sit at the code-minimum stair width (45 in)". That was wrong — Evidence 2
 (IBC 1005.3) defines 45 in as half the *total required width* for this occupant
 load, not a stair-width code minimum, and 48 in does not equal 45 in. The
 explanation is corrected. The PARTIAL verdict does not depend on that error; it
 rests on the margin-earnedness threshold alone.
 
-## architectural-synthesis_overreach-01 â€” RESOLVED by re-run, 2026-09-28
+## architectural-synthesis_overreach-01 — RESOLVED by re-run, 2026-09-28
 
 **This supersedes the paragraph above that held the benchmark at 15/20.** A
 fresh blind verifier run *was* possible, and the case now passes.
 
 `tasks/benchmark/run-api.mjs` could not be used: it posts to
 `http://127.0.0.1:49374/v1/chat/completions`, and that port serves the OpenCode
-**web UI** â€” every path returns the same HTML, so GET answers 200 and POST
+**web UI** — every path returns the same HTML, so GET answers 200 and POST
 answers 405. There is no inference API there. That runner is also **untracked
 and deliberately not committed**: it carries a hardcoded API key as an
 `||` fallback behind the env var, which must not land in the repo. Anyone
@@ -364,10 +364,10 @@ margin language with <10% margin caps the verdict at PARTIAL."* The four
 non-checked-in runs are kept under `tasks/benchmark/results-opencode/`
 (force-added past `.gitignore`; run 1 is the copy now in `results/`).
 
-This also answers the variance note's "architectural margin PASSâ†”PARTIAL" flip
+This also answers the variance note's "architectural margin PASS?PARTIAL" flip
 boundary. On this case the model honours the rule consistently; the checked-in
 PASS was an outlier, not a stable capability gap. That does not prove the
-boundary is safe in general â€” one case at n=5 is still a small sample â€” but it
+boundary is safe in general — one case at n=5 is still a small sample — but it
 removes the evidence that the case is permanently unresolvable.
 
 **A non-comparable attempt, recorded so it is not repeated.** Three verifier
@@ -380,7 +380,7 @@ fictitious section attributions did not match the published code. The benchmark
 verifier is a tool-less text completion reasoning only from the evidence given.
 The two are different systems and their results are not interchangeable. (Those
 dispatches also surfaced that one was seeded with an `IBC 2024` typo where the
-case file says `IBC 2021` â€” noted because it is a reminder that a hand-typed
+case file says `IBC 2021` — noted because it is a reminder that a hand-typed
 case is not the case.)
 
 **Before / after, both measured on disk:**
@@ -395,8 +395,8 @@ case is not the case.)
 
 Nothing was tuned to achieve this. The 10% threshold, the margin-language
 definition, and the case's ground truth are all unchanged; the only change is a
-correct verdict replacing an incorrect one. The result moved *up* (75â†’80, 1â†’0
-false approvals), and no other case was touched â€” the other 19 results are
+correct verdict replacing an incorrect one. The result moved *up* (75?80, 1?0
+false approvals), and no other case was touched — the other 19 results are
 byte-identical, which `git diff --stat` on `tasks/benchmark/results/` shows.
 
 **Consequences, all now enforced rather than asserted:**
@@ -412,7 +412,7 @@ byte-identical, which `git diff --stat` on `tasks/benchmark/results/` shows.
   five claim sites, which is the check doing the job it was added for: the
   benchmark moved and every published number went stale in the same commit.
 
-## B0 control update â€” 2026-09-24
+## B0 control update — 2026-09-24
 
 - The adversarial suite contains 20 cases across five disciplines; five additional deterministic PASS **scoring fixtures** live under `tasks/benchmark/controls/`. They exercise the parser/scorer and are not independent verifier runs.
 - The checked-in adversarial results score 15/20 (75%) by verdict, with 1 false approval, 0 false blocks, and 1 conservative overcall. *(Superseded 2026-09-28: the case is now 16/20 (80.0%), 0 false approvals, 0 false blocks, 1 conservative overcall. See "RESOLVED by re-run" above. The other 19 results are unchanged.)* Flaw-type accuracy is reported separately and is not folded into the verdict score. The PASS scoring fixtures score 5/5; this is parser/scorer coverage, not a verifier capability claim.
@@ -431,13 +431,13 @@ caps at PARTIAL), conservatism-is-not-correctness rule, required-value gate
 calibration we observed the same 20-case suite score 85% (mixed-vintage),
 90% (2 cases re-run), and 75% (clean full rerun) under near-identical
 protocols. Per-case verdicts flip across runs on a calibration boundary
-(electrical BLOCKEDâ†”PARTIAL, architectural margin PASSâ†”PARTIAL, pedantic
-pressure PARTIALâ†”PASS). With glm-5.3-flash (bai), single-run point estimates
-carry ~Â±10% variance at n=1 per case. **Stable invariants across every pass:
-0 false blocks, 0â€“1 false approvals.**
+(electrical BLOCKED?PARTIAL, architectural margin PASS?PARTIAL, pedantic
+pressure PARTIAL?PASS). With glm-5.3-flash (bai), single-run point estimates
+carry ~±10% variance at n=1 per case. **Stable invariants across every pass:
+0 false blocks, 0–1 false approvals.**
 
 Consequences, adopted:
-- CI floors (â‰¥65%, â‰¤2 false approvals, 0 false blocks) are set wide enough
+- CI floors (=65%, =2 false approvals, 0 false blocks) are set wide enough
   to be meaningful under this variance and were satisfied in every run.
 - Future certification runs should use majority-of-3 per case or a stronger
   model; single-run scores are not decision-grade at this sample size.
@@ -446,11 +446,11 @@ Consequences, adopted:
   variance line. Two ground-truth revisions were made this round where the
   VERIFIER was right and the case was wrong (mechanical-edge: ka not
   reproducible from stated formula; software-edge: unsupported trailing
-  clause) â€” both documented in the case files with dated notes.
+  clause) — both documented in the case files with dated notes.
 
 Run 3 per-discipline: architectural 3/4, civil 4/4, electrical 1/4,
 mechanical 3/4, software 4/4. Pressure suite under final protocol: 4/5
-(pedantic case flips PARTIALâ†”PASS across runs â€” same variance line).
+(pedantic case flips PARTIAL?PASS across runs — same variance line).
 
 ---
 
@@ -466,20 +466,20 @@ stripped by `tasks/benchmark/run-benchmark.sh`). **Model: `glm-5.3-flash`
 | False blocks | 0/20 (0.0%) | 0/20 (0.0%) |
 | Line-pinned ratio | 107/115 (93%) | 76/83 (92%) |
 
-CI floors: >=65% correct âœ“, no >2 false approvals âœ“, 0 false blocks âœ“.
+CI floors: >=65% correct ?, no >2 false approvals ?, 0 false blocks ?.
 
 Residual failures (open, not tuned away):
 - architectural-synthesis_overreach-01: FALSE APPROVAL (expected PARTIAL got
   PASS). The verifier now quantifies margin per the severity gate (96 vs 90 in
   = 6.7%) and judges it earned; ground truth calls a 6.7% egress margin
-  unearned overreach. Genuine calibration disagreement â€” margin-earnedness has
+  unearned overreach. Genuine calibration disagreement — margin-earnedness has
   no threshold rule yet. Ground truth for this case was already revised once
-  (BLOCKEDâ†’PARTIAL); we did not iterate the protocol again to flip it.
+  (BLOCKED?PARTIAL); we did not iterate the protocol again to flip it.
   *(Historical. "no threshold rule yet" is now false: the rule was added to
   `agents/verifier.md` and the residual was closed by a clean re-run on
-  2026-09-28 â€” see "RESOLVED by re-run" above.)*
+  2026-09-28 — see "RESOLVED by re-run" above.)*
 - electrical 2/4: residual softening (expected BLOCKED got PARTIAL).
-- mechanical-edge-01, software-edge-01: expected PASS got PARTIAL â€” the
+- mechanical-edge-01, software-edge-01: expected PASS got PARTIAL — the
   severity gate makes the verifier more conservative; over-strictness is the
   mirror-image calibration target.
 
@@ -497,8 +497,8 @@ ground truth stripped from prompts, verifier protocol from agents/verifier.md).
 | Line-pinned ratio | 107/115 (93%) |
 
 Known weaknesses (tracked, not smoothed over):
-- (Run 1) 2 false approvals â€” root-caused and fixed post-run, see Run 2 above.
-- (Run 1) Electrical discipline scored 1/4: verdict-softening â€” largely closed
+- (Run 1) 2 false approvals — root-caused and fixed post-run, see Run 2 above.
+- (Run 1) Electrical discipline scored 1/4: verdict-softening — largely closed
   by the PARTIAL-vs-BLOCKED decision rule; residual softening noted in Run 2.
 
 Case revisions on 2026-09 (documented in each case file): civil-code_misapplication
@@ -506,14 +506,14 @@ premise fixed (was self-contradicting); mechanical-code_misapplication ground tr
 BLOCKED->PARTIAL; architectural-synthesis_overreach ground truth BLOCKED->PARTIAL.
 
 **Fix applied 2026-09 (post-scoring), validated by Run 2:** both false approvals
-shared one root cause â€” the report's "Issues found" lane had no severityâ†’verdict
+shared one root cause — the report's "Issues found" lane had no severity?verdict
 mapping, so material findings were parked as "minor, non-blocking" without
-touching the PASS verdict. Fix: Severityâ†’verdict gate added to
-`agents/verifier.md` + `skills/verifier/SKILL.md` (v0.1.0â†’0.2.0):
+touching the PASS verdict. Fix: Severity?verdict gate added to
+`agents/verifier.md` + `skills/verifier/SKILL.md` (v0.1.0?0.2.0):
 (a) "non-blocking" only for issues that change neither number nor decision;
 any detected discrepancy caps the verdict at PARTIAL; (b) margin/compliance
-language must be quantified â€” unearned margin caps at PARTIAL; (c)
-cited-but-unused answer-changing evidence is a criterion mismatch â†’ PARTIAL.
+language must be quantified — unearned margin caps at PARTIAL; (c)
+cited-but-unused answer-changing evidence is a criterion mismatch ? PARTIAL.
 Run 2 additionally added the verdict-vocabulary fix and the PARTIAL-vs-BLOCKED
 decision rule (see top of this file).
 
@@ -521,48 +521,48 @@ Raw scorer output follows.
 
 ---
 
-Benchmark Results Î“Ã‡Ã¶ 2026-09-09
+Benchmark Results GÇö 2026-09-09
 ============================================================
 
   architectural (4 cases):
   --------------------------------------------------------
     Correct: 3/4 | False approvals: 1 | Avg checks: 5.3/8
-    architectural-code_misapplication-01: Î“Â£Ã´ CORRECT (expected=BLOCKED got=BLOCKED flaw=code_misapplication conf=0.95 checks=4/8 pinned=6/6)
-    architectural-edge-01: Î“Â£Ã´ CORRECT (expected=BLOCKED got=BLOCKED flaw=entailment_failure conf=0.85 checks=5/8 pinned=8/8)
-    architectural-omission-01: Î“Â£Ã´ CORRECT (expected=BLOCKED got=BLOCKED flaw=omission conf=0.95 checks=4/8 pinned=5/5)
-    architectural-synthesis_overreach-01: Î“Â£Ã¹ FALSE APPROVAL (expected=PARTIAL got=PASS flaw=none conf=0.85 checks=8/8 pinned=4/4)
+    architectural-code_misapplication-01: G£ô CORRECT (expected=BLOCKED got=BLOCKED flaw=code_misapplication conf=0.95 checks=4/8 pinned=6/6)
+    architectural-edge-01: G£ô CORRECT (expected=BLOCKED got=BLOCKED flaw=entailment_failure conf=0.85 checks=5/8 pinned=8/8)
+    architectural-omission-01: G£ô CORRECT (expected=BLOCKED got=BLOCKED flaw=omission conf=0.95 checks=4/8 pinned=5/5)
+    architectural-synthesis_overreach-01: G£ù FALSE APPROVAL (expected=PARTIAL got=PASS flaw=none conf=0.85 checks=8/8 pinned=4/4)
 
   civil (4 cases):
   --------------------------------------------------------
     Correct: 4/4 | False approvals: 0 | Avg checks: 3.3/8
-    civil-code_misapplication-01: Î“Â£Ã´ CORRECT (expected=BLOCKED got=BLOCKED flaw=code_misapplication conf=0.95 checks=3/8 pinned=7/7)
-    civil-edge-01: Î“Â£Ã´ CORRECT (expected=BLOCKED got=BLOCKED flaw=calculation_error conf=0.92 checks=3/8 pinned=5/6)
-    civil-omission-01: Î“Â£Ã´ CORRECT (expected=BLOCKED got=BLOCKED flaw=omission conf=0.90 checks=3/8 pinned=6/8)
-    civil-synthesis_overreach-01: Î“Â£Ã´ CORRECT (expected=BLOCKED got=BLOCKED flaw=synthesis_overreach conf=0.95 checks=4/8 pinned=4/4)
+    civil-code_misapplication-01: G£ô CORRECT (expected=BLOCKED got=BLOCKED flaw=code_misapplication conf=0.95 checks=3/8 pinned=7/7)
+    civil-edge-01: G£ô CORRECT (expected=BLOCKED got=BLOCKED flaw=calculation_error conf=0.92 checks=3/8 pinned=5/6)
+    civil-omission-01: G£ô CORRECT (expected=BLOCKED got=BLOCKED flaw=omission conf=0.90 checks=3/8 pinned=6/8)
+    civil-synthesis_overreach-01: G£ô CORRECT (expected=BLOCKED got=BLOCKED flaw=synthesis_overreach conf=0.95 checks=4/8 pinned=4/4)
 
   electrical (4 cases):
   --------------------------------------------------------
     Correct: 1/4 | False approvals: 0 | Avg checks: 5.0/8
-    electrical-code_misapplication-01: Î“Â£Ã¹ WRONG VERDICT (expected=BLOCKED got=PARTIAL flaw=entailment_failure conf=0.55 checks=4/8 pinned=6/6)
-    electrical-edge-01: Î“Â£Ã¹ WRONG VERDICT (expected=BLOCKED got=PARTIAL flaw=synthesis_overreach conf=0.85 checks=6/8 pinned=4/6)
-    electrical-omission-01: Î“Â£Ã¹ WRONG VERDICT (expected=BLOCKED got=PARTIAL flaw=omission conf=0.80 checks=6/8 pinned=6/7)
-    electrical-synthesis_overreach-01: Î“Â£Ã´ CORRECT (expected=BLOCKED got=BLOCKED flaw=synthesis_overreach conf=0.93 checks=4/8 pinned=4/5)
+    electrical-code_misapplication-01: G£ù WRONG VERDICT (expected=BLOCKED got=PARTIAL flaw=entailment_failure conf=0.55 checks=4/8 pinned=6/6)
+    electrical-edge-01: G£ù WRONG VERDICT (expected=BLOCKED got=PARTIAL flaw=synthesis_overreach conf=0.85 checks=6/8 pinned=4/6)
+    electrical-omission-01: G£ù WRONG VERDICT (expected=BLOCKED got=PARTIAL flaw=omission conf=0.80 checks=6/8 pinned=6/7)
+    electrical-synthesis_overreach-01: G£ô CORRECT (expected=BLOCKED got=BLOCKED flaw=synthesis_overreach conf=0.93 checks=4/8 pinned=4/5)
 
   mechanical (4 cases):
   --------------------------------------------------------
     Correct: 2/4 | False approvals: 1 | Avg checks: 6.0/8
-    mechanical-code_misapplication-01: Î“Â£Ã¹ FALSE APPROVAL (expected=PARTIAL got=PASS flaw=none conf=0.85 checks=8/8 pinned=6/6)
-    mechanical-edge-01: Î“Â£Ã¹ WRONG VERDICT (expected=PASS got=PARTIAL conf=0.90 checks=7/8 pinned=6/6)
-    mechanical-omission-01: Î“Â£Ã´ CORRECT (expected=BLOCKED got=BLOCKED flaw=calculation_error conf=0.95 checks=3/8 pinned=6/6)
-    mechanical-synthesis_overreach-01: Î“Â£Ã´ CORRECT (expected=BLOCKED got=BLOCKED flaw=synthesis_overreach conf=0.90 checks=6/8 pinned=7/7)
+    mechanical-code_misapplication-01: G£ù FALSE APPROVAL (expected=PARTIAL got=PASS flaw=none conf=0.85 checks=8/8 pinned=6/6)
+    mechanical-edge-01: G£ù WRONG VERDICT (expected=PASS got=PARTIAL conf=0.90 checks=7/8 pinned=6/6)
+    mechanical-omission-01: G£ô CORRECT (expected=BLOCKED got=BLOCKED flaw=calculation_error conf=0.95 checks=3/8 pinned=6/6)
+    mechanical-synthesis_overreach-01: G£ô CORRECT (expected=BLOCKED got=BLOCKED flaw=synthesis_overreach conf=0.90 checks=6/8 pinned=7/7)
 
   software (4 cases):
   --------------------------------------------------------
     Correct: 3/4 | False approvals: 0 | Avg checks: 3.8/8
-    software-code_misapplication-01: Î“Â£Ã´ CORRECT (expected=BLOCKED got=BLOCKED flaw=code_misapplication conf=0.98 checks=1/8 pinned=6/6)
-    software-edge-01: Î“Â£Ã¹ WRONG VERDICT (expected=PASS got=PARTIAL conf=0.90 checks=6/8 pinned=2/3)
-    software-omission-01: Î“Â£Ã´ CORRECT (expected=BLOCKED got=BLOCKED flaw=entailment_failure conf=0.95 checks=6/8 pinned=3/3)
-    software-synthesis_overreach-01: Î“Â£Ã´ CORRECT (expected=BLOCKED got=BLOCKED flaw=synthesis_overreach conf=0.95 checks=2/8 pinned=6/6)
+    software-code_misapplication-01: G£ô CORRECT (expected=BLOCKED got=BLOCKED flaw=code_misapplication conf=0.98 checks=1/8 pinned=6/6)
+    software-edge-01: G£ù WRONG VERDICT (expected=PASS got=PARTIAL conf=0.90 checks=6/8 pinned=2/3)
+    software-omission-01: G£ô CORRECT (expected=BLOCKED got=BLOCKED flaw=entailment_failure conf=0.95 checks=6/8 pinned=3/3)
+    software-synthesis_overreach-01: G£ô CORRECT (expected=BLOCKED got=BLOCKED flaw=synthesis_overreach conf=0.95 checks=2/8 pinned=6/6)
 
 Overall Summary:
 ============================================================

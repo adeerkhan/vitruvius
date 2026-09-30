@@ -107,7 +107,7 @@ check(actionable, 'extractPdf reports an actionable error for an unreadable/fake
 check(isScannedPdf('') === true, 'isScannedPdf treats empty text as scanned');
 check(isScannedPdf('Dummy PDF file') === false, 'isScannedPdf accepts a text layer');
 
-// --- download budget (P1, stolen from ref/feynman/src/telemetry/posthog.ts:51)
+// --- download budget (P1, stolen from src-05/src/telemetry/posthog.ts:51)
 //
 // The defect this guards is a hang, so every case here is offline: a fake fetch
 // that never settles is precisely the host that accepted the connection and
@@ -144,6 +144,14 @@ function stallingFetch(onSignal) {
 
 const GAVE_UP = 'the test gave up waiting — the deadline never fired';
 
+// downloadToTemp now refuses to reach a private, loopback or link-local
+// address, which means every case below has to resolve its host. The stub keeps
+// that deterministic and offline: `example.invalid` has no DNS record by
+// design, so a real lookup would fail for a reason that has nothing to do with
+// the budget or the response handling these cases are about. The address
+// classifier itself is covered in test-extract-pdf-ssrf.mjs.
+const publicStubLookup = async () => ['93.184.216.34'];
+
 async function raceGiveUp(promise, ms = 3000) {
   let timer;
   const giveUp = new Promise((_resolve, reject) => {
@@ -164,6 +172,7 @@ async function raceGiveUp(promise, ms = 3000) {
   try {
     await raceGiveUp(
       downloadToTemp('https://example.invalid/paper.pdf', {
+    lookup: publicStubLookup,
         budgetMs: 60,
         fetchImpl: stallingFetch((s) => {
           sawSignal = s;
@@ -196,6 +205,7 @@ async function raceGiveUp(promise, ms = 3000) {
   try {
     await raceGiveUp(
       downloadToTemp('https://example.invalid/paper.pdf', {
+    lookup: publicStubLookup,
         budgetMs: 3_600_000,
         signal: ac.signal,
         fetchImpl: stallingFetch(() => {}),
@@ -232,6 +242,7 @@ async function raceGiveUp(promise, ms = 3000) {
   try {
     await raceGiveUp(
       downloadToTemp('https://example.invalid/paper.pdf', {
+    lookup: publicStubLookup,
         budgetMs: 60,
         signal: silent.signal,
         fetchImpl: stallingFetch(() => {}),
@@ -258,6 +269,7 @@ async function raceGiveUp(promise, ms = 3000) {
     arrayBuffer: async () => bytes,
   });
   const dest = await downloadToTemp('https://example.invalid/paper.pdf', {
+    lookup: publicStubLookup,
     budgetMs: 1000,
     fetchImpl: okFetch,
   });
@@ -275,6 +287,7 @@ async function raceGiveUp(promise, ms = 3000) {
   let rejected = null;
   try {
     await downloadToTemp('https://example.invalid/missing.pdf', {
+    lookup: publicStubLookup,
       budgetMs: 1000,
       fetchImpl: notFound,
     });
