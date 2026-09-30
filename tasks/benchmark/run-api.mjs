@@ -21,7 +21,14 @@ const REPO_ROOT = join(__dirname, "..", "..");
 
 // --- Config ---------------------------------------------------------------
 const SERVER_URL = process.env.OPENCODE_SERVER_URL || "http://127.0.0.1:49374";
-const API_KEY = process.env.OPENCODE_API_KEY || "oMPA14epWT89CCZSnyP8HkO7jWE99nd0hhG8Gs-zUYg";
+// No inline fallback. A hardcoded `||` key was committed and pushed here once;
+// the env var is now the only source, and a missing one fails loudly below
+// rather than silently using a credential that outlives its revocation.
+const API_KEY = process.env.OPENCODE_API_KEY;
+if (!API_KEY) {
+  console.error("OPENCODE_API_KEY is not set. Export it before running this script.");
+  process.exit(1);
+}
 const MODEL = process.argv[3] || "opencode-go/longcat-2.5-preview-free";
 const FILTER = process.argv[2] || "";
 const CASES_DIR = join(REPO_ROOT, "tasks", "benchmark", "cases");
