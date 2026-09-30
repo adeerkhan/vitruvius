@@ -37,16 +37,22 @@ or locating code.
 
 | Source | Local revision | License | State | Decision |
 |---|---|---|---|---|
-| `ref/abrt` | `1ae85385932385711259cd06124e4306bfe75a23` (Git objects; no worktree) | GPL-2.0-or-later | idea-only | Failure-visible tests + trust boundaries only; no code |
-| `ref/agent-skills` | `2686b620fc1fed2e8f60c704839c766b8594c6b6` | MIT | mostly taken | Evaluation/contract mechanics |
-| `ref/autoprompt-skill` | `b6516cf52a7891d797621fdd2a8ca0311e1ae0a9` | MIT | mostly taken | Generation, drift checks, receipts, manifests |
-| `ref/BugTraceAI-CLI` | `ddb1b207f4c369d7e7f9d307fb10b82f544e5594` | Apache-2.0 | taken (core) | Negative coverage + auditable deduplication |
-| `ref/feynman` | `cd72f97421805a7f08d58dfbc8998abd3ff796b0` | MIT | mostly taken | End-to-end evals, artifact pairing, release budgets |
-| `ref/humanizer` | `225a6f39ac85f76ee48dbad772ea4abe4ed6c9d8` | MIT | partly taken | Package smoke tests + prompt clarity |
-| `ref/scientific-agent-skills` | `065b734670d7d990627dbc06a05b5a99be33f1f1` | MIT | mostly taken | Ledgers, input gates, fixtures, scope discipline |
-| `ref/semble` | `24497845460960db1839c8485319df189a889225` | MIT | deferred | Retrieval-to-direct-read bridge + benchmark method |
+| `src-01` | `1ae85385932385711259cd06124e4306bfe75a23` (Git objects; no worktree) | GPL-2.0-or-later | idea-only | Failure-visible tests + trust boundaries only; no code |
+| `src-02` | `2686b620fc1fed2e8f60c704839c766b8594c6b6` | MIT | mostly taken | Evaluation/contract mechanics |
+| `src-03` | `b6516cf52a7891d797621fdd2a8ca0311e1ae0a9` | MIT | mostly taken | Generation, drift checks, receipts, manifests |
+| `src-04` | `ddb1b207f4c369d7e7f9d307fb10b82f544e5594` | Apache-2.0 | taken (core) | Negative coverage + auditable deduplication |
+| `src-05` | `cd72f97421805a7f08d58dfbc8998abd3ff796b0` | MIT | mostly taken | End-to-end evals, artifact pairing, release budgets |
+| `src-06` | `225a6f39ac85f76ee48dbad772ea4abe4ed6c9d8` | MIT | partly taken | Package smoke tests + prompt clarity |
+| `src-07` | `065b734670d7d990627dbc06a05b5a99be33f1f1` | MIT | mostly taken | Ledgers, input gates, fixtures, scope discipline |
+| `src-08` | `24497845460960db1839c8485319df189a889225` | MIT | deferred | Retrieval-to-direct-read bridge + benchmark method |
 
-`ref/abrt` has no materialized worktree; only its committed tree is inspectable.
+Source identifiers are opaque on purpose. They are local, untracked references,
+and naming the upstream projects in a published package would advertise a
+dependency no fresh clone has. The identifier-to-repository mapping, with
+licences and the line-comparison evidence that no code was copied, is kept in
+`ref/SOURCES.md`, which is gitignored and never published.
+
+`src-01` has no materialized worktree; only its committed tree is inspectable.
 Cognee and Ponytail appear in older notes but have no checkout.
 
 ## Where we stand
@@ -72,7 +78,14 @@ Cognee and Ponytail appear in older notes but have no checkout.
 - **Habit** lifecycle: validator/approval/local activation/load/revoke ship; authenticated approval identity, retention/deletion policy, and automatic workflow integration are open (host/policy).
 - **Q1** ledger is local-only; B1 three-run majority certified (16/19 correct, 0 false blocks); E1 covers 4 of 25 skills behaviorally; the suite-coverage *floor* is 25/25 and is a gate (`scripts/e1-coverage.mjs`); C1 is three local cases.
 - **Read-only judges** (verifier/reviewer/arbiter/goal-checker/habit) are declared policy; the verifier needs Bash to hash mission pointers, so technical enforcement is a host concern.
-- **`isSafeRelativePath`/two PDF extractors** are intentionally not unified (differing contracts; self-contained copied-skill installs).
+- **The two PDF extractors** are intentionally not unified (differing contracts; self-contained copied-skill installs).
+- **`isSafeRelativePath` was NOT intentional.** Five copies existed and four were
+  behaviourally identical — a security control with four independent
+  definitions, where a fix can land in one copy and leave the others
+  vulnerable. Unified 2026-09-30 into `scripts/path-safety.mjs`. The fifth copy,
+  in `skills/engineering-research/scripts/evidence-ledger.mjs`, stays local on
+  purpose: a skill ships self-contained and no script under `skills/` imports
+  from `scripts/` anywhere in this repo.
 - **General YAML** is out of scope by design; the parser is a bounded subset.
 
 ### Deferred or gated
@@ -80,7 +93,7 @@ Cognee and Ponytail appear in older notes but have no checkout.
 | ID | Item | Gate |
 |---|---|---|
 | B1 | Real majority-of-N run | DONE — 3-run majority passed (16/19, 0 false blocks) |
-| D1 | Retrieval-to-direct-read bridge (semble) | DONE — script + test created |
+| D1 | Retrieval-to-direct-read bridge (src-08) | DONE — script + test created |
 | E1-full | 25-skill behavioral catalog | 4/25 model-run behavioral; suite floor 25/25 (a gate); remaining 21 need model runs |
 | H1 | Authenticated approval, retention, workflow integration | interface designed; host enforcement is the gate |
 | U1 | Run-local lessons, remote retrieval | needs a measured need |
@@ -94,15 +107,15 @@ Cognee and Ponytail appear in older notes but have no checkout.
 | 2 | Progressive disclosure for `engineering-research` | `6a9d0b6` |
 | 3 | Plan as working memory | `be3f320` |
 | 4 | Prompt-authoring checklist | `9348e6d` |
-| 5 | Anti-rationalization tables (agent-skills) | `ae641c8` |
-| 6 | Research state machine (autoprompt-skill) | `39e386e` |
-| 7 | Scale decision framework (feynman) | `4ff43a6` |
-| 8 | Source routing table (feynman) | `246eb26` |
-| 9 | Reviewer severity levels (feynman) | `30498fa` |
-| 10 | Context hygiene rules (feynman) | `d37b5ec` |
+| 5 | Anti-rationalization tables (src-02) | `ae641c8` |
+| 6 | Research state machine (src-03) | `39e386e` |
+| 7 | Scale decision framework (src-05) | `4ff43a6` |
+| 8 | Source routing table (src-05) | `246eb26` |
+| 9 | Reviewer severity levels (src-05) | `30498fa` |
+| 10 | Context hygiene rules (src-05) | `d37b5ec` |
 | 11 | Trust-boundary negative tests | `0acb3ae` |
 | 12 | CodeGraph integration (main + ref) | `ad282f5` era |
-| 13 | Schema validation patterns (scientific-agent-skills) | this session |
+| 13 | Schema validation patterns (src-07) | this session |
 | 14 | D1 retrieval-to-direct-read bridge | `ad282f5` |
 | 15 | E1 catalog extended to 12 skills | `bf65100` |
 | 16 | H1 authenticated approval interface | `e85586d` |
@@ -133,13 +146,56 @@ Cognee and Ponytail appear in older notes but have no checkout.
 | 40 | E1 floor promoted from always-exit-0 reporter to a gate (`skills/e1-suite-manifest.json`) | `bce9cb2` |
 | 41 | Two scripts repaired that were "covered" by tests which never ran them (`run-isolated-tests.mjs`, `retrieval-bridge.mjs`) | `2c0b1f0` |
 | 42 | `scripts/steal-selfcheck.mjs` — this map's own numbers checked against the tree | this session |
-| 43 | `git pull` across all 8 `ref/` repos; 4 updated (feynman, humanizer, scientific-agent-skills, autoprompt-skill new branch) | this session |
+| 43 | `git pull` across all 8 `ref/` repos; 4 updated (src-05, src-06, src-07, src-03 new branch) | this session |
 | 44 | CodeGraph sync — `ref/` current (1,717 files); main index rebuilt attempt blocked by the MCP daemon lock, row marked stale | this session |
 | 45 | P2 landed: machine-enforced allowlist for `security-scan.mjs` + 6 mutation cases | `67e4f29` |
 | 46 | `steal-selfcheck.mjs` CodeGraph count narrowed to indexed extensions | `189a3b9` |
 | 47 | P5 landed: plugin manifests discovered, name+version checked against `package.json` + 3 mutation cases | this session |
 | 48 | P1 landed: 60s download budget composed via `AbortSignal.any` in `downloadToTemp` + 3 mutation cases; verdict flipped from reject after the plan's "no network fetch" fact was found to be scoped to `scripts/` | this session |
 | 49 | P3/P4/P6 rejected on evidence, three ledger rows; stale-date fixture in the ledger test derived from the newest row + mutation case | this session |
+| 50 | Shallow-clone CI fix: `fetch-depth: 0` + three-way `present`/`absent`/`blocked` hash status, so a depth-1 clone reports UNVERIFIED instead of 38 fabricated hashes | this session |
+| 51 | `skill-validation.yml` pointed at `npm run test:skills`, which does not exist; repointed to `test:anatomy` | this session |
+| 52 | Third-party source names replaced with `src-NN` across 36 files; mapping private in gitignored `ref/SOURCES.md`; leak gate added | this session |
+| 53 | `isSafeRelativePath` (5 copies) and `isInside` (4 copies) unified into `scripts/path-safety.mjs`; `rejectBackslash` kept separate after problem-anchor's suite caught a weakening | this session |
+| 54 | Bare `tests/*` in .gitignore removed — it hid every NEW test from the repo; `scripts/tests-check.mjs` added so it cannot return | this session |
+| 55 | SSRF closed in the PDF fetch: private/loopback/link-local/metadata addresses refused before any request, redirects followed by hand so each hop is re-validated | this session |
+| 56 | Waiver blast radius pinned by `maxFindings` — a file+rule waiver had silently allowed a real `eval` in the same file | this session |
+
+### The SSRF, and the two bugs found while closing it
+
+`extract-pdf.mjs` passed `redirect: 'follow'` to a **caller-supplied** URL. The
+60s budget added earlier fixed a HANG; this was a TRAVERSAL, in the same three
+lines, and it was open. A public URL answering
+`302 Location: http://169.254.169.254/…` reached the cloud metadata service,
+which on a cloud host returns instance credentials to anything that asks. The
+attacker channel is a prompt-injected document naming a source URL — the
+untrusted-input class this repo has no other defense for.
+
+Landed: `isPrivateAddress` (every CIDR boundary pinned, IPv4-mapped IPv6 folded
+into the IPv4 rules so it cannot bypass them), `assertPublicUrl` (scheme,
+hostname, and **DNS answers** — an ordinary-looking name with a `127.0.0.1` A
+record is exactly what a string check waves through), and a hand-rolled
+redirect walk with a 5-hop cap that re-validates each hop and fetches with
+`redirect: 'manual'`.
+
+**Residual risk, stated rather than closed:** the address is checked and then
+`fetch` resolves the name again, so a host answering public first and private
+second can win that race. Closing it needs a pinned-IP connection, which `fetch`
+does not expose. A test asserts this limit stays written in the source.
+
+Two further bugs surfaced during the fix, both recorded because the process is
+the lesson:
+
+1. **`isPrivateAddress` recursed into a stack overflow.** The IPv4-mapped
+   branch called itself on `mapped[1]`, and the pattern re-matched its own
+   output. Found by the first run of the classifier against real addresses.
+2. **The security-scan waiver mechanism was a blanket permission.** The
+   `RegExp.prototype.exec` false positive (a static regex, matched by a rule
+   written for `subprocess`) was waived on file+rule — which also silently
+   allowed a genuine `eval(...)` added to the same file later. The build went
+   green with an eval in a shipped skill. Waivers may now pin `maxFindings`, so
+   widening coverage is a visible edit. Verified by injecting a third dangerous
+   call and confirming the build fails.
 
 ## What the 2026-09-29 pull found, and what was done about it
 
@@ -174,14 +230,14 @@ repo. Re-run across the tree, it found a shipped outbound fetch:
 `skills/scholarly-research/scripts/extract-pdf.mjs` `downloadToTemp()` called
 `fetch(url, { redirect: 'follow', headers })` with **no `signal` at all**. A host
 that accepted the connection and then stopped sending left the extractor waiting
-indefinitely. That is the exact defect feynman fixed at
-`ref/feynman/src/telemetry/posthog.ts:47` by giving each send a 1.5s budget,
+indefinitely. That is the exact defect src-05 fixed at
+`src-05 src/telemetry/posthog.ts:47` by giving each send a 1.5s budget,
 and the pre-registered rule said steal it *when the skill issues unbounded
 calls*. It does. The rule was applied against the real tree and the verdict
 flipped from reject to steal.
 
 The landing is the shape, not the number. `DOWNLOAD_BUDGET_MS` is **60s**, not
-feynman's 1.5s: this fetches whole papers of several megabytes over links that
+src-05's 1.5s: this fetches whole papers of several megabytes over links that
 are sometimes slow, and a budget that fires on a legitimate 8 MB PDF would be a
 worse bug than the hang. The budget is composed with any caller signal through
 `AbortSignal.any`, so a caller holding its own deadline keeps it and whichever
@@ -234,7 +290,7 @@ no whitelist and exited 1 on every finding. So a genuine false positive could
 only be resolved by deleting working code or by disabling the scanner — the
 latter explicitly forbidden 30 lines later. The allowlist landed there.
 
-Three details beyond the feynman original, each earning its place:
+Three details beyond the src-05 original, each earning its place:
 
 - **A waiver missing `reason` or `removeWhen` fails the build and suppresses
   nothing.** A half-written waiver must not become quiet permission.
@@ -251,7 +307,7 @@ asserting it is non-empty.
 
 ### P5 was one steal and three declines, adjudicated separately
 
-The humanizer validator bundles four ideas. They do not transfer together, and
+The src-06 validator bundles four ideas. They do not transfer together, and
 bundling them would have meant shipping two gates for properties this repo
 already owns.
 
@@ -272,13 +328,13 @@ descriptions genuinely differ today, `package.json` naming the five
 disciplines, `.claude-plugin` naming blind verification and the scored
 benchmark, `.qoder-plugin` naming auditable provenance. Forcing one canonical
 string means rewriting published packaging copy for three hosts, which is a
-docs decision and not a research capability. The humanizer rule is also
+docs decision and not a research capability. The src-06 rule is also
 single-skill shaped — one `SKILL.md` description propagating to its manifests —
 whereas this package has 25 skills and three package-level surfaces, so the rule
 has no direct mapping. **The drift is recorded here as a verified finding, not
 silently resolved.**
 
-**Declined — internal cross-reference validation.** The humanizer rule checks
+**Declined — internal cross-reference validation.** The src-06 rule checks
 `§N` references against its numbered pattern headings. This repo has no `§N`
 pattern scheme; skills cross-reference each other as `/skill-name`, and
 `validate-contract.mjs:204` (`skillMentionProblems`) already fails on any
@@ -394,7 +450,7 @@ What each repo actually shipped. Verdicts on stealing it are in
 A `git pull` across all 8 `ref/` repos brought 4 updates. Three carry patterns
 worth stealing; one is a security-report-only refresh.
 
-### feynman (`fe3fd94` → `cd72f97`, 40 files)
+### src-05 (`fe3fd94` → `cd72f97`, 40 files)
 
 - **Telemetry timeout budget** (`src/telemetry/posthog.ts`): each send gets a
   1.5s `AbortSignal.timeout`, combined with any caller signal via
@@ -412,13 +468,13 @@ worth stealing; one is a security-report-only refresh.
   rate-limit-aware external API calls with a single bounded retry.
 - **PowerShell installer** (`scripts/install/install.ps1`): a full Windows
   installer alongside the Bash one. **Steal:** dual-platform install scripts.
-- **Subagent tool registration**: foreground subagents get Feynman's research
+- **Subagent tool registration**: foreground subagents get src-05's research
   and web tools; alphaXiv tools register only when signed in. **Steal:**
   conditional tool availability based on auth state.
 - **README trim** (164 → ~50 lines): landing page stripped to a screenshot and
   install command. **Steal:** aggressive README minimalism.
 
-### humanizer (`9862685` → `225a6f3`, 11 files)
+### src-06 (`9862685` → `225a6f3`, 11 files)
 
 - **`validate-package.py` expanded**: now checks version consistency across
   SKILL.md + CHANGELOG.md + two plugin manifests (4 files), description
@@ -432,13 +488,13 @@ worth stealing; one is a security-report-only refresh.
 - **CHANGELOG.md**: release history moved out of README. **Steal:** separate
   changelog file.
 - **New patterns** (#26, #277): over-explaining conversational replies,
-  self-describing text. **Steal:** prompt-clarity patterns for the humanizer.
+  self-describing text. **Steal:** prompt-clarity patterns from the src-06 reference.
 
-### scientific-agent-skills (`49c6e97` → `065b734`, 2 files)
+### src-07 (`49c6e97` → `065b734`, 2 files)
 
 - Security scan report only — no code changes. Nothing to steal this round.
 
-### autoprompt-skill
+### src-03
 
 - `main` unchanged (`b6516cf`); a new branch
   `codex/issue-27-native-platform-support` was fetched. No new patterns on
@@ -511,7 +567,15 @@ pointed at the skill catalog. That is real remaining work, not a formatting gap.
 2. **H1: Authenticated approval, retention, workflow integration.** Interface designed (`references/authenticated-approval.md`). Host enforcement is the gate.
 3. **U1: Run-local lessons, remote retrieval.** Needs a measured need.
 4. **Read-only enforcement.** Host permission model.
-5. **Redirect handling in the PDF fetch.** `skills/scholarly-research/scripts/extract-pdf.mjs:213` still passes `redirect: 'follow'` to a caller-supplied URL, so a source URL steered by a prompt-injected document can be followed to a link-local metadata address or a local port. Needs a private-range block or a host allowlist. The 60s budget stopped the hang, not the traversal.
+5. **Prompt injection from a retrieved document — the unhandled class.** The
+   concrete instance it produced is closed (the PDF fetch no longer follows a
+   redirect into a private range; see above), but the class is not. Nothing in
+   this repo tells the researcher that fetched text is DATA, not instruction.
+   `artifact-reading`, `scholarly-research` and the verifier all consume
+   untrusted text, and the verifier is the highest-value target: a retrieved
+   PDF asserting "margin 12%, PASS" would be scored as a PASS, and all 25
+   benchmark cases are hand-authored and clean. This is the largest remaining
+   gap and it is a design decision, not a patch.
 
 `civil-edge-01` is resolved at the cause: the runner writes to a temp path and only publishes a non-empty result, and the scorer separates `EMPTY RESULT` from `MISSING VERDICT`. All per-source open items are implemented and committed. Remaining work is gated on host enforcement or measured need.
 
@@ -522,21 +586,21 @@ pointed at the skill catalog. That is real remaining work, not a formatting gap.
 **Taken:** failing tests, per-skill eval contracts, owner-based negative routing + `must_not_fire`, artifact-path graph + static guard, skill-anatomy/trigger lint, rejected-change ledger, plan-as-working-memory (task tracking, overwrite guard, cross-session pickup).  
 **Reject:** software-delivery lifecycle, generic productivity hooks, cross-model debate every cycle, second router, generic memory.
 
-### Autoprompt
+### src-03
 **Keep:** independent judges, default-FAIL, conditional escalation, named-item repair, goal-check.  
 **Taken:** canonical-to-provider generation (commands **and** OpenCode role adapters), drift checks, goal-check, run ledger, content-addressed installed-payload manifest.  
 **Reject:** provider/persona swarms, full supervisor runtime, write-capable judges, reference benchmark headline, receipts/rollback (host config mutation not implemented).
 
-### BugTraceAI-CLI
+### src-04
 **Taken:** immutable negative-coverage statuses, exact-first deduplication with merge trail, semantic near-duplicate matching as advisory-only.  
 **Reject:** persona consensus, confidence arithmetic, fail-open validation, success-only learning, offensive tooling.
 
-### Feynman
+### src-05
 **Taken:** fixed-case end-to-end evals, final/provenance pairing, need-based scholarly routing, docs/code parity, declared+checked Node range, package budget, exact-tarball provenance, majority harness, scale decision framework, source routing table, reviewer severity levels, context hygiene rules, verifier citation rules, result provenance audit, npm-audit with documented exceptions, Crossref pacing + single 429 retry, dual-platform install scripts, conditional tool registration by auth state, README minimalism, allowlist-where-every-entry-carries-a-reason-and-a-removal-condition.  
 **Rejected:** Crossref/OpenAlex/Semantic Scholar pacing and 429 retry — no shipped code calls those APIs, so a pacing rule has nothing to pace (ledger row, 2026-09-29); CLI/Pi runtime, editing verifier, automatic memory, workbench, telemetry, broad database suite, provider sprawl.  
 **Kept (2026-09-29):** the bounded-request-budget shape, landed on the one outbound fetch that did exist — `downloadToTemp` — at 60s rather than 1.5s. See P1 above.
 
-### Humanizer
+### src-06
 **Taken:** executable package/plugin discovery smoke (tarball + host adapters), per-skill versioning, concise lenses, prompt-authoring checklist, pinned CI actions/validators, cross-manifest version + name consistency (discovered, not listed), multi-platform plugin manifests, separate CHANGELOG.  
 **Rejected in Vitruvius:** description prefix match (three published descriptions genuinely differ; rewriting host copy is a docs decision, not a research capability), `§N` cross-reference validation (this repo has no numbered-pattern scheme and `validate-contract.mjs:204` already resolves `/skill-name` mentions), word budget (`validate-contract.mjs:13` already caps SKILL.md at 500 lines). See `docs/rejected-changes.md` for the three ledger rows.  
 **Reject:** single-root layout, one-version architecture, style catalog, package-only quality gate.
@@ -545,11 +609,11 @@ pointed at the skill catalog. That is real remaining work, not a formatting gap.
 **Taken:** source/search/claim ledgers, input gates, fixture mutation tests (checked-in valid record + negative mutations), scope discipline, tests outside skills, schema validation patterns, isolated test environments, security scanning integration, skill diagram generation.  
 **Reject:** biology/chemistry breadth, adjacent productivity tooling, passive capture, fail-open external scanning.
 
-### Semble
+### src-08 (retrieval)
 **Taken:** context budgets, line anchors, direct-read rule, thin adapters, semantic-recall → exact-search → direct-read bridge, compact location schema, retrieval benchmark.  
 **Reject:** dedicated search subagent, global installer, telemetry, custom embedding platform, NDCG as research proof.
 
-### ABRT
+### src-01
 **Keep (idea-only):** explicit completeness, honest blocked states, retained failure evidence, trust-boundary negative tests paired with positive controls.  
 **Reject:** daemon/D-Bus/GUI/reporting stack, crash deduplication, destructive cleanup, GPL code, BeakerLib/tmt stack.
 
@@ -574,4 +638,4 @@ pointed at the skill catalog. That is real remaining work, not a formatting gap.
 
 ### Scale
 
-- scripts: 41 files · tests: 86 files · skills: 25 · agents: 7 canonical roles + 7 OpenCode adapters.
+- scripts: 43 files · tests: 89 files · skills: 25 · agents: 7 canonical roles + 7 OpenCode adapters.
