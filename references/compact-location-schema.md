@@ -1,7 +1,7 @@
 # Compact Location Schema
 
 A minimal location schema for citing code and document locations. Stolen from
-Semble's chunk location format.
+Based on the src-08 reference's chunk location format.
 
 ## Format
 

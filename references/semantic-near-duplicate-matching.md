@@ -1,6 +1,6 @@
 # Semantic Near-Duplicate Matching
 
-From BugTraceAI-CLI. Proposes merges for sources that are semantically similar
+From the src-04 reference. Proposes merges for sources that are semantically similar
 but not exact duplicates. **Advisory-only** — it never deletes evidence.
 
 ## The Problem
