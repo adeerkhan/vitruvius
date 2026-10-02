@@ -6,8 +6,9 @@
  * fixtures that exercise specific checks.
  */
 
-import { readFileSync, existsSync, readdirSync, statSync } from "node:fs";
+import { readFileSync, existsSync, readdirSync, statSync, mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
 import { join, dirname } from "node:path";
+import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
 import { check } from "../_contract/contract.mjs";
@@ -111,6 +112,59 @@ console.log("\n[Test] references/evidence-quality-tiers.md exists");
     existsSync(join(REPO_ROOT, "references", "evidence-quality-tiers.md")),
     "shared evidence quality tiers file exists",
   );
+}
+
+console.log("\n[Test] A frontmatter value opening with a YAML indicator is refused");
+{
+  // The real-repo run proves all 25 skills conform; these fixtures prove the
+  // rule can actually fail, so a green run is meaningful. Strict YAML parsers
+  // (PyYAML, psych) reject a plain scalar starting with ` @ % * , and a
+  // one-line `|`/`>` header — this line-based parser would accept both.
+  const temp = mkdtempSync(join(tmpdir(), "vitruvius-indicator-"));
+  const skills = join(temp, "skills");
+  const writeSkill = (name, descriptionLine) => {
+    const dir = join(skills, name);
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(
+      join(dir, "SKILL.md"),
+      `---\nname: ${name}\n${descriptionLine}\nlicense: MIT\nmetadata:\n  version: "0.1.0"\n---\n\n# ${name}\n\nResearch-only, not for final engineering sign-off.\n`,
+    );
+  };
+  const runValidator = () =>
+    spawnSync(process.execPath, [VALIDATOR], {
+      cwd: REPO_ROOT,
+      encoding: "utf-8",
+      env: { ...process.env, VITRUVIUS_SKILLS_DIR: skills },
+    });
+
+  try {
+    // A backtick-led description: valid to our parser, refused by strict YAML.
+    writeSkill("bad-indicator", "description: `other-skill` does things. Use when testing.");
+    const badIndicator = runValidator();
+    check(badIndicator.status !== 0, "a value starting with a backtick is refused");
+    check(
+      /YAML indicator/.test(badIndicator.stderr + badIndicator.stdout),
+      "the refusal names the YAML indicator",
+    );
+    rmSync(join(skills, "bad-indicator"), { recursive: true, force: true });
+
+    // A one-line block header: `|foo` is not a block scalar, strict YAML refuses.
+    writeSkill("bad-block-header", "description: |foo use when testing.");
+    const badHeader = runValidator();
+    check(badHeader.status !== 0, "a one-line block header value is refused");
+    check(
+      /one-line block header/.test(badHeader.stderr + badHeader.stdout),
+      "the refusal names the one-line block header",
+    );
+    rmSync(join(skills, "bad-block-header"), { recursive: true, force: true });
+
+    // The quoted form of the same text is the documented fix, so it must pass.
+    writeSkill("good-quoted", 'description: "`other-skill` does things. Use when testing."');
+    const goodQuoted = runValidator();
+    check(goodQuoted.status === 0, "a quoted value starting with a backtick is accepted");
+  } finally {
+    rmSync(temp, { recursive: true, force: true });
+  }
 }
 
 console.log(`\n${"=".repeat(50)}`);

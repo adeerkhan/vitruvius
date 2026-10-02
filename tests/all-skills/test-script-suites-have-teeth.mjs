@@ -235,6 +235,24 @@ const CASES = [
     replace: 'const lastRowDate = "2026-09-26";',
     test: "tests/contracts/test-rejected-change-ledger.mjs",
   },
+  // The YAML-indicator rule, ported from src-02 #603 on 2026-10-02. A frontmatter
+  // value opening with ` @ % * , or a one-line `|`/`>` header parses here but is
+  // rejected by strict YAML parsers, so the gate refuses it. Each case removes the
+  // rule and requires the fixture suite to notice.
+  {
+    file: "scripts/validate-contract.mjs",
+    rule: "a value starting with a YAML indicator is refused",
+    find: /if \(\/\^\[`@%\*,\]\/\.test\(rawValue\)\) \{/,
+    replace: "if (false) {",
+    test: "tests/validate-contract/test-contract.mjs",
+  },
+  {
+    file: "scripts/validate-contract.mjs",
+    rule: "a one-line block header value is refused",
+    find: /\} else if \(\/\^\[\|>\]\\S\/\.test\(rawValue\)\) \{/,
+    replace: "} else if (false) {",
+    test: "tests/validate-contract/test-contract.mjs",
+  },
   // The commit rule, added 2026-09-29. A commit-message checker is the easiest
   // gate in the repo to write as decoration: it can pass every message forever
   // while refusing nothing. Each case below removes one rule and requires the

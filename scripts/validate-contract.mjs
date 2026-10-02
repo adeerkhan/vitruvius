@@ -90,6 +90,31 @@ function frontmatterProblems(skill) {
     }
   }
 
+  // A value opening with a YAML indicator is accepted by this line-based
+  // parser but rejected by strict parsers — PyYAML and psych both refuse a
+  // plain scalar starting with ` @ % * , and a one-line `|`/`>` header carries
+  // content a block scalar may not. The check runs on the RAW line, because
+  // parseScalar strips quotes and a quoted value is exactly the fix. Block
+  // openers (`|`/`>` alone, with optional chomping) and empty values (nested
+  // maps) are exempt. Ported from src-02's skill-lint.js (commit 30d4493),
+  // which confirmed each shape against both parsers.
+  for (const rawLine of frontmatter.split("\n")) {
+    const lineMatch = rawLine.match(/^([A-Za-z][A-Za-z0-9_-]*):(.*)$/);
+    if (!lineMatch) continue;
+    const rawValue = lineMatch[2].trim();
+    if (rawValue === "" || /^[|>][+-]?$/.test(rawValue)) continue;
+    if (rawValue.startsWith('"') || rawValue.startsWith("'")) continue;
+    if (/^[`@%*,]/.test(rawValue)) {
+      problems.push(
+        `${relative(SKILLS_DIR, skill)}: frontmatter key \`${lineMatch[1]}\` has a value starting with YAML indicator \`${rawValue[0]}\` — strict YAML parsers reject it; wrap the value in quotes`,
+      );
+    } else if (/^[|>]\S/.test(rawValue)) {
+      problems.push(
+        `${relative(SKILLS_DIR, skill)}: frontmatter key \`${lineMatch[1]}\` has a one-line block header value \`${rawValue}\` — strict YAML parsers reject it; wrap the value in quotes`,
+      );
+    }
+  }
+
   for (const key of keys) {
     if (!ALLOWED_FRONTMATTER_FIELDS.has(key)) {
       problems.push(
