@@ -1,9 +1,8 @@
 # Vitruvius — Engineering Research Agent (Architecture)
 
 > Internal architecture documentation. For the user-facing overview, install
-> instructions, and FAQ, see the [README](../README.md). For the steal map and
-> live roadmap, see [docs/STEAL.md](STEAL.md). Status of claims in this file:
-> verified against the repo as of 2026-09.
+> instructions, and FAQ, see the [README](../README.md). Status of claims in this
+> file: verified against the repo as of 2026-09.
 
 ---
 
@@ -55,7 +54,7 @@ scripts/                validators, scorer, benchmark runner, adapters
 tests/                  contract, routing evals, skill tests
 tasks/benchmark/        20 adversarial cases + 5 PASS scoring fixtures + 5 pressure cases + results
 outputs/                research artifacts (gitignored)
-docs/                   STEAL map, this file, audit, examples, portability
+notes/                  this file, examples, portability, permissions, ledger
 ```
 
 ## The Research Loop

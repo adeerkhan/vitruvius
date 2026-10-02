@@ -286,7 +286,7 @@ for (const subject of [
 // --- 10. N7 does not fire for files that are not a SKILL.md ---------------
 {
   const changes = [
-    { path: "docs/rejected-changes.md", before: "a", after: "b" },
+    { path: "notes/rejected-changes.md", before: "a", after: "b" },
     { path: "skills/verifier/references/foo.md", before: "a", after: "b" },
     { path: "scripts/security-scan.mjs", before: "a", after: "b" },
   ];

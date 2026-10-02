@@ -14,10 +14,9 @@ jobs:
     permissions:
       contents: write
     steps:
-      # fetch-depth: 0 is REQUIRED. The step below runs `npm test`, whose last
-      # step resolves every commit hash docs/STEAL.md cites against real git
-      # objects. A depth-1 clone has none of them, so a shallow release run fails
-      # on ~38 hashes that all exist. This blocks publishing, not just testing.
+      # fetch-depth: 0 fetches the full history, matching CI. Nothing in `npm
+      # test` reads historical objects today; this keeps a release run from
+      # differing from a CI run for no reason.
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0

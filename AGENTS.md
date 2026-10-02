@@ -162,7 +162,7 @@ and, once per clone, `git config core.hooksPath .githooks`.
   benchmark `results-*`.
 - **One commit, one adjudicated change.** A behavior change, its gate, its
   test, and its doc update belong together; unrelated cleanup does not. A
-  rejected experiment goes to `docs/rejected-changes.md` via
+  rejected experiment goes to `notes/rejected-changes.md` via
   `scripts/rejected-change-ledger.mjs append`, never into the log disguised as
   work.
 - **N7:** a commit touching `skills/<name>/SKILL.md` bumps that skill's

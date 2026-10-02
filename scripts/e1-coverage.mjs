@@ -8,7 +8,7 @@
 //
 //   1. MODEL-RUN CATALOG  — a blind model run per skill. NOT machine-countable
 //      here: it needs a model run per skill, which this script cannot do and
-//      nobody has scripted. Tracked by hand in docs/STEAL.md. This script does
+//      nobody has scripted. Tracked by hand in skills/e1-suite-manifest.json. This script does
 //      not print it, because a number it cannot compute is a number it cannot
 //      contradict — and the failure this exists to prevent is a doc claiming a
 //      count the tooling never verified.
@@ -24,8 +24,8 @@
 //
 // The floor is now a gate rather than an always-exit-0 reporter. As a reporter
 // it printed 14/25 for months while nothing could contradict it, and a skill
-// could have lost its suite with a green build. See the 2026-09-28 note in
-// docs/STEAL.md for why that mattered.
+// could have lost its suite with a green build. See the 2026-09-28 entry in
+// notes/rejected-changes.md for why that mattered.
 
 import { readdirSync, existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -103,7 +103,7 @@ const result = {
     count: floor?.model_run_recorded ?? null,
     // Deliberately not computed here. Stating it as a machine number would let
     // a reader assume something verifies it.
-    note: "not machine-countable; requires a blind model run per skill. Tracked by hand in docs/STEAL.md.",
+    note: "not machine-countable; requires a blind model run per skill. Tracked by hand in skills/e1-suite-manifest.json.",
   },
   teeth: {
     harness: "tests/all-skills/test-e1-suites-have-teeth.mjs",
@@ -127,7 +127,7 @@ if (process.argv.includes("--json")) {
 function printReport() {
   console.log(`E1 SUITE FLOOR (machine-checked, gated): ${covered.length}/${report.length} skills have a tests/<skill>/ suite`);
   console.log(`E1 MODEL-RUN CATALOG:                    ${floor?.model_run_recorded ?? "unknown"}/25 skills have a blind model-run record`);
-  console.log("  (not machine-countable — needs a model run per skill; tracked by hand in docs/STEAL.md)");
+  console.log("  (not machine-countable — needs a model run per skill; tracked by hand in skills/e1-suite-manifest.json)");
   console.log("E1 TEETH:                                 proven by tests/all-skills/test-e1-suites-have-teeth.mjs\n");
   for (const r of report) {
     console.log(`  ${r.covered ? "OK  " : "GAP "} ${r.skill}${r.suite_files ? ` (${r.suite_files} file${r.suite_files === 1 ? "" : "s"})` : ""}`);

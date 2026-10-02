@@ -11,8 +11,9 @@
 // reference to be cited, so this is the standing check that closes that gap.
 //
 // `--allow <name>` waives a file with a stated reason (e.g. gated behind a host
-// capability that does not exist yet). Waivers are listed by name only; the
-// reason belongs in docs/STEAL.md, which is reviewed by a human.
+// capability that does not exist yet). A waiver is a claim that the file is
+// reachable in principle but not yet wired, so it names the file in the chain
+// and the reason belongs with the code that would cite it.
 
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, dirname, extname } from "node:path";
@@ -22,10 +23,10 @@ const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const REPO_ROOT = join(__dirname, "..");
 const REFERENCES_DIR = join(REPO_ROOT, "references");
 
-// Directories whose contents an agent loads. `docs/` and the repo root files are
+// Directories whose contents an agent loads. `notes/` and the repo root files are
 // human-facing, but they still count: a reference cited only from the README is
 // discoverable, and that is better than uncited.
-const SEARCH_ROOTS = ["skills", "agents", "scripts", "docs", ".opencode", ".claude", ".cursor", ".codex"];
+const SEARCH_ROOTS = ["skills", "agents", "scripts", "notes", ".opencode", ".claude", ".cursor", ".codex"];
 const SEARCH_FILES = ["README.md", "AGENTS.md", "CONTRIBUTING.md"];
 
 function walk(dir, out = []) {
@@ -116,7 +117,7 @@ if (process.argv.includes("--json")) {
   if (report.unreachable.length === 0) {
     console.log(
       waived.length > 0
-        ? `\nAll references reachable (${waived.length} waived; reason in docs/STEAL.md).`
+        ? `\nAll references reachable (${waived.length} waived).`
         : "\nAll references reachable.",
     );
   }

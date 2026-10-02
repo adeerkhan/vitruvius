@@ -104,7 +104,7 @@ limits are worth knowing before you trust a green run.
 - Generated research output: `outputs/`, `papers/`, and benchmark `results-*`
   folders. These are ignored by git. They are not evidence for a commit.
 - A rejected change dressed up as accepted work. Rejections go into
-  `docs/rejected-changes.md` with `node scripts/rejected-change-ledger.mjs
+  `notes/rejected-changes.md` with `node scripts/rejected-change-ledger.mjs
   append ...`. That file only ever grows, and a rejection is worth keeping.
 
 ## One commit, one change

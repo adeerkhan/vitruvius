@@ -116,10 +116,18 @@ export function isInside(root, candidate, opts = {}) {
 export function isRealPathInside(root, value, lstat, realpath, pathModuleResolve, pathModuleIsAbsolute) {
   try {
     const rootReal = realpath(root);
-    const candidate = pathModuleResolve(root, value);
-    if (!lstat(candidate).isFile()) return false;
-    const actual = realpath(candidate);
-    if (canonicalPath(actual) !== canonicalPath(pathModuleResolve(rootReal, value))) return false;
+    // realpath throws on a missing path, so a named file that does not exist
+    // is refused rather than invented.
+    const actual = realpath(pathModuleResolve(root, value));
+    // Check the RESOLVED target, not `candidate`. An lstat on the candidate
+    // describes the link, and a symlink is never isFile(), which would refuse
+    // every symlink — including one that points at a file inside the root.
+    if (!lstat(actual).isFile()) return false;
+    // The property is containment of the resolved target, so compare the
+    // realpath of both sides. Demanding `actual` equal the lexical path under
+    // the root is strictly stronger and refuses a legitimate in-root symlink
+    // while adding no containment the relative() test below does not already
+    // give — that test is what refuses a link pointing OUT of the root (M3).
     const fromRoot = relative(rootReal, actual);
     return !pathModuleIsAbsolute(fromRoot) && fromRoot !== ".." && !fromRoot.startsWith(`..${sep}`);
   } catch {

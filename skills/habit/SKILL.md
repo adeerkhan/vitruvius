@@ -11,9 +11,9 @@ argument-hint: "[--scope <discipline>] [--window <n>]"
 allowed-tools: Read Write Bash
 license: MIT
 metadata:
-  version: "0.1.3"
+  version: "0.1.4"
 ---
-<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=a41fe1c04acf1bf14cb3f1a226a958afc3bbe2c777e7258d4aa34b0a33a6dd6d -->
+<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=45968b48f7a5fbfbec70dab25d93626db0fed037e9b24abc4652f9e67faaad31 -->
 
 # Habit
 
@@ -169,6 +169,12 @@ transcript window into later-run context.
   them per run.
 - Read-only dispatch: the habit role proposes, a human reviews, the lead
   applies. This skill never auto-applies a preference.
+- Approval is out of scope today: this skill captures candidates and abstains,
+  it does not grant an authenticated approval. The interface a host would
+  enforce is specified in `references/authenticated-approval.md` (states
+  `PENDING`/`APPROVED`/`REJECTED`/`EXPIRED`/`REVOKED`, retention, and
+  integration into later runs). Treat it as a design note, not as behaviour
+  this skill implements.
 - Never fabricate a preference; abstain instead. See
   `references/evidence-quality-tiers.md` for the source-tiering vocabulary.
 - Fail-closed: a malformed brief, unreadable transcript, invalid ledger, or

@@ -23,7 +23,7 @@
 //    Critically, the pattern matches the four figures as one ordered run
 //    (accuracy, false approvals, false blocks, conservative overcalls). The
 //    pressure suite publishes its own "one false approval" in the same
-//    sentence, and docs/VITRUVIUS.md also publishes a "75% routing rank-1
+//    sentence, and notes/VITRUVIUS.md also publishes a "75% routing rank-1
 //    floor" nearby. Matching the whole run at once is what keeps three
 //    different measurements from being compared against each other.
 //
@@ -38,7 +38,7 @@ import { scoreBenchmark } from "./benchmark-scoring.mjs";
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const REPO_ROOT = join(__dirname, "..");
 
-const DOCS = ["README.md", "docs/VITRUVIUS.md"];
+const DOCS = ["README.md", "notes/VITRUVIUS.md"];
 
 // A count in either wording: "1" or "one", "0" or "zero". This must be a
 // CAPTURING group — it is repeated three times in CLAIM and its matches are

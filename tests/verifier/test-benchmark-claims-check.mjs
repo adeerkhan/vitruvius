@@ -60,8 +60,8 @@ const MUTATIONS = [
   { label: "falseApprovals", field: "falseApprovals", file: "README.md", value: truth.falseApprovals + 1 },
   { label: "falseBlocks", field: "falseBlocks", file: "README.md", value: truth.falseBlocks + 1 },
   { label: "conservativeOvercalls", field: "conservativeOvercalls", file: "README.md", value: truth.conservativeOvercalls + 1 },
-  { label: "falseApprovals (VITRUVIUS)", field: "falseApprovals", file: "docs/VITRUVIUS.md", value: truth.falseApprovals + 1 },
-  { label: "counts stripped", field: null, file: "docs/VITRUVIUS.md", strip: true },
+  { label: "falseApprovals (VITRUVIUS)", field: "falseApprovals", file: "notes/VITRUVIUS.md", value: truth.falseApprovals + 1 },
+  { label: "counts stripped", field: null, file: "notes/VITRUVIUS.md", strip: true },
 ];
 
 for (const m of MUTATIONS) {

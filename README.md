@@ -122,7 +122,7 @@ The E1/C1 subagent runs are on-demand evidence and are not part of `npm test`; t
 ## Worked Examples
 
 Three real runs — including one that ends in an honest **BLOCKED** — in
-[docs/examples.md](docs/examples.md), each grounded in artifacts you can
+[notes/examples.md](notes/examples.md), each grounded in artifacts you can
 open and re-check.
 
 ## What's Included
@@ -497,8 +497,8 @@ Research outputs are intended to include a `.provenance.md` sidecar recording wh
 | Doc | What it covers |
 |-----|----------------|
 | [AGENTS.md](AGENTS.md) | The always-on repo contract: scope, integrity commandments, provenance, grounding rules, skill frontmatter rules |
-| [docs/agent-portability.md](docs/agent-portability.md) | How the same skills load across Claude Code, Cursor, Codex, Command Code, OpenCode, and Pi |
-| [docs/permissions.md](docs/permissions.md) | Per-host file-write permissions, which every research skill needs in order to persist artifacts |
+| [notes/agent-portability.md](notes/agent-portability.md) | How the same skills load across Claude Code, Cursor, Codex, Command Code, OpenCode, and Pi |
+| [notes/permissions.md](notes/permissions.md) | Per-host file-write permissions, which every research skill needs in order to persist artifacts |
 | [SECURITY.md](SECURITY.md) | Reporting a vulnerability, what the scanner checks, and the skill security rules |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Local setup and the change workflow |
 | [references/host-rules.md](references/host-rules.md) | The condensed ruleset generated into `.clinerules/`, `.qoder/rules/`, and `.windsurf/rules/` |

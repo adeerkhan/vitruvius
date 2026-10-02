@@ -57,7 +57,6 @@ export const REGISTRY = {
   "commit-message-check.mjs": { kind: "test" },
   "reference-reachability.mjs": { kind: "chain" },
   "gate-registry.mjs": { kind: "chain" },
-  "steal-selfcheck.mjs": { kind: "chain" },
   // Fails if .gitignore can hide a test, or a suite exists on disk without
   // being tracked. A bare `tests/*` rule once did exactly that: 103 suites
   // stayed tracked because they predated it, and every new test was silently

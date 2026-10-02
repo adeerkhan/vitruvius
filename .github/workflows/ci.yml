@@ -11,11 +11,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # fetch-depth: 0 is REQUIRED, not a preference. steal-selfcheck.mjs (the
-      # last step of `npm test`) verifies every commit hash docs/STEAL.md cites by
-      # running `git cat-file -e <hash>^{commit}`. The default depth-1 clone
-      # fetches one commit, so every one of those objects is absent and the gate
-      # reports 38 fabricated hashes that are in fact real. Do not remove this.
+      # fetch-depth: 0 fetches the full history. Nothing in `npm test` reads
+      # historical objects today, so depth-1 would work; kept at 0 because a
+      # shallow clone silently turns any future history-reading gate into a
+      # false accusation rather than an honest failure.
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0

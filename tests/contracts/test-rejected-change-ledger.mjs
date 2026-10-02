@@ -8,7 +8,7 @@ import { validateLedger } from "../../scripts/rejected-change-ledger.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const script = join(root, "scripts", "rejected-change-ledger.mjs");
-const ledgerPath = join(root, "docs", "rejected-changes.md");
+const ledgerPath = join(root, "notes", "rejected-changes.md");
 const temp = mkdtempSync(join(tmpdir(), "vitruvius-rejected-"));
 
 const run = (args) => spawnSync(process.execPath, [script, ...args], { cwd: root, encoding: "utf8" });

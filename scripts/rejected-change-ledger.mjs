@@ -8,7 +8,7 @@
  *   node scripts/rejected-change-ledger.mjs append [path] --date YYYY-MM-DD \
  *     --artifact <skill> --change <what> --evidence <why> --outcome <result>
  *
- * Default path: docs/rejected-changes.md. `append` rebuilds the file as the old
+ * Default path: notes/rejected-changes.md. `append` rebuilds the file as the old
  * bytes plus one validated row and refuses anything else, so a rejection record
  * cannot silently rewrite history.
  */
@@ -17,7 +17,7 @@ import { join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 const REPO_ROOT = join(fileURLToPath(new URL(".", import.meta.url)), "..");
-const DEFAULT_PATH = join(REPO_ROOT, "docs", "rejected-changes.md");
+const DEFAULT_PATH = join(REPO_ROOT, "notes", "rejected-changes.md");
 const HEADER = ["Date", "Artifact", "Attempted change", "Rejection evidence", "Outcome"];
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
 
