@@ -18,3 +18,20 @@ tasks/benchmark/results/.err-*.log4
 # from the same run, so tracking it only made every run dirty a tracked file for
 # no information a reader could act on.
 tests/routing/last-misses.txt
+
+# Local working map, deliberately never tracked. Rebuilt 2026-10-02 after the
+# tracked docs/STEAL.md and its self-check gate were removed; the file names
+# real upstream repos and working state, so it must stay off the remote. It is
+# regenerable from ref/SOURCES.md and `npm test` — nothing tracked depends on it.
+notes/STEAL.md
+
+# Holds a credential supplied by whoever runs the benchmark. It was committed
+# and pushed once with a hardcoded `||` fallback key, which is how a secret gets
+# into a public repo: one `git add -A`. The script now reads the env var only
+# and exits when it is unset, but the rule stays so a future edit that re-adds a
+# fallback cannot slip in.
+tasks/benchmark/run-api.mjs
+
+# Local benchmark scratch, written by run-api.mjs and regenerated per run, like
+# the other results-* trees above.
+tasks/benchmark/results-api/
