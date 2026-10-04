@@ -27,6 +27,7 @@
  * loses, and the alternative is four subtly different answers to "is this safe".
  */
 
+import { lstatSync, realpathSync } from "node:fs";
 import { isAbsolute, relative, resolve, sep } from "node:path";
 
 /**
@@ -107,32 +108,89 @@ export function isInside(root, candidate, opts = {}) {
  *
  * @param {string} root
  * @param {string} value relative path as written
- * @param {(p: string) => boolean} lstat
- * @param {(p: string) => string} realpath
- * @param {string} pathModuleResolve
- * @param {string} pathModuleIsAbsolute
+ * @param {(p: string) => boolean} [lstat]
+ * @param {(p: string) => string} [realpath]
+ * @param {(p: string) => string} [pathModuleResolve]
+ * @param {(p: string) => boolean} [pathModuleIsAbsolute]
  * @returns {boolean}
  */
-export function isRealPathInside(root, value, lstat, realpath, pathModuleResolve, pathModuleIsAbsolute) {
+export function isRealPathInside(
+  root,
+  value,
+  lstat = lstatSync,
+  realpath = realpathSync,
+  pathModuleResolve = resolve,
+  pathModuleIsAbsolute = isAbsolute,
+) {
+  return resolveRealFile(root, value, { lstat, realpath, pathModuleResolve, pathModuleIsAbsolute }).ok;
+}
+
+/**
+ * The one containment check, with the reason it refused.
+ *
+ * A boolean cannot distinguish "you tried to leave the root" from "that is not
+ * a regular file", and every caller in this repo reported those differently.
+ * Returning the reason is what lets them share the decision and still say
+ * something true about it.
+ *
+ * The three refusals, in order:
+ *   - `unsafe`        — `value` is not a confined repository-relative path
+ *   - `not-a-file`    — the resolved target is absent, or is not a regular file
+ *   - `escapes-root`  — the resolved target lies outside `root`
+ *
+ * `escapes-root` is decided on the RESOLVED target, so a symlink pointing out
+ * of the root is refused even though its own path is lexically inside it.
+ *
+ * @param {string} root
+ * @param {string} value relative path as written
+ * @param {{ lstat?: (p: string) => boolean, realpath?: (p: string) => string,
+ *           pathModuleResolve?: (p: string) => string,
+ *           pathModuleIsAbsolute?: (p: string) => boolean }} [deps]
+ * @returns {{ ok: true, path: string, resolved: string }
+ *          | { ok: false, reason: "unsafe" | "not-a-file" | "escapes-root" }}
+ */
+export function resolveRealFile(root, value, deps = {}) {
+  const lstat = deps.lstat ?? lstatSync;
+  const realpath = deps.realpath ?? realpathSync;
+  const pathModuleResolve = deps.pathModuleResolve ?? resolve;
+  const pathModuleIsAbsolute = deps.pathModuleIsAbsolute ?? isAbsolute;
+
+  if (!isSafeRelativePath(value)) return { ok: false, reason: "unsafe" };
+
+  let actual;
   try {
-    const rootReal = realpath(root);
     // realpath throws on a missing path, so a named file that does not exist
     // is refused rather than invented.
-    const actual = realpath(pathModuleResolve(root, value));
-    // Check the RESOLVED target, not `candidate`. An lstat on the candidate
-    // describes the link, and a symlink is never isFile(), which would refuse
-    // every symlink — including one that points at a file inside the root.
-    if (!lstat(actual).isFile()) return false;
-    // The property is containment of the resolved target, so compare the
-    // realpath of both sides. Demanding `actual` equal the lexical path under
-    // the root is strictly stronger and refuses a legitimate in-root symlink
-    // while adding no containment the relative() test below does not already
-    // give — that test is what refuses a link pointing OUT of the root (M3).
-    const fromRoot = relative(rootReal, actual);
-    return !pathModuleIsAbsolute(fromRoot) && fromRoot !== ".." && !fromRoot.startsWith(`..${sep}`);
+    actual = realpath(pathModuleResolve(root, value));
   } catch {
-    return false;
+    return { ok: false, reason: "not-a-file" };
   }
+
+  // Check the RESOLVED target, not the candidate. An lstat on the candidate
+  // describes the link, and a symlink is never isFile(), which would refuse
+  // every symlink — including one that points at a file inside the root.
+  try {
+    if (!lstat(actual).isFile()) return { ok: false, reason: "not-a-file" };
+  } catch {
+    return { ok: false, reason: "not-a-file" };
+  }
+
+  // The property is containment of the resolved target, so compare the
+  // realpath of both sides. Demanding `actual` equal the lexical path under
+  // the root is strictly stronger and refuses a legitimate in-root symlink
+  // while adding no containment the relative() test below does not already
+  // give — that test is what refuses a link pointing OUT of the root (M3).
+  let fromRoot;
+  try {
+    fromRoot = relative(realpath(root), actual);
+  } catch {
+    return { ok: false, reason: "escapes-root" };
+  }
+  if (pathModuleIsAbsolute(fromRoot) || fromRoot === ".." || fromRoot.startsWith(`..${sep}`)) {
+    return { ok: false, reason: "escapes-root" };
+  }
+
+  return { ok: true, path: pathModuleResolve(root, value), resolved: actual };
 }
 
 /**

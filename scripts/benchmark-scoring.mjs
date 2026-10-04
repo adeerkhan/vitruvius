@@ -197,7 +197,7 @@ export function scoreBenchmark({ casesDir, resultsDir }) {
 }
 
 /** Pick the strict-majority verdict, or null when the runs split. */
-export function majorityOf(verdicts) {
+function majorityOf(verdicts) {
   const counts = new Map();
   for (const verdict of verdicts) counts.set(verdict, (counts.get(verdict) ?? 0) + 1);
   let winner = null;

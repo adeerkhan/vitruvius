@@ -12,10 +12,10 @@
  */
 
 import { createHash } from "node:crypto";
-import { lstatSync, readFileSync, realpathSync } from "node:fs";
+import { readFileSync, realpathSync } from "node:fs";
 import { dirname, isAbsolute, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
-import { isInside, isNonEmptyString as isText, isSafeRelativePath } from "./path-safety.mjs";
+import { isInside, isNonEmptyString as isText, resolveRealFile } from "./path-safety.mjs";
 
 const SCHEMA = "vitruvius-goal-check.v1";
 const REQUIREMENTS_SCHEMA = "vitruvius-goal-requirements.v1";
@@ -64,30 +64,22 @@ function physicalKey(path) {
 }
 
 function resolveRepoFile(repoRoot, value, label, errors) {
-  if (!isSafeRelativePath(value)) {
+  // The containment decision belongs to path-safety.mjs. This function only
+  // decides which refusal to report: an unsafe path and an escaping one are
+  // different mistakes, and collapsing them into one message is what let the
+  // two copies drift in the first place.
+  const result = resolveRealFile(resolve(repoRoot), value);
+  if (result.ok) return result.path;
+  if (result.reason === "unsafe") {
     errors.push(`${label} must be a confined repository-relative regular file`);
     return null;
   }
-  const root = resolve(repoRoot);
-  const expected = resolve(root, value);
-  try {
-    const rootReal = realpathSync(root);
-    const stat = lstatSync(expected);
-    if (!stat.isFile() || stat.isSymbolicLink()) {
-      errors.push(`${label} must be a regular non-symlink file`);
-      return null;
-    }
-    const actual = realpathSync(expected);
-    const expectedReal = resolve(rootReal, value);
-    if (actual !== expectedReal || !isInside(rootReal, actual)) {
-      errors.push(`${label} must be a confined regular file`);
-      return null;
-    }
-    return expected;
-  } catch (error) {
-    errors.push(`${label} could not be read: ${error.message}`);
-    return null;
-  }
+  errors.push(
+    result.reason === "escapes-root"
+      ? `${label} must be a confined regular file`
+      : `${label} must be a regular non-symlink file`,
+  );
+  return null;
 }
 
 function normalizeRelative(value) {

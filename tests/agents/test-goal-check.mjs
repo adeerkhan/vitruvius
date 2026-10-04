@@ -130,6 +130,31 @@ try {
   assert.equal(aliasReport.valid, false);
   assert.match(aliasReport.errors.join("\n"), /physically distinct|could not be read|hash mismatch/i);
 
+  // The containment decision is shared with field-pilot (path-safety.mjs). These
+  // three cases pin that both contracts still refuse the same paths AFTER the
+  // duplication was removed — a shared module that only one caller honours is
+  // the same defect as two inline copies, so the refusal is asserted per contract.
+  const escapes = [
+    ["../outside.md", /confined repository-relative regular file/i],
+    ["final.md/../../outside.md", /confined repository-relative regular file/i],
+    ["final.md", /physically distinct/i],
+  ];
+  for (const [planPath, expected] of escapes) {
+    const probe = record();
+    probe.plan_path = planPath;
+    const report = validateGoalCheck(probe, { repoRoot: root });
+    assert.equal(report.valid, false, `plan_path ${planPath} must be refused`);
+    assert.match(report.errors.join("\n"), expected, `plan_path ${planPath}`);
+  }
+
+  // A directory is named as a bad file, not as an escape: the message has to
+  // point an operator at the real problem.
+  const directory = record();
+  directory.plan_path = ".";
+  const directoryReport = validateGoalCheck(directory, { repoRoot: root });
+  assert.equal(directoryReport.valid, false);
+  assert.match(directoryReport.errors.join("\n"), /confined repository-relative regular file/i);
+
   const openFinding = record();
   openFinding.findings = [{ id: "F1", severity: "minor", status: "open", summary: "A minor unresolved issue remains.", evidence: "The brief is present.", required_fix: "Clarify the caveat." }];
   openFinding.verdict = "NOT-DONE";

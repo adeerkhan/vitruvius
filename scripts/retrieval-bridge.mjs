@@ -47,7 +47,7 @@ export function parseArgs(argv) {
 }
 
 /** Step 1: semantic recall. Returns null if the tool is unavailable. */
-export function semanticRecall(query, projectPath, maxResults) {
+function semanticRecall(query, projectPath, maxResults) {
   try {
     // execFileSync with an argv array, not a shell string: a query containing a
     // quote or a backtick is a legitimate search term and must not be able to

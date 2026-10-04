@@ -1,8 +1,8 @@
 import { createHash } from "node:crypto";
 import { existsSync, lstatSync, readFileSync, readdirSync, realpathSync } from "node:fs";
-import { basename, dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
+import { basename, dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { isInside as isInsideShared, isNonEmptyString, isSafeRelativePath } from "./path-safety.mjs";
+import { canonicalPath, isInside as isInsideShared, isNonEmptyString, isSafeRelativePath, resolveRealFile } from "./path-safety.mjs";
 
 const CASE_SCHEMA = "vitruvius-c1.v1";
 const RESULT_SCHEMA = "vitruvius-c1-results.v1";
@@ -20,24 +20,13 @@ function isInside(root, candidate) {
   return isInsideShared(root, candidate, { allowRoot: false });
 }
 
-function canonicalPath(path) {
-  return process.platform === "win32" ? path.toLowerCase() : path;
-}
-
 function isSafeRegularFile(root, value) {
-  if (!isSafeRelativePath(value)) return false;
-  try {
-    const rootReal = realpathSync(root);
-    const path = resolve(root, value);
-    if (!lstatSync(path).isFile()) return false;
-    const actualPath = realpathSync(path);
-    const expectedPath = resolve(rootReal, value);
-    if (canonicalPath(actualPath) !== canonicalPath(expectedPath)) return false;
-    const relativePath = relative(rootReal, actualPath);
-    return !isAbsolute(relativePath) && relativePath !== ".." && !relativePath.startsWith(`..${sep}`);
-  } catch {
-    return false;
-  }
+  // Containment is path-safety.mjs's decision, not this script's. This copy
+  // demanded `actualPath === expectedPath`, which refuses a symlink whose
+  // target really is inside the root — the same defect e73d7ed fixed in the
+  // shared module and never reached here. resolveRealFile judges the resolved
+  // target's containment, which is the property that actually matters.
+  return resolveRealFile(root, value).ok;
 }
 
 function hashFile(path) {

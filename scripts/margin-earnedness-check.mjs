@@ -112,7 +112,7 @@ export function checkResultFile(path) {
   return findings;
 }
 
-export function checkResultsDir(resultsDir) {
+function checkResultsDir(resultsDir) {
   if (!existsSync(resultsDir)) {
     console.error(`Results directory not found: ${resultsDir}`);
     process.exit(1);

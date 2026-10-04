@@ -135,6 +135,22 @@ try {
   assert.equal(aliasReport.valid, false);
   assert.match(aliasReport.errors.join("\n"), /physically distinct|does not match pilot artifact|could not be read|hash mismatch/i);
 
+  // Same three refusals as the goal-check suite, for the same reason: both
+  // contracts resolve their artifact paths through path-safety.mjs, and both
+  // hand-rolled it until 2026-10-04. A shared module only one caller honours is
+  // the defect the sharing was meant to remove, so each caller is pinned.
+  for (const [planPath, expected] of [
+    ["../outside.md", /confined repository-relative regular file/i],
+    ["plan.md/../../outside.md", /confined repository-relative regular file/i],
+    [".", /confined repository-relative regular file/i],
+  ]) {
+    const probe = validPilot();
+    probe.plan.path = planPath;
+    const report = validateFieldPilot(probe, { repoRoot: root });
+    assert.equal(report.valid, false, `plan.path ${planPath} must be refused`);
+    assert.match(report.errors.join("\n"), expected, `plan.path ${planPath}`);
+  }
+
   const invalidVerifier = validPilot();
   write("verifier.md", "# Verification\n\nMACHINE_VERDICT: PASS\n");
   invalidVerifier.verifier = artifact("verifier.md");

@@ -7,12 +7,12 @@
  */
 
 import { createHash } from "node:crypto";
-import { lstatSync, readFileSync, realpathSync } from "node:fs";
+import { readFileSync, realpathSync } from "node:fs";
 import { dirname, isAbsolute, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { validateGoalCheck } from "./goal-check-contract.mjs";
 import { parseMachineVerdict } from "./verifier-parser.mjs";
-import { isInside, isNonEmptyString as isText, isSafeRelativePath } from "./path-safety.mjs";
+import { isNonEmptyString as isText, resolveRealFile } from "./path-safety.mjs";
 
 const SCHEMA = "vitruvius-field-pilot.v1";
 const SHA256_PATTERN = /^[0-9a-f]{64}$/;
@@ -61,29 +61,21 @@ function samePhysicalPath(repoRoot, left, right) {
 }
 
 function resolveFile(repoRoot, value, label, errors) {
-  if (!isSafeRelativePath(value)) {
+  // The containment decision belongs to path-safety.mjs — see the twin in
+  // goal-check-contract.mjs. Both copies previously hand-rolled this and
+  // neither received the symlink fix that landed in the shared module.
+  const result = resolveRealFile(resolve(repoRoot), value);
+  if (result.ok) return result.path;
+  if (result.reason === "unsafe") {
     errors.push(`${label} must be a confined repository-relative regular file`);
     return null;
   }
-  const root = resolve(repoRoot);
-  const expected = resolve(root, value);
-  try {
-    const rootReal = realpathSync(root);
-    const stat = lstatSync(expected);
-    if (!stat.isFile() || stat.isSymbolicLink()) {
-      errors.push(`${label} must be a regular non-symlink file`);
-      return null;
-    }
-    const actual = realpathSync(expected);
-    if (actual !== resolve(rootReal, value) || !isInside(rootReal, actual)) {
-      errors.push(`${label} must be a confined regular file`);
-      return null;
-    }
-    return expected;
-  } catch (error) {
-    errors.push(`${label} could not be read: ${error.message}`);
-    return null;
-  }
+  errors.push(
+    result.reason === "escapes-root"
+      ? `${label} must be a confined regular file`
+      : `${label} must be a regular non-symlink file`,
+  );
+  return null;
 }
 
 function validateDate(value, label, errors) {

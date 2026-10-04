@@ -1,35 +1,15 @@
-import { existsSync, lstatSync, readFileSync, readdirSync, realpathSync } from "node:fs";
-import { isAbsolute, join, relative, resolve, sep } from "node:path";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { isNonEmptyString, isSafeRelativePath as isSafeRelativePathShared } from "./path-safety.mjs";
+import { isNonEmptyString, resolveRealFile } from "./path-safety.mjs";
 
 const VALID_STATUSES = new Set(["pilot", "partial", "complete"]);
 
-/**
- * Positional-prefix wrapper, kept because every call site here passes the
- * prefix as a second positional argument. The rule itself is the shared one.
- */
-function isSafeRelativePath(value, prefix) {
-  return isSafeRelativePathShared(value, { prefix });
-}
-
-function canonicalPath(path) {
-  return process.platform === "win32" ? path.toLowerCase() : path;
-}
-
 function isSafeRegularFile(root, value) {
-  if (!isSafeRelativePath(value, "")) return false;
-  try {
-    const rootReal = realpathSync(root);
-    const path = resolve(root, value);
-    if (!lstatSync(path).isFile()) return false;
-    const actualPath = realpathSync(path);
-    if (canonicalPath(actualPath) !== canonicalPath(resolve(rootReal, value))) return false;
-    const relativePath = relative(rootReal, actualPath);
-    return !isAbsolute(relativePath) && relativePath !== ".." && !relativePath.startsWith(`..${sep}`);
-  } catch {
-    return false;
-  }
+  // Containment is path-safety.mjs's decision. The copy this replaced demanded
+  // `actualPath === expectedPath`, refusing a symlink whose target really is
+  // inside the root; resolveRealFile judges the resolved target's containment.
+  return resolveRealFile(root, value).ok;
 }
 
 function validateTrigger(trigger, label, errors) {
