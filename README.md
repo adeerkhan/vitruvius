@@ -5,6 +5,10 @@
 <h1 align="center">Vitruvius</h1>
 
 <p align="center">
+  <a href="https://adeerkhan.github.io/vitruvius/"><strong>Website</strong> &middot; <a href="https://adeerkhan.github.io/vitruvius/skills.html">skills</a></a>
+</p>
+
+<p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT License"></a>
   <img src="https://img.shields.io/badge/skills-25-green" alt="25 skills">
   <a href="https://github.com/adeerkhan/vitruvius/actions/workflows/ci.yml"><img src="https://github.com/adeerkhan/vitruvius/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
@@ -497,6 +501,7 @@ Research outputs are intended to include a `.provenance.md` sidecar recording wh
 
 | Doc | What it covers |
 |-----|----------------|
+| [vitruvius.github.io](https://adeerkhan.github.io/vitruvius/) | The project site. Hand-written static HTML in `site/`, deployed to GitHub Pages; `tests/site/test-site.mjs` fails if the site names a command that does not exist or links to a file that was never committed |
 | [AGENTS.md](AGENTS.md) | The always-on repo contract: scope, integrity commandments, provenance, grounding rules, skill frontmatter rules |
 | [notes/agent-portability.md](notes/agent-portability.md) | How the same skills load across Claude Code, Cursor, Codex, Command Code, OpenCode, and Pi |
 | [notes/permissions.md](notes/permissions.md) | Per-host file-write permissions, which every research skill needs in order to persist artifacts |
