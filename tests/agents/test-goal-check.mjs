@@ -1,6 +1,6 @@
 import { strict as assert } from "node:assert";
 import { createHash } from "node:crypto";
-import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { tmpdir } from "node:os";
@@ -124,11 +124,24 @@ try {
   assert.equal(traversalReport.valid, false);
   assert.match(traversalReport.errors.join("\n"), /plan_path must be a confined repository-relative regular file/i);
 
+  // An alias of the final artifact used as the plan. What the refusal SAYS
+  // depends on the filesystem the suite happens to run on, and the two answers
+  // are both correct:
+  //   - case-insensitive (win32, default macOS): `FINAL.md` resolves to the
+  //     very file named by final, so it is refused as not physically distinct;
+  //   - case-sensitive (Linux CI): `FINAL.md` names a file that does not exist,
+  //     so it is refused as not a regular file.
+  // Asserting one message therefore asserts one platform's filesystem. The
+  // refusal itself is the invariant; the reason is derived from the host, so
+  // this stays a statement about the contract rather than about the CI runner.
   const alias = record();
   alias.plan_path = "FINAL.md";
   const aliasReport = validateGoalCheck(alias, { repoRoot: root });
   assert.equal(aliasReport.valid, false);
-  assert.match(aliasReport.errors.join("\n"), /physically distinct|could not be read|hash mismatch/i);
+  const aliasReason = existsSync(join(root, "FINAL.md"))
+    ? /physically distinct/i
+    : /plan_path must be a regular non-symlink file/i;
+  assert.match(aliasReport.errors.join("\n"), aliasReason);
 
   // The containment decision is shared with field-pilot (path-safety.mjs). These
   // three cases pin that both contracts still refuse the same paths AFTER the
