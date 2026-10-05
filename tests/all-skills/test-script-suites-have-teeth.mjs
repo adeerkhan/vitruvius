@@ -1,8 +1,9 @@
-import { readFileSync, writeFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { join, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { writeDurable, installRestoreGuard } from "../_support/file-mutation.mjs";
 
 // Teeth for the two script-level suites repaired on 2026-09-28:
 // tests/engineering-research/test-retrieval-bridge.mjs and
@@ -308,18 +309,7 @@ const CASES = [
   },
 ];
 
-function writeWithRetry(path, contents, attempts = 5) {
-  for (let i = 1; ; i++) {
-    try {
-      writeFileSync(path, contents, "utf8");
-      return;
-    } catch (err) {
-      if (i >= attempts) throw err;
-      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 50 * i);
-    }
-  }
-}
-
+// Durable writes (atomic replace + retry + verify) live in the shared helper.
 const snapshots = new Map();
 for (const c of CASES) {
   const a = abs(c.file);
@@ -327,26 +317,10 @@ for (const c of CASES) {
 }
 const originalFor = (rel) => snapshots.get(abs(rel));
 
-function restoreAll() {
-  const failed = [];
-  for (const [file, original] of snapshots) {
-    try {
-      writeWithRetry(file, original);
-    } catch (err) {
-      failed.push(`${file}: ${err.message}`);
-    }
-  }
-  return failed;
-}
-
-process.on("exit", () => {
-  if (snapshots.size === 0) return;
-  const failed = restoreAll();
-  if (failed.length > 0) {
-    console.error(`\nFATAL: could not restore ${failed.length} mutated script(s):\n  ${failed.join("\n  ")}`);
-    process.exitCode = 1;
-  }
-});
+// Restore on exit (and Ctrl-C): a failed restore here leaves a real script
+// broken in the working tree, which is exactly the defect this harness found by
+// reading the file afterwards rather than by the check reporting it.
+installRestoreGuard(snapshots, { label: "script or manifest" });
 
 let allDetected = true;
 const vacuous = [];
@@ -368,12 +342,12 @@ for (const c of CASES) {
   let status;
   let output = "";
   try {
-    writeWithRetry(a, rewriteWithFreshHash(relFile, afterReplace));
+    writeDurable(a, rewriteWithFreshHash(relFile, afterReplace));
     const run = spawnSync("node", [c.test], { encoding: "utf8", cwd: REPO_ROOT });
     status = run.status;
     output = `${run.stdout ?? ""}${run.stderr ?? ""}`;
   } finally {
-    writeWithRetry(a, original);
+    writeDurable(a, original);
   }
 
   if (status === 0) {

@@ -1,8 +1,9 @@
-import { readFileSync, writeFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { writeDurable, installRestoreGuard } from "../_support/file-mutation.mjs";
 
 // Mutation harness for the eleven E1 behavioural suites added 2026-09-28.
 //
@@ -205,29 +206,8 @@ let allDetected = true;
 const notDetected = [];
 const brokenHarness = [];
 
-/**
- * Windows intermittently fails a write with errno -4094 (UNKNOWN) when a file
- * is briefly locked — by a virus scanner, or by git touching the file between
- * cases. A bare writeFileSync then throws, the finally block never runs, and the
- * SKILL.md is left MUTATED in the working tree.
- *
- * That is not hypothetical: it happened here, and the harness died leaving
- * skills/electrical/SKILL.md weakened, which failed the payload-manifest test
- * on the next npm run with no obvious cause. Restore is retried, and the
- * originals are snapshotted up front so a full sweep can always run.
- */
-function writeWithRetry(path, contents, attempts = 5) {
-  for (let i = 1; ; i++) {
-    try {
-      writeFileSync(path, contents, "utf8");
-      return;
-    } catch (err) {
-      if (i >= attempts) throw err;
-      // Brief backoff. A locked file usually clears in milliseconds.
-      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 50 * i);
-    }
-  }
-}
+// Durable writes (atomic replace + retry + verify) live in the shared helper so
+// the four mutation harnesses cannot each get lock recovery subtly wrong.
 
 // Snapshot keys are absolute (REPO_ROOT-prefixed) so they work from any cwd.
 // The per-case loop looks up by RELATIVE path, so keep a map for that too.
@@ -238,29 +218,9 @@ for (const c of CASES) {
 }
 const originalFor = (relativePath) => snapshots.get(join(REPO_ROOT, relativePath));
 
-/** Put every touched file back, whatever happened to the run above. */
-function restoreAll() {
-  const failed = [];
-  for (const [file, original] of snapshots) {
-    try {
-      writeWithRetry(file, original);
-    } catch (err) {
-      failed.push(`${file}: ${err.message}`);
-    }
-  }
-  return failed;
-}
-
-// A restore that fails is fatal and must not be swallowed: a dirty skills/ tree
-// breaks the payload manifest and, worse, ships a weakened skill.
-process.on("exit", () => {
-  if (snapshots.size === 0) return;
-  const failed = restoreAll();
-  if (failed.length > 0) {
-    console.error(`\nFATAL: could not restore ${failed.length} mutated file(s):\n  ${failed.join("\n  ")}`);
-    process.exitCode = 1;
-  }
-});
+// Restore on exit (and Ctrl-C) so a failed run never leaves a weakened skill
+// behind: a dirty skills/ tree breaks the payload manifest and ships the defect.
+installRestoreGuard(snapshots, { label: "skill file" });
 
 for (const c of CASES) {
   const relFile = join("skills", c.skill, "SKILL.md");
@@ -282,12 +242,12 @@ for (const c of CASES) {
   let status;
   let output = "";
   try {
-    writeWithRetry(file, mutated);
+    writeDurable(file, mutated);
     const run = spawnSync("node", [test], { encoding: "utf8", cwd: REPO_ROOT });
     status = run.status;
     output = `${run.stdout ?? ""}${run.stderr ?? ""}`;
   } finally {
-    writeWithRetry(file, original);
+    writeDurable(file, original);
   }
 
   if (status === 0) {

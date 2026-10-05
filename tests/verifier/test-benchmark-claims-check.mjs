@@ -1,9 +1,9 @@
 import { strict as assert } from "node:assert";
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, writeFileSync, readFileSync, rmSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
-import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
+import { writeDurable, installRestoreGuard } from "../_support/file-mutation.mjs";
 
 // benchmark-claims-check.mjs must fail when the docs drift from the scorer, and
 // pass when they agree. A check written to be green is worse than no check, so
@@ -64,9 +64,16 @@ const MUTATIONS = [
   { label: "counts stripped", field: null, file: "notes/VITRUVIUS.md", strip: true },
 ];
 
+// Snapshot the pristine documents once, before any mutation, so a failed
+// restore of one case cannot poison the next case's starting text — and restore
+// them all on exit (and Ctrl-C) so a Windows lock cannot leave a mangled doc.
+const touchedFiles = [...new Set(MUTATIONS.map((m) => m.file))];
+const snapshots = new Map(touchedFiles.map((f) => [join(repoRoot, f), readFileSync(join(repoRoot, f), "utf8")]));
+installRestoreGuard(snapshots, { label: "document" });
+
 for (const m of MUTATIONS) {
   const path = join(repoRoot, m.file);
-  const original = readFileSync(path, "utf8");
+  const original = snapshots.get(path);
 
   const hit = CLAIM_PARTS.exec(original);
   assert.ok(hit, `${m.file} must publish a four-figure adversarial claim; the test's pattern no longer matches it`);
@@ -97,10 +104,10 @@ for (const m of MUTATIONS) {
 
   let result;
   try {
-    writeFileSync(path, mutated, "utf8");
+    writeDurable(path, mutated);
     result = run();
   } finally {
-    writeFileSync(path, original, "utf8");
+    writeDurable(path, original);
   }
 
   assert.strictEqual(result.status, 1, `the gate must FAIL when ${m.label} drifts in ${m.file}\n${result.out}`);
@@ -134,6 +141,12 @@ assert.doesNotMatch(
   /4\/5/,
   "the pressure suite's 4/5 must never appear in the adversarial verdict report",
 );
+
+// Every mutated document must be byte-identical to its pristine snapshot. The
+// final run above already implies agreement; this states the restore itself.
+for (const [file, pristine] of snapshots) {
+  assert.strictEqual(readFileSync(file, "utf8"), pristine, `${file} must be restored after the mutations`);
+}
 
 console.log(
   "\nPASS: benchmark-claims gate passes on agreeing docs and fails on every single-figure drift, " +

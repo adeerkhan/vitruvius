@@ -1,9 +1,14 @@
-import { readFileSync, writeFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
+import { join, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
+import { writeDurable, installRestoreGuard } from "../_support/file-mutation.mjs";
 
 // Mutation harness: prove each of the four Part 3 suites can actually fail.
 // A behavioural suite that cannot fail is decoration, so each case below
 // weakens one real rule and asserts the corresponding suite goes red.
+
+const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
 const CASES = [
   {
@@ -36,10 +41,21 @@ const CASES = [
   },
 ];
 
+// Snapshot every touched file up front, and restore it on exit (and Ctrl-C):
+// an interrupted run must not leave a checked-in SKILL.md mutated, which then
+// fails the payload-manifest test on the NEXT run with no obvious cause.
+const snapshots = new Map();
+for (const c of CASES) {
+  const abs = join(REPO_ROOT, c.file);
+  if (!snapshots.has(abs)) snapshots.set(abs, readFileSync(abs, "utf8"));
+}
+installRestoreGuard(snapshots, { label: "skill or reference file" });
+
 let allDetected = true;
 
 for (const c of CASES) {
-  const original = readFileSync(c.file, "utf8");
+  const abs = join(REPO_ROOT, c.file);
+  const original = snapshots.get(abs);
   const mutated = original.replace(c.find, c.replace);
 
   if (mutated === original) {
@@ -48,18 +64,13 @@ for (const c of CASES) {
     continue;
   }
 
-  // The restore must run even if the child is killed or this process is
-  // interrupted. An earlier version restored unconditionally after the spawn
-  // and could leave a checked-in SKILL.md mutated if the run was cut short,
-  // which then failed the payload-manifest test on the *next* run with no
-  // obvious cause.
   let status;
   try {
-    writeFileSync(c.file, mutated, "utf8");
-    const run = spawnSync("node", [c.test], { encoding: "utf8" });
+    writeDurable(abs, mutated);
+    const run = spawnSync("node", [c.test], { encoding: "utf8", cwd: REPO_ROOT });
     status = run.status;
   } finally {
-    writeFileSync(c.file, original, "utf8");
+    writeDurable(abs, original);
   }
 
   if (status === 0) {
@@ -76,6 +87,7 @@ for (const c of CASES) {
 // comparing it to itself would pass vacuously.
 const status = spawnSync("git", ["status", "--porcelain", "--", ...CASES.map((c) => c.file)], {
   encoding: "utf8",
+  cwd: REPO_ROOT,
 });
 const dirtyFiles = (status.stdout ?? "").trim();
 if (dirtyFiles.length > 0) {
