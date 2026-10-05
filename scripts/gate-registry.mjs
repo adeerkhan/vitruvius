@@ -120,6 +120,9 @@ export const REGISTRY = {
   "discipline-payloads.mjs": { kind: "test" },
   "verifier-parser.mjs": { kind: "test" },
   "benchmark-scoring.mjs": { kind: "test" },
+  // Baseline comparison scorer + contract; imported and spawned by
+  // tests/baseline/test-baseline.mjs.
+  "baseline-scoring.mjs": { kind: "test" },
   "problem-anchor-contract.mjs": { kind: "test" },
   "goal-check-contract.mjs": { kind: "test" },
   "field-pilot-contract.mjs": { kind: "test" },

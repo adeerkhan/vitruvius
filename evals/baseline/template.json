@@ -1,0 +1,35 @@
+{
+  "schema": "vitruvius-baseline.v1",
+  "case_id": "replace-with-a-case-id-from-cases.json",
+  "condition": "with-vitruvius",
+  "observed_on": "YYYY-MM-DD",
+  "host": "record the host or 'unavailable'",
+  "model": "record the model or 'unavailable'",
+  "session_id": "record the fresh session identifier",
+  "answer": {
+    "path": "evals/baseline/results/<case_id>/<condition>.md",
+    "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "bytes": 1
+  },
+  "citations": [
+    {
+      "locator": "RFC 9110",
+      "status": "read",
+      "supported": true,
+      "artifact": {
+        "path": "evals/baseline/results/<case_id>/sources/rfc9110.txt",
+        "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "bytes": 1
+      }
+    }
+  ],
+  "metrics": {
+    "wall_time_minutes": null,
+    "wall_time_status": "unavailable",
+    "cost_usd": null,
+    "cost_status": "unavailable",
+    "notes": "Do not invent cost or wall time; mark unavailable."
+  },
+  "completion": "partial",
+  "notes": "Record deviations and limits. A record is not a result until a real run fills it."
+}

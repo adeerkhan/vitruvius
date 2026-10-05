@@ -64,3 +64,14 @@ The format is documented in `evals/field-pilot/README.md` and validated with
 `node scripts/field-pilot-contract.mjs <record.json>`. The checked-in template
 is intentionally incomplete; no pilot result is claimed until a real record
 retains the source bytes or an honest blocked reason and all artifact hashes.
+
+## Baseline comparison
+
+`evals/baseline/` is the comparative layer: ten fixed questions run under
+`with-vitruvius` and `baseline` (plain prompt), scored on read-vs-recalled
+sources, citation accuracy, and fabricated references. Records use the
+`vitruvius-baseline.v1` schema; `node scripts/baseline-scoring.mjs
+evals/baseline/results` validates them fail-closed and prints the comparison.
+The case set, contract, and scorer are proven by
+`tests/baseline/test-baseline.mjs`. The framework is in place; no model-run
+comparison is recorded yet — see [baseline/README.md](baseline/README.md).

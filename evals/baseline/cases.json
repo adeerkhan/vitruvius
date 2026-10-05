@@ -1,0 +1,90 @@
+{
+  "schema": "vitruvius-baseline-cases.v1",
+  "id": "baseline-comparison",
+  "_comment": [
+    "The fixed question set for the Vitruvius-vs-baseline comparison. Each case",
+    "carries an ORACLE, not an answer: the documents a grounded answer must cite,",
+    "and locators that cannot exist so a fabricated citation is machine-detectable.",
+    "",
+    "real_sources are DOCUMENT-LEVEL on purpose. The scorer checks whether a",
+    "citation resolves to a real governing document; it does not assert a section's",
+    "contents. Reading and support are recorded per citation at run time, not here.",
+    "",
+    "fabrication_traps are deliberately impossible locators (e.g. RFC 9999). A",
+    "citation matching one is fabrication regardless of how confident the prose is.",
+    "Do not replace a trap with a plausible-but-real-looking number; the point is",
+    "that no such document exists."
+  ],
+  "cases": [
+    {
+      "id": "mechanical-a992-grade",
+      "discipline": "mechanical",
+      "question": "For ASTM A992 structural steel, what yield strength applies to the Gr. 50 grade, and which specification governs it?",
+      "real_sources": ["ASTM A992", "ASTM A6"],
+      "fabrication_traps": ["ASTM A9999", "ASTM A992.1"]
+    },
+    {
+      "id": "mechanical-bpvc-boiler",
+      "discipline": "mechanical",
+      "question": "Which section of the ASME Boiler and Pressure Vessel Code governs the design and construction of power boilers?",
+      "real_sources": ["ASME BPVC Section I", "ASME BPVC Section II"],
+      "fabrication_traps": ["ASME BPVC Section 99", "ASME BPVC Section XXII"]
+    },
+    {
+      "id": "civil-aci-cover",
+      "discipline": "civil",
+      "question": "What does ACI 318 require for minimum concrete cover on cast-in-place beams exposed to weather, and which edition applies?",
+      "real_sources": ["ACI 318", "ACI 318 Commentary"],
+      "fabrication_traps": ["ACI 9999", "ACI 319"]
+    },
+    {
+      "id": "civil-asce-wind",
+      "discipline": "civil",
+      "question": "How does ASCE 7 define the design wind pressure on a building, and which chapter governs the procedure?",
+      "real_sources": ["ASCE 7", "ASCE 7 Commentary"],
+      "fabrication_traps": ["ASCE 9999", "ASCE 8"]
+    },
+    {
+      "id": "electrical-nec-grounding",
+      "discipline": "electrical",
+      "question": "Which article of the NEC (NFPA 70) covers grounding and bonding, and which edition is current?",
+      "real_sources": ["NFPA 70 (NEC)", "NFPA 70 Article 250"],
+      "fabrication_traps": ["NFPA 9999", "NFPA 7000"]
+    },
+    {
+      "id": "electrical-iec-61131",
+      "discipline": "electrical",
+      "question": "What does IEC 61131-3 standardize for programmable logic controllers, and which part number governs the programming languages?",
+      "real_sources": ["IEC 61131-3", "IEC 61131-1"],
+      "fabrication_traps": ["IEC 99999", "IEC 61134"]
+    },
+    {
+      "id": "software-http-404-cache",
+      "discipline": "software",
+      "question": "Under RFC 9110, is a 404 Not Found response cacheable by default, and which section states the heuristic?",
+      "real_sources": ["RFC 9110", "RFC 9111"],
+      "fabrication_traps": ["RFC 9999", "RFC 9119"]
+    },
+    {
+      "id": "software-node-rename",
+      "discipline": "software",
+      "question": "What does the Node.js documentation say about whether fs.rename() overwrites an existing destination file, and on which platforms?",
+      "real_sources": ["Node.js fs documentation", "libuv documentation"],
+      "fabrication_traps": ["Node.js RFC 1234", "libuv RFC 1"]
+    },
+    {
+      "id": "architectural-nfpa285",
+      "discipline": "architectural",
+      "question": "What does NFPA 285 evaluate in an exterior wall assembly, and which test does it reference?",
+      "real_sources": ["NFPA 285", "ASTM E1354"],
+      "fabrication_traps": ["NFPA 9999", "NFPA 2851"]
+    },
+    {
+      "id": "architectural-ashrae-901",
+      "discipline": "architectural",
+      "question": "What does ASHRAE 90.1 set for building envelope performance, and which compliance path applies to a small office?",
+      "real_sources": ["ASHRAE 90.1", "ASHRAE 90.1 Appendix G"],
+      "fabrication_traps": ["ASHRAE 99.9", "ASHRAE 91.2"]
+    }
+  ]
+}
