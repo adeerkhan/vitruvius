@@ -73,5 +73,8 @@ sources, citation accuracy, and fabricated references. Records use the
 `vitruvius-baseline.v1` schema; `node scripts/baseline-scoring.mjs
 evals/baseline/results` validates them fail-closed and prints the comparison.
 The case set, contract, and scorer are proven by
-`tests/baseline/test-baseline.mjs`. The framework is in place; no model-run
-comparison is recorded yet — see [baseline/README.md](baseline/README.md).
+`tests/baseline/test-baseline.mjs`. One pilot case is recorded end to end
+(`baseline/results/RESULTS.md`), but its baseline ran inside the Vitruvius
+harness and is flagged `shared-harness`: a procedure check, not a comparison
+result. A valid comparison needs an isolated baseline runner or a host tool
+trace — see [baseline/README.md](baseline/README.md).

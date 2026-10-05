@@ -78,7 +78,7 @@ The verifier is benchmarked, not asserted. Its checked-in results are on-disk, r
 | GC1 GOAL-CHECK contract | deterministic positive/omitted-ask/repeated-gap fixtures; valid `NOT-DONE` is not promotable | [goal-check-contract.mjs](scripts/goal-check-contract.mjs) |
 | PR1 artifact closure | nested final/provenance, stale-byte, orphan, and path-escape fixtures | [artifact-closure.mjs](scripts/artifact-closure.mjs) |
 | V1 field-pilot contract | format and refusal tests only; no real external-source result claimed | [field-pilot README](evals/field-pilot/README.md) |
-| Baseline comparison (Vitruvius vs plain prompt, 10 cases) | fail-closed contract + deterministic scorer, proven by fixtures; no model-run comparison recorded yet | [baseline README](evals/baseline/README.md) |
+| Baseline comparison (Vitruvius vs plain prompt, 10 cases) | fail-closed contract + deterministic scorer, proven by fixtures; 1-case pilot recorded and flagged `shared-harness` — a procedure check, not a comparison result | [baseline README](evals/baseline/README.md) |
 | Problem-anchor contract | anchors resolve to non-blank lines on disk; unanchored `repo` claims, uncited anchors, decisions with no finding, and empty negative coverage all fail closed | [problem-anchor-contract.mjs](scripts/problem-anchor-contract.mjs) |
 | Structural contract (25 skills) | enforced in CI | [validate-contract.mjs](scripts/validate-contract.mjs) |
 | Provenance schema (selected sidecars, `inferred` derivation traces) | selected root/plan/draft checks plus deterministic generic closure fixtures; legacy local closure remains opt-in | [validate-artifacts.mjs](scripts/validate-artifacts.mjs) |

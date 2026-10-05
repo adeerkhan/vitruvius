@@ -43,4 +43,4 @@ The oracle in `cases.json` is **document-level**: `real_sources` are the governi
 
 ## Status
 
-Framework only. The case set, the fail-closed contract, and the scorer are tested in `tests/baseline/test-baseline.mjs`; no real model-run comparison has been recorded here yet.
+Framework proven, comparison not yet measured. The case set, the fail-closed contract, and the scorer are tested in `tests/baseline/test-baseline.mjs`, and one pilot case has been recorded end to end (`results/RESULTS.md`). The pilot's baseline ran inside the Vitruvius harness, so its `context` is `shared-harness` and the scorer flags it: it is a procedure check, not a comparison result. A valid comparison needs an isolated baseline runner or a host tool trace.

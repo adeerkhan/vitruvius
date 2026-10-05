@@ -33,10 +33,13 @@ export const CASES_SCHEMA = "vitruvius-baseline-cases.v1";
 export const CONDITIONS = ["with-vitruvius", "baseline"];
 export const CITATION_STATUSES = ["read", "recalled", "fabricated"];
 export const COMPLETION_STATUSES = ["complete", "partial", "blocked"];
+// Whether the run was isolated from the Vitruvius skills/rules/tools. A baseline
+// that shared the host's context is not a clean baseline and is flagged.
+export const CONTEXTS = ["isolated", "shared-harness", "unknown"];
 const SHA256 = /^[0-9a-f]{64}$/;
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
-const RECORD_KEYS = ["schema", "case_id", "condition", "observed_on", "host", "model", "session_id", "answer", "citations", "metrics", "completion", "notes"];
+const RECORD_KEYS = ["schema", "case_id", "condition", "observed_on", "host", "model", "session_id", "context", "answer", "citations", "metrics", "completion", "notes"];
 const CASE_KEYS = ["id", "discipline", "question", "real_sources", "fabrication_traps"];
 const ANSWER_KEYS = ["path", "sha256", "bytes"];
 const CITATION_KEYS = ["locator", "status", "supported", "artifact"];
@@ -123,6 +126,7 @@ export function validateRecord(record, { root = REPO_ROOT, caseIds } = {}) {
   if (!isText(record.host)) errors.push("record.host must be non-empty");
   if (!isText(record.model)) errors.push("record.model must be non-empty");
   if (!isText(record.session_id)) errors.push("record.session_id must be non-empty");
+  if (!CONTEXTS.includes(record.context)) errors.push(`record.context must be one of ${CONTEXTS.join(", ")}`);
   if (!isText(record.notes)) errors.push("record.notes must be non-empty (record limits; do not leave blank)");
   if (!COMPLETION_STATUSES.includes(record.completion)) errors.push(`record.completion must be one of ${COMPLETION_STATUSES.join(", ")}`);
   validateArtifact(record.answer, root, "record.answer", errors);
@@ -213,18 +217,34 @@ export function compareConditions(byCondition, caseSet, { root = REPO_ROOT } = {
   const withV = index("with-vitruvius");
   const base = index("baseline");
 
+  // A baseline that ran inside the Vitruvius harness shares its skills, rules,
+  // and tools, so it is not a clean control. Record it, but never let it read as
+  // one: the number may understate the difference.
+  const warnings = [];
+  for (const record of byCondition.baseline ?? []) {
+    if (record.context !== "isolated") {
+      warnings.push(
+        `${record.case_id}: baseline context is "${record.context}", not "isolated" — ` +
+          `a baseline sharing the Vitruvius harness or tools is not a clean comparison`,
+      );
+    }
+  }
+
   const perCase = [];
   for (const id of caseIds) {
     const a = withV.get(id);
     const b = base.get(id);
+    // A case with neither condition is simply not covered yet (a partial pilot).
+    // A case with exactly one condition is an incomplete pair and fails closed.
+    if (!a && !b) continue;
     if (!a || !b) {
-      errors.push(`${id}: missing ${!a ? "with-vitruvius" : ""}${!a && !b ? " and " : ""}${!b ? "baseline" : ""} record`);
+      errors.push(`${id}: incomplete pair — missing ${!a ? "with-vitruvius" : "baseline"} record`);
       continue;
     }
     perCase.push({ case_id: id, discipline: caseById.get(id).discipline, withVitruvius: scoreRecord(a, caseById.get(id)), baseline: scoreRecord(b, caseById.get(id)) });
   }
 
-  return { perCase, errors, recordCount: allRecords.length };
+  return { perCase, errors, warnings, recordCount: allRecords.length, coverage: { scored: perCase.length, total: caseIds.size } };
 }
 
 export function aggregate(perCase) {
@@ -317,7 +337,11 @@ function main() {
     console.log(`  citation accuracy  with-vitruvius ${pct(summary.withVitruvius.citationAccuracy)}   baseline ${pct(summary.baseline.citationAccuracy)}`);
     console.log(`  fabricated refs    with-vitruvius ${summary.withVitruvius.fabricatedCount}   baseline ${summary.baseline.fabricatedCount}`);
     console.log(`  oracle violations  with-vitruvius ${summary.withVitruvius.oracleViolations}   baseline ${summary.baseline.oracleViolations}`);
-    console.log(`\nPASS: ${result.recordCount} record(s) valid; every case has both conditions.`);
+    if (result.warnings.length > 0) {
+      console.log(`\nWARN: ${result.warnings.length} contamination warning(s):`);
+      for (const w of result.warnings) console.log(`  ${w}`);
+    }
+    console.log(`\nPASS: ${result.coverage.scored}/${result.coverage.total} case(s) scored from ${result.recordCount} valid record(s).`);
   } else {
     console.error(`FAIL: ${problems.length} baseline problem(s):\n  ${problems.join("\n  ")}`);
   }

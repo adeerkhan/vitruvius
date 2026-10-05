@@ -1,0 +1,66 @@
+{
+  "schema": "vitruvius-baseline.v1",
+  "case_id": "software-http-404-cache",
+  "condition": "baseline",
+  "observed_on": "2026-10-05",
+  "host": "opencode",
+  "model": "unavailable",
+  "session_id": "ses_ef3af4413ffedTZEAAkrI1AsPF",
+  "context": "shared-harness",
+  "answer": {
+    "path": "evals/baseline/results/software-http-404-cache/baseline/answer.md",
+    "sha256": "b4b52c461e85af0933d4da96505bef13173e6debd816af7d304f91155cc9de5f",
+    "bytes": 5248
+  },
+  "citations": [
+    {
+      "locator": "RFC 9110, Section 15.5.5 (404 Not Found)",
+      "status": "read",
+      "supported": true,
+      "artifact": {
+        "path": "evals/baseline/results/software-http-404-cache/sources/rfc9110.txt",
+        "sha256": "21c1cdce6ab0e5509b04d84a28000836c7a087cf786efe6f04877ebfff47232a",
+        "bytes": 502941
+      }
+    },
+    {
+      "locator": "RFC 9110, Section 15.1 (Overview of Status Codes)",
+      "status": "read",
+      "supported": true,
+      "artifact": {
+        "path": "evals/baseline/results/software-http-404-cache/sources/rfc9110.txt",
+        "sha256": "21c1cdce6ab0e5509b04d84a28000836c7a087cf786efe6f04877ebfff47232a",
+        "bytes": 502941
+      }
+    },
+    {
+      "locator": "RFC 9111, Section 3 (Storing Responses in Caches)",
+      "status": "read",
+      "supported": true,
+      "artifact": {
+        "path": "evals/baseline/results/software-http-404-cache/sources/rfc9111.txt",
+        "sha256": "aeb52adb3279d5f23dae34f68af11bd5cef0a0aff7ffcd014c9ca93c5302cf3e",
+        "bytes": 84477
+      }
+    },
+    {
+      "locator": "RFC 9111, Section 4.2.2 (Calculating Heuristic Freshness)",
+      "status": "read",
+      "supported": true,
+      "artifact": {
+        "path": "evals/baseline/results/software-http-404-cache/sources/rfc9111.txt",
+        "sha256": "aeb52adb3279d5f23dae34f68af11bd5cef0a0aff7ffcd014c9ca93c5302cf3e",
+        "bytes": 84477
+      }
+    }
+  ],
+  "metrics": {
+    "wall_time_minutes": null,
+    "wall_time_status": "unavailable",
+    "cost_usd": null,
+    "cost_status": "unavailable",
+    "notes": "Subagent run; the host did not expose cost or wall time."
+  },
+  "completion": "complete",
+  "notes": "Pilot run inside the Vitruvius harness (context=shared-harness): the baseline subagent had the repo rules and retrieval tools, so it is not a clean control."
+}

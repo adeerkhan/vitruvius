@@ -60,6 +60,7 @@ const grounded = {
   host: "opencode",
   model: "test",
   session_id: "ses_test",
+  context: "isolated",
   answer: artifact(join(dir, "answer.md"), "answer.md"),
   citations: [{ locator: "RFC 9110", status: "read", supported: true, artifact: artifact(join(dir, "source.txt"), "source.txt") }],
   metrics: { wall_time_minutes: null, wall_time_status: "unavailable", cost_usd: null, cost_status: "unavailable", notes: "test fixture" },
@@ -93,7 +94,8 @@ reject("unknown record field", (r) => (r.extra = true));
 reject("sha that does not match the file", (r) => (r.answer.sha256 = "0".repeat(64)));
 reject("unknown case id", (r) => (r.case_id = "not-a-case"));
 reject("blank notes", (r) => (r.notes = ""));
-console.log("  contract: accepts a grounded record, rejects seven malformed variants");
+reject("unknown context", (r) => (r.context = "somewhere"));
+console.log("  contract: accepts a grounded record, rejects eight malformed variants");
 
 // --- 3. The scorer discriminates read from recalled/fabricated --------------
 const g = scoreRecord(grounded, CASE);
@@ -113,6 +115,7 @@ console.log("  scorer: grounded reads=1.0 accuracy=1.0 fab=0; baseline reads=0.0
 const paired = compareConditions({ "with-vitruvius": [grounded], baseline: [baselineRecord] }, caseSet, { root: dir });
 assert.deepEqual(paired.errors, [], "a complete pair compares cleanly");
 assert.equal(paired.perCase.length, 1);
+assert.equal(paired.coverage.scored, 1, "coverage counts the scored case");
 const summary = aggregate(paired.perCase);
 assert.equal(summary.withVitruvius.fabricatedCount, 0);
 assert.equal(summary.baseline.fabricatedCount, 1);
@@ -122,7 +125,19 @@ assert.ok(
   missing.errors.some((e) => /missing baseline/.test(e)),
   "a case with no baseline record must fail closed, not be skipped",
 );
-console.log("  compare: pairs cleanly, and a missing condition is an error, not a skipped row");
+
+// A baseline that shared the Vitruvius harness is recorded but flagged: the
+// number may understate the difference, so it must never read as a clean control.
+const contaminated = compareConditions(
+  { "with-vitruvius": [grounded], baseline: [{ ...baselineRecord, context: "shared-harness" }] },
+  caseSet,
+  { root: dir },
+);
+assert.ok(
+  contaminated.warnings.some((w) => /shared-harness/.test(w)),
+  "a non-isolated baseline must produce a contamination warning",
+);
+console.log("  compare: pairs cleanly, a missing condition is an error, and a shared-harness baseline warns");
 
 rmSync(dir, { recursive: true, force: true });
 
@@ -142,7 +157,7 @@ try {
 
   const ans = artifact(join(scratch, "answer.md"), toRel(join(scratch, "answer.md")));
   const src = artifact(join(scratch, "source.txt"), toRel(join(scratch, "source.txt")));
-  const record = (condition, citations) => ({ ...grounded, condition, answer: ans, citations });
+  const record = (condition, citations, context = "isolated") => ({ ...grounded, condition, context, answer: ans, citations });
   const casesArg = ["--cases", toRel(join(scratch, "cases.json"))];
 
   writeFileSync(
@@ -156,17 +171,22 @@ try {
   writeFileSync(
     join(records, "baseline.json"),
     JSON.stringify(
-      record("baseline", [
-        { locator: "RFC 9110", status: "recalled", supported: null },
-        { locator: "RFC 9999", status: "fabricated", supported: false },
-      ]),
+      record(
+        "baseline",
+        [
+          { locator: "RFC 9110", status: "recalled", supported: null },
+          { locator: "RFC 9999", status: "fabricated", supported: false },
+        ],
+        "shared-harness",
+      ),
     ),
     "utf8",
   );
   const complete = runCli([toRel(records), ...casesArg]);
   assert.equal(complete.status, 0, `CLI must pass on a complete pair: ${complete.stderr}`);
   assert.match(complete.stdout, /read-vs-recalled/, "CLI must print the comparison");
-  console.log("  CLI: fails closed on a missing condition, passes on a complete pair");
+  assert.match(complete.stdout, /WARN:.*contamination/s, "CLI must surface the baseline contamination warning");
+  console.log("  CLI: fails closed on a missing condition, passes on a complete pair, and warns on a shared baseline");
 } finally {
   rmSync(scratch, { recursive: true, force: true });
 }

@@ -6,6 +6,7 @@
   "host": "record the host or 'unavailable'",
   "model": "record the model or 'unavailable'",
   "session_id": "record the fresh session identifier",
+  "context": "isolated",
   "answer": {
     "path": "evals/baseline/results/<case_id>/<condition>.md",
     "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
