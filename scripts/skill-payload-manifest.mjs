@@ -16,52 +16,10 @@
 import { readdirSync, readFileSync, writeFileSync, existsSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { createHash } from "node:crypto";
+import { HEADER_PREFIX, HEADER_SUFFIX, computeHash, splitSkill } from "./skill-hash.mjs";
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
 const skillsDir = join(repoRoot, "skills");
-const HEADER_PREFIX = "<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=";
-const HEADER_SUFFIX = " -->";
-const FRONTMATTER = /^---\r?\n[\s\S]*?\r?\n---\r?\n/;
-
-function computeHash(body) {
-  return createHash("sha256").update(body, "utf8").digest("hex");
-}
-
-function isHeaderLine(line) {
-  return line.startsWith(HEADER_PREFIX) && line.trimEnd().endsWith(HEADER_SUFFIX);
-}
-
-function headerHash(line) {
-  return line.slice(HEADER_PREFIX.length, line.trimEnd().length - HEADER_SUFFIX.length);
-}
-
-/**
- * Split a SKILL.md into { frontmatter, header, body }. The header is the first
- * line after the frontmatter when present. Any duplicate header lines are
- * stripped from the body so `--update` is idempotent and cannot stack headers.
- */
-function splitSkill(content) {
-  const fm = content.match(FRONTMATTER);
-  const frontmatter = fm ? fm[0] : "";
-  let rest = fm ? content.slice(fm[0].length) : content;
-
-  const firstBreak = rest.indexOf("\n");
-  const firstLine = firstBreak === -1 ? rest : rest.slice(0, firstBreak);
-  let header = null;
-  if (isHeaderLine(firstLine)) {
-    header = headerHash(firstLine);
-    rest = firstBreak === -1 ? "" : rest.slice(firstBreak + 1);
-  }
-
-  // Defensive: drop any stray header lines that ended up in the body.
-  const body = rest
-    .split("\n")
-    .filter((line) => !isHeaderLine(line))
-    .join("\n");
-
-  return { frontmatter, header, body };
-}
 
 function getSkillDirs() {
   const dirs = [];

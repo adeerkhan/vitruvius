@@ -14,14 +14,15 @@ Vitruvius is a portable engineering research agent — a collection of Agent Ski
 - Always-on agent ruleset: `AGENTS.md`
 - Skills (the core): `skills/<name>/SKILL.md`
 - Shared research method: `skills/engineering-research/SKILL.md`
-- Discipline lenses: `skills/{mechanical,software,civil,electrical,architectural}/SKILL.md`
+- Discipline lenses: `skills/{mechanical,software,civil,electrical,architectural}/SKILL.md` (generated — see below)
+- Discipline payload source: `scripts/discipline-payloads.mjs`
 - OpenCode plugin + commands: `.opencode/plugins/`, `.opencode/command/`
 - Command Code mod: `.commandcode/mods/vitruvius.ts`
 - Package metadata: `package.json`
 - Install docs: `README.md`
 - Generated research artifacts (do not commit): `outputs/`, `papers/`
 
-If you change how a discipline behaves, edit that discipline's `SKILL.md` lens. If you change the shared research method, edit `skills/engineering-research/SKILL.md` and its agent definitions. Do not duplicate method behavior in `AGENTS.md`.
+If you change how a discipline behaves, edit that discipline's payload in `scripts/discipline-payloads.mjs` and run `node scripts/generate-discipline-skills.mjs`. Never hand-edit a generated discipline `SKILL.md` — the shared wrapper (method dispatch, invocation flags, gap close, S7 boundary) is templated in `scripts/generate-discipline-skills.mjs`, and `--check` runs in `npm test`, so a hand-edit fails the build. If you change the shared research method, edit `skills/engineering-research/SKILL.md` and its agent definitions. Do not duplicate method behavior in `AGENTS.md`.
 
 ## Before You Open a PR
 
@@ -60,6 +61,7 @@ command-code -p "Name the available skills." --skill ./skills --no-skills --skip
 
 - New research workflows live in `skills/<name>/SKILL.md`.
 - Keep skill files concise and declarative. The shared method lives once in `engineering-research`; a discipline skill is a thin lens over it.
+- The five discipline skills are generated from `scripts/discipline-payloads.mjs` by `scripts/generate-discipline-skills.mjs`. Edit the payload, not the generated file; `npm test` fails if the two disagree.
 - Every skill folder name must match the `name` in its frontmatter (lowercase, hyphens).
 - Every research output a skill mandates must carry a `.provenance.md` sidecar.
 - If a skill names research sources (standards bodies, paper indexes, search tools), prefer neutral, tool-agnostic wording and mark paywalled or blocked access honestly.

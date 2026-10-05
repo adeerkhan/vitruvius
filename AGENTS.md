@@ -208,6 +208,11 @@ When modifying an existing skill:
 3. Add or update tests in `tests/<skill-name>/` for new logic.
 4. Run the full test suite (`npm test`) before committing.
 
+The five **discipline skills are generated**: edit `scripts/discipline-payloads.mjs`
+and run `node scripts/generate-discipline-skills.mjs`. Never hand-edit
+`skills/{mechanical,software,civil,electrical,architectural}/SKILL.md`; `npm test`
+runs `--check` and fails when the generated file and the payload disagree.
+
 ## Artifact conventions
 
 - Derive a short **slug** from the topic: lowercase, hyphenated, no filler words, at most 5 words (e.g. `steel-brace-connection`). Every file in a run uses that slug as a prefix.

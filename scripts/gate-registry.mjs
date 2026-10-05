@@ -57,6 +57,9 @@ export const REGISTRY = {
   "commit-message-check.mjs": { kind: "test" },
   "reference-reachability.mjs": { kind: "chain" },
   "gate-registry.mjs": { kind: "chain" },
+  // Generates the five discipline SKILL.md files from discipline-payloads.mjs.
+  // In the chain so a hand-edit to a generated discipline skill fails the build.
+  "generate-discipline-skills.mjs": { kind: "chain" },
   // Fails if .gitignore can hide a test, or a suite exists on disk without
   // being tracked. A bare `tests/*` rule once did exactly that: 103 suites
   // stayed tracked because they predated it, and every new test was silently
@@ -109,6 +112,12 @@ export const REGISTRY = {
   // in one copy and leave the others vulnerable.
   "path-safety.mjs": { kind: "test" },
   "yaml-frontmatter.mjs": { kind: "test" },
+  // The single content-addressing definition, imported by the payload-manifest
+  // CLI and the discipline generator so the two cannot hash differently.
+  "skill-hash.mjs": { kind: "test" },
+  // Payload source of truth for the five discipline skills; imported by the
+  // generator and by tests/adapters/test-discipline-generator.mjs.
+  "discipline-payloads.mjs": { kind: "test" },
   "verifier-parser.mjs": { kind: "test" },
   "benchmark-scoring.mjs": { kind: "test" },
   "problem-anchor-contract.mjs": { kind: "test" },
