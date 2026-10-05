@@ -4,6 +4,8 @@ The claim Vitruvius makes is comparative: on the same engineering question, runn
 
 The framework is deterministic and self-testing. **No comparison result is claimed until real runs are recorded** — the checked-in state is the case set, the contract, and the scorer, not a score.
 
+The full procedure — the two prompts, the isolation requirement, and how to fill and score a record — is in [RUNNER.md](RUNNER.md).
+
 ## Conditions
 
 | Condition | What runs |
