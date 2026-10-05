@@ -1,0 +1,1212 @@
+/* ==========================================================================
+   Vitruvius — Neural Noir
+   Deep dark base, bronze/ivory accents, editorial serif display over a
+   functional sans. Glass cards, a neural connection field, a bento grid.
+
+   Token notes that are measured rather than guessed:
+     #e8d5b7 on #0a0a0a  -> 13.80:1
+     #f5efe6 on #0a0a0a  -> 17.32:1
+     #c9a227 on #0a0a0a  ->  8.18:1
+     #a78b71 on #0a0a0a  ->  6.20:1  (and 5.87:1 on the card base #121212)
+     #8a6f52 on #0a0a0a  ->  4.22:1  NON-TEXT ONLY: rules, dividers, strokes.
+   Anything that renders as text uses the first four. --bronze-deep never
+   carries a glyph.
+
+   Two font files, self-hosted. See assets/fonts/NOTICE.md for the exact
+   subset ranges and why arrows and ticks are drawn rather than typed.
+   ========================================================================== */
+
+@font-face {
+  font-family: "Inter var";
+  src: url("../fonts/inter-var-latin.woff2") format("woff2");
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Playfair Display var";
+  src: url("../fonts/playfair-display-var-italic-latin.woff2") format("woff2");
+  font-weight: 400 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+:root {
+  /* --- ink ------------------------------------------------------------- */
+  --ink-900: #0a0a0a;
+  --ink-850: #0e0e0e;
+  --ink-800: #121212;
+  --ink-700: #171717;
+  --ink-600: #1f1f1f;
+
+  /* --- accents (see ratios above) -------------------------------------- */
+  --bone: #f5efe6;
+  --ivory: #e8d5b7;
+  --bronze: #a78b71;
+  --bronze-deep: #8a6f52;
+  --gold: #c9a227;
+  --fog: #9aa4b2;
+
+  /* --- glass ----------------------------------------------------------- */
+  --glass: rgba(232, 213, 183, 0.04);
+  --glass-strong: rgba(232, 213, 183, 0.07);
+  --hairline: rgba(167, 139, 113, 0.18);
+  --hairline-soft: rgba(167, 139, 113, 0.1);
+  --blur: blur(14px) saturate(120%);
+
+  /* --- type ------------------------------------------------------------ */
+  --sans: "Inter var", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --serif: "Playfair Display var", ui-serif, Georgia, "Times New Roman", serif;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", "Cascadia Mono", "Roboto Mono", Consolas, monospace;
+
+  --step--1: clamp(0.83rem, 0.8rem + 0.15vw, 0.94rem);
+  --step-0: clamp(1rem, 0.96rem + 0.2vw, 1.125rem);
+  --step-1: clamp(1.2rem, 1.1rem + 0.5vw, 1.5rem);
+  --step-2: clamp(1.5rem, 1.3rem + 1vw, 2.25rem);
+  --step-3: clamp(2rem, 1.6rem + 2vw, 3.25rem);
+  --step-4: clamp(2.75rem, 1.9rem + 4vw, 5.5rem);
+
+  /* --- space & shape --------------------------------------------------- */
+  --gap: 1.5rem;
+  --pad: clamp(1.25rem, 0.9rem + 1.4vw, 2rem);
+  --r: 14px;
+  --r-sm: 9px;
+  --shell: 1200px;
+  --nav-h: 4.25rem;
+  /* Kept separate from --nav-h: the nav becomes two rows on narrow viewports,
+     so the anchor scroll offset has to be able to change without changing the
+     nav's own height. */
+  --nav-scroll: calc(var(--nav-h) + 1.5rem);
+
+  /* --- motion ---------------------------------------------------------- */
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --dur: 420ms;
+}
+
+/* ==========================================================================
+   reset
+   ========================================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+  scroll-padding-top: var(--nav-scroll);
+}
+
+body {
+  min-height: 100svh;
+  background: var(--ink-900);
+  color: var(--bone);
+  font-family: var(--sans);
+  font-size: var(--step-0);
+  line-height: 1.65;
+  font-feature-settings: "cv05" 1, "ss03" 1;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+/* Underlined by default. A link inside a sentence that is distinguishable only
+   by colour fails WCAG 1.4.1 use of colour; the exceptions below are links
+   that are not inside prose, where the underline is noise. */
+a {
+  color: var(--ivory);
+  text-decoration: underline;
+  text-decoration-color: rgba(167, 139, 113, 0.45);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.22em;
+  transition: color 180ms var(--ease), text-decoration-color 180ms var(--ease);
+}
+
+a:hover {
+  color: var(--bone);
+  text-decoration-color: var(--gold);
+}
+
+.skip,
+.nav__mark,
+.nav__links a,
+.nav__cta,
+.btn,
+.faq summary {
+  text-decoration: none;
+}
+
+/* One visible focus treatment, gold, everywhere. */
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+::selection {
+  background: rgba(201, 162, 39, 0.28);
+  color: var(--bone);
+}
+
+.skip {
+  position: absolute;
+  left: 1rem;
+  top: -4rem;
+  z-index: 100;
+  padding: 0.7rem 1.1rem;
+  background: var(--ink-700);
+  border: 1px solid var(--gold);
+  border-radius: var(--r-sm);
+  color: var(--bone);
+  font-size: var(--step--1);
+  text-decoration: none;
+  transition: top 200ms var(--ease);
+}
+
+.skip:focus {
+  top: 1rem;
+}
+
+/* ==========================================================================
+   typography
+   ========================================================================== */
+
+h1,
+h2,
+h3,
+h4 {
+  line-height: 1.1;
+  letter-spacing: -0.018em;
+  font-weight: 600;
+  text-wrap: balance;
+}
+
+h1 {
+  font-size: var(--step-4);
+}
+
+h2 {
+  font-size: var(--step-3);
+}
+
+h3 {
+  font-size: var(--step-1);
+}
+
+p {
+  text-wrap: pretty;
+}
+
+code,
+kbd,
+samp {
+  font-family: var(--mono);
+  font-size: 0.92em;
+  font-variant-ligatures: none;
+}
+
+code {
+  background: rgba(232, 213, 183, 0.06);
+  border: 1px solid var(--hairline-soft);
+  border-radius: 5px;
+  padding: 0.1em 0.4em;
+  color: var(--ivory);
+}
+
+/* The display serif is for headline words only. Never for UI. */
+.serif {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--ivory);
+}
+
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-bottom: 1.1rem;
+  color: var(--bronze);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.eyebrow::before {
+  content: "";
+  width: 1.6rem;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--bronze));
+}
+
+.lede {
+  max-width: 62ch;
+  color: var(--bone);
+  font-size: var(--step-1);
+  line-height: 1.55;
+}
+
+.muted {
+  color: var(--fog);
+}
+
+.small {
+  font-size: var(--step--1);
+}
+
+.num {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+/* Spacing utilities. The site carries no inline styles, so the markup stays
+   valid under a strict CSP and the CSS is the only place spacing lives. */
+.mt-xs { margin-top: 0.5rem; }
+.mt-sm { margin-top: 1rem; }
+.mt-md { margin-top: 1.5rem; }
+.mt-lg { margin-top: 2.25rem; }
+
+/* ==========================================================================
+   layout
+   ========================================================================== */
+
+/* min() needs calc() around the subtraction; without it the whole declaration
+   is invalid and the shell silently falls back to full-bleed. */
+.shell {
+  width: min(calc(100% - 2.5rem), var(--shell));
+  margin-inline: auto;
+}
+
+section {
+  position: relative;
+  padding-block: clamp(3.5rem, 2.5rem + 5vw, 7rem);
+}
+
+.section-head {
+  max-width: 60ch;
+  margin-bottom: clamp(2rem, 1.4rem + 2vw, 3rem);
+}
+
+.section-head p {
+  margin-top: 0.9rem;
+  color: var(--fog);
+}
+
+.bento {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--gap);
+  /* Cards size to their content. Without this a short card in a row stretches
+     to match a tall neighbour and leaves a dead block under its last line. */
+  align-items: start;
+}
+
+.c-3 { grid-column: span 3; }
+.c-4 { grid-column: span 4; }
+.c-5 { grid-column: span 5; }
+.c-6 { grid-column: span 6; }
+.c-7 { grid-column: span 7; }
+.c-8 { grid-column: span 8; }
+.c-12 { grid-column: span 12; }
+
+.card {
+  position: relative;
+  padding: var(--pad);
+  background: var(--glass);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  transition: border-color 220ms var(--ease), transform 220ms var(--ease), background 220ms var(--ease);
+}
+
+.card h3 + p {
+  margin-top: 0.55rem;
+}
+
+.card p {
+  color: var(--fog);
+  font-size: var(--step--1);
+  line-height: 1.62;
+}
+
+/* No backdrop-filter means no glass, so the surface must become opaque or the
+   ivory text lands on whatever is behind it. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .card {
+    background: var(--ink-800);
+  }
+}
+
+/* Featured card gets a bronze-to-transparent gradient edge. */
+.card--edge::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(150deg, rgba(232, 213, 183, 0.42), rgba(167, 139, 113, 0.08) 42%, transparent 68%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.card--edge:hover {
+  background: var(--glass-strong);
+  border-color: rgba(167, 139, 113, 0.34);
+}
+
+.rule {
+  height: 1px;
+  border: 0;
+  background: linear-gradient(90deg, var(--hairline), transparent);
+}
+
+/* ==========================================================================
+   nav
+   ========================================================================== */
+
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  height: var(--nav-h);
+  display: flex;
+  align-items: center;
+  background: rgba(10, 10, 10, 0.72);
+  border-bottom: 1px solid transparent;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: border-color 240ms var(--ease), background 240ms var(--ease);
+}
+
+.nav[data-stuck="true"] {
+  border-bottom-color: var(--hairline-soft);
+  background: rgba(10, 10, 10, 0.9);
+}
+
+.nav__inner {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  width: min(calc(100% - 2.5rem), var(--shell));
+  margin-inline: auto;
+}
+
+.nav__mark {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  color: var(--bone);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+}
+
+.nav__mark .serif {
+  font-size: 1.2rem;
+}
+
+.nav__links {
+  display: flex;
+  gap: 1.5rem;
+  margin-left: auto;
+  list-style: none;
+  padding: 0;
+}
+
+.nav__links a {
+  color: var(--fog);
+  font-size: var(--step--1);
+  text-decoration: none;
+}
+
+.nav__links a:hover {
+  color: var(--bone);
+}
+
+.nav__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--hairline);
+  border-radius: 999px;
+  color: var(--ivory);
+  font-size: var(--step--1);
+  text-decoration: none;
+  transition: border-color 180ms var(--ease), background 180ms var(--ease);
+}
+
+.nav__cta:hover {
+  border-color: var(--gold);
+  background: rgba(201, 162, 39, 0.1);
+  color: var(--bone);
+}
+
+/* ==========================================================================
+   hero
+   ========================================================================== */
+
+.hero {
+  position: relative;
+  padding-block: clamp(3.5rem, 2.5rem + 6vw, 7rem) clamp(2.5rem, 2rem + 3vw, 4.5rem);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.hero__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  gap: clamp(2rem, 1rem + 4vw, 4rem);
+  align-items: end;
+}
+
+.hero h1 {
+  margin-block: 1.4rem 1.6rem;
+}
+
+.hero h1 em {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 500;
+  color: var(--ivory);
+  letter-spacing: -0.02em;
+}
+
+.hero__claim {
+  max-width: 34ch;
+  color: var(--bronze);
+  font-size: var(--step-0);
+  line-height: 1.5;
+}
+
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+  margin-top: 2.2rem;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.8rem 1.5rem;
+  border: 1px solid var(--hairline);
+  border-radius: 999px;
+  color: var(--bone);
+  font-size: var(--step--1);
+  font-weight: 500;
+  text-decoration: none;
+  transition: border-color 200ms var(--ease), background 200ms var(--ease), transform 200ms var(--ease);
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  border-color: var(--bronze);
+  background: var(--glass-strong);
+}
+
+.btn--gold {
+  border-color: rgba(201, 162, 39, 0.5);
+  background: rgba(201, 162, 39, 0.1);
+  color: #f3e7c4;
+}
+
+.btn--gold:hover {
+  border-color: var(--gold);
+  background: rgba(201, 162, 39, 0.17);
+}
+
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin-top: 2.4rem;
+}
+
+.badge {
+  padding: 0.35rem 0.75rem;
+  border: 1px solid var(--hairline-soft);
+  border-radius: 999px;
+  color: var(--fog);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+}
+
+.badge b {
+  color: var(--ivory);
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   neural field
+   ========================================================================== */
+
+.neural {
+  position: absolute;
+  inset: -12% -8%;
+  z-index: -1;
+  width: 116%;
+  height: 124%;
+  opacity: 0.85;
+  pointer-events: none;
+  transition: transform 700ms var(--ease);
+}
+
+.neural line {
+  stroke: var(--bronze);
+  stroke-width: 1;
+  stroke-opacity: 0.14;
+}
+
+.neural circle {
+  fill: var(--ivory);
+  fill-opacity: 0.5;
+}
+
+/* The alpha ceiling is what keeps the field behind the headline rather than
+   across it. At full strength these 43 lines read as scratches on the copy. */
+@keyframes node-pulse {
+  0%, 100% { opacity: 0.14; r: 1.6; }
+  50% { opacity: 0.6; r: 2.8; }
+}
+
+@keyframes travel {
+  from { stroke-dashoffset: 120; }
+  to { stroke-dashoffset: 0; }
+}
+
+.neural .node {
+  animation: node-pulse 6.5s var(--ease) infinite;
+}
+
+.neural .edge {
+  stroke-dasharray: 3 7;
+  animation: travel 9s linear infinite;
+}
+
+.neural .edge:nth-child(3n) { animation-duration: 12s; animation-delay: -2s; }
+.neural .edge:nth-child(4n) { animation-duration: 7.5s; animation-delay: -4s; }
+
+/* ==========================================================================
+   research loop
+   ========================================================================== */
+
+.loop {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.85rem;
+  counter-reset: phase;
+}
+
+.phase {
+  position: relative;
+  padding: 1.15rem 1.15rem 1.25rem;
+  background: var(--glass);
+  border: 1px solid var(--hairline-soft);
+  border-radius: var(--r-sm);
+}
+
+.phase::before {
+  counter-increment: phase;
+  content: counter(phase, decimal-leading-zero);
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--gold);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+}
+
+.phase h3 {
+  font-size: 0.98rem;
+  letter-spacing: -0.005em;
+}
+
+.phase p {
+  margin-top: 0.4rem;
+  color: var(--fog);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+.phase--gate {
+  border-color: rgba(201, 162, 39, 0.32);
+  background: rgba(201, 162, 39, 0.05);
+}
+
+/* ==========================================================================
+   figures
+   ========================================================================== */
+
+.figures {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--gap);
+}
+
+.figure {
+  padding: 1.4rem 1.3rem;
+  border-left: 1px solid var(--hairline);
+}
+
+.figure__value {
+  display: block;
+  color: var(--ivory);
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: var(--step-3);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.figure__label {
+  display: block;
+  margin-top: 0.55rem;
+  color: var(--bone);
+  font-size: var(--step--1);
+  font-weight: 500;
+}
+
+.figure__src {
+  display: block;
+  margin-top: 0.3rem;
+  color: var(--fog);
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+/* ==========================================================================
+   tables
+   ========================================================================== */
+
+.table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--hairline-soft);
+  border-radius: var(--r);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--step--1);
+}
+
+caption {
+  padding: 0 0 0.9rem;
+  color: var(--fog);
+  font-size: 0.72rem;
+  text-align: left;
+}
+
+th,
+td {
+  padding: 0.85rem 1rem;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--hairline-soft);
+}
+
+thead th {
+  color: var(--bronze);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+tbody th {
+  color: var(--bone);
+  font-weight: 500;
+}
+
+td {
+  color: var(--fog);
+}
+
+tbody tr:last-child th,
+tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+td .num {
+  color: var(--ivory);
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   lists
+   ========================================================================== */
+
+.rules,
+.commandments {
+  display: grid;
+  gap: 0.85rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rules li,
+.commandments li {
+  display: grid;
+  grid-template-columns: 1.9rem 1fr;
+  gap: 0.85rem;
+  padding: 1rem 0.15rem;
+  border-bottom: 1px solid var(--hairline-soft);
+}
+
+.rules li:last-child,
+.commandments li:last-child {
+  border-bottom: 0;
+}
+
+.rules .n,
+.commandments .n {
+  color: var(--gold);
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  padding-top: 0.2rem;
+}
+
+.rules b,
+.commandments b {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: var(--bone);
+  font-weight: 600;
+  font-size: var(--step--1);
+}
+
+.rules span,
+.commandments span {
+  color: var(--fog);
+  font-size: 0.85rem;
+  line-height: 1.55;
+}
+
+.status {
+  display: inline-block;
+  margin-left: 0.45rem;
+  padding: 0.1rem 0.5rem;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  vertical-align: 0.1em;
+}
+
+.status--ok { color: var(--gold); }
+.status--warn { color: #d9a441; }
+.status--open { color: var(--fog); }
+
+/* ==========================================================================
+   skills
+   ========================================================================== */
+
+.skills {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 0.9rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Five cards in one row. auto-fill at 250px only fits four tracks in a 1200px
+   shell, which left the fifth discipline alone on a second row. */
+.skills--5 {
+  grid-template-columns: repeat(5, 1fr);
+}
+
+@media (max-width: 1100px) {
+  .skills--5 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.skill {
+  padding: 1.15rem 1.2rem;
+  background: var(--glass);
+  border: 1px solid var(--hairline-soft);
+  border-radius: var(--r-sm);
+  transition: border-color 200ms var(--ease), background 200ms var(--ease);
+}
+
+.skill:hover {
+  border-color: var(--hairline);
+  background: var(--glass-strong);
+}
+
+.skill__cmd {
+  display: block;
+  color: var(--ivory);
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.skill p {
+  margin-top: 0.5rem;
+  color: var(--fog);
+  font-size: 0.82rem;
+  line-height: 1.55;
+}
+
+/* ==========================================================================
+   install
+   ========================================================================== */
+
+.cmd {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.15rem;
+  background: var(--ink-850);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-sm);
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  line-height: 1.5;
+  overflow-x: auto;
+}
+
+.cmd .prompt {
+  color: var(--gold);
+  user-select: none;
+}
+
+.cmd code {
+  background: none;
+  border: 0;
+  padding: 0;
+  white-space: pre;
+}
+
+.copy {
+  flex: none;
+  padding: 0.35rem 0.7rem;
+  background: var(--ink-700);
+  border: 1px solid var(--hairline-soft);
+  border-radius: 6px;
+  color: var(--fog);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 180ms var(--ease), border-color 180ms var(--ease);
+}
+
+.copy:hover {
+  color: var(--bone);
+  border-color: var(--bronze);
+}
+
+.install-grid {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.install-row {
+  display: grid;
+  grid-template-columns: 7.5rem 1fr;
+  gap: 1rem;
+  align-items: baseline;
+  padding-bottom: 0.7rem;
+  border-bottom: 1px solid var(--hairline-soft);
+}
+
+.install-row dt {
+  color: var(--bronze);
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.install-row dd {
+  margin: 0;
+  color: var(--bone);
+  font-size: var(--step--1);
+  line-height: 1.6;
+}
+
+/* ==========================================================================
+   faq
+   ========================================================================== */
+
+.faq {
+  border-top: 1px solid var(--hairline-soft);
+}
+
+.faq details {
+  border-bottom: 1px solid var(--hairline-soft);
+}
+
+.faq summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1.15rem 0;
+  color: var(--bone);
+  font-size: var(--step--1);
+  font-weight: 500;
+  cursor: pointer;
+  list-style: none;
+}
+
+.faq summary::-webkit-details-marker {
+  display: none;
+}
+
+/* Chevron drawn with borders: the glyph set has no tick or arrow. */
+.faq summary::after {
+  content: "";
+  flex: none;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-right: 1px solid var(--bronze);
+  border-bottom: 1px solid var(--bronze);
+  transform: rotate(45deg) translateY(-2px);
+  transition: transform 200ms var(--ease);
+}
+
+.faq details[open] summary::after {
+  transform: rotate(-135deg) translateY(-2px);
+}
+
+.faq details p {
+  padding: 0 2rem 1.25rem 0;
+  color: var(--fog);
+  font-size: var(--step--1);
+  line-height: 1.65;
+}
+
+/* ==========================================================================
+   footer
+   ========================================================================== */
+
+.footer {
+  padding-block: clamp(2.5rem, 2rem + 2vw, 4rem) 2.5rem;
+  border-top: 1px solid var(--hairline-soft);
+  background: var(--ink-850);
+}
+
+.footer__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 2rem;
+}
+
+.footer h2 {
+  margin-bottom: 0.85rem;
+  color: var(--bronze);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.footer ul {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--step--1);
+}
+
+/* Only the footer LISTS opt out of the underline. Links inside footer prose —
+   the copyright line and the provenance paragraph — keep it, because there
+   they are links within a sentence and colour alone is not enough. */
+.footer ul a {
+  color: var(--fog);
+  text-decoration: none;
+}
+
+.footer a:hover {
+  color: var(--bone);
+}
+
+.provenance {
+  margin-top: 2.75rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--hairline-soft);
+  color: var(--fog);
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  line-height: 1.7;
+}
+
+.provenance a {
+  color: var(--bronze);
+}
+
+/* ==========================================================================
+   reveal on scroll
+   ========================================================================== */
+
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 700ms var(--ease), transform 700ms var(--ease);
+}
+
+[data-reveal][data-shown="true"] {
+  opacity: 1;
+  transform: none;
+}
+
+/* Without JS nothing is hidden, so the page is never blank. */
+.no-js [data-reveal] {
+  opacity: 1;
+  transform: none;
+}
+
+/* ==========================================================================
+   responsive
+   ========================================================================== */
+
+@media (max-width: 1024px) {
+  /* Narrow viewports put the field directly behind the copy column, so it
+     needs less presence, not more. */
+  .neural {
+    opacity: 0.5;
+  }
+
+  .hero__grid {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .c-3, .c-4 { grid-column: span 6; }
+  .c-5, .c-7, .c-8 { grid-column: span 12; }
+
+  .nav__links {
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 720px) {
+  :root {
+    --gap: 1rem;
+    --nav-scroll: 7.5rem;
+  }
+
+  .c-3, .c-4, .c-5, .c-6, .c-7, .c-8 { grid-column: span 12; }
+
+  /* The section links move to their own scrollable row rather than being
+     hidden: a phone user still needs a way to reach the measured results. */
+  .nav {
+    height: auto;
+  }
+
+  .nav__inner {
+    flex-wrap: wrap;
+    row-gap: 0.45rem;
+    padding-block: 0.65rem;
+  }
+
+  .nav__cta {
+    margin-left: auto;
+  }
+
+  .nav__links {
+    order: 3;
+    width: 100%;
+    margin-left: 0;
+    gap: 1.1rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .nav__links::-webkit-scrollbar {
+    display: none;
+  }
+
+  .nav__links a {
+    white-space: nowrap;
+  }
+
+  .skills--5 {
+    grid-template-columns: 1fr;
+  }
+
+  .install-row {
+    grid-template-columns: 1fr;
+    gap: 0.3rem;
+  }
+
+  th, td {
+    padding: 0.7rem 0.8rem;
+  }
+}
+
+/* ==========================================================================
+   motion off
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
+  }
+
+  .neural .edge {
+    animation: none;
+    stroke-dasharray: none;
+  }
+
+  .neural .node {
+    animation: none;
+    opacity: 0.4;
+  }
+}

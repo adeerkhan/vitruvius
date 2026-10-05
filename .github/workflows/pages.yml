@@ -1,0 +1,61 @@
+name: Vitruvius site
+
+# Deploys site/ to GitHub Pages. The site is hand-written static HTML with no
+# build step, so there is nothing to compile — this workflow exists to gate the
+# deploy on the site's own check and to publish on every push to main.
+#
+# One-time setup, because the workflow cannot do it for you:
+#   Settings -> Pages -> Build and deployment -> Source: GitHub Actions
+# Without that selection the first run uploads an artifact that goes nowhere.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "site/**"
+      - "tests/site/**"
+      - ".github/workflows/pages.yml"
+  # Deploy by hand without waiting for a push, and re-run a failed deploy.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Check the site
+        run: node tests/site/test-site.mjs
+
+  deploy:
+    needs: check
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/configure-pages@v5
+
+      - name: Upload the site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4

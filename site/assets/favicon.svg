@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Vitruvius">
+  <title>Vitruvius</title>
+  <rect width="32" height="32" rx="7" fill="#0a0a0a"/>
+  <rect x="0.5" y="0.5" width="31" height="31" rx="6.5" fill="none" stroke="#a78b71" stroke-opacity="0.3"/>
+  <g stroke="#a78b71" stroke-width="1.4" stroke-opacity="0.75" fill="none">
+    <path d="M9 23 16 9l7 14"/>
+    <path d="M12.5 17.5h7"/>
+  </g>
+  <circle cx="16" cy="9" r="2.6" fill="#e8d5b7"/>
+  <circle cx="9" cy="23" r="2" fill="#e8d5b7"/>
+  <circle cx="23" cy="23" r="2" fill="#c9a227"/>
+</svg>
