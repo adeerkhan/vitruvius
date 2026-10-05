@@ -56,7 +56,7 @@ const truth = {
 };
 
 const MUTATIONS = [
-  { label: "accuracy", field: "accuracy", file: "README.md", value: truth.accuracy + 5, asPercent: true },
+  { label: "accuracy", field: "accuracy", file: "README.md", value: truth.accuracy + 5 },
   { label: "falseApprovals", field: "falseApprovals", file: "README.md", value: truth.falseApprovals + 1 },
   { label: "falseBlocks", field: "falseBlocks", file: "README.md", value: truth.falseBlocks + 1 },
   { label: "conservativeOvercalls", field: "conservativeOvercalls", file: "README.md", value: truth.conservativeOvercalls + 1 },
@@ -71,6 +71,40 @@ const touchedFiles = [...new Set(MUTATIONS.map((m) => m.file))];
 const snapshots = new Map(touchedFiles.map((f) => [join(repoRoot, f), readFileSync(join(repoRoot, f), "utf8")]));
 installRestoreGuard(snapshots, { label: "document" });
 
+/**
+ * Rebuild the canonical claim and record where each captured group lands IN
+ * THE REBUILT STRING. The joiners (" false approval", " false blocks", ...) are
+ * inserted between groups, so a group's offset is its position in the rebuilt
+ * string, never the sum of the preceding group lengths — summing them lands the
+ * swap inside the wrong token and corrupts the claim instead of moving one
+ * figure. That defect shipped once: two of four README cases changed no figure.
+ */
+function rebuildClaim(hit) {
+  let rebuilt = "";
+  const at = {};
+  const group = (g) => {
+    at[g] = [rebuilt.length, rebuilt.length + hit[g].length];
+    rebuilt += hit[g];
+  };
+  group(1); rebuilt += "%";
+  group(2);
+  group(3); rebuilt += " false approval";
+  group(4);
+  group(5); rebuilt += " false blocks";
+  group(6);
+  group(7); rebuilt += " conservative overcall";
+  return { rebuilt, at };
+}
+
+function claimFigure(match, field) {
+  const raw = match[FIELDS[field]];
+  return field === "accuracy" ? Number(raw) : toNumber(raw);
+}
+
+function countClaims(text) {
+  return [...text.matchAll(new RegExp(CLAIM_PARTS.source, "gi"))].length;
+}
+
 for (const m of MUTATIONS) {
   const path = join(repoRoot, m.file);
   const original = snapshots.get(path);
@@ -78,28 +112,38 @@ for (const m of MUTATIONS) {
   const hit = CLAIM_PARTS.exec(original);
   assert.ok(hit, `${m.file} must publish a four-figure adversarial claim; the test's pattern no longer matches it`);
 
-  const rebuilt =
-    `${hit[1]}%${hit[2]}${hit[3]} false approval${hit[4]}${hit[5]} false blocks${hit[6]}${hit[7]} conservative overcall`;
+  const { rebuilt, at } = rebuildClaim(hit);
 
   let mutated;
   if (m.strip) {
     mutated = original.replace(rebuilt, `${hit[1]}% correct verdicts`);
-  } else if (m.asPercent) {
-    mutated = original.replace(rebuilt, `${m.value}%${rebuilt.slice(hit[1].length + 1)}`);
   } else {
-    // Rebuild the claim, swapping the byte range of just this one group.
-    const offsets = [];
-    let pos = 0;
-    for (let g = 1; g <= 7; g++) {
-      offsets[g] = [pos, pos + hit[g].length];
-      pos += hit[g].length;
-    }
-    const [s, e] = offsets[FIELDS[m.field]];
+    const [s, e] = at[FIELDS[m.field]];
     mutated = original.replace(rebuilt, rebuilt.slice(0, s) + String(m.value) + rebuilt.slice(e));
   }
 
   if (mutated === original) {
     assert.fail(`mutation "${m.label}" did not change ${m.file}; the test pattern and the document have diverged`);
+  }
+
+  // Fidelity: the mutation must move exactly the intended figure and leave the
+  // claim parseable. A mutation that merely breaks the claim's syntax still
+  // makes the gate fail, but proves nothing about single-figure drift — which is
+  // precisely what this test claims to prove.
+  if (m.strip) {
+    assert.ok(
+      countClaims(mutated) < countClaims(original),
+      `mutation "${m.label}" must remove a published claim from ${m.file}`,
+    );
+  } else {
+    const after = CLAIM_PARTS.exec(mutated);
+    assert.ok(after, `mutation "${m.label}" must leave a parseable claim in ${m.file}`);
+    const drifted = Object.keys(truth).filter((field) => claimFigure(after, field) !== truth[field]);
+    assert.deepEqual(
+      drifted,
+      [m.field],
+      `mutation "${m.label}" must drift exactly ${m.field} in ${m.file}; drifted [${drifted.join(", ")}]`,
+    );
   }
 
   let result;
