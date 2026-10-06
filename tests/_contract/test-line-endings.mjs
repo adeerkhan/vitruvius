@@ -11,6 +11,7 @@
  * .gitattributes must keep the working tree on LF in the first place.
  */
 import { strict as assert } from "node:assert";
+import { execFileSync } from "node:child_process";
 import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -56,6 +57,32 @@ for (const name of skillDirs) {
 // --- the tree must be pinned to LF in the first place ----------------------
 const attributes = readFileSync(join(root, ".gitattributes"), "utf8");
 assert.match(attributes, /^\* text=auto eol=lf$/m, ".gitattributes must normalize text to LF");
+
+// --- and the checkout must actually obey that policy -----------------------
+// The policy above is not self-enforcing: a working tree materialized before
+// .gitattributes existed keeps its CRLF copies, and the parser checks are
+// tolerant of CRLF, so the suite stays green while every consumer that compares
+// raw bytes sees different content. Observed 2026-10: fourteen tracked files
+// had a CRLF working copy with an LF index. Assert the working tree directly so
+// the stale checkout fails here instead of silently.
+let crlfWorkingCopies = [];
+try {
+  const eol = execFileSync("git", ["ls-files", "--eol"], { cwd: root, encoding: "utf8" });
+  crlfWorkingCopies = eol
+    .split("\n")
+    .filter((line) => /\bw\/(crlf|mixed)\b/.test(line))
+    .map((line) => line.split("\t").pop())
+    .filter(Boolean);
+} catch {
+  // Not a git checkout (e.g. a source export); there is no working tree to check.
+}
+assert.deepEqual(
+  crlfWorkingCopies,
+  [],
+  "tracked text files have a CRLF (or mixed) working copy despite eol=lf — re-materialize them with\n" +
+    "  git ls-files -z | xargs -0 rm -f && git checkout -- .\n" +
+    `offending files:\n  ${crlfWorkingCopies.join("\n  ")}`,
+);
 
 // --- no other parser may match a literal \n against raw file text -----------
 const suspicious = [];
