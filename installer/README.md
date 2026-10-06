@@ -16,18 +16,43 @@ derived adapters into a target project's native dot-directories.
 ## Usage
 
 ```bash
-# Install every host into this project (writes .opencode/, .claude/, ...):
+# Install a project's native harness files (writes .opencode/, .claude/, ...):
 node installer/install.mjs --target . --all
 
 # One host into another project:
 node installer/install.mjs --target ../my-project --host opencode --host cursor
+
+# Or install the Agent Skills bundle globally for every harness:
+node installer/install.mjs --global --all
+node installer/install.mjs --global --host claude --host hermes
 ```
 
-Exposed as the `vitruvius-install` bin. Installed dot-directories are derived
+Exposed as the `vitruvius-install` bin. Project dot-directories are derived
 output; they are ignored at this repo's root, and should be added to
 `.gitignore` in any project that installs them.
 
-## Hosts
+## Global install (`--global`)
+
+Copies the Agent Skills bundle (`skills/`) and the shared ruleset
+(`references/host-rules.md`) into each harness's global config root as
+`<root>/vitruvius/`, so the same skills load in every agent without a project
+checkout. Roots and env overrides mirror the reference distribution.
+
+| Host | Root | Env override |
+| --- | --- | --- |
+| Claude Code | `~/.claude/skills` | `CLAUDE_CONFIG_DIR` |
+| Codex | `~/.codex/skills` | `CODEX_HOME` |
+| OpenCode | `~/.config/opencode/skills` | `XDG_CONFIG_HOME` |
+| Kilo | `~/.kilo/skills` | — |
+| VS Code / Copilot | `~/.copilot/skills` | — |
+| Prime Agent | `~/.prime/agent/skills` | `PRIME_AGENT_CODING_AGENT_DIR` |
+| Oh My Pi | `~/.omp/agent/skills` | `PI_CODING_AGENT_DIR` |
+| DeepSeek Harness | `~/.dsh/skills` | `DSH_HOME` |
+| Hermes Agent | `~/.hermes/skills` | `HERMES_HOME` |
+| Grok Build | `~/.grok/skills` | `GROK_HOME` |
+| Reasonix | `~/.reasonix/skills` | `REASONIX_HOME` |
+
+## Project hosts
 
 | Host | Authored source (`installer/hosts/<host>/`) | Installs to |
 | --- | --- | --- |

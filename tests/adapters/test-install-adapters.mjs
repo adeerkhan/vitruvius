@@ -111,6 +111,60 @@ try {
   assert.notEqual(unknown.status, 0, "an unknown --host must fail");
   assert.match(`${unknown.stdout}\n${unknown.stderr}`, /Unknown host/);
 
+  // 8. `--global` copies the skills bundle and ruleset into each harness's
+  // global config root, honoring the host's env override.
+  const fakeHome = mkdtempSync(join(tmpdir(), "vitruvius-home-"));
+  try {
+    const env = {
+      ...process.env,
+      HOME: fakeHome,
+      USERPROFILE: fakeHome,
+      XDG_CONFIG_HOME: join(fakeHome, ".config"),
+    };
+    for (const key of [
+      "CLAUDE_CONFIG_DIR",
+      "CODEX_HOME",
+      "PRIME_AGENT_CODING_AGENT_DIR",
+      "PI_CODING_AGENT_DIR",
+      "DSH_HOME",
+      "HERMES_HOME",
+      "GROK_HOME",
+      "REASONIX_HOME",
+    ]) {
+      delete env[key];
+    }
+    const runGlobal = (args, extraEnv = env) =>
+      spawnSync(process.execPath, [installer, ...args], { cwd: root, encoding: "utf-8", env: extraEnv });
+
+    const global = runGlobal(["--global", "--host", "hermes", "--host", "deepseek", "--host", "opencode"]);
+    assert.equal(global.status, 0, `--global must succeed: ${global.stderr}`);
+
+    const skillDirs = readdirSync(join(root, "skills"), { withFileTypes: true }).filter((e) => e.isDirectory()).length;
+    for (const rel of [".hermes/skills", ".dsh/skills", ".config/opencode/skills"]) {
+      const dest = join(fakeHome, rel, "vitruvius");
+      assert.ok(existsSync(join(dest, "verifier", "SKILL.md")), `${rel}/vitruvius/verifier/SKILL.md`);
+      assert.ok(existsSync(join(dest, "host-rules.md")), `${rel}/vitruvius/host-rules.md`);
+      const copied = readdirSync(dest, { withFileTypes: true }).filter((e) => e.isDirectory()).length;
+      assert.equal(copied, skillDirs, `${rel}/vitruvius carries every skill`);
+    }
+
+    // An env override replaces the home fallback.
+    const overrideRoot = join(fakeHome, "dsh-custom");
+    const overridden = runGlobal(["--global", "--host", "deepseek"], { ...env, DSH_HOME: overrideRoot });
+    assert.equal(overridden.status, 0, overridden.stderr);
+    assert.ok(
+      existsSync(join(overrideRoot, "skills", "vitruvius", "verifier", "SKILL.md")),
+      "DSH_HOME override must be honored",
+    );
+
+    // A project-only host has no global root and must fail, not silently no-op.
+    const bad = runGlobal(["--global", "--host", "cursor"]);
+    assert.notEqual(bad.status, 0, "a project-only host must fail in --global mode");
+    assert.match(`${bad.stdout}\n${bad.stderr}`, /Unknown global host/);
+  } finally {
+    rmSync(fakeHome, { recursive: true, force: true });
+  }
+
   console.log(
     `PASS: ${hosts.length} host(s) install byte-exactly into a target project from authored sources + the contract`,
   );

@@ -353,6 +353,30 @@ cursor`, ...); run `npx vitruvius-install --help` for the list.
 pi install git:github.com/adeerkhan/vitruvius
 ```
 
+### Other Harnesses (global install)
+
+The installer ships the Agent Skills bundle and ruleset into each harness's
+global config root, so the same skills load without a project checkout:
+
+```bash
+npx vitruvius-install --global --all
+npx vitruvius-install --global --host hermes --host grok --host deepseek
+```
+
+| Harness | Root |
+|---------|------|
+| Kilo | `~/.kilo/skills` |
+| VS Code / Copilot | `~/.copilot/skills` |
+| Prime Agent | `~/.prime/agent/skills` |
+| Oh My Pi | `~/.omp/agent/skills` |
+| DeepSeek Harness | `~/.dsh/skills` |
+| Hermes Agent | `~/.hermes/skills` |
+| Grok Build | `~/.grok/skills` |
+| Reasonix | `~/.reasonix/skills` |
+
+The same installer also covers Claude Code, Codex, and OpenCode globally (see
+[installer/README.md](installer/README.md) for the env overrides).
+
 ### Any Agent Skills Host
 
 Copy the `skills/` and `references/` directories into your agent's skills folder. The proposal skill carries its own parser runtime; copy `scripts/habit-ledger.mjs` as well when using the Habit CLI, and `scripts/extract-document.mjs` plus `scripts/extract-pdf.mjs` when using the standalone artifact-reading command. Preserve repository-relative paths when copying helpers:

@@ -227,3 +227,72 @@ export const hosts = [
     ruleset: { file: ".windsurf/rules/vitruvius.md" },
   },
 ];
+
+/**
+ * Hosts that discover skills from a global config root, mirroring the
+ * reference distribution. `vitruvius-install --global` copies the `skills/`
+ * bundle and `references/host-rules.md` into `<root>/vitruvius/`, so the same
+ * skills load in every agent without a project checkout.
+ *
+ * Roots and env overrides are the ones the reference installer resolves
+ * (`harness-v2-package.cjs` rootCandidate and install-lib.sh autoprompt_skill_root).
+ * When `env` is set and present, it is the root and `suffix` is appended;
+ * otherwise `fallback` is resolved against the user's home directory.
+ */
+export const homeHosts = [
+  {
+    id: "claude",
+    description: "Claude Code global skills (~/.claude/skills)",
+    home: { env: "CLAUDE_CONFIG_DIR", suffix: ["skills"], fallback: [".claude", "skills"] },
+  },
+  {
+    id: "codex",
+    description: "Codex global skills (~/.codex/skills)",
+    home: { env: "CODEX_HOME", suffix: ["skills"], fallback: [".codex", "skills"] },
+  },
+  {
+    id: "opencode",
+    description: "OpenCode global skills (~/.config/opencode/skills)",
+    home: { env: "XDG_CONFIG_HOME", suffix: ["opencode", "skills"], fallback: [".config", "opencode", "skills"] },
+  },
+  {
+    id: "kilo",
+    description: "Kilo global skills (~/.kilo/skills)",
+    home: { suffix: [], fallback: [".kilo", "skills"] },
+  },
+  {
+    id: "vscode",
+    description: "VS Code / Copilot global skills (~/.copilot/skills)",
+    home: { suffix: [], fallback: [".copilot", "skills"] },
+  },
+  {
+    id: "prime",
+    description: "Prime Agent global skills (~/.prime/agent/skills)",
+    home: { env: "PRIME_AGENT_CODING_AGENT_DIR", suffix: ["skills"], fallback: [".prime", "agent", "skills"] },
+  },
+  {
+    id: "omp",
+    description: "Oh My Pi global skills (~/.omp/agent/skills)",
+    home: { env: "PI_CODING_AGENT_DIR", suffix: ["skills"], fallback: [".omp", "agent", "skills"] },
+  },
+  {
+    id: "deepseek",
+    description: "DeepSeek Harness global skills (~/.dsh/skills)",
+    home: { env: "DSH_HOME", suffix: ["skills"], fallback: [".dsh", "skills"] },
+  },
+  {
+    id: "hermes",
+    description: "Hermes Agent global skills (~/.hermes/skills)",
+    home: { env: "HERMES_HOME", suffix: ["skills"], fallback: [".hermes", "skills"] },
+  },
+  {
+    id: "grok",
+    description: "Grok Build global skills (~/.grok/skills)",
+    home: { env: "GROK_HOME", suffix: ["skills"], fallback: [".grok", "skills"] },
+  },
+  {
+    id: "reasonix",
+    description: "Reasonix global skills (~/.reasonix/skills)",
+    home: { env: "REASONIX_HOME", suffix: ["skills"], fallback: [".reasonix", "skills"] },
+  },
+];
