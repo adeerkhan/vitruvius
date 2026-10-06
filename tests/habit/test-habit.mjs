@@ -15,7 +15,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { check, hasS7Boundary, lineCountUnder } from "../_contract/contract.mjs";
 import { readYamlFrontmatter } from "../../scripts/yaml-frontmatter.mjs";
-import { renderAdapters } from "../../scripts/generate-adapters.mjs";
+import { renderAdapters } from "../../installer/render.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = join(__dirname, "..", "..");
@@ -62,7 +62,7 @@ if (role) {
 }
 
 // --- 2. Host adapter mirrors the canonical role ---
-console.log("\n[Test] agents/opencode/agent/habit.md");
+console.log("\n[Test] .opencode/agent/habit.md (rendered)");
 const adapter = read(ADAPTER);
 assert(adapter !== null, "adapter exists");
 if (adapter) {

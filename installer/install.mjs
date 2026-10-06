@@ -1,15 +1,15 @@
 #!/usr/bin/env node
 /**
- * install-adapters.mjs — install Vitruvius host adapters into a target project.
+ * install.mjs — install Vitruvius host adapters into a target project.
  *
- * Vitruvius keeps only hand-authored host files under `agents/<host>/` (the
- * OpenCode plugin entry, Claude/Qoder plugin manifests, the Cursor rule). The
- * slash commands, role adapters, rulesets, and the Command Code mod are all
+ * Vitruvius keeps only hand-authored host files under `installer/hosts/<host>/`
+ * (the OpenCode plugin entry, Claude/Qoder plugin manifests, the Cursor rule).
+ * The slash commands, role adapters, rulesets, and the Command Code mod are all
  * derived and are rendered here into the target project's native
  * dot-directories — nothing generated is committed to the repository.
  *
  * Usage:
- *   node scripts/install-adapters.mjs [--target <dir>] [--host <id>]... [--all]
+ *   node installer/install.mjs [--target <dir>] [--host <id>]... [--all]
  *
  * Options:
  *   --target <dir>   Project to install into (default: current directory)
@@ -18,8 +18,8 @@
  *   --help           Show this message
  *
  * Examples:
- *   node scripts/install-adapters.mjs --target . --all
- *   node scripts/install-adapters.mjs --target ../my-project --host opencode --host cursor
+ *   node installer/install.mjs --target . --all
+ *   node installer/install.mjs --target ../my-project --host opencode --host cursor
  *
  * Installed dot-directories are derived output; add them to your .gitignore if
  * you do not want them tracked.
@@ -28,15 +28,15 @@
 import { mkdirSync, copyFileSync, existsSync, statSync, readdirSync } from "node:fs";
 import { join, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { hosts } from "./command-contract.mjs";
-import { renderAdapters } from "./generate-adapters.mjs";
+import { hosts } from "./contract.mjs";
+import { renderAdapters } from "./render.mjs";
 
 const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 
-const USAGE = `install-adapters.mjs — install Vitruvius host adapters into a target project.
+const USAGE = `install.mjs — install Vitruvius host adapters into a target project.
 
 Usage:
-  node scripts/install-adapters.mjs [--target <dir>] [--host <id>]... [--all]
+  node installer/install.mjs [--target <dir>] [--host <id>]... [--all]
 
 Options:
   --target <dir>   Project to install into (default: current directory)

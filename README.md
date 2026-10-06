@@ -122,7 +122,7 @@ node scripts/fixed-case.mjs case evals/cases/local-evidence-suite.json
 node scripts/fixed-case.mjs results evals/results/manifest.json evals/results
 ```
 
-The E1/C1 subagent runs are on-demand evidence and are not part of `npm test`; the checked-in C1 bundle records their artifact hashes and independent grades. GC1, PR1, and V1 are deterministic contract checks; V1 still requires a real pilot record before any outcome claim. The problem-anchor contract is also deterministic: it proves a report is bound to the artifacts it studied, not that its claims are correct. When installed as a package, the same validators are available as `vitruvius-goal-check`, `vitruvius-artifact-closure`, `vitruvius-field-pilot`, and `vitruvius-problem-anchor`; `test:package-consumer` proves that by installing the packed tarball into a clean consumer. `test:input-gate` proves every standalone research skill declares the shared gate in `references/input-gate.md`. `test:majority` scores the verifier benchmark across independent runs, takes the per-case majority verdict, and publishes agreement and per-run residuals (`benchmark:majority` runs it on real result directories); a majority false approval fails the strict gate. OpenCode role adapters are generated from `agents/*.md`, so `generate-adapters.mjs --check` now covers them too.
+The E1/C1 subagent runs are on-demand evidence and are not part of `npm test`; the checked-in C1 bundle records their artifact hashes and independent grades. GC1, PR1, and V1 are deterministic contract checks; V1 still requires a real pilot record before any outcome claim. The problem-anchor contract is also deterministic: it proves a report is bound to the artifacts it studied, not that its claims are correct. When installed as a package, the same validators are available as `vitruvius-goal-check`, `vitruvius-artifact-closure`, `vitruvius-field-pilot`, and `vitruvius-problem-anchor`; `test:package-consumer` proves that by installing the packed tarball into a clean consumer. `test:input-gate` proves every standalone research skill declares the shared gate in `references/input-gate.md`. `test:majority` scores the verifier benchmark across independent runs, takes the per-case majority verdict, and publishes agreement and per-run residuals (`benchmark:majority` runs it on real result directories); a majority false approval fails the strict gate. OpenCode role adapters are rendered from `agents/*.md` by `installer/render.mjs`, so they cannot drift from the role contracts.
 
 ## Worked Examples
 
@@ -326,8 +326,8 @@ cp -r skills/ ~/.codex/skills/vitruvius
 ### Command Code
 
 ```bash
-cmd skills add adeerkhan/vitruvius --global     # install all 25 skills
-cmd mods add adeerkhan/vitruvius                # add slash commands
+cmd skills add adeerkhan/vitruvius --global   # install all 25 skills
+npx vitruvius-install --host commandcode      # render the slash-command mod
 ```
 
 ### OpenCode
@@ -338,10 +338,10 @@ npx vitruvius-install --target . --host opencode
 
 # Or run inside the cloned repo, which installs all host adapters first:
 git clone https://github.com/adeerkhan/vitruvius && cd vitruvius
-node scripts/install-adapters.mjs --target . --all && opencode
+node installer/install.mjs --target . --all && opencode
 
 # The plugin entry (opencode.json) points at the source file:
-# { "plugin": ["./path/to/vitruvius/agents/opencode/plugins/vitruvius.mjs"] }
+# { "plugin": ["./path/to/vitruvius/installer/hosts/opencode/plugins/vitruvius.mjs"] }
 ```
 
 The same installer projects the other hosts too (`--host claude`, `--host
@@ -515,7 +515,8 @@ Research outputs are intended to include a `.provenance.md` sidecar recording wh
 | [SECURITY.md](SECURITY.md) | Reporting a vulnerability, what the scanner checks, and the skill security rules |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Local setup and the change workflow |
 | [references/host-rules.md](references/host-rules.md) | The condensed ruleset rendered into `.clinerules/`, `.qoder/rules/`, and `.windsurf/rules/` at install time |
-| [agents/README.md](agents/README.md) | The authored host sources under `agents/<host>/` and the installer that renders `.opencode/`, `.claude/`, `.cursor/`, ... |
+| [installer/README.md](installer/README.md) | The host packages and the installer that renders `.opencode/`, `.claude/`, `.cursor/`, ... |
+| [agents/README.md](agents/README.md) | The canonical research role definitions |
 
 ## Uninstall
 

@@ -2,7 +2,7 @@
  * test-install-adapters.mjs — the installer produces a complete, byte-exact tree.
  *
  * Vitruvius commits only authored host files and renders the rest at install
- * time. This suite runs scripts/install-adapters.mjs into a temp project and
+ * time. This suite runs installer/install.mjs into a temp project and
  * proves: the generated output matches a direct render byte-for-byte, the
  * authored files are copied exactly, the install is idempotent, `--host`
  * selects a subset, and an unknown host is a hard error.
@@ -17,11 +17,11 @@ import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { hosts } from "../../scripts/command-contract.mjs";
-import { renderAdapters } from "../../scripts/generate-adapters.mjs";
+import { hosts } from "../../installer/contract.mjs";
+import { renderAdapters } from "../../installer/render.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
-const installer = join(root, "scripts", "install-adapters.mjs");
+const installer = join(root, "installer", "install.mjs");
 
 const run = (args) => spawnSync(process.execPath, [installer, ...args], { cwd: root, encoding: "utf-8" });
 

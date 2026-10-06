@@ -1,5 +1,5 @@
 # Harness adapter output. Sources live under agents/<host>/ and are projected
-# into these root dot-directories by scripts/install-adapters.mjs, so they are
+# into these root dot-directories by installer/install.mjs, so they are
 # derived output, not source. This also covers OpenCode's generated
 # .opencode/package.json, package-lock.json, and node_modules.
 /.opencode/
@@ -25,6 +25,7 @@ tasks/benchmark/*results*/
 !tasks/benchmark/controls/results/
 !tasks/benchmark/controls/results/*.md
 tasks/benchmark/results/.err-*.log4
+evals/
 
 # Routing-eval diagnostics, rewritten on every `npm test`. e1-misses.txt stays
 # tracked on purpose: it is the regression record of which prompts failed to

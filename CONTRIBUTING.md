@@ -16,9 +16,9 @@ Vitruvius is a portable engineering research agent — a collection of Agent Ski
 - Shared research method: `skills/engineering-research/SKILL.md`
 - Discipline lenses: `skills/{mechanical,software,civil,electrical,architectural}/SKILL.md` (generated — see below)
 - Discipline payload source: `scripts/discipline-payloads.mjs`
-- Host adapter sources: `agents/<host>/` — authored only (OpenCode plugin entry, Claude/Qoder plugin manifests, Cursor rule)
-- Commands of truth: `scripts/command-contract.mjs`; shared ruleset: `references/host-rules.md`
-- Generated adapters: rendered at install time by `scripts/install-adapters.mjs`; never committed
+- Host distribution (packages + installer): `installer/` — see `installer/README.md`
+- Commands of truth: `installer/contract.mjs`; shared ruleset: `references/host-rules.md`
+- Generated adapters: rendered at install time by `installer/install.mjs`; never committed
 - Package metadata: `package.json`
 - Install docs: `README.md`
 - Generated research artifacts (do not commit): `outputs/`, `papers/`

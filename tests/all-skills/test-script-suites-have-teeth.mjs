@@ -154,26 +154,26 @@ const CASES = [
     test: "tests/engineering-research/test-security-scan-waivers.mjs",
   },
   // P5, stolen from src-06 scripts/validate-package.py:61 (MIT, 225a6f3).
-  // The old test hardcoded `agents/claude/plugin.json`, which is how
-  // `agents/qoder/plugin.json` came to sit unchecked beside it. These cases
-  // mutate the manifests, not a script, so the version is replaced by
+  // The old test hardcoded `installer/hosts/claude/plugin.json`, which is how
+  // `installer/hosts/qoder/plugin.json` came to sit unchecked beside it. These
+  // cases mutate the manifests, not a script, so the version is replaced by
   // regex rather than a literal — a release bump must not silently disarm them.
   {
-    file: "agents/qoder/plugin.json",
+    file: "installer/hosts/qoder/plugin.json",
     rule: "a plugin manifest whose version drifts from package.json is caught",
     find: /"version":\s*"[^"]+"/,
     replace: '"version": "0.0.0-drift"',
     test: "tests/engineering-research/test-version-sync.mjs",
   },
   {
-    file: "agents/claude/plugin.json",
+    file: "installer/hosts/claude/plugin.json",
     rule: "a plugin manifest whose version drifts from package.json is caught",
     find: /"version":\s*"[^"]+"/,
     replace: '"version": "0.0.0-drift"',
     test: "tests/engineering-research/test-version-sync.mjs",
   },
   {
-    file: "agents/qoder/plugin.json",
+    file: "installer/hosts/qoder/plugin.json",
     rule: "a plugin manifest whose name drifts from package.json is caught",
     find: /"name":\s*"[^"]+"/,
     replace: '"name": "not-vitruvius"',

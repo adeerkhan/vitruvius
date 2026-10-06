@@ -14,7 +14,7 @@ import { readFileSync, existsSync, readdirSync, mkdtempSync, rmSync } from "node
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { renderAdapters } from "../../scripts/generate-adapters.mjs";
+import { renderAdapters } from "../../installer/render.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = join(__dirname, "..", "..");

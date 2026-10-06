@@ -1,6 +1,6 @@
 <!-- Canonical host ruleset. Rendered into .clinerules/, .qoder/rules/,
-     and .windsurf/rules/ at install time by scripts/install-adapters.mjs.
-     Edit this file, then reinstall: node scripts/install-adapters.mjs -->
+     and .windsurf/rules/ at install time by installer/install.mjs.
+     Edit this file, then reinstall: node installer/install.mjs -->
 
 # Vitruvius, engineering research agent
 

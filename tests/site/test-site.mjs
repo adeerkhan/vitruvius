@@ -3,7 +3,7 @@
  *
  * Why this exists: the site is hand-written static HTML, so nothing else in
  * this repo knows it exists. A command can be added to
- * `scripts/command-contract.mjs`, a link can point at a file that was never
+ * installer/contract.mjs, a link can point at a file that was never
  * committed, and the README's docs-parity gate will not notice either one,
  * because that gate reads README.md and the help card — not the website.
  *
@@ -20,7 +20,7 @@ import { strict as assert } from "node:assert";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { commands } from "../../scripts/command-contract.mjs";
+import { commands } from "../../installer/contract.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const siteDir = join(root, "site");

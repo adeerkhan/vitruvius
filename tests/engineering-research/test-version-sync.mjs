@@ -22,14 +22,13 @@ const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
 const pkg = JSON.parse(readFileSync(join(repoRoot, "package.json"), "utf-8"));
 
-// Host packages under agents/ that carry a plugin manifest. Nested directories
-// (command trees, the generated manifests/ payloads) have no plugin.json.
-const agentsDir = join(repoRoot, "agents");
-const manifests = readdirSync(agentsDir, { withFileTypes: true })
+// Host packages under installer/hosts/ that carry a plugin manifest.
+const hostsDir = join(repoRoot, "installer", "hosts");
+const manifests = readdirSync(hostsDir, { withFileTypes: true })
   .filter((entry) => entry.isDirectory())
   .map((entry) => ({
-    dir: `agents/${entry.name}`,
-    path: join(agentsDir, entry.name, "plugin.json"),
+    dir: `installer/hosts/${entry.name}`,
+    path: join(hostsDir, entry.name, "plugin.json"),
   }))
   .filter((m) => existsSync(m.path));
 
@@ -37,7 +36,7 @@ const manifests = readdirSync(agentsDir, { withFileTypes: true })
 // exist today, so an empty or mis-scoped glob is a failure here, not silence.
 assert.ok(
   manifests.length >= 2,
-  `expected at least 2 plugin manifests under agents/, found ${manifests.length} ` +
+  `expected at least 2 plugin manifests under installer/hosts/, found ${manifests.length} ` +
     `(${manifests.map((m) => m.dir).join(", ") || "none"}) — the discovery is broken if this is 0`,
 );
 
@@ -59,8 +58,8 @@ for (const { dir, path } of manifests) {
 
 // The specific manifest this test used to check by name, asserted directly so a
 // refactor that stops shipping it fails loudly rather than by omission.
-const claudeManifestPath = join(repoRoot, "agents", "claude", "plugin.json");
-assert.ok(existsSync(claudeManifestPath), "agents/claude/plugin.json must exist");
+const claudeManifestPath = join(repoRoot, "installer", "hosts", "claude", "plugin.json");
+assert.ok(existsSync(claudeManifestPath), "installer/hosts/claude/plugin.json must exist");
 
 console.log(
   `PASS: ${manifests.length} plugin manifest(s) match package.json on name and version ` +

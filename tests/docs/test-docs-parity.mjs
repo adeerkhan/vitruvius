@@ -10,7 +10,7 @@ import { strict as assert } from "node:assert";
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { commands } from "../../scripts/command-contract.mjs";
+import { commands } from "../../installer/contract.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const contract = new Set(commands.map((command) => command.name));

@@ -53,13 +53,13 @@ try {
     "scripts/goal-check-contract.mjs",
     "scripts/artifact-closure.mjs",
     "scripts/field-pilot-contract.mjs",
-    "scripts/install-adapters.mjs",
-    "scripts/generate-adapters.mjs",
-    "scripts/command-contract.mjs",
+    "installer/install.mjs",
+    "installer/render.mjs",
+    "installer/contract.mjs",
     "scripts/yaml-frontmatter.mjs",
     "agents/verifier.md",
-    "agents/opencode/plugins/vitruvius.mjs",
-    "agents/claude/plugin.json",
+    "installer/hosts/opencode/plugins/vitruvius.mjs",
+    "installer/hosts/claude/plugin.json",
     "references/input-gate.md",
     "references/evidence-quality-tiers.md",
     "references/host-rules.md",
@@ -152,7 +152,7 @@ console.log("ok:" + names.length);
   mkdirSync(project, { recursive: true });
   const installAdapters = spawnSync(
     process.execPath,
-    [join(pkgDir, "scripts", "install-adapters.mjs"), "--target", project, "--all"],
+    [join(pkgDir, "installer", "install.mjs"), "--target", project, "--all"],
     { encoding: "utf8" },
   );
   assert.equal(installAdapters.status, 0, installAdapters.stderr);

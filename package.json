@@ -23,13 +23,13 @@
   "engines": {
     "node": ">=20"
   },
-  "main": "./agents/opencode/plugins/vitruvius.mjs",
+  "main": "./installer/hosts/opencode/plugins/vitruvius.mjs",
   "bin": {
     "vitruvius-goal-check": "scripts/goal-check-contract.mjs",
     "vitruvius-artifact-closure": "scripts/artifact-closure.mjs",
     "vitruvius-field-pilot": "scripts/field-pilot-contract.mjs",
     "vitruvius-problem-anchor": "scripts/problem-anchor-contract.mjs",
-    "vitruvius-install": "scripts/install-adapters.mjs"
+    "vitruvius-install": "installer/install.mjs"
   },
   "homepage": "https://adeerkhan.github.io/vitruvius/",
   "repository": {
@@ -37,7 +37,7 @@
     "url": "git+https://github.com/adeerkhan/vitruvius.git"
   },
   "exports": {
-    ".": "./agents/opencode/plugins/vitruvius.mjs",
+    ".": "./installer/hosts/opencode/plugins/vitruvius.mjs",
     "./package.json": "./package.json"
   },
   "files": [
@@ -56,10 +56,8 @@
     "scripts/field-pilot-contract.mjs",
     "scripts/problem-anchor-contract.mjs",
     "scripts/habit-ledger.mjs",
-    "scripts/install-adapters.mjs",
-    "scripts/generate-adapters.mjs",
-    "scripts/command-contract.mjs",
     "scripts/yaml-frontmatter.mjs",
+    "installer/",
     "agents/",
     "evals/field-pilot/"
   ],
@@ -68,7 +66,7 @@
   },
   "scripts": {
     "test": "node scripts/check-node-version.mjs && node scripts/validate-contract.mjs && node scripts/validate-artifact-paths.mjs && node tests/artifacts/test-validate-artifact-closure.mjs && node tests/artifacts/test-check-output-quality.mjs && node tests/artifacts/test-validate-artifacts.mjs && node tests/artifacts/test-package-contract.mjs && node tests/artifacts/test-package-consumer.mjs && node tests/input-gate/test-input-gate.mjs && node tests/skills/test-artifact-paths.mjs && node tests/docs/test-docs-parity.mjs && node tests/engineering-research/test-problem-anchor.mjs && node tests/engineering-research/test-problem-anchor-audit.mjs && node tests/contracts/test-contract-properties.mjs && node scripts/rejected-change-ledger.mjs validate && node tests/contracts/test-rejected-change-ledger.mjs && node scripts/security-scan.mjs && node tests/routing/eval-routing.mjs && node tests/validate-contract/test-contract.mjs && node tests/validate-contract/test-skill-anatomy.mjs && node tests/_contract/test-check.mjs && node tests/_contract/test-line-endings.mjs && node tests/_contract/test-frontmatter.mjs && node tests/adapters/test-adapters.mjs && node tests/adapters/test-install-adapters.mjs && node scripts/generate-discipline-skills.mjs --check && node tests/adapters/test-discipline-generator.mjs && node tests/gap-analysis/test-gap-analysis.mjs && node tests/hypothesis-generation/test-hypothesis.mjs && node tests/evidence-ranking/test-evidence-ranking.mjs && node tests/verifier/test-benchmark-scoring.mjs && node tests/verifier/test-majority-benchmark.mjs && node tests/verifier/test-verifier.mjs && node tests/agents/test-agents.mjs && node tests/agents/test-goal-check.mjs && node tests/design-alternatives/test-design-alternatives.mjs && node tests/fmea-brainstorm/test-fmea-brainstorm.mjs && node tests/all-skills/test-all-skills.mjs && node tests/habit/test-habit.mjs && node tests/habit/test-habit-runtime.mjs && node tests/habit/test-habit-cli.mjs && node tests/proposal/test-proposal.mjs && node tests/logging/test-log-run.mjs && node tests/engineering-research/test-evidence-contract.mjs && node tests/engineering-research/test-evidence-cli.mjs && node tests/engineering-research/test-evidence-example.mjs && node tests/evals/test-eval-contract.mjs && node tests/evals/test-fixed-case.mjs && node tests/evals/test-field-pilot.mjs && node tests/baseline/test-baseline.mjs && node tests/scholarly-research/test-extract-pdf.mjs && node tests/scholarly-research/test-extract-pdf-ssrf.mjs && node tests/scholarly-research/test-scholarly-routing.mjs && node tests/engineering-research/test-plan-state.mjs && node tests/engineering-research/test-skill-payload-manifest.mjs && node tests/engineering-research/test-semantic-near-dup.mjs && node tests/engineering-research/test-citation-audit.mjs && node tests/engineering-research/test-result-provenance-audit.mjs && node tests/engineering-research/test-prompt-patterns.mjs && node tests/engineering-research/test-version-sync.mjs && node tests/engineering-research/test-isolated-tests.mjs && node tests/engineering-research/test-security-scan-severity.mjs && node tests/engineering-research/test-security-scan-waivers.mjs && node tests/engineering-research/test-commit-message-check.mjs && node tests/engineering-research/test-skill-diagram.mjs && node tests/engineering-research/test-retrieval-bridge.mjs && node tests/engineering-research/test-compact-location-schema.mjs && node tests/engineering-research/test-retrieval-benchmark.mjs && node scripts/e1-coverage.mjs && node tests/verifier/test-empty-result-guard.mjs && node scripts/reference-reachability.mjs && node tests/verifier/test-margin-earnedness.mjs && node tests/engineering-research/test-progressive-disclosure.mjs && node tests/summarize/test-summarize.mjs && node tests/standards-lookup/test-standards-lookup.mjs && node tests/compare/test-compare.mjs && node tests/audit/test-audit.mjs && node tests/all-skills/test-part3-suites-have-teeth.mjs && node scripts/benchmark-claims-check.mjs && node tests/verifier/test-benchmark-claims-check.mjs && node scripts/gate-registry.mjs && node tests/verifier/test-gate-registry.mjs && node scripts/margin-earnedness-check.mjs && node scripts/score-benchmark.mjs --strict-quality tasks/benchmark/results tasks/benchmark/cases && node tests/civil/test-civil.mjs && node tests/electrical/test-electrical.mjs && node tests/mechanical/test-mechanical.mjs && node tests/architectural/test-architectural.mjs && node tests/software/test-software.mjs && node tests/peer-review/test-peer-review.mjs && node tests/artifact-reading/test-artifact-reading.mjs && node tests/review/test-review.mjs && node tests/eli5/test-eli5.mjs && node tests/vitruvius/test-vitruvius.mjs && node tests/vitruvius-help/test-vitruvius-help.mjs && node tests/all-skills/test-e1-suites-have-teeth.mjs && node tests/all-skills/test-script-suites-have-teeth.mjs && node tests/_support/test-file-mutation.mjs && node tests/engineering-research/test-path-safety.mjs && node tests/site/test-site.mjs && node scripts/tests-check.mjs",
-    "install:adapters": "node scripts/install-adapters.mjs --target . --all",
+    "install:adapters": "node installer/install.mjs --target . --all",
     "benchmark": "node scripts/score-benchmark.mjs tasks/benchmark/results tasks/benchmark/cases",
     "check:local-artifacts": "node scripts/validate-artifacts.mjs outputs/ && node scripts/check-output-quality.mjs outputs/ && node scripts/artifact-closure.mjs outputs/",
     "test:artifacts": "node tests/artifacts/test-validate-artifact-closure.mjs && node tests/artifacts/test-validate-artifacts.mjs",
@@ -126,11 +124,6 @@
   "pi": {
     "skills": [
       "./skills"
-    ]
-  },
-  "commandcode": {
-    "mods": [
-      "./agents/commandcode/mods/vitruvius.ts"
     ]
   },
   "publishConfig": {

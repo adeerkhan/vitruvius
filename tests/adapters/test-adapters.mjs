@@ -2,7 +2,7 @@
  * test-adapters.mjs — the command contract renders correctly for every host.
  *
  * Adapters are no longer committed; they are rendered from
- * scripts/command-contract.mjs at install time. This suite renders the full
+ * installer/contract.mjs at install time. This suite renders the full
  * tree into a temp directory and proves: every command reaches every host that
  * advertises a command tree (and no host emits a command the contract dropped),
  * every rendered command has parseable frontmatter, the rulesets match
@@ -18,8 +18,8 @@ import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync } from "node
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { commands, hosts } from "../../scripts/command-contract.mjs";
-import { renderAdapters } from "../../scripts/generate-adapters.mjs";
+import { commands, hosts } from "../../installer/contract.mjs";
+import { renderAdapters } from "../../installer/render.mjs";
 import { parseFrontmatterObject } from "../../scripts/yaml-frontmatter.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..", "..");

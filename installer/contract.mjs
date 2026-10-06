@@ -1,11 +1,13 @@
 /**
- * command-contract.mjs — Single source of truth for all Vitruvius commands.
+ * contract.mjs — Single source of truth for Vitruvius host commands and install
+ * targets.
  *
- * This contract defines all skills/commands in one place.
- * Adapter files for each host are generated from this contract.
+ * This contract defines every slash command and where each host installs its
+ * files. `installer/render.mjs` renders the generated adapters from it and
+ * `installer/install.mjs` drives both the render and the authored-file copy.
  *
- * To regenerate adapters:
- *   node scripts/generate-adapters.mjs
+ * Install every host into a project:
+ *   node installer/install.mjs --target . --all
  */
 
 export const commands = [
@@ -170,11 +172,12 @@ export const categories = {
 
 /**
  * Host install contract. Each host names what Vitruvius writes into a target
- * project and where. Nothing here is committed: `scripts/install-adapters.mjs`
+ * project and where. Nothing here is committed: `installer/install.mjs`
  * renders the generated parts from `commands` plus `references/host-rules.md`
- * and copies the authored parts (`copy`, repo-relative source -> target path).
+ * and copies the authored parts (`copy`, repo-relative source -> target path)
+ * from `installer/hosts/<host>/`.
  *
- * Keeping generated output out of the repository is why `agents/<host>/` holds
+ * Keeping generated output out of the repository is why the host packages hold
  * only the handful of files a human actually writes.
  */
 export const hosts = [
@@ -183,13 +186,13 @@ export const hosts = [
     description: "OpenCode plugin, subagent role adapters, and slash commands",
     commands: { dir: ".opencode/command", ext: "md" },
     roles: { dir: ".opencode/agent" },
-    copy: [{ from: "agents/opencode/plugins", to: ".opencode/plugins" }],
+    copy: [{ from: "installer/hosts/opencode/plugins", to: ".opencode/plugins" }],
   },
   {
     id: "claude",
     description: "Claude Code slash commands and plugin manifest",
     commands: { dir: ".claude/commands", ext: "md" },
-    copy: [{ from: "agents/claude/plugin.json", to: ".claude-plugin/plugin.json" }],
+    copy: [{ from: "installer/hosts/claude/plugin.json", to: ".claude-plugin/plugin.json" }],
   },
   {
     id: "codex",
@@ -200,7 +203,7 @@ export const hosts = [
     id: "cursor",
     description: "Cursor slash commands and always-on ruleset",
     commands: { dir: ".cursor/commands", ext: "md" },
-    copy: [{ from: "agents/cursor/rules/vitruvius.mdc", to: ".cursor/rules/vitruvius.mdc" }],
+    copy: [{ from: "installer/hosts/cursor/rules/vitruvius.mdc", to: ".cursor/rules/vitruvius.mdc" }],
   },
   {
     id: "commandcode",
@@ -216,7 +219,7 @@ export const hosts = [
     id: "qoder",
     description: "Qoder ruleset and plugin manifest",
     ruleset: { file: ".qoder/rules/vitruvius.md" },
-    copy: [{ from: "agents/qoder/plugin.json", to: ".qoder-plugin/plugin.json" }],
+    copy: [{ from: "installer/hosts/qoder/plugin.json", to: ".qoder-plugin/plugin.json" }],
   },
   {
     id: "windsurf",

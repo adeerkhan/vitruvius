@@ -85,8 +85,6 @@ export const REGISTRY = {
   "e1-coverage.mjs": { kind: "chain" },
   "skill-payload-manifest.mjs": { kind: "test" },
   "generate-skill-diagram.mjs": { kind: "test" },
-  "generate-adapters.mjs": { kind: "test" },
-  "install-adapters.mjs": { kind: "test" },
   "run-isolated-tests.mjs": { kind: "test" },
   "margin-earnedness-check.mjs": {
     kind: "chain",
@@ -128,7 +126,6 @@ export const REGISTRY = {
   "goal-check-contract.mjs": { kind: "test" },
   "field-pilot-contract.mjs": { kind: "test" },
   "entailment.mjs": { kind: "test" },
-  "command-contract.mjs": { kind: "test" },
   "eval-contract.mjs": { kind: "test" },
   "fixed-case.mjs": { kind: "test" },
   "habit-ledger.mjs": { kind: "test" },
