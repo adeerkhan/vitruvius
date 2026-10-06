@@ -7,13 +7,14 @@ const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
 // Every plugin manifest must agree with package.json on name and version.
 //
-// This test used to read ONE hardcoded path, `.claude-plugin/plugin.json`.
-// `.qoder-plugin/plugin.json` sat next to it carrying the same version and
-// nothing checked it — so a version bump that missed it would ship two
-// manifests disagreeing, and the build would stay green. That is the failure
-// the src-06 validator (src-06 scripts/validate-package.py:61) is
-// built to prevent, and it hardcodes its four files only because that repo
-// knows it will never have a fifth.
+// Host manifests live under `agents/<host>/plugin.json` (the root dot-dirs they
+// install into are generated output). This test used to read ONE hardcoded path,
+// `.claude-plugin/plugin.json`. `.qoder-plugin/plugin.json` sat next to it
+// carrying the same version and nothing checked it — so a version bump that
+// missed it would ship two manifests disagreeing, and the build would stay
+// green. That is the failure the src-06 validator (src-06
+// scripts/validate-package.py:61) is built to prevent, and it hardcodes its four
+// files only because that repo knows it will never have a fifth.
 //
 // Here the set is DISCOVERED, so a new host manifest is covered the day it is
 // added rather than the day someone remembers to extend this list. The failure
@@ -21,14 +22,14 @@ const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
 const pkg = JSON.parse(readFileSync(join(repoRoot, "package.json"), "utf-8"));
 
-// Top-level dot-directories that carry a plugin manifest. `ref/` and
-// `node_modules/` hold other projects' manifests and are not ours.
-const manifests = readdirSync(repoRoot, { withFileTypes: true })
-  .filter((entry) => entry.isDirectory() && entry.name.endsWith("-plugin"))
-  .filter((entry) => entry.name !== "ref" && entry.name !== "node_modules")
+// Host packages under agents/ that carry a plugin manifest. Nested directories
+// (command trees, the generated manifests/ payloads) have no plugin.json.
+const agentsDir = join(repoRoot, "agents");
+const manifests = readdirSync(agentsDir, { withFileTypes: true })
+  .filter((entry) => entry.isDirectory())
   .map((entry) => ({
-    dir: entry.name,
-    path: join(repoRoot, entry.name, "plugin.json"),
+    dir: `agents/${entry.name}`,
+    path: join(agentsDir, entry.name, "plugin.json"),
   }))
   .filter((m) => existsSync(m.path));
 
@@ -36,7 +37,7 @@ const manifests = readdirSync(repoRoot, { withFileTypes: true })
 // exist today, so an empty or mis-scoped glob is a failure here, not silence.
 assert.ok(
   manifests.length >= 2,
-  `expected at least 2 plugin manifests at the repo root, found ${manifests.length} ` +
+  `expected at least 2 plugin manifests under agents/, found ${manifests.length} ` +
     `(${manifests.map((m) => m.dir).join(", ") || "none"}) — the discovery is broken if this is 0`,
 );
 
@@ -58,8 +59,8 @@ for (const { dir, path } of manifests) {
 
 // The specific manifest this test used to check by name, asserted directly so a
 // refactor that stops shipping it fails loudly rather than by omission.
-const claudeManifestPath = join(repoRoot, ".claude-plugin", "plugin.json");
-assert.ok(existsSync(claudeManifestPath), ".claude-plugin/plugin.json must exist");
+const claudeManifestPath = join(repoRoot, "agents", "claude", "plugin.json");
+assert.ok(existsSync(claudeManifestPath), "agents/claude/plugin.json must exist");
 
 console.log(
   `PASS: ${manifests.length} plugin manifest(s) match package.json on name and version ` +

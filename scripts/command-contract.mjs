@@ -168,21 +168,59 @@ export const categories = {
   application: { label: "Applications", description: "End-to-end workflows for specific tasks" },
 };
 
-export const hosts = [
-  { id: "opencode", dir: ".opencode/command", ext: "md" },
-  { id: "cursor", dir: ".cursor/commands", ext: "md" },
-  { id: "claude", dir: ".claude/commands", ext: "md" },
-  { id: "codex", dir: ".codex/commands", ext: "md" },
-  { id: "commandcode", dir: ".commandcode/mods", ext: "ts" },
-];
-
 /**
- * Hosts that load a free-standing ruleset rather than slash commands. All three
- * read the same file; it is generated from `references/host-rules.md` so the
- * copies cannot drift apart silently.
+ * Host install contract. Each host names what Vitruvius writes into a target
+ * project and where. Nothing here is committed: `scripts/install-adapters.mjs`
+ * renders the generated parts from `commands` plus `references/host-rules.md`
+ * and copies the authored parts (`copy`, repo-relative source -> target path).
+ *
+ * Keeping generated output out of the repository is why `agents/<host>/` holds
+ * only the handful of files a human actually writes.
  */
-export const rulesetHosts = [
-  { id: "clinerules", file: ".clinerules/vitruvius.md" },
-  { id: "qoder", file: ".qoder/rules/vitruvius.md" },
-  { id: "windsurf", file: ".windsurf/rules/vitruvius.md" },
+export const hosts = [
+  {
+    id: "opencode",
+    description: "OpenCode plugin, subagent role adapters, and slash commands",
+    commands: { dir: ".opencode/command", ext: "md" },
+    roles: { dir: ".opencode/agent" },
+    copy: [{ from: "agents/opencode/plugins", to: ".opencode/plugins" }],
+  },
+  {
+    id: "claude",
+    description: "Claude Code slash commands and plugin manifest",
+    commands: { dir: ".claude/commands", ext: "md" },
+    copy: [{ from: "agents/claude/plugin.json", to: ".claude-plugin/plugin.json" }],
+  },
+  {
+    id: "codex",
+    description: "Codex slash commands",
+    commands: { dir: ".codex/commands", ext: "md" },
+  },
+  {
+    id: "cursor",
+    description: "Cursor slash commands and always-on ruleset",
+    commands: { dir: ".cursor/commands", ext: "md" },
+    copy: [{ from: "agents/cursor/rules/vitruvius.mdc", to: ".cursor/rules/vitruvius.mdc" }],
+  },
+  {
+    id: "commandcode",
+    description: "Command Code mod",
+    mod: { file: ".commandcode/mods/vitruvius.ts" },
+  },
+  {
+    id: "clinerules",
+    description: "Cline always-on ruleset",
+    ruleset: { file: ".clinerules/vitruvius.md" },
+  },
+  {
+    id: "qoder",
+    description: "Qoder ruleset and plugin manifest",
+    ruleset: { file: ".qoder/rules/vitruvius.md" },
+    copy: [{ from: "agents/qoder/plugin.json", to: ".qoder-plugin/plugin.json" }],
+  },
+  {
+    id: "windsurf",
+    description: "Windsurf always-on ruleset",
+    ruleset: { file: ".windsurf/rules/vitruvius.md" },
+  },
 ];

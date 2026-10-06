@@ -10,14 +10,21 @@
  * Exit 1 on any failure.
  */
 
-import { readFileSync, existsSync, readdirSync } from "node:fs";
+import { readFileSync, existsSync, readdirSync, mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { renderAdapters } from "../../scripts/generate-adapters.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = join(__dirname, "..", "..");
 const AGENTS_DIR = join(REPO_ROOT, "agents");
-const ADAPTERS_DIR = join(REPO_ROOT, ".opencode", "agent");
+// OpenCode role adapters are generated at install time; render them into a temp
+// target so the checks below run against the real renderer, not a stale copy.
+const ADAPTER_TEMP = mkdtempSync(join(tmpdir(), "vitruvius-agents-"));
+process.on("exit", () => rmSync(ADAPTER_TEMP, { recursive: true, force: true }));
+renderAdapters({ targetRoot: ADAPTER_TEMP, hostIds: ["opencode"] });
+const ADAPTERS_DIR = join(ADAPTER_TEMP, ".opencode", "agent");
 
 let failed = 0;
 const results = [];

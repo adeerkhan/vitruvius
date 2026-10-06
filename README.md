@@ -333,12 +333,19 @@ cmd mods add adeerkhan/vitruvius                # add slash commands
 ### OpenCode
 
 ```bash
-# Run inside the repo (zero config — auto-loads plugin and skills)
-git clone https://github.com/adeerkhan/vitruvius && cd vitruvius && opencode
+# Install Vitruvius's OpenCode adapters into a project (writes .opencode/):
+npx vitruvius-install --target . --host opencode
 
-# Or point opencode.json at the plugin file:
-# { "plugin": ["./path/to/vitruvius/.opencode/plugins/vitruvius.mjs"] }
+# Or run inside the cloned repo, which installs all host adapters first:
+git clone https://github.com/adeerkhan/vitruvius && cd vitruvius
+node scripts/install-adapters.mjs --target . --all && opencode
+
+# The plugin entry (opencode.json) points at the source file:
+# { "plugin": ["./path/to/vitruvius/agents/opencode/plugins/vitruvius.mjs"] }
 ```
+
+The same installer projects the other hosts too (`--host claude`, `--host
+cursor`, ...); run `npx vitruvius-install --help` for the list.
 
 ### Pi
 
@@ -507,7 +514,8 @@ Research outputs are intended to include a `.provenance.md` sidecar recording wh
 | [notes/permissions.md](notes/permissions.md) | Per-host file-write permissions, which every research skill needs in order to persist artifacts |
 | [SECURITY.md](SECURITY.md) | Reporting a vulnerability, what the scanner checks, and the skill security rules |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Local setup and the change workflow |
-| [references/host-rules.md](references/host-rules.md) | The condensed ruleset generated into `.clinerules/`, `.qoder/rules/`, and `.windsurf/rules/` |
+| [references/host-rules.md](references/host-rules.md) | The condensed ruleset rendered into `.clinerules/`, `.qoder/rules/`, and `.windsurf/rules/` at install time |
+| [agents/README.md](agents/README.md) | The authored host sources under `agents/<host>/` and the installer that renders `.opencode/`, `.claude/`, `.cursor/`, ... |
 
 ## Uninstall
 

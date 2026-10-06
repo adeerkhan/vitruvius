@@ -26,7 +26,7 @@ const REFERENCES_DIR = join(REPO_ROOT, "references");
 // Directories whose contents an agent loads. `notes/` and the repo root files are
 // human-facing, but they still count: a reference cited only from the README is
 // discoverable, and that is better than uncited.
-const SEARCH_ROOTS = ["skills", "agents", "scripts", "notes", ".opencode", ".claude", ".cursor", ".codex"];
+const SEARCH_ROOTS = ["skills", "agents", "scripts", "notes"];
 const SEARCH_FILES = ["README.md", "AGENTS.md", "CONTRIBUTING.md"];
 
 function walk(dir, out = []) {

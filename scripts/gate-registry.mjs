@@ -86,6 +86,7 @@ export const REGISTRY = {
   "skill-payload-manifest.mjs": { kind: "test" },
   "generate-skill-diagram.mjs": { kind: "test" },
   "generate-adapters.mjs": { kind: "test" },
+  "install-adapters.mjs": { kind: "test" },
   "run-isolated-tests.mjs": { kind: "test" },
   "margin-earnedness-check.mjs": {
     kind: "chain",

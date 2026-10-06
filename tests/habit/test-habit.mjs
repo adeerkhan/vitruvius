@@ -9,16 +9,22 @@
  * Exit 1 on any failure.
  */
 
-import { readFileSync, existsSync } from "node:fs";
+import { readFileSync, existsSync, mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { check, hasS7Boundary, lineCountUnder } from "../_contract/contract.mjs";
 import { readYamlFrontmatter } from "../../scripts/yaml-frontmatter.mjs";
+import { renderAdapters } from "../../scripts/generate-adapters.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = join(__dirname, "..", "..");
 const ROLE = join(REPO_ROOT, "agents", "habit.md");
-const ADAPTER = join(REPO_ROOT, ".opencode", "agent", "habit.md");
+// The adapter is generated at install time; render it into a temp target.
+const ADAPTER_TEMP = mkdtempSync(join(tmpdir(), "vitruvius-habit-"));
+process.on("exit", () => rmSync(ADAPTER_TEMP, { recursive: true, force: true }));
+renderAdapters({ targetRoot: ADAPTER_TEMP, hostIds: ["opencode"] });
+const ADAPTER = join(ADAPTER_TEMP, ".opencode", "agent", "habit.md");
 const SKILL = join(REPO_ROOT, "skills", "habit", "SKILL.md");
 
 let allPassed = true;
@@ -56,7 +62,7 @@ if (role) {
 }
 
 // --- 2. Host adapter mirrors the canonical role ---
-console.log("\n[Test] .opencode/agent/habit.md");
+console.log("\n[Test] agents/opencode/agent/habit.md");
 const adapter = read(ADAPTER);
 assert(adapter !== null, "adapter exists");
 if (adapter) {

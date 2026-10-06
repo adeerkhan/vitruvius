@@ -1,23 +1,29 @@
 # Agent Portability
 
 Vitruvius is an agent-portable skill distribution. The `skills/` directory
-holds the core behavior; `agents/` holds the canonical role definitions;
-host-specific files are thin adapters that make both easy to load in a given
-agent. `AGENTS.md` at the repo root is the always-on ruleset every host reads
-for free.
+holds the core behavior; `agents/` holds the canonical role definitions and the
+few hand-authored host files under `agents/<host>/`. Everything derivable is
+rendered at install time by `scripts/install-adapters.mjs`, which writes the
+target project's native dot-directories; the repository commits no generated
+adapter output. `AGENTS.md` at the repo root is the always-on ruleset every host
+reads for free.
 
-Regenerated from the adapters on disk, 2026-09.
+Regenerated from the adapters on disk, 2026-10.
 
 ## Supported Hosts
 
-| Host | Files | Install |
-|------|-------|---------|
-| Claude Code | `skills/`, `.claude/commands/`, `.claude-plugin/plugin.json` | `npx skills add adeerkhan/vitruvius` |
-| Codex | `skills/`, `AGENTS.md` (native) | `npx skills add adeerkhan/vitruvius --agent codex` |
-| Command Code | `.commandcode/mods/vitruvius.ts`, `skills/` | `cmd skills add adeerkhan/vitruvius` + `cmd mods add adeerkhan/vitruvius` |
-| Cursor | `skills/` copied to `~/.cursor/skills/vitruvius` | manual copy (see README) |
-| OpenCode | `opencode.json`, `.opencode/plugins/vitruvius.mjs`, `.opencode/agent/` (7 role adapters), `.opencode/command/` | zero config inside the repo, or point `opencode.json` at the plugin |
+| Host | Committed source | Install |
+|------|------------------|---------|
+| Claude Code | `agents/claude/plugin.json` | `npx skills add adeerkhan/vitruvius`, or `vitruvius-install --host claude` |
+| Codex | `AGENTS.md` (native) | `npx skills add adeerkhan/vitruvius --agent codex`, or `vitruvius-install --host codex` |
+| Command Code | — (rendered) | `cmd skills add adeerkhan/vitruvius` + `cmd mods add adeerkhan/vitruvius` |
+| Cursor | `agents/cursor/rules/vitruvius.mdc` | `vitruvius-install --host cursor` (skills copied to `~/.cursor/skills/vitruvius`) |
+| OpenCode | `agents/opencode/plugins/vitruvius.mjs` | `vitruvius-install --host opencode` |
 | Pi | skills as a package | `pi install git:github.com/adeerkhan/vitruvius` |
+
+The slash commands (OpenCode, Claude, Codex, Cursor), the seven OpenCode role
+adapters, the Command Code mod, and the Cline/Qoder/Windsurf rulesets are all
+rendered by the installer and are not stored in the repository.
 
 ## Adapter Discipline
 
@@ -28,5 +34,6 @@ Regenerated from the adapters on disk, 2026-09.
 - **Tool bounds are declared per role** in `agents/*.md` frontmatter and
   mirrored in each adapter's tool map (e.g. verifier: read-only —
   `write: false, edit: false`).
-- Adding a host = one thin adapter file + one README install row. Nothing
-  else.
+- Adding a host = one `hosts[]` entry in `scripts/command-contract.mjs` +
+  (optionally) an authored file under `agents/<host>/` + one README install row.
+  The commands, rulesets, and manifests for it all follow; nothing else.

@@ -43,11 +43,16 @@ skills/                 25 skills (frontmatter contract, ≤500 lines each)
   engineering-research/   the shared method (all others dispatch into it)
   verifier/               blind verification (8 checks, default-FAIL)
   gap-analysis, evidence-ranking, design-alternatives, ...   methodology
-agents/                 seven canonical role files (researcher, writer, verifier,
+agents/                 canonical role files (researcher, writer, verifier,
                         reviewer, arbiter, goal-checker, habit) — dispatch targets,
-                        with declared tool bounds and uneven N11 coverage
-.opencode/agent/        thin host adapters pointing at agents/*.md
-.opencode/plugins/      OpenCode plugin entry
+                        with declared tool bounds and uneven N11 coverage — plus the
+                        authored host files under agents/<host>/ (OpenCode plugin
+                        entry, Claude/Qoder plugin manifests, Cursor rule)
+agents/opencode/plugins/ OpenCode plugin entry
+scripts/install-adapters.mjs  renders commands, role adapters, rulesets, and the
+                        Command Code mod into a target project's .opencode/,
+                        .claude/, .cursor/, ... dot-directories at install time
+                        (generated output is never committed)
 references/             shared long-form references (blocked-access policy,
                         evidence-quality tiers, token budgets, context mgmt)
 scripts/                validators, scorer, benchmark runner, adapters

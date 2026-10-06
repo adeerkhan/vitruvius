@@ -53,10 +53,16 @@ try {
     "scripts/goal-check-contract.mjs",
     "scripts/artifact-closure.mjs",
     "scripts/field-pilot-contract.mjs",
+    "scripts/install-adapters.mjs",
+    "scripts/generate-adapters.mjs",
+    "scripts/command-contract.mjs",
+    "scripts/yaml-frontmatter.mjs",
     "agents/verifier.md",
+    "agents/opencode/plugins/vitruvius.mjs",
+    "agents/claude/plugin.json",
     "references/input-gate.md",
     "references/evidence-quality-tiers.md",
-    ".opencode/command/vitruvius.md",
+    "references/host-rules.md",
   ]) {
     assert.ok(files.includes(required), `tarball includes ${required}`);
   }
@@ -137,6 +143,30 @@ console.log("ok:" + names.length);
       `skills/, so a trimmed tarball would ship a broken module: ${importShim.stderr}`,
   );
   assert.match(importShim.stdout, /^ok:\d+/m, "the shim must export a usable surface");
+
+  // 6. The installed installer renders a complete harness tree into a project,
+  // from the sources shipped in the tarball. This is the deployment path: the
+  // repository commits authored host files only, and every generated adapter is
+  // produced here.
+  const project = join(temp, "adapter-project");
+  mkdirSync(project, { recursive: true });
+  const installAdapters = spawnSync(
+    process.execPath,
+    [join(pkgDir, "scripts", "install-adapters.mjs"), "--target", project, "--all"],
+    { encoding: "utf8" },
+  );
+  assert.equal(installAdapters.status, 0, installAdapters.stderr);
+  for (const adapterPath of [
+    ".opencode/command/vitruvius.md",
+    ".opencode/agent/verifier.md",
+    ".opencode/plugins/vitruvius.mjs",
+    ".claude-plugin/plugin.json",
+    ".cursor/rules/vitruvius.mdc",
+    ".clinerules/vitruvius.md",
+    ".qoder-plugin/plugin.json",
+  ]) {
+    assert.ok(existsSync(join(project, adapterPath)), `installed package renders ${adapterPath}`);
+  }
 
   console.log(
     `PASS: package tarball (${entry.size} bytes, ${files.length} files) installs into a clean consumer, ` +

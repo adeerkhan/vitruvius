@@ -1,4 +1,18 @@
-.commandcode/taste/
+# Harness adapter output. Sources live under agents/<host>/ and are projected
+# into these root dot-directories by scripts/install-adapters.mjs, so they are
+# derived output, not source. This also covers OpenCode's generated
+# .opencode/package.json, package-lock.json, and node_modules.
+/.opencode/
+/.claude/
+/.claude-plugin/
+/.codex/
+/.cursor/
+/.commandcode/
+/.clinerules/
+/.qoder/
+/.qoder-plugin/
+/.windsurf/
+
 node_modules/
 outputs/
 ref/

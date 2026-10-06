@@ -378,17 +378,17 @@ function versionSyncProblems() {
     return ["package.json missing or invalid"];
   }
 
-  const manifestPath = join(REPO_ROOT, ".claude-plugin", "plugin.json");
+  const manifestPath = join(REPO_ROOT, "agents", "claude", "plugin.json");
   if (existsSync(manifestPath)) {
     try {
       const manifest = JSON.parse(readFileSync(manifestPath, "utf-8"));
       if (manifest.version !== pkg.version) {
         problems.push(
-          `.claude-plugin/plugin.json version ${manifest.version} does not match package.json version ${pkg.version}`,
+          `agents/claude/plugin.json version ${manifest.version} does not match package.json version ${pkg.version}`,
         );
       }
     } catch {
-      problems.push(".claude-plugin/plugin.json invalid JSON");
+      problems.push("agents/claude/plugin.json invalid JSON");
     }
   }
 
@@ -439,18 +439,18 @@ for (const required of ["name", "version", "description", "license"]) {
 
 // Plugin manifest version must match package.json (single release version;
 // skill-level versions are per-skill metadata, per AGENTS.md N7)
-const manifestPath = join(REPO_ROOT, ".claude-plugin", "plugin.json");
+const manifestPath = join(REPO_ROOT, "agents", "claude", "plugin.json");
 if (existsSync(manifestPath)) {
   try {
     const manifest = JSON.parse(readFileSync(manifestPath, "utf-8"));
     if (manifest.version !== pkg.version) {
       console.error(
-        `FAIL: .claude-plugin/plugin.json version ${manifest.version} does not match package.json version ${pkg.version} — bump both together`,
+        `FAIL: agents/claude/plugin.json version ${manifest.version} does not match package.json version ${pkg.version} — bump both together`,
       );
       process.exit(1);
     }
   } catch {
-    console.error("FAIL: .claude-plugin/plugin.json invalid JSON");
+    console.error("FAIL: agents/claude/plugin.json invalid JSON");
     process.exit(1);
   }
 }
