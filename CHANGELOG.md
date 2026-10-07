@@ -5,3 +5,8 @@ All notable changes to Vitruvius are documented here. The format follows
 [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+
+## [0.2.0] - 2026-10-07
+
+- Initial release.
+

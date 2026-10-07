@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "vitruvius",
   "description": "The engineering research agent: discover, read, synthesize, verify, review — with blind verification, a scored benchmark, and auditable provenance.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": {
     "name": "Adeer Khan",
     "url": "https://github.com/adeerkhan"

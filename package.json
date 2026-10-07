@@ -1,6 +1,6 @@
 {
   "name": "@adeerkhan/vitruvius",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Engineering research agent: discover, read, synthesize, verify, and review engineering knowledge across mechanical, software, civil, electrical, and architectural disciplines.",
   "keywords": [
     "opencode-plugin",
