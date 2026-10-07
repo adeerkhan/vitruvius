@@ -81,7 +81,8 @@ p { margin: 0; }
 ul { margin: 0; padding: 0; list-style: none; }
 
 /* --- background motifs ---------------------------------------------------- */
-/* Diagonal crosshatch, 45° and -45°, at ~4% gold — vintage print texture. */
+/* Diagonal cross-hatch, multi-angle like an engraved plate, at ~5% gold —
+   fine hairlines plus faint vertical ruling rather than a single grid. */
 body::before {
   content: "";
   position: fixed;
@@ -89,8 +90,9 @@ body::before {
   z-index: -2;
   pointer-events: none;
   background-image:
-    repeating-linear-gradient(45deg, rgba(212, 175, 55, 0.045) 0 1px, transparent 1px 46px),
-    repeating-linear-gradient(-45deg, rgba(212, 175, 55, 0.045) 0 1px, transparent 1px 46px);
+    repeating-linear-gradient(45deg, rgba(212, 175, 55, 0.05) 0 1px, transparent 1px 34px),
+    repeating-linear-gradient(-45deg, rgba(212, 175, 55, 0.038) 0 1px, transparent 1px 34px),
+    repeating-linear-gradient(90deg, rgba(242, 240, 228, 0.02) 0 1px, transparent 1px 68px);
 }
 /* A soft vignette keeps the ornament from fighting the text. */
 body::after {
@@ -106,6 +108,8 @@ body::after {
 .shell { width: 100%; max-width: var(--shell); margin-inline: auto; padding-inline: var(--pad); }
 .section { padding-block: var(--section-y); position: relative; }
 .section + .section { border-top: 1px solid var(--hairline); }
+/* The header is sticky, so an anchor jump must not park a heading underneath it. */
+section[id] { scroll-margin-top: 5.5rem; }
 
 .eyebrow {
   font-family: var(--body);
@@ -423,21 +427,78 @@ body::after {
 .install-note { margin-top: 1.5rem; color: var(--muted); font-size: 0.85rem; border-left: 2px solid var(--blue); padding-left: 0.9rem; }
 
 /* --- skills page ---------------------------------------------------------- */
-.skill-grid { display: grid; gap: 1.5rem; grid-template-columns: repeat(2, 1fr); }
+.skill-grid { display: grid; gap: 1.15rem; grid-template-columns: repeat(2, 1fr); }
 .skill {
   display: grid;
-  grid-template-columns: 2.75rem 1fr;
-  gap: 1.1rem;
+  grid-template-columns: 1.9rem 1fr;
+  gap: 0.9rem;
   align-items: start;
   border: 1px solid var(--line);
   background: var(--card);
-  padding: 1.4rem;
+  padding: 1.15rem 1.25rem;
   transition: border-color var(--dur-slow) var(--ease), background var(--dur-slow) var(--ease), transform var(--dur-slow) var(--ease);
 }
 .skill:hover, .skill:focus-within { border-color: var(--line-strong); background: var(--card-hi); transform: translateY(-5px); }
 .skill h3 { color: var(--gold); font-size: 1.05rem; text-transform: uppercase; letter-spacing: var(--track-mid); }
 .skill code { display: inline-block; color: var(--gold-bright); font-size: 0.8rem; letter-spacing: 0.05em; margin-bottom: 0.4rem; }
 .skill p { color: var(--muted); font-size: 0.88rem; }
+
+/* Plate number — a small Roman numeral over a hairline tick, the engraved
+   list marker. An empty diamond per row read as a hole, not a marker. */
+.mark {
+  justify-self: start;
+  min-width: 1.6rem;
+  font-family: var(--display);
+  color: var(--gold);
+  font-size: 0.9rem;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--line);
+}
+.skill:hover .mark { border-color: var(--line-strong); }
+
+/* Dot micro-grid in the corner, as on an engraved plate. */
+.dots {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: min(20rem, 62vw);
+  height: 13rem;
+  z-index: -1;
+  pointer-events: none;
+  background-image: radial-gradient(circle, rgba(212, 175, 55, 0.22) 1px, transparent 1px);
+  background-size: 15px 15px;
+  -webkit-mask-image: linear-gradient(225deg, #000 0%, transparent 55%);
+  mask-image: linear-gradient(225deg, #000 0%, transparent 55%);
+}
+.compass {
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+  width: min(46rem, 90vw);
+  aspect-ratio: 1;
+  border: 1px solid rgba(212, 175, 55, 0.12);
+  border-radius: 50%;
+  background:
+    linear-gradient(to right, transparent calc(50% - 0.5px), rgba(212, 175, 55, 0.1) 50%, transparent calc(50% + 0.5px)),
+    linear-gradient(to bottom, transparent calc(50% - 0.5px), rgba(212, 175, 55, 0.1) 50%, transparent calc(50% + 0.5px)),
+    radial-gradient(circle, transparent calc(50% - 1px), rgba(212, 175, 55, 0.08) 50%, transparent calc(50% + 1px));
+}
+.compass::before,
+.compass::after {
+  content: "";
+  position: absolute;
+  inset: 12%;
+  border: 1px solid rgba(212, 175, 55, 0.07);
+  border-radius: 50%;
+}
+.compass::after { inset: 28%; }
+/* Placed beside the measured figures, where the geometry reads as instrumentation. */
+/* Kept inside the viewport on purpose: bleeding it off the edge widened the
+   document to 1123px and produced a horizontal scrollbar. */
+#measured .compass { top: 4rem; right: 0; opacity: 0.8; }
+@media (max-width: 62rem) { #measured .compass { display: none; } }
 .tier { margin-top: 0.75rem; }
 .tier .eyebrow { display: block; margin-bottom: 0.4rem; }
 .tier p { max-width: 60ch; }
