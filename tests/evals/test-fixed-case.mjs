@@ -198,6 +198,33 @@ try {
     casePath: join(repoRoot, "evals", "cases", "local-evidence-suite.json"),
   });
   assert.equal(retained.valid, true, retained.errors.join("\\n"));
+
+  // Fail-closed on unknown keys (pattern from ref/autoprompt-skill's manifest).
+  // Before this, a typo or an invented field sat in the manifest unread and the
+  // contract still reported a clean run.
+  const withUnknown = (mutate) => {
+    const value = structuredClone(manifest);
+    mutate(value);
+    return validateRunManifest(value, { repoRoot, artifactRoot, casePath: suitePath }).errors.join("\\n");
+  };
+  assert.match(withUnknown((value) => { value.review_stats = "PASS"; }), /manifest has unknown field: review_stats/);
+  assert.match(withUnknown((value) => { value.runs[0].sessionId = "typo"; }), /runs\[0\] has unknown field: sessionId/);
+  assert.match(withUnknown((value) => { value.runs[0].final.sha256_extra = "x"; }), /runs\[0\].final has unknown field: sha256_extra/);
+  assert.match(withUnknown((value) => { value.runs[0].grade.notes = "looks good"; }), /runs\[0\] grade has unknown field: notes/);
+  assert.match(withUnknown((value) => { value.runs[0].grade.expectations[0].comment = "ok"; }), /runs\[0\] grade expectation has unknown field: comment/);
+  assert.match(withUnknown((value) => { value.summary.review_status_override = "PASS"; }), /summary has unknown field: review_status_override/);
+  // The typo that motivated this: a misspelled summary field must not be
+  // mistaken for the real one it was meant to be.
+  assert.match(
+    withUnknown((value) => { delete value.summary.review_status; value.summary.review_stat = "PASS"; }),
+    /summary must be undefined|summary.review_status must be|summary has unknown field: review_stat/,
+  );
+  // A non-object manifest must still be refused, not crash the validator.
+  for (const bad of [null, "manifest", 42, []]) {
+    const report = validateRunManifest(bad, { repoRoot, artifactRoot, casePath: suitePath });
+    assert.equal(report.valid, false);
+    assert.match(report.errors.join("\\n"), /manifest must be an object|has unknown field/);
+  }
 } finally {
   rmSync(artifactRoot, { recursive: true, force: true });
 }
