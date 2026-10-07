@@ -12,10 +12,10 @@ argument-hint: "<topic or paper identifier>"
 allowed-tools: Write Edit Bash Read
 license: MIT
 metadata:
-  version: "0.3.0"
+  version: "0.4.0"
 
 ---
-<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=a1ccc8d5158c7503e34df0740b142f93ee66d4da3d1cd5f78401910c8d6677e3 -->
+<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=643bfab96960f4ced24e14a711d17a3e3a67a3eb153fbe449e45ab146357fd83 -->
 
 # Scholarly Research
 
@@ -61,6 +61,12 @@ See `references/input-gate.md`.
   Scholar has no official API, blocks automated browsers with captchas, and
   its scrapers violate its ToS — do not scrape it.** Use OpenAlex or Semantic
   Scholar citation counts instead, and say which source the count came from.
+- **A fallback never erases the failure.** If an index rate-limits, times out, or
+  returns nothing, record that search anyway as `status: partial` with the reason
+  in `notes`, *then* use the next index. Semantic Scholar's shared pool times
+  out regularly; when you fall back to OpenAlex, the timeout has to survive as a
+  record. A search that silently disappears leaves a hole in the evidence set
+  that no reader can see, and the coverage count quietly lies.
 - Never invent a citation. Every claim maps to a fetched source: DOI, arXiv
   id, or URL you actually retrieved.
 - When a source is paywalled or unreachable, cite from search metadata and
@@ -96,13 +102,28 @@ GET https://api.semanticscholar.org/graph/v1/paper/search?query=<terms>&limit=20
 - Citations: `GET /graph/v1/paper/{id}/citations?fields=title,year`.
 - Shared pool is rate-limited; if it times out, fall back to OpenAlex.
 
-### 3. arXiv API — preprints (CS, physics, quantitative fields)
+### 3. arXiv API — best at resolving an id, not at topics
 
-Atom XML, keyless. ~1 request per 3 seconds.
+Atom XML, keyless. **Reach for this to resolve a preprint id you already have,
+not to discover by topic.** The API is lexical and ranks concept queries poorly,
+so a topic query here returns off-topic work you then have to filter by hand,
+and the cost is paid in screening rather than in results. Find the work with
+OpenAlex or Semantic Scholar, then come here for the id and the version.
+
+Topic search here is still legitimate for a narrow, preprint-shaped question
+("what preprints since 2025 touch X"), where the corpus itself is the filter.
+Treat its output as candidates, not as findings.
 
 ```
-GET https://export.arxiv.org/api/query?search_query=all:<topic>&max_results=20
+GET https://export.arxiv.org/api/query?id_list=<comma-separated ids>&max_results=<n>
+GET https://export.arxiv.org/api/query?search_query=all:<topic>&max_results=20   # candidates only
 ```
+
+- **Serialise.** One request per 3 seconds. Parallel lookups get 429; retry a
+  429 once after the same wait rather than tightening the request.
+- Budget ~25s per request. A timeout is a `partial` search recorded as such, not
+  a gap you fall back through.
+- `max_results` caps at 100 for an id lookup; batch the ids rather than looping.
 
 ### 4. alphaXiv fast search — keyless arXiv discovery
 
@@ -123,6 +144,24 @@ sources (vendor docs, standards bodies, news, blogs), for conceptual or very
 recent work the keyword indexes miss, and to confirm recency — not as the
 primary paper index. Do not point a browser at scholar.google.com.
 
+## What each index is actually good for
+
+Stated so the routing table below has a reason behind it. An index that answers
+a question badly is worse than one that refuses it, because a bad answer reads
+like a good one.
+
+| Index | Use it for | Do not use it for |
+|---|---|---|
+| OpenAlex | topic discovery, citation counts, open-access full-text links, DOI → id | paywalled full text |
+| Semantic Scholar | relevance ranking, citation graph, `externalIds` crosswalk between DOI and arXiv | bulk paging — the shared pool is rate-limited and times out |
+| arXiv | **resolving a known preprint id**, reading a specific version | topic discovery as a primary route — lexical, poorly ranked (see layer 3) |
+| alphaXiv | fast keyword discovery inside arXiv, paper Q&A over full text | primary citation metadata |
+| Host web / browser | vendor docs, standards bodies, recent news, code at source | the primary paper index |
+
+Where two indexes disagree, that disagreement is a finding: record both, mark
+the claim `ambiguous`, and say which index produced which number. Never average
+two citation counts or quietly keep the higher one.
+
 ## Routing modes
 
 Pick the mode from the need; do not default every question to keyword search.
@@ -141,6 +180,10 @@ host's own tools.)
 - Run 2–4 reworded queries per question (synonyms, the method's name, the
   problem's name) and merge; never trust one query's ranking — seminal work can
   appear under only one phrasing or sort order.
+- **Record the exact endpoint for every search** — the full URL with its query
+  parameters, not the name of the index. It is the only thing that makes a search
+  reproducible and lets a re-run match what you actually did. Put it in the
+  search record's `notes`.
 - `code-prior-art` is a first-class mode, not a fallback: the decisive lead is
   often a working implementation that four paper searches miss. A repository is
   a lead, not a citation — verify any claim about it at source (`path:line`) and
@@ -158,6 +201,20 @@ the `merge_rule`, and a `discard_reason` on the duplicate (see the
 `engineering-research` `evidence.v1` ledger). Do not present one work twice as
 two sources, and do not let a semantic near-duplicate proposal delete a source;
 it is advisory.
+
+### arXiv ids carry a version, and two shapes
+
+`2401.12345v2` is `2401.12345` at version 2, and older papers use a legacy
+`archive/NNNNNNN` form (`hep-th/9901001`). Two rules follow:
+
+- **Canonicalize to the bare id**, keep the highest version you actually read,
+  and put that version in `notes`. Keying the evidence set on the versioned
+  string makes `2401.12345v1` and `2401.12345v2` two sources for one work, which
+  inflates the source count and makes the set look better corroborated than it
+  is.
+- **A disagreement between versions is a finding, not a merge.** If v1 and v2
+  differ on a claim you rely on, record that claim `ambiguous`, name both
+  versions, and do not settle it by silently preferring the newer one.
 
 ## Full text and verification
 

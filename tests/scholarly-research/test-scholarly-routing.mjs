@@ -24,6 +24,30 @@ assert.match(skill, /## Source identity \(exact-first\)/, "has an exact-first so
 assert.match(skill, /merge_rule/, "names the merge rule");
 assert.match(skill, /discard_reason/, "names the discard reason");
 
+// Per-index capability table, so the routing table has a stated reason. An
+// index that answers badly is worse than one that refuses.
+assert.match(skill, /## What each index is actually good for/, "has a per-index capability table");
+for (const index of ["OpenAlex", "Semantic Scholar", "arXiv", "alphaXiv"]) {
+  assert.match(skill, new RegExp(`\\|\\s*${index.replace(" ", "\\s")}`), `capability table covers ${index}`);
+}
+// arXiv is demoted for topic discovery, with the reason given.
+assert.match(skill, /resolving a known preprint id/, "arXiv is presented as id-resolution first");
+assert.match(skill, /lexical, poorly ranked|lexical and ranks concept queries poorly/, "states why arXiv topic search is weak");
+
+// A fallback must not erase the failure it replaced.
+assert.match(skill, /fallback never erases the failure/i, "requires the failed search to be recorded, not dropped");
+assert.match(skill, /status: partial/, "says the failed search is recorded as partial");
+
+// Rate discipline and the recorded endpoint.
+assert.match(skill, /Serialise/i, "requires serialised arXiv requests");
+assert.match(skill, /exact endpoint/i, "requires the exact endpoint per search");
+
+// arXiv version canonicalisation: one work, one source.
+assert.match(skill, /### arXiv ids carry a version, and two shapes/, "has an arXiv version section");
+assert.match(skill, /two sources for one work/, "names the double-count risk");
+assert.match(skill, /hep-th\/9901001/, "names the legacy id shape");
+assert.match(skill, /disagreement between versions is a finding/i, "a version disagreement is a finding, not a merge");
+
 const version = skill.match(/version:\s*"(\d+)\.(\d+)\.(\d+)"/);
 assert.ok(version, "scholarly-research has a version");
 assert.ok(
@@ -31,4 +55,4 @@ assert.ok(
   `scholarly-research version is 0.2.0+ (got ${version[1]}.${version[2]}.${version[3]})`,
 );
 
-console.log("PASS: scholarly-research declares routing modes and exact-first source identity");
+console.log("PASS: scholarly-research declares routing modes, per-index capability limits, exact-first source identity and arXiv version rules");
