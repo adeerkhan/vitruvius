@@ -297,6 +297,47 @@ section[id] { scroll-margin-top: 5.5rem; }
 }
 .badges span b { color: var(--gold); font-weight: 600; }
 
+/* --- plate ---------------------------------------------------------------- */
+/* The project's engraved plate, tipped into the hero like an illustration
+   bound into a book: gold hairline, dark matte, inner hairline. This is the
+   only light object on an obsidian page, which is why it reads as a plate and
+   not as a bright hole. */
+.plate {
+  width: min(11rem, 64vw);
+  margin: 0 auto 2.5rem;
+  padding: 0.6rem;
+  background: var(--card);
+  border: 1px solid var(--line-strong);
+  box-shadow:
+    0 0 0 1px rgba(212, 175, 55, 0.22),
+    0 0 0 5px var(--bg),
+    0 0 0 6px rgba(212, 175, 55, 0.4),
+    var(--glow);
+  transition: transform var(--dur-slow) var(--ease), box-shadow var(--dur-slow) var(--ease);
+}
+.plate:hover {
+  transform: translateY(-4px);
+  box-shadow:
+    0 0 0 1px rgba(212, 175, 55, 0.35),
+    0 0 0 5px var(--bg),
+    0 0 0 6px var(--gold),
+    var(--glow-strong);
+}
+.plate img { display: block; width: 100%; height: auto; }
+.plate figcaption {
+  margin-top: 0.65rem;
+  padding-top: 0.55rem;
+  border-top: 1px solid var(--hairline);
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  line-height: 1.6;
+  color: var(--muted);
+  text-align: center;
+}
+.plate figcaption b { color: var(--gold); font-weight: 600; }
+.plate figcaption em { font-style: italic; }
+
 /* --- section head --------------------------------------------------------- */
 .head { display: grid; gap: 1.1rem; justify-items: start; margin-bottom: 3rem; }
 .head--center { justify-items: center; text-align: center; }
