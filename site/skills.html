@@ -1,255 +1,228 @@
-<!DOCTYPE html>
-<html lang="en" class="no-js">
+<!doctype html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Skills — Vitruvius</title>
+    <title>Vitruvius — skills and commands</title>
     <meta
       name="description"
-      content="All twenty-five Vitruvius skills: five discipline skills, the shared research method, and the named engineering research jobs that run on it."
+      content="Every Vitruvius command: five engineering disciplines, the shared research method, and the named research jobs built on top of it."
     />
-    <meta name="theme-color" content="#0a0a0a" />
-    <meta name="color-scheme" content="dark" />
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content="Skills — Vitruvius" />
-    <meta
-      property="og:description"
-      content="Five discipline skills and twenty named research jobs, all running the same seven-phase loop."
-    />
-    <meta property="og:image" content="https://adeerkhan.github.io/vitruvius/assets/og.jpg" />
-    <link rel="preload" href="assets/fonts/inter-var-latin.woff2" as="font" type="font/woff2" crossorigin />
-    <link
-      rel="preload"
-      href="assets/fonts/playfair-display-var-italic-latin.woff2"
-      as="font"
-      type="font/woff2"
-      crossorigin
-    />
     <link rel="stylesheet" href="assets/css/site.css" />
+    <script src="assets/js/site.js" defer></script>
   </head>
   <body>
     <a class="skip" href="#main">Skip to content</a>
 
-    <nav class="nav" data-nav aria-label="Primary">
-      <div class="nav__inner">
-        <a class="nav__mark" href="index.html">
-          <span class="serif">Vitruvius</span>
+    <header class="nav">
+      <div class="shell nav__inner">
+        <a class="brand" href="index.html" aria-label="Vitruvius home">
+          <span class="brand__mark" aria-hidden="true"></span>
+          <span class="brand__name">Vitruvius</span>
         </a>
-        <ul class="nav__links">
-          <li><a href="index.html#loop">The loop</a></li>
-          <li><a href="index.html#disciplines">Disciplines</a></li>
-          <li><a href="index.html#measured">Measured</a></li>
-          <li><a href="index.html#grounding">Grounding</a></li>
-          <li><a href="skills.html" aria-current="page">Skills</a></li>
-        </ul>
-        <a
-          class="nav__cta"
-          href="https://github.com/adeerkhan/vitruvius"
-          rel="noopener noreferrer"
-          target="_blank"
-          >Repository</a
-        >
+        <button class="nav__toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="nav-links">
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+          <span class="visually-hidden">Menu</span>
+        </button>
+        <nav class="nav__links" id="nav-links" data-nav-links aria-label="Primary">
+          <a href="index.html#why">Why</a>
+          <a href="index.html#loop">The loop</a>
+          <a href="index.html#disciplines">Disciplines</a>
+          <a href="index.html#measured">Measured</a>
+          <a href="index.html#install">Install</a>
+          <a href="skills.html" aria-current="page">Skills</a>
+        </nav>
       </div>
-    </nav>
+    </header>
 
     <main id="main">
-      <header class="hero">
-        <div class="shell">
-          <p class="eyebrow">The catalogue</p>
-          <h1>Twenty-five commands, <em>one</em> loop.</h1>
-          <p class="lede mt-md">
-            Two entry points, five discipline skills, seventeen named research jobs, one application
-            workflow. Everything below runs the same seven-phase method; only the evidence landscape changes.
-          </p>
-          <p class="hero__claim mt-md">
-            Discipline and research commands take <code>--deep</code> to force multi-agent coverage or
-            <code>--quick</code> for a fast lookup. <code>--turns N</code> and <code>--budget N</code> set
-            your own ceiling.
-          </p>
-          <div class="hero__actions">
-            <a class="btn btn--gold" href="index.html#install">Install</a>
-            <a class="btn" href="index.html">Back to the overview</a>
-          </div>
-        </div>
-      </header>
+      <section class="shell hero">
+        <span class="hero__sun" aria-hidden="true"></span>
+        <p class="eyebrow">The catalogue</p>
+        <h1>Twenty-five commands, <em>one</em> loop.</h1>
+        <p class="lead">
+          Five disciplines, the shared research method, and the named engineering jobs built on top
+          of it. Every one runs the same loop and ends at the same goal-check gate.
+        </p>
+      </section>
 
-      <section aria-labelledby="core-title">
+      <section class="section" aria-labelledby="core-title">
         <div class="shell">
-          <div class="section-head" data-reveal>
-            <p class="eyebrow">Core</p>
-            <h2 id="core-title">Entry points</h2>
-            <p>Start here if you are not sure which skill you want. Both dispatch into the same method.</p>
+          <div class="head" data-reveal>
+            <span class="eyebrow">Entry points</span>
+            <h2 id="core-title">Start <em>here</em></h2>
           </div>
-
-          <ul class="skills">
-            <li class="skill" data-reveal>
-              <code class="skill__cmd">/vitruvius</code>
-              <p>
-                The router. Engineering research agent: takes a discipline or a research question and
-                dispatches to the right skill.
-              </p>
-            </li>
-            <li class="skill" data-reveal>
-              <code class="skill__cmd">/engineering-research</code>
-              <p>
-                The shared method itself &mdash; discover, read, synthesize, verify, review. Takes a research
-                question or an artifact to review.
-              </p>
-            </li>
-          </ul>
+          <div class="skill-grid">
+            <article class="skill" data-reveal>
+              <span class="diamond" aria-hidden="true"></span>
+              <div>
+                <code>/vitruvius</code>
+                <h3>Dispatch</h3>
+                <p>Engineering research agent — dispatch to a discipline or a workflow skill.</p>
+              </div>
+            </article>
+            <article class="skill" data-reveal data-delay="1">
+              <span class="diamond" aria-hidden="true"></span>
+              <div>
+                <code>/engineering-research</code>
+                <h3>The shared method</h3>
+                <p>Discover, read, synthesize, verify, review. Every other skill dispatches into this one.</p>
+              </div>
+            </article>
+          </div>
         </div>
       </section>
 
-      <section aria-labelledby="disciplines-title">
+      <section class="section" aria-labelledby="disciplines-title">
         <div class="shell">
-          <div class="section-head" data-reveal>
-            <p class="eyebrow">Disciplines</p>
-            <h2 id="disciplines-title">Evidence landscapes</h2>
-            <p>
-              Each loads a discipline-specific source-routing table and evidence examples into the shared
-              loop. Generated from one payload, so the five cannot drift apart.
-            </p>
+          <div class="head" data-reveal>
+            <span class="eyebrow">Evidence landscapes</span>
+            <h2 id="disciplines-title">Five <em>disciplines</em></h2>
+            <p>Each carries its own source-routing table into the shared loop.</p>
           </div>
-
-          <ul class="skills skills--5">
-            <li class="skill" data-reveal>
-              <code class="skill__cmd">/mechanical</code>
-              <p>Design, thermal, fluids, materials, manufacturing.</p>
-            </li>
-            <li class="skill" data-reveal>
-              <code class="skill__cmd">/software</code>
-              <p>Architecture, frameworks, protocols, security, benchmarks.</p>
-            </li>
-            <li class="skill" data-reveal>
-              <code class="skill__cmd">/civil</code>
-              <p>Buildings, bridges, steel, concrete, geotech, loads.</p>
-            </li>
-            <li class="skill" data-reveal>
-              <code class="skill__cmd">/electrical</code>
-              <p>Power, electronics, controls, signal integrity, EMC.</p>
-            </li>
-            <li class="skill" data-reveal>
-              <code class="skill__cmd">/architectural</code>
-              <p>Building science, facades, enclosure, codes, performance.</p>
-            </li>
-          </ul>
+          <div class="skill-grid">
+            <article class="skill" data-reveal>
+              <span class="diamond" aria-hidden="true"></span>
+              <div>
+                <code>/mechanical</code>
+                <h3>Mechanical</h3>
+                <p>Design, thermal, fluids, materials, manufacturing.</p>
+              </div>
+            </article>
+            <article class="skill" data-reveal data-delay="1">
+              <span class="diamond" aria-hidden="true"></span>
+              <div>
+                <code>/software</code>
+                <h3>Software</h3>
+                <p>Architecture, frameworks, protocols, security, benchmarks.</p>
+              </div>
+            </article>
+            <article class="skill" data-reveal>
+              <span class="diamond" aria-hidden="true"></span>
+              <div>
+                <code>/civil</code>
+                <h3>Civil &amp; structural</h3>
+                <p>Buildings, bridges, steel, concrete, geotech, loads.</p>
+              </div>
+            </article>
+            <article class="skill" data-reveal data-delay="1">
+              <span class="diamond" aria-hidden="true"></span>
+              <div>
+                <code>/electrical</code>
+                <h3>Electrical</h3>
+                <p>Power, electronics, controls, signal integrity, EMC.</p>
+              </div>
+            </article>
+            <article class="skill" data-reveal>
+              <span class="diamond" aria-hidden="true"></span>
+              <div>
+                <code>/architectural</code>
+                <h3>Architectural</h3>
+                <p>Building science, facades, enclosure, codes, performance.</p>
+              </div>
+            </article>
+          </div>
         </div>
       </section>
 
-      <section aria-labelledby="workflow-title">
+      <section class="section" aria-labelledby="workflow-title">
         <div class="shell">
-          <div class="section-head" data-reveal>
-            <p class="eyebrow">Workflows</p>
-            <h2 id="workflow-title">Named engineering jobs</h2>
-            <p>
-              Seventeen skills, each a specific job run over the same loop rather than a parallel method.
-            </p>
+          <div class="head" data-reveal>
+            <span class="eyebrow">Named research jobs</span>
+            <h2 id="workflow-title">Workflow <em>skills</em></h2>
           </div>
-
-          <ul class="skills">
-            <li class="skill" data-reveal>
-              <code class="skill__cmd">/gap-analysis</code>
-              <p>Identify research gaps via scholarly triangulation across OpenAlex, arXiv and the web.</p>
-            </li>
-            <li class="skill" data-reveal>
-              <code class="skill__cmd">/evidence-ranking</code>
-              <p>Rank and score engineering evidence by quality using the tier system.</p>
-            </li>
-            <li class="skill" data-reveal>
-              <code class="skill__cmd">/verifier</code>
-              <p>
-                Verify a claim or a calculation against authoritative sources. Blind by default, so the
-                judge does not see the reasoning that produced the claim.
-              </p>
-            </li>
-            <li class="skill" data-reveal>
-              <code class="skill__cmd">/design-alternatives</code>
-              <p>Generate and compare three or more engineering approaches with scored trade-off matrices.</p>
-            </li>
-            <li class="skill" data-reveal>
-              <code class="skill__cmd">/fmea-brainstorm</code>
-              <p>FMEA-style failure mode brainstorming with severity, occurrence and detection ratings.</p>
-            </li>
-            <li class="skill" data-reveal>
-              <code class="skill__cmd">/hypothesis-generation</code>
-              <p>
-                Generate and freeze rival engineering hypotheses with dated evidence boundaries and
-                discriminating tests.
-              </p>
-            </li>
-            <li class="skill" data-reveal>
-              <code class="skill__cmd">/peer-review</code>
-              <p>Adversarial peer review of an engineering artifact with severity-graded findings.</p>
-            </li>
-            <li class="skill" data-reveal>
-              <code class="skill__cmd">/compare</code>
-              <p>A source-grounded comparison matrix across standards, designs or products.</p>
-            </li>
-            <li class="skill" data-reveal>
-              <code class="skill__cmd">/review</code>
-              <p>Severity-graded adversarial review of an artifact, with a concrete revision plan.</p>
-            </li>
-            <li class="skill" data-reveal>
-              <code class="skill__cmd">/audit</code>
-              <p>Claim-versus-implementation audit: paper versus code, specification versus design.</p>
-            </li>
-            <li class="skill" data-reveal>
-              <code class="skill__cmd">/summarize</code>
-              <p>Faithful structured digest of a standard, a specification or a paper.</p>
-            </li>
-            <li class="skill" data-reveal>
-              <code class="skill__cmd">/eli5</code>
-              <p>Plain-language engineering explanation with the jargon removed, not the substance.</p>
-            </li>
-            <li class="skill" data-reveal>
-              <code class="skill__cmd">/artifact-reading</code>
-              <p>Anchored extraction from PDFs, drawings and specifications, with page provenance.</p>
-            </li>
-            <li class="skill" data-reveal>
-              <code class="skill__cmd">/scholarly-research</code>
-              <p>
-                The academic literature evidence layer: OpenAlex, arXiv, Semantic Scholar, code prior art and
-                page-anchored open-access PDF reading. Synthesis is left to engineering-research.
-              </p>
-            </li>
-            <li class="skill" data-reveal>
-              <code class="skill__cmd">/standards-lookup</code>
-              <p>
-                Engineering standards lookup for AISC, ACI, ASCE, IEEE, Eurocode and neighbours, by section.
-              </p>
-            </li>
-            <li class="skill" data-reveal>
-              <code class="skill__cmd">/habit</code>
-              <p>
-                Capture durable research preferences from a run. Read-only, abstention-first, and every rule
-                needs explicit approval before it applies.
-              </p>
-            </li>
-            <li class="skill" data-reveal>
-              <code class="skill__cmd">/vitruvius-help</code>
-              <p>Quick-reference card for every command and the shared research method.</p>
-            </li>
-          </ul>
+          <div class="skill-grid">
+            <article class="skill" data-reveal>
+              <span class="diamond" aria-hidden="true"></span>
+              <div><code>/verifier</code><h3>Verify</h3><p>Verify a claim or calculation against authoritative sources. Blind, default-FAIL.</p></div>
+            </article>
+            <article class="skill" data-reveal data-delay="1">
+              <span class="diamond" aria-hidden="true"></span>
+              <div><code>/gap-analysis</code><h3>Find gaps</h3><p>Identify research gaps via scholarly triangulation across OpenAlex, arXiv and the web.</p></div>
+            </article>
+            <article class="skill" data-reveal>
+              <span class="diamond" aria-hidden="true"></span>
+              <div><code>/evidence-ranking</code><h3>Rank evidence</h3><p>Rank and score engineering evidence by quality using a tier system.</p></div>
+            </article>
+            <article class="skill" data-reveal data-delay="1">
+              <span class="diamond" aria-hidden="true"></span>
+              <div><code>/design-alternatives</code><h3>Design alternatives</h3><p>Generate and compare three or more engineering approaches with scored trade-off matrices.</p></div>
+            </article>
+            <article class="skill" data-reveal>
+              <span class="diamond" aria-hidden="true"></span>
+              <div><code>/fmea-brainstorm</code><h3>FMEA</h3><p>Failure-mode brainstorming with severity, occurrence and detection ratings and RPN ranking.</p></div>
+            </article>
+            <article class="skill" data-reveal data-delay="1">
+              <span class="diamond" aria-hidden="true"></span>
+              <div><code>/hypothesis-generation</code><h3>Hypotheses</h3><p>Generate and freeze rival engineering hypotheses with dated evidence boundaries.</p></div>
+            </article>
+            <article class="skill" data-reveal>
+              <span class="diamond" aria-hidden="true"></span>
+              <div><code>/peer-review</code><h3>Peer review</h3><p>Adversarial peer review of an engineering artifact with severity-graded findings.</p></div>
+            </article>
+            <article class="skill" data-reveal data-delay="1">
+              <span class="diamond" aria-hidden="true"></span>
+              <div><code>/compare</code><h3>Compare</h3><p>A source, standard or design comparison matrix.</p></div>
+            </article>
+            <article class="skill" data-reveal>
+              <span class="diamond" aria-hidden="true"></span>
+              <div><code>/review</code><h3>Review</h3><p>Severity-graded adversarial review of an artifact.</p></div>
+            </article>
+            <article class="skill" data-reveal data-delay="1">
+              <span class="diamond" aria-hidden="true"></span>
+              <div><code>/audit</code><h3>Audit</h3><p>Claim-vs-implementation mismatch audit: paper-vs-code, spec-vs-design.</p></div>
+            </article>
+            <article class="skill" data-reveal>
+              <span class="diamond" aria-hidden="true"></span>
+              <div><code>/summarize</code><h3>Summarize</h3><p>A faithful structured digest of a standard, spec or paper.</p></div>
+            </article>
+            <article class="skill" data-reveal data-delay="1">
+              <span class="diamond" aria-hidden="true"></span>
+              <div><code>/eli5</code><h3>Explain simply</h3><p>A plain-language engineering explanation.</p></div>
+            </article>
+            <article class="skill" data-reveal>
+              <span class="diamond" aria-hidden="true"></span>
+              <div><code>/artifact-reading</code><h3>Read an artifact</h3><p>Anchored extraction from PDFs, drawings and specs.</p></div>
+            </article>
+            <article class="skill" data-reveal data-delay="1">
+              <span class="diamond" aria-hidden="true"></span>
+              <div><code>/scholarly-research</code><h3>Scholarly literature</h3><p>Academic evidence layer (OpenAlex, arXiv, Semantic Scholar); synthesis goes to engineering-research.</p></div>
+            </article>
+            <article class="skill" data-reveal>
+              <span class="diamond" aria-hidden="true"></span>
+              <div><code>/standards-lookup</code><h3>Standards lookup</h3><p>Engineering standards lookup: AISC, ACI, ASCE, IEEE, Eurocode.</p></div>
+            </article>
+            <article class="skill" data-reveal data-delay="1">
+              <span class="diamond" aria-hidden="true"></span>
+              <div><code>/habit</code><h3>Habit</h3><p>Capture durable research preferences from a run. Read-only and review-gated.</p></div>
+            </article>
+            <article class="skill" data-reveal>
+              <span class="diamond" aria-hidden="true"></span>
+              <div><code>/vitruvius-help</code><h3>Help</h3><p>A quick-reference card for every command and the shared research method.</p></div>
+            </article>
+          </div>
         </div>
       </section>
 
-      <section aria-labelledby="application-title">
+      <section class="section" aria-labelledby="application-title">
         <div class="shell">
-          <div class="section-head" data-reveal>
-            <p class="eyebrow">Application</p>
-            <h2 id="application-title">End to end</h2>
+          <div class="head" data-reveal>
+            <span class="eyebrow">End to end</span>
+            <h2 id="application-title">A whole <em>job</em></h2>
           </div>
-
-          <ul class="skills">
-            <li class="skill" data-reveal>
-              <code class="skill__cmd">/proposal</code>
-              <p>
-                Generate a targeted PhD or Masters research proposal from a position posting and a CV, with
-                gap analysis and verification before the binder is assembled.
-              </p>
-            </li>
-          </ul>
+          <div class="skill-grid">
+            <article class="skill" data-reveal>
+              <span class="diamond" aria-hidden="true"></span>
+              <div>
+                <code>/proposal</code>
+                <h3>Research proposal</h3>
+                <p>Targeted Ph.D. or Masters research proposals with gap analysis and verification.</p>
+              </div>
+            </article>
+          </div>
         </div>
       </section>
     </main>
@@ -260,73 +233,39 @@
           <div>
             <h2>Project</h2>
             <ul>
-              <li>
-                <a href="https://github.com/adeerkhan/vitruvius" rel="noopener noreferrer" target="_blank"
-                  >Repository</a
-                >
-              </li>
-              <li>
-                <a
-                  href="https://github.com/adeerkhan/vitruvius/blob/main/installer/contract.mjs"
-                  rel="noopener noreferrer"
-                  target="_blank"
-                  >Command contract</a
-                >
-              </li>
-              <li>
-                <a
-                  href="https://github.com/adeerkhan/vitruvius/blob/main/AGENTS.md"
-                  rel="noopener noreferrer"
-                  target="_blank"
-                  >Agent contract</a
-                >
-              </li>
+              <li><a href="https://github.com/adeerkhan/vitruvius">Repository</a></li>
+              <li><a href="https://github.com/adeerkhan/vitruvius/blob/main/AGENTS.md">Agent contract</a></li>
+              <li><a href="https://github.com/adeerkhan/vitruvius/blob/main/CONTRIBUTING.md">Contributing</a></li>
+              <li><a href="https://github.com/adeerkhan/vitruvius/blob/main/SECURITY.md">Security</a></li>
             </ul>
           </div>
           <div>
-            <h2>Elsewhere on the site</h2>
+            <h2>Evidence</h2>
+            <ul>
+              <li><a href="https://github.com/adeerkhan/vitruvius/blob/main/tasks/benchmark/RESULTS.md">Benchmark results</a></li>
+              <li><a href="https://github.com/adeerkhan/vitruvius/blob/main/references/evidence-quality-tiers.md">Evidence tiers</a></li>
+            </ul>
+          </div>
+          <div>
+            <h2>This site</h2>
             <ul>
               <li><a href="index.html">Overview</a></li>
-              <li><a href="index.html#loop">The seven-phase loop</a></li>
-              <li><a href="index.html#measured">Measured benchmark results</a></li>
-              <li><a href="index.html#grounding">Grounding rules</a></li>
+              <li><a href="index.html#measured">Measured results</a></li>
+              <li><a href="https://github.com/adeerkhan/vitruvius/issues">Report an issue</a></li>
             </ul>
-          </div>
-          <div>
-            <h2>Install</h2>
-            <ul>
-              <li>
-                <code>npx skills add adeerkhan/vitruvius</code>
-              </li>
-            </ul>
-            <p class="small muted mt-sm">Restart your harness afterwards, or the new skills are not routable.</p>
           </div>
           <div>
             <h2>Licence</h2>
             <ul>
-              <li>
-                <a
-                  href="https://github.com/adeerkhan/vitruvius/blob/main/LICENSE"
-                  rel="noopener noreferrer"
-                  target="_blank"
-                  >MIT</a
-                >
-              </li>
+              <li><a href="https://github.com/adeerkhan/vitruvius/blob/main/LICENSE">MIT</a></li>
             </ul>
           </div>
         </div>
-
-        <div class="provenance">
-          <p>
-            The twenty-five commands on this page match the command contract at commit
-            <code>1da4b02</code>, 2026-10-05. A repository test fails if a command exists in
-            <code>installer/contract.mjs</code> and is missing from this page, so the two cannot drift
-            apart silently.
-          </p>
+        <div class="footer__base">
+          <p>The command list matches the contract at commit 1da4b02, 2026-10-05. A repository test fails if a command exists in the contract and is missing from this page, so the two cannot drift apart silently.</p>
+          <p>© 2026 Adeer Khan</p>
         </div>
       </div>
     </footer>
-
-    <script src="assets/js/site.js" defer></script>
   </body>
 </html>

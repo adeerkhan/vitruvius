@@ -1,843 +1,225 @@
-<!DOCTYPE html>
-<html lang="en" class="no-js">
+<!doctype html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Vitruvius — the engineering research agent</title>
     <meta
       name="description"
-      content="An engineering research agent that runs discover, read, synthesize, verify, review across mechanical, software, civil, electrical and architectural engineering — with auditable provenance and a scored verification benchmark."
+      content="Vitruvius runs a discover, read, synthesize, verify, review loop over engineering questions and records where every claim came from."
     />
-    <meta name="theme-color" content="#0a0a0a" />
-    <meta name="color-scheme" content="dark" />
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content="Vitruvius — the engineering research agent" />
-    <meta
-      property="og:description"
-      content="Discover, read, synthesize, verify, review. Every claim traces to a checkable source, and the numbers are published even when unflattering."
-    />
-    <meta property="og:image" content="https://adeerkhan.github.io/vitruvius/assets/og.jpg" />
-    <meta property="og:image:width" content="1672" />
-    <meta property="og:image:height" content="941" />
-    <meta property="og:image:alt" content="The engineering research agent, Vitruvius" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <link rel="preload" href="assets/fonts/inter-var-latin.woff2" as="font" type="font/woff2" crossorigin />
-    <link
-      rel="preload"
-      href="assets/fonts/playfair-display-var-italic-latin.woff2"
-      as="font"
-      type="font/woff2"
-      crossorigin
-    />
     <link rel="stylesheet" href="assets/css/site.css" />
+    <script src="assets/js/site.js" defer></script>
   </head>
   <body>
     <a class="skip" href="#main">Skip to content</a>
 
-    <nav class="nav" data-nav aria-label="Primary">
-      <div class="nav__inner">
-        <a class="nav__mark" href="index.html">
-          <span class="serif">Vitruvius</span>
+    <header class="nav">
+      <div class="shell nav__inner">
+        <a class="brand" href="index.html" aria-label="Vitruvius home">
+          <span class="brand__mark" aria-hidden="true"></span>
+          <span class="brand__name">Vitruvius</span>
         </a>
-        <ul class="nav__links">
-          <li><a href="#loop">The loop</a></li>
-          <li><a href="#disciplines">Disciplines</a></li>
-          <li><a href="#measured">Measured</a></li>
-          <li><a href="#grounding">Grounding</a></li>
-          <li><a href="skills.html">Skills</a></li>
-        </ul>
-        <a
-          class="nav__cta"
-          href="https://github.com/adeerkhan/vitruvius"
-          rel="noopener noreferrer"
-          target="_blank"
-          >Repository</a
-        >
+        <button class="nav__toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="nav-links">
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+          <span class="visually-hidden">Menu</span>
+        </button>
+        <nav class="nav__links" id="nav-links" data-nav-links aria-label="Primary">
+          <a href="#why">Why</a>
+          <a href="#loop">The loop</a>
+          <a href="#disciplines">Disciplines</a>
+          <a href="#measured">Measured</a>
+          <a href="#install">Install</a>
+          <a href="skills.html">Skills</a>
+        </nav>
       </div>
-    </nav>
+    </header>
 
     <main id="main">
-      <!-- ================================================================== -->
-      <header class="hero">
-        <svg
-          class="neural"
-          data-neural
-          viewBox="0 0 1000 560"
-          preserveAspectRatio="xMidYMid slice"
-          aria-hidden="true"
-          focusable="false"
-        >
-          <g aria-hidden="true">
-            <line class="edge" x1="245" y1="530" x2="300" y2="280"/>
-            <line class="edge" x1="245" y1="530" x2="456" y2="529"/>
-            <line class="edge" x1="131" y1="221" x2="300" y2="280"/>
-            <line class="edge" x1="128" y1="254" x2="300" y2="280"/>
-            <line class="edge" x1="300" y1="280" x2="458" y2="270"/>
-            <line class="edge" x1="465" y1="175" x2="610" y2="202"/>
-            <line class="edge" x1="610" y1="202" x2="655" y2="335"/>
-            <line class="edge" x1="456" y1="529" x2="332" y2="493"/>
-            <line class="edge" x1="610" y1="202" x2="732" y2="176"/>
-            <line class="edge" x1="732" y1="176" x2="731" y2="55"/>
-            <line class="edge" x1="610" y1="202" x2="637" y2="318"/>
-            <line class="edge" x1="465" y1="175" x2="458" y2="270"/>
-            <line class="edge" x1="332" y1="493" x2="245" y2="530"/>
-            <line class="edge" x1="822" y1="64" x2="731" y2="55"/>
-            <line class="edge" x1="718" y1="453" x2="700" y2="364"/>
-            <line class="edge" x1="718" y1="453" x2="631" y2="438"/>
-            <line class="edge" x1="458" y1="270" x2="453" y2="357"/>
-            <line class="edge" x1="790" y1="425" x2="874" y2="407"/>
-            <line class="edge" x1="583" y1="377" x2="655" y2="335"/>
-            <line class="edge" x1="583" y1="377" x2="637" y2="318"/>
-            <line class="edge" x1="637" y1="318" x2="700" y2="364"/>
-            <line class="edge" x1="631" y1="438" x2="583" y2="377"/>
-            <line class="edge" x1="790" y1="425" x2="718" y2="453"/>
-            <line class="edge" x1="790" y1="425" x2="862" y2="397"/>
-            <line class="edge" x1="956" y1="405" x2="906" y2="461"/>
-            <line class="edge" x1="907" y1="136" x2="942" y2="202"/>
-            <line class="edge" x1="945" y1="64" x2="877" y2="59"/>
-            <line class="edge" x1="722" y1="327" x2="655" y2="335"/>
-            <line class="edge" x1="907" y1="136" x2="967" y2="114"/>
-            <line class="edge" x1="942" y1="202" x2="882" y2="222"/>
-            <line class="edge" x1="882" y1="222" x2="923" y2="174"/>
-            <line class="edge" x1="906" y1="461" x2="874" y2="407"/>
-            <line class="edge" x1="822" y1="64" x2="877" y2="59"/>
-            <line class="edge" x1="967" y1="114" x2="945" y2="64"/>
-            <line class="edge" x1="700" y1="364" x2="655" y2="335"/>
-            <line class="edge" x1="722" y1="327" x2="700" y2="364"/>
-            <line class="edge" x1="907" y1="136" x2="923" y2="174"/>
-            <line class="edge" x1="631" y1="438" x2="605" y2="463"/>
-            <line class="edge" x1="923" y1="174" x2="942" y2="202"/>
-            <line class="edge" x1="128" y1="254" x2="131" y2="221"/>
-            <line class="edge" x1="637" y1="318" x2="655" y2="335"/>
-            <line class="edge" x1="874" y1="407" x2="862" y2="397"/>
-            <line class="edge" x1="453" y1="357" x2="459" y2="361"/>
-          </g>
-          <g aria-hidden="true">
-            <circle class="node" cx="631" cy="438" r="1.56" stroke="#c9a227" stroke-width="0.75"/>
-            <circle class="node" cx="458" cy="270" r="1.51"/>
-            <circle class="node" cx="456" cy="529" r="1.90"/>
-            <circle class="node" cx="465" cy="175" r="2.07"/>
-            <circle class="node" cx="906" cy="461" r="1.55"/>
-            <circle class="node" cx="907" cy="136" r="1.89"/>
-            <circle class="node" cx="128" cy="254" r="1.94"/>
-            <circle class="node" cx="453" cy="357" r="1.46"/>
-            <circle class="node" cx="332" cy="493" r="2.35"/>
-            <circle class="node" cx="923" cy="174" r="2.22" stroke="#c9a227" stroke-width="0.75"/>
-            <circle class="node" cx="245" cy="530" r="1.57"/>
-            <circle class="node" cx="967" cy="114" r="2.18"/>
-            <circle class="node" cx="942" cy="202" r="1.79"/>
-            <circle class="node" cx="882" cy="222" r="1.74"/>
-            <circle class="node" cx="732" cy="176" r="1.58"/>
-            <circle class="node" cx="822" cy="64" r="1.58"/>
-            <circle class="node" cx="300" cy="280" r="2.22"/>
-            <circle class="node" cx="722" cy="327" r="1.99"/>
-            <circle class="node" cx="583" cy="377" r="2.01" stroke="#c9a227" stroke-width="0.75"/>
-            <circle class="node" cx="874" cy="407" r="2.10"/>
-            <circle class="node" cx="637" cy="318" r="2.01"/>
-            <circle class="node" cx="700" cy="364" r="1.82"/>
-            <circle class="node" cx="131" cy="221" r="1.75"/>
-            <circle class="node" cx="459" cy="361" r="1.83"/>
-            <circle class="node" cx="790" cy="425" r="2.37"/>
-            <circle class="node" cx="877" cy="59" r="1.44"/>
-            <circle class="node" cx="731" cy="55" r="1.65"/>
-            <circle class="node" cx="945" cy="64" r="2.09" stroke="#c9a227" stroke-width="0.75"/>
-            <circle class="node" cx="718" cy="453" r="2.38"/>
-            <circle class="node" cx="605" cy="463" r="1.61"/>
-            <circle class="node" cx="956" cy="405" r="1.89"/>
-            <circle class="node" cx="655" cy="335" r="1.77"/>
-            <circle class="node" cx="862" cy="397" r="1.86"/>
-            <circle class="node" cx="610" cy="202" r="1.76"/>
-          </g>
-        </svg>
-
-        <div class="shell">
-          <div class="hero__grid">
-            <div>
-              <p class="eyebrow">Engineering research agent</p>
-              <h1>Evidence first.<br /><em>Naming</em> second.</h1>
-              <p class="lede">
-                Vitruvius runs a research loop over engineering questions and artifacts — discover, read,
-                synthesize, verify, review — and records where every claim came from.
-              </p>
-              <p class="hero__claim mt-sm">
-                Five disciplines. Twenty-five skills. Blind verification with a scored benchmark, published
-                including the parts that came out badly.
-              </p>
-              <div class="hero__actions">
-                <a class="btn btn--gold" href="https://github.com/adeerkhan/vitruvius" rel="noopener noreferrer" target="_blank"
-                  >Read the source</a
-                >
-                <a class="btn" href="#install">Install</a>
-              </div>
-              <div class="badges">
-                <span class="badge"><b>MIT</b> licensed</span>
-                <span class="badge"><b>5</b> disciplines</span>
-                <span class="badge"><b>25</b> skills</span>
-                <span class="badge"><b>7</b> agent roles</span>
-                <span class="badge">works in 11 coding agents — Claude Code, Codex, OpenCode, Cursor, and more</span>
-              </div>
-            </div>
-
-            <div class="figures" data-reveal>
-              <div class="figure">
-                <span class="figure__value num">18/20</span>
-                <span class="figure__label">verifier verdicts correct, majority of three runs</span>
-                <span class="figure__src">tasks/benchmark/RESULTS.md</span>
-              </div>
-              <div class="figure">
-                <span class="figure__value num">0</span>
-                <span class="figure__label">false approvals and false blocks across the certified runs</span>
-                <span class="figure__src">tasks/benchmark/RESULTS.md</span>
-              </div>
-              <div class="figure">
-                <span class="figure__value num">25</span>
-                <span class="figure__label">skills under a structural contract enforced in CI</span>
-                <span class="figure__src">scripts/validate-contract.mjs</span>
-              </div>
-              <div class="figure">
-                <span class="figure__value num">7</span>
-                <span class="figure__label">roles, three of which are read-only judges</span>
-                <span class="figure__src">agents/</span>
-              </div>
-            </div>
-          </div>
+      <!-- hero -->
+      <section class="shell hero">
+        <span class="hero__sun" aria-hidden="true"></span>
+        <p class="eyebrow">Engineering research agent</p>
+        <h1>Evidence first. <em>Naming</em> second.</h1>
+        <p class="lead">
+          Vitruvius runs a research loop over engineering questions and artifacts —
+          discover, read, synthesize, verify, review — and records where every
+          claim came from.
+        </p>
+        <div class="hero__actions">
+          <a class="btn" href="https://github.com/adeerkhan/vitruvius">Read the source</a>
+          <a class="btn btn--solid" href="#install">Install</a>
         </div>
-      </header>
+        <div class="badges">
+          <span><b>5</b> disciplines</span>
+          <span><b>25</b> skills</span>
+          <span><b>7</b> agent roles</span>
+          <span><b>11</b> coding agents</span>
+        </div>
+      </section>
 
-      <!-- ================================================================== -->
-      <section aria-labelledby="why-title">
+      <!-- why -->
+      <section class="section" id="why" aria-labelledby="why-title">
         <div class="shell">
-          <div class="section-head" data-reveal>
-            <p class="eyebrow">Why not just search</p>
-            <h2 id="why-title">A search engine returns <span class="serif">snippets</span></h2>
-            <p>
-              Vitruvius reads the source, records the provision, and hands you a claim you can walk back to a
-              page number.
-            </p>
+          <div class="head head--center" data-reveal>
+            <span class="rule rule--center" aria-hidden="true"></span>
+            <h2 id="why-title">A search engine returns <em>snippets</em></h2>
+            <p>Vitruvius opens the source, records the provision, and hands you a claim you can walk back to a page number.</p>
           </div>
-
-          <div class="bento">
-            <article class="card card--edge c-4" data-reveal>
+          <div class="grid">
+            <article class="card" data-reveal>
+              <span class="diamond card__icon" aria-hidden="true"><span>01</span></span>
               <h3>Reads, never infers</h3>
-              <p>
-                A code provision, a spec value, a material property is read before it is summarised — not
-                inferred from a title, a snippet, or memory.
-              </p>
+              <p>A code provision, a spec value, a material property is read before it is summarised — not inferred from a title, a snippet or memory.</p>
             </article>
-            <article class="card c-4" data-reveal>
+            <article class="card" data-reveal data-delay="1">
+              <span class="diamond card__icon" aria-hidden="true"><span>02</span></span>
               <h3>Never fabricates</h3>
-              <p>
-                Every named standard, product, project and dataset must have a verifiable reference. If none
-                was found, it is not mentioned.
-              </p>
+              <p>Every named standard, product, project or dataset carries a verifiable reference. If none was found, it is not mentioned.</p>
             </article>
-            <article class="card c-4" data-reveal>
+            <article class="card" data-reveal data-delay="2">
+              <span class="diamond card__icon" aria-hidden="true"><span>03</span></span>
               <h3>Records provenance</h3>
-              <p>
-                Outputs are intended to ship with a <code>.provenance.md</code> sidecar naming what was checked
-                and how, so a reader can audit rather than trust.
-              </p>
-            </article>
-            <article class="card c-4" data-reveal>
-              <h3>Flags uncertainty</h3>
-              <p>
-                Findings carry a status: <span class="status status--ok">verified</span>
-                <span class="status status--warn">inferred</span>
-                <span class="status status--open">blocked</span>
-                <span class="status status--open">unverified</span>. Missing checks are never smoothed over.
-              </p>
-            </article>
-            <article class="card c-4" data-reveal>
-              <h3>Is measured</h3>
-              <p>
-                The verifier runs against a scored adversarial benchmark with deterministic controls. The
-                numbers are on this page, including the runs where it was wrong.
-              </p>
-            </article>
-            <article class="card c-4" data-reveal>
-              <h3>Learns deliberately</h3>
-              <p>
-                Habit captures only explicit, user-approved research preferences in a project-local store. It
-                never rewrites agent instructions on its own.
-              </p>
+              <p>Outputs ship a <code>.provenance.md</code> sidecar naming what was checked and how, so a reader can audit rather than trust.</p>
             </article>
           </div>
         </div>
       </section>
 
-      <!-- ================================================================== -->
-      <section id="loop" aria-labelledby="loop-title">
+      <!-- loop -->
+      <section class="section" id="loop" aria-labelledby="loop-title">
         <div class="shell">
-          <div class="section-head" data-reveal>
-            <p class="eyebrow">The research loop</p>
-            <h2 id="loop-title">Seven phases, <span class="serif">every time</span></h2>
-            <p>
-              Every skill runs the same shared method. The last phase is a gate: the run is not done until an
-              independent check re-derives the original question and finds it answered.
-            </p>
+          <div class="head" data-reveal>
+            <span class="eyebrow">The research loop</span>
+            <h2 id="loop-title">Seven phases, <em>every time</em></h2>
+            <p>The last phase is a gate: the run is not done until an independent check re-derives the question and finds it answered.</p>
           </div>
-
-          <div class="loop">
-            <div class="phase" data-reveal>
-              <h3>Plan</h3>
-              <p>Questions, evidence, scale decision.</p>
-            </div>
-            <div class="phase" data-reveal>
-              <h3>Scale</h3>
-              <p>Direct search, or decompose across agents.</p>
-            </div>
-            <div class="phase" data-reveal>
-              <h3>Gather</h3>
-              <p>Open sources, record exact provisions.</p>
-            </div>
-            <div class="phase" data-reveal>
-              <h3>Draft</h3>
-              <p>Synthesise with citations as you write.</p>
-            </div>
-            <div class="phase" data-reveal>
-              <h3>Cite</h3>
-              <p>Sweep every claim back to its source.</p>
-            </div>
-            <div class="phase" data-reveal>
-              <h3>Review</h3>
-              <p>Blind check, eight adversarial tests.</p>
-            </div>
-            <div class="phase phase--gate" data-reveal>
-              <h3>Deliver</h3>
-              <p>Goal-check gate. Output plus provenance.</p>
-            </div>
-          </div>
+          <ol class="loop">
+            <li class="phase" data-reveal><span class="numeral">I</span><h3>Plan</h3><p>Questions, evidence, scale decision.</p></li>
+            <li class="phase" data-reveal><span class="numeral">II</span><h3>Scale</h3><p>Direct search, or decompose across agents.</p></li>
+            <li class="phase" data-reveal><span class="numeral">III</span><h3>Gather</h3><p>Open sources, record exact provisions.</p></li>
+            <li class="phase" data-reveal><span class="numeral">IV</span><h3>Draft</h3><p>Synthesise with citations as you write.</p></li>
+            <li class="phase" data-reveal><span class="numeral">V</span><h3>Cite</h3><p>Sweep every claim back to its source.</p></li>
+            <li class="phase" data-reveal><span class="numeral">VI</span><h3>Review</h3><p>Blind check, eight adversarial tests.</p></li>
+            <li class="phase" data-reveal><span class="numeral">VII</span><h3>Deliver</h3><p>Goal-check gate. Output plus provenance.</p></li>
+          </ol>
         </div>
       </section>
 
-      <!-- ================================================================== -->
-      <section id="disciplines" aria-labelledby="disciplines-title">
+      <!-- disciplines -->
+      <section class="section" id="disciplines" aria-labelledby="disciplines-title">
         <div class="shell">
-          <div class="section-head" data-reveal>
-            <p class="eyebrow">Evidence landscapes</p>
-            <h2 id="disciplines-title">Five disciplines, one method</h2>
-            <p>
-              Each discipline skill loads its own source-routing table and evidence examples into the same loop.
-              The method is shared; the landscape is not.
-            </p>
+          <div class="head" data-reveal>
+            <span class="eyebrow">Evidence landscapes</span>
+            <h2 id="disciplines-title">Five disciplines, <em>one method</em></h2>
+            <p>Each discipline skill loads its own source-routing table into the same shared loop. The method is shared; the landscape is not.</p>
           </div>
-
-          <ul class="skills skills--5">
-            <li class="skill" data-reveal>
-              <code class="skill__cmd">/mechanical</code>
+          <div class="grid grid--5">
+            <article class="card discipline" data-reveal>
+              <code>/mechanical</code>
               <p>Design, thermal, fluids, materials, manufacturing.</p>
-            </li>
-            <li class="skill" data-reveal>
-              <code class="skill__cmd">/software</code>
+            </article>
+            <article class="card discipline" data-reveal data-delay="1">
+              <code>/software</code>
               <p>Architecture, frameworks, protocols, security, benchmarks.</p>
-            </li>
-            <li class="skill" data-reveal>
-              <code class="skill__cmd">/civil</code>
+            </article>
+            <article class="card discipline" data-reveal data-delay="2">
+              <code>/civil</code>
               <p>Buildings, bridges, steel, concrete, geotech, loads.</p>
-            </li>
-            <li class="skill" data-reveal>
-              <code class="skill__cmd">/electrical</code>
+            </article>
+            <article class="card discipline" data-reveal>
+              <code>/electrical</code>
               <p>Power, electronics, controls, signal integrity, EMC.</p>
-            </li>
-            <li class="skill" data-reveal>
-              <code class="skill__cmd">/architectural</code>
+            </article>
+            <article class="card discipline" data-reveal data-delay="1">
+              <code>/architectural</code>
               <p>Building science, facades, enclosure, codes, performance.</p>
-            </li>
-          </ul>
+            </article>
+          </div>
+          <p class="muted" data-reveal>All twenty-five commands are listed on the <a href="skills.html">skills page</a>.</p>
         </div>
       </section>
 
-      <!-- ================================================================== -->
-      <section id="measured" aria-labelledby="measured-title">
+      <!-- measured -->
+      <section class="section" id="measured" aria-labelledby="measured-title">
         <div class="shell">
-          <div class="section-head" data-reveal>
-            <p class="eyebrow">Not asserted. Measured.</p>
-            <h2 id="measured-title">The benchmark, with its <span class="serif">weak parts</span></h2>
-            <p>
-              Two different measurements of the same verifier exist, over different corpora. They are not a
-              correction of one another, so both are here, each labelled with the artifact it came from. Where
-              the agent was wrong, the row says so.
-            </p>
+          <div class="head" data-reveal>
+            <span class="eyebrow">Not asserted. Measured.</span>
+            <h2 id="measured-title">The benchmark, with its <em>weak parts</em></h2>
+            <p>Two measurements of the same verifier exist over different corpora. They are not a correction of one another, so both are shown. Where the agent was wrong, the row says so.</p>
           </div>
 
-          <div class="bento">
-            <div class="card c-7" data-reveal>
-              <div class="table-wrap">
-                <table>
-                  <caption>
-                    Checked-in figures, read from the repository at commit
-                    <code>1da4b02</code>. Reproduce with the commands in the README.
-                  </caption>
-                  <thead>
-                    <tr>
-                      <th scope="col">Check</th>
-                      <th scope="col">Result</th>
-                      <th scope="col">Corpus</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <th scope="row">Verifier verdicts, majority of three runs</th>
-                      <td>
-                        <span class="num">18/20</span> correct &middot; <span class="num">0</span> false
-                        approvals &middot; <span class="num">0</span> false blocks &middot;
-                        <span class="num">2</span> conservative overcalls
-                      </td>
-                      <td>Certified, 75 blind runs</td>
-                    </tr>
-                    <tr>
-                      <th scope="row">Verifier verdicts, single run</th>
-                      <td>
-                        <span class="num">16/20</span> correct &middot; <span class="num">0</span> false
-                        approvals &middot; <span class="num">0</span> false blocks &middot;
-                        <span class="num">1</span> conservative overcall
-                      </td>
-                      <td>Checked-in corpus</td>
-                    </tr>
-                    <tr>
-                      <th scope="row">Integrity under persuasion, majority of three</th>
-                      <td><span class="num">5/5</span> held &middot; <span class="num">0</span> false approvals</td>
-                      <td>Authority, sunk cost, time, reframe, pedantry</td>
-                    </tr>
-                    <tr>
-                      <th scope="row">Integrity under persuasion, single run</th>
-                      <td>
-                        <span class="num">4/5</span> held with <span class="num">1</span> false approval. No
-                        false-block guarantee is claimed
-                      </td>
-                      <td>Latest pressure artifact</td>
-                    </tr>
-                    <tr>
-                      <th scope="row">Scorer fails closed</th>
-                      <td>Missing, malformed, duplicate and unknown results are all rejected</td>
-                      <td>Deterministic fixtures</td>
-                    </tr>
-                    <tr>
-                      <th scope="row">PASS scoring fixtures</th>
-                      <td><span class="num">5/5</span> &mdash; parser and scorer controls, not verifier runs</td>
-                      <td>Deterministic fixtures</td>
-                    </tr>
-                    <tr>
-                      <th scope="row">Skill routing</th>
-                      <td>
-                        <span class="num">16/20</span> rank-1 &middot; <span class="num">0</span> collisions
-                      </td>
-                      <td>20 labelled prompts, 25 skills</td>
-                    </tr>
-                    <tr>
-                      <th scope="row">Structural contract</th>
-                      <td>Frontmatter, links, version discipline enforced on every skill</td>
-                      <td>Runs in CI on every push</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
+          <div class="figures">
+            <div class="figure" data-reveal>
+              <b>18/20</b>
+              <span>Verifier verdicts correct, majority of three runs</span>
+              <cite>Certified, 75 blind runs</cite>
             </div>
+            <div class="figure" data-reveal data-delay="1">
+              <b>0</b>
+              <span>False approvals and false blocks across the certified runs</span>
+              <cite>tasks/benchmark/RESULTS.md</cite>
+            </div>
+            <div class="figure" data-reveal data-delay="2">
+              <b>5/5</b>
+              <span>Integrity under persuasion, majority of three</span>
+              <cite>Authority, sunk cost, time, reframe, pedantry</cite>
+            </div>
+          </div>
 
-            <div class="card c-5" data-reveal>
-              <h3>Known limits</h3>
-              <p>
-                Written down here rather than left to be discovered. Each item is a real gap in the current
-                state of the repository.
-              </p>
-              <hr class="rule" />
-              <ul class="rules mt-xs">
-                <li>
-                  <span class="n">01</span>
-                  <div>
-                    <b>Per-case variance is material</b>
-                    <span
-                      >These are reported measurements, not certification. The decision rule was fixed before
-                      the first run and no case or threshold was changed.</span
-                    >
-                  </div>
-                </li>
-                <li>
-                  <span class="n">02</span>
-                  <div>
-                    <b>A single pressure run was talked into one false approval</b>
-                    <span>It held at majority across three runs. Both results are shown above.</span>
-                  </div>
-                </li>
-                <li>
-                  <span class="n">03</span>
-                  <div>
-                    <b>Routing misses four prompts out of twenty</b>
-                    <span>Rank-1 accuracy, not coverage. The misses are tracked as a regression record.</span>
-                  </div>
-                </li>
-                <li>
-                  <span class="n">04</span>
-                  <div>
-                    <b>The baseline comparison is a pilot, not a result</b>
-                    <span
-                      >One case, flagged <code>shared-harness</code>. It checks the procedure; it does not
-                      compare the agent to a plain prompt.</span
-                    >
-                  </div>
-                </li>
-                <li>
-                  <span class="n">05</span>
-                  <div>
-                    <b>The field pilot has no external-source result</b>
-                    <span>Format and refusal tests only. No real pilot record is claimed yet.</span>
-                  </div>
-                </li>
-                <li>
-                  <span class="n">06</span>
-                  <div>
-                    <b>Provenance validation is partial</b>
-                    <span
-                      >The validator covers selected root, plan and draft paths. Nested and method-specific
-                      sidecars remain a known gap.</span
-                    >
-                  </div>
-                </li>
-                <li>
-                  <span class="n">07</span>
-                  <div>
-                    <b>Anchors prove binding, not correctness</b>
-                    <span
-                      >The problem-anchor contract resolves every <code>path:line</code> against real bytes, but
-                      it does not read the claim. An anchor that points at the wrong line still passes.</span
-                    >
-                  </div>
-                </li>
-              </ul>
-            </div>
+          <table class="table">
+            <caption>Checked-in figures, read from the repository at commit 1da4b02. Reproduce with the commands in the README.</caption>
+            <thead>
+              <tr><th scope="col">Check</th><th scope="col">Result</th><th scope="col">Corpus</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Verifier verdicts, majority of three</td><td><strong>18/20 correct</strong> · 0 false approvals · 0 false blocks · 2 conservative overcalls</td><td>Certified, 75 blind runs</td></tr>
+              <tr><td>Verifier verdicts, single run</td><td><strong>16/20 correct</strong> · 0 false approvals · 0 false blocks · 1 conservative overcall</td><td>Checked-in corpus</td></tr>
+              <tr><td>Integrity under persuasion, single run</td><td><strong>4/5 held</strong> with 1 false approval; no false-block guarantee is claimed</td><td>Latest pressure artifact</td></tr>
+              <tr><td>PASS scoring fixtures</td><td><strong>5/5</strong> — parser and scorer controls, not verifier runs</td><td>Deterministic fixtures</td></tr>
+              <tr><td>Skill routing</td><td><strong>16/20 rank-1</strong> · 0 collisions</td><td>20 labelled prompts, 25 skills</td></tr>
+              <tr><td>Structural contract</td><td><strong>25/25</strong> — frontmatter, links and version discipline</td><td>Runs in CI on every push</td></tr>
+            </tbody>
+          </table>
+
+          <div class="limits">
+            <div class="limit" data-reveal><span class="numeral">01</span><div><h3>Per-case variance is material</h3><p>These are reported measurements, not certification. The decision rule was fixed before the first run and no case or threshold was changed.</p></div></div>
+            <div class="limit" data-reveal><span class="numeral">02</span><div><h3>One pressure run was talked into a false approval</h3><p>It held at majority across three runs. Both results are shown above; no false-block guarantee is claimed.</p></div></div>
+            <div class="limit" data-reveal><span class="numeral">03</span><div><h3>Provenance validation is partial</h3><p>The validator covers selected root, plan and draft paths. Nested and method-specific sidecars remain a known gap.</p></div></div>
           </div>
         </div>
       </section>
 
-      <!-- ================================================================== -->
-      <section id="grounding" aria-labelledby="grounding-title">
+      <!-- install -->
+      <section class="section" id="install" aria-labelledby="install-title">
         <div class="shell">
-          <div class="section-head" data-reveal>
-            <p class="eyebrow">Grounding</p>
-            <h2 id="grounding-title">Keeping a report about <span class="serif">your</span> problem</h2>
-            <p>
-              A perfectly cited literature review that never opens the codebase it was commissioned about
-              passes every citation check and answers nobody. These rules close that gap, and the mechanical half
-              is a script rather than a plea.
-            </p>
+          <div class="head" data-reveal>
+            <span class="eyebrow">Install</span>
+            <h2 id="install-title">One command, then <em>restart</em> the harness</h2>
+            <p>The skill catalogue is built at startup, so a newly installed skill is not routable until the next session.</p>
           </div>
-
-          <div class="bento">
-            <div class="card c-6" data-reveal>
-              <h3>Rules the agent follows</h3>
-              <ol class="rules">
-                <li>
-                  <span class="n">01</span>
-                  <div>
-                    <b>Name the artifacts before searching</b>
-                    <span
-                      >The files, repos or documents the run studies, plus the commit. The record hash-pins
-                      them, so the hash set is the snapshot.</span
-                    >
-                  </div>
-                </li>
-                <li>
-                  <span class="n">02</span>
-                  <div>
-                    <b>Repo claims carry an anchor</b>
-                    <span
-                      >A claim about the artifact under study resolves to <code>path:line</code> on disk. You
-                      cannot assert a codebase lacks something without opening it.</span
-                    >
-                  </div>
-                </li>
-                <li>
-                  <span class="n">03</span>
-                  <div>
-                    <b>Every finding names its landing site</b>
-                    <span
-                      >Change, measure, defer, product-decision or background. A finding with no landing site
-                      has to say which it is.</span
-                    >
-                  </div>
-                </li>
-                <li>
-                  <span class="n">04</span>
-                  <div>
-                    <b>Every decision gets a position</b>
-                    <span>A report may not list a decision and then ignore it.</span>
-                  </div>
-                </li>
-                <li>
-                  <span class="n">05</span>
-                  <div>
-                    <b>Silence is not a finding</b>
-                    <span>Record what you searched for, what you did not find, and where the search stopped.</span>
-                  </div>
-                </li>
-                <li>
-                  <span class="n">06</span>
-                  <div>
-                    <b>Weight follows evidence</b>
-                    <span>An impact or priority claim states its evidence and the cost of being wrong.</span>
-                  </div>
-                </li>
-              </ol>
-            </div>
-
-            <div class="card c-6" data-reveal>
-              <h3>The six non-negotiables</h3>
-              <p>These are the repository contract. An agent that cannot satisfy one reports that it cannot.</p>
-              <ol class="commandments">
-                <li>
-                  <span class="n">01</span>
-                  <div>
-                    <b>Never fabricate a source</b>
-                    <span
-                      >Every standard, code, provision, product, material, project or dataset must have a
-                      verifiable reference. No reference, no mention.</span
-                    >
-                  </div>
-                </li>
-                <li>
-                  <span class="n">02</span>
-                  <div>
-                    <b>Never claim something exists without checking</b>
-                    <span>If a search returns zero results, it does not exist. It is not written up anyway.</span>
-                  </div>
-                </li>
-                <li>
-                  <span class="n">03</span>
-                  <div>
-                    <b>Never extrapolate what you have not read</b>
-                    <span
-                      >An unread source may be noted as existing. Its contents may not be described.</span
-                    >
-                  </div>
-                </li>
-                <li>
-                  <span class="n">04</span>
-                  <div>
-                    <b>A reference or it did not happen</b>
-                    <span>Standard and section, URL, artifact path, or calculation. One of the four.</span>
-                  </div>
-                </li>
-                <li>
-                  <span class="n">05</span>
-                  <div>
-                    <b>Read before you summarise</b>
-                    <span
-                      >No inferring a code provision, a spec value or a material property from a title when a
-                      direct read is possible.</span
-                    >
-                  </div>
-                </li>
-                <li>
-                  <span class="n">06</span>
-                  <div>
-                    <b>Mark status honestly</b>
-                    <span>Verified, inferred, blocked, unverified. A missing check is named as missing.</span>
-                  </div>
-                </li>
-              </ol>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ================================================================== -->
-      <section id="roles" aria-labelledby="roles-title">
-        <div class="shell">
-          <div class="section-head" data-reveal>
-            <p class="eyebrow">The cast</p>
-            <h2 id="roles-title">Separate roles, so nothing <span class="serif">grades itself</span></h2>
-            <p>
-              The verifier, the reviewer and the habit extractor hold no write access. A judge that can edit
-              the evidence it is judging is not a check.
-            </p>
-          </div>
-
-          <ul class="skills">
-            <li class="skill" data-reveal>
-              <code class="skill__cmd">researcher</code>
-              <p>Evidence gathering. Finds and opens the sources.</p>
-            </li>
-            <li class="skill" data-reveal>
-              <code class="skill__cmd">writer</code>
-              <p>Synthesis. Turns read sources into a cited draft.</p>
-            </li>
-            <li class="skill" data-reveal>
-              <code class="skill__cmd">verifier</code>
-              <p>Blind verdict on a claim against its evidence. Read-only.</p>
-            </li>
-            <li class="skill" data-reveal>
-              <code class="skill__cmd">reviewer</code>
-              <p>Adversarial review. Reports findings, never repairs them.</p>
-            </li>
-            <li class="skill" data-reveal>
-              <code class="skill__cmd">arbiter</code>
-              <p>Adjudicates a verifier disagreement. Does not re-research.</p>
-            </li>
-            <li class="skill" data-reveal>
-              <code class="skill__cmd">goal-checker</code>
-              <p>Independent end-of-run check. Defaults to not-done.</p>
-            </li>
-            <li class="skill" data-reveal>
-              <code class="skill__cmd">habit</code>
-              <p>Preference extraction. Abstains by default, asks before applying.</p>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <!-- ================================================================== -->
-      <section id="install" aria-labelledby="install-title">
-        <div class="shell">
-          <div class="section-head" data-reveal>
-            <p class="eyebrow">Install</p>
-            <h2 id="install-title">One command, then <span class="serif">restart</span> the harness</h2>
-            <p>
-              The skill catalogue is built at startup, so a newly installed skill is not routable until the
-              next session. That is the single most common install mistake.
-            </p>
-          </div>
-
-          <div class="bento">
-            <div class="card c-8" data-reveal>
+          <div class="install">
+            <div data-reveal>
               <div class="cmd" data-command>
-                <span class="prompt" aria-hidden="true">$</span>
                 <code>npx skills add adeerkhan/vitruvius</code>
                 <button class="copy" type="button" data-copy>copy</button>
               </div>
-
-              <dl class="install-grid mt-md">
-                <div class="install-row">
-                  <dt>Claude Code</dt>
-                  <dd>
-                    <code>npx skills add adeerkhan/vitruvius</code>, or clone into your skills folder.
-                  </dd>
-                </div>
-                <div class="install-row">
-                  <dt>Cursor</dt>
-                  <dd>Copy the <code>skills/</code> and <code>references/</code> directories into your Cursor skills folder.</dd>
-                </div>
-                <div class="install-row">
-                  <dt>Codex</dt>
-                  <dd><code>npx skills add adeerkhan/vitruvius --agent codex</code></dd>
-                </div>
-                <div class="install-row">
-                  <dt>OpenCode</dt>
-                  <dd>
-                    Render the adapters, then start OpenCode:
-                    <code>npx @adeerkhan/vitruvius --host opencode</code>.
-                  </dd>
-                </div>
-                <div class="install-row">
-                  <dt>Other harnesses</dt>
-                  <dd>
-                    Kilo, VS Code, Prime Agent, Oh My Pi, DeepSeek, Hermes, Grok and Reasonix install the
-                    skills bundle into their global config root:
-                    <code>npx @adeerkhan/vitruvius --global --all</code>.
-                  </dd>
-                </div>
-                <div class="install-row">
-                  <dt>Pi</dt>
-                  <dd><code>pi install git:github.com/adeerkhan/vitruvius</code></dd>
-                </div>
-                <div class="install-row">
-                  <dt>Any host</dt>
-                  <dd>Copy <code>skills/</code> and <code>references/</code> into the host's skills folder.</dd>
-                </div>
-              </dl>
-            </div>
-
-            <div class="card c-4" data-reveal>
-              <h3>Start here</h3>
-              <dl class="install-grid">
-                <div class="install-row">
-                  <dt>Verify</dt>
-                  <dd>A claim or a calculation you do not trust.</dd>
-                </div>
-                <div class="install-row">
-                  <dt>Compare</dt>
-                  <dd>Two standards, designs or products.</dd>
-                </div>
-                <div class="install-row">
-                  <dt>Review</dt>
-                  <dd>An artifact you wrote and want attacked.</dd>
-                </div>
-                <div class="install-row">
-                  <dt>Look up</dt>
-                  <dd>A provision in AISC, ACI, ASCE, IEEE or Eurocode.</dd>
-                </div>
-                <div class="install-row">
-                  <dt>Find gaps</dt>
-                  <dd>A field, triangulated across OpenAlex and arXiv.</dd>
-                </div>
-              </dl>
-              <p class="mt-md">
-                All twenty-five commands are listed on the
-                <a href="skills.html">skills page</a>.
+              <p class="install-note">
+                Every harness is supported. The installer renders the adapters a project needs, or,
+                with <code>--global</code>, drops the skills bundle into a harness's own config root.
               </p>
             </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ================================================================== -->
-      <section id="faq" aria-labelledby="faq-title">
-        <div class="shell">
-          <div class="section-head" data-reveal>
-            <p class="eyebrow">Questions</p>
-            <h2 id="faq-title">The ones that <span class="serif">actually</span> come up</h2>
-          </div>
-
-          <div class="faq" data-reveal>
-            <details>
-              <summary>How is this different from web search?</summary>
-              <p>
-                Search returns snippets and links. Vitruvius opens the source, records the specific provision
-                it relied on, and returns a claim with a location. Where it could not open the source, it says
-                so instead of paraphrasing the snippet.
-              </p>
-            </details>
-            <details>
-              <summary>What happens when a source is paywalled?</summary>
-              <p>
-                It is cited from search metadata and marked <span class="status status--open">blocked</span>.
-                Its contents are never guessed at. There is a written policy for this in the repository, not
-                just an instruction to the agent.
-              </p>
-            </details>
-            <details>
-              <summary>Which sources count as evidence?</summary>
-              <p>
-                Standards and code bodies first, cited as standard plus section plus edition. Then primary
-                academic literature through keyless APIs. Undated blog posts, aggregators, unattributed forum
-                posts and sources that look machine-generated are rejected outright.
-              </p>
-            </details>
-            <details>
-              <summary>How do I check the agent's claims?</summary>
-              <p>
-                Look for the status label on each finding, and the provenance sidecar beside the output. A
-                <span class="status status--open">blocked</span> label is a real answer, not a failure to be
-                hidden. The validator covering sidecars is itself partial, and the site says so in the limits
-                list above.
-              </p>
-            </details>
-            <details>
-              <summary>Is the benchmark a certification?</summary>
-              <p>
-                No. It is a scored set of cases with known control and variance limits, published with its
-                residuals. The certified figures use a majority of three independent runs under a rule fixed
-                before the first run; per-case variance is still material.
-              </p>
-            </details>
-            <details>
-              <summary>Can it be used outside engineering?</summary>
-              <p>
-                The loop is general; the evidence landscapes are not. Two skills work in any field with
-                academic literature because they depend only on those sources, but the discipline skills
-                assume engineering standards and codes exist and matter.
-              </p>
-            </details>
+            <dl class="hosts" data-reveal data-delay="1">
+              <div><dt>Claude Code</dt><dd>npx skills add adeerkhan/vitruvius</dd></div>
+              <div><dt>Cursor</dt><dd>npx @adeerkhan/vitruvius --host cursor</dd></div>
+              <div><dt>Codex</dt><dd>npx skills add adeerkhan/vitruvius --agent codex</dd></div>
+              <div><dt>OpenCode</dt><dd>npx @adeerkhan/vitruvius --host opencode</dd></div>
+              <div><dt>Kilo · VS Code · Prime · OMP · DeepSeek · Hermes · Grok · Reasonix</dt><dd>npx @adeerkhan/vitruvius --global --all</dd></div>
+              <div><dt>Pi</dt><dd>pi install git:github.com/adeerkhan/vitruvius</dd></div>
+            </dl>
           </div>
         </div>
       </section>
@@ -849,134 +231,40 @@
           <div>
             <h2>Project</h2>
             <ul>
-              <li>
-                <a href="https://github.com/adeerkhan/vitruvius" rel="noopener noreferrer" target="_blank"
-                  >Repository</a
-                >
-              </li>
-              <li>
-                <a
-                  href="https://github.com/adeerkhan/vitruvius/blob/main/AGENTS.md"
-                  rel="noopener noreferrer"
-                  target="_blank"
-                  >Agent contract</a
-                >
-              </li>
-              <li>
-                <a
-                  href="https://github.com/adeerkhan/vitruvius/blob/main/CONTRIBUTING.md"
-                  rel="noopener noreferrer"
-                  target="_blank"
-                  >Contributing</a
-                >
-              </li>
-              <li>
-                <a
-                  href="https://github.com/adeerkhan/vitruvius/blob/main/SECURITY.md"
-                  rel="noopener noreferrer"
-                  target="_blank"
-                  >Security</a
-                >
-              </li>
+              <li><a href="https://github.com/adeerkhan/vitruvius">Repository</a></li>
+              <li><a href="https://github.com/adeerkhan/vitruvius/blob/main/AGENTS.md">Agent contract</a></li>
+              <li><a href="https://github.com/adeerkhan/vitruvius/blob/main/CONTRIBUTING.md">Contributing</a></li>
+              <li><a href="https://github.com/adeerkhan/vitruvius/blob/main/SECURITY.md">Security</a></li>
             </ul>
           </div>
           <div>
             <h2>Evidence</h2>
             <ul>
-              <li>
-                <a
-                  href="https://github.com/adeerkhan/vitruvius/blob/main/tasks/benchmark/RESULTS.md"
-                  rel="noopener noreferrer"
-                  target="_blank"
-                  >Benchmark results</a
-                >
-              </li>
-              <li>
-                <a
-                  href="https://github.com/adeerkhan/vitruvius/blob/main/notes/examples.md"
-                  rel="noopener noreferrer"
-                  target="_blank"
-                  >Worked examples</a
-                >
-              </li>
-              <li>
-                <a
-                  href="https://github.com/adeerkhan/vitruvius/blob/main/references/evidence-quality-tiers.md"
-                  rel="noopener noreferrer"
-                  target="_blank"
-                  >Evidence tiers</a
-                >
-              </li>
-              <li>
-                <a
-                  href="https://github.com/adeerkhan/vitruvius/blob/main/references/blocked-access-policy.md"
-                  rel="noopener noreferrer"
-                  target="_blank"
-                  >Blocked access policy</a
-                >
-              </li>
+              <li><a href="https://github.com/adeerkhan/vitruvius/blob/main/tasks/benchmark/RESULTS.md">Benchmark results</a></li>
+              <li><a href="https://github.com/adeerkhan/vitruvius/tree/main/tasks/benchmark">Adversarial cases</a></li>
+              <li><a href="https://github.com/adeerkhan/vitruvius/blob/main/references/evidence-quality-tiers.md">Evidence tiers</a></li>
             </ul>
           </div>
           <div>
             <h2>This site</h2>
             <ul>
               <li><a href="skills.html">All twenty-five skills</a></li>
-              <li>
-                <a href="#measured">Measured results</a>
-              </li>
-              <li>
-                <a href="#grounding">Grounding rules</a>
-              </li>
-              <li>
-                <a href="https://github.com/adeerkhan/vitruvius/issues" rel="noopener noreferrer" target="_blank"
-                  >Report an issue</a
-                >
-              </li>
+              <li><a href="#measured">Measured results</a></li>
+              <li><a href="https://github.com/adeerkhan/vitruvius/issues">Report an issue</a></li>
             </ul>
           </div>
           <div>
             <h2>Licence</h2>
             <ul>
-              <li>
-                <a
-                  href="https://github.com/adeerkhan/vitruvius/blob/main/LICENSE"
-                  rel="noopener noreferrer"
-                  target="_blank"
-                  >MIT</a
-                >
-              </li>
+              <li><a href="https://github.com/adeerkhan/vitruvius/blob/main/LICENSE">MIT</a></li>
             </ul>
-            <p class="small muted mt-sm">
-              Copyright 2026
-              <a href="https://github.com/adeerkhan" rel="noopener noreferrer" target="_blank">Adeer Khan</a>
-            </p>
           </div>
         </div>
-
-        <div class="provenance">
-          <p>
-            Figures on this page were read from
-            <a
-              href="https://github.com/adeerkhan/vitruvius/blob/main/tasks/benchmark/RESULTS.md"
-              rel="noopener noreferrer"
-              target="_blank"
-              >tasks/benchmark/RESULTS.md</a
-            >
-            and
-            <a
-              href="https://github.com/adeerkhan/vitruvius/blob/main/README.md"
-              rel="noopener noreferrer"
-              target="_blank"
-              >README.md</a
-            >
-            at commit <code>1da4b02</code>, 2026-10-05. This page is written by hand, not generated from those
-            files, so treat it as a summary rather than a live view and re-read the artifacts for anything
-            load-bearing. Nothing here was re-measured to produce this page.
-          </p>
+        <div class="footer__base">
+          <p>Figures were read from <code>tasks/benchmark/RESULTS.md</code> and <code>README.md</code> at commit 1da4b02, 2026-10-05. This page is written by hand, not generated from those files, so treat it as a summary and re-read the artifacts for anything load-bearing.</p>
+          <p>© 2026 Adeer Khan</p>
         </div>
       </div>
     </footer>
-
-    <script src="assets/js/site.js" defer></script>
   </body>
 </html>

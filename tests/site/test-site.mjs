@@ -83,10 +83,10 @@ for (const asset of [
   "assets/css/site.css",
   "assets/js/site.js",
   "assets/favicon.svg",
-  "assets/fonts/inter-var-latin.woff2",
-  "assets/fonts/playfair-display-var-italic-latin.woff2",
-  "assets/fonts/OFL-inter.txt",
-  "assets/fonts/OFL-playfairdisplay.txt",
+  "assets/fonts/marcellus-latin.woff2",
+  "assets/fonts/josefin-sans-latin.woff2",
+  "assets/fonts/OFL-marcellus.txt",
+  "assets/fonts/OFL-josefinsans.txt",
 ]) {
   if (!existsSync(join(siteDir, asset))) problems.push(`site/${asset} is missing`);
 }
