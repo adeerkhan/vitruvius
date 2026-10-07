@@ -7,9 +7,14 @@ const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
 // Every plugin manifest must agree with package.json on name and version.
 //
-// Host manifests live under `agents/<host>/plugin.json` (the root dot-dirs they
-// install into are generated output). This test used to read ONE hardcoded path,
-// `.claude-plugin/plugin.json`. `.qoder-plugin/plugin.json` sat next to it
+// The npm package is scoped (@adeerkhan/vitruvius) because the unscoped name is
+// owned by an unrelated project. A plugin manifest's `name` is the plugin's
+// display name, not the npm id, so it must equal the package's unscoped name
+// and its version must equal the package version.
+//
+// Host manifests live under `installer/hosts/<host>/plugin.json` (the dot-dirs
+// they install into are generated output). This test used to read ONE hardcoded
+// path, `.claude-plugin/plugin.json`. `.qoder-plugin/plugin.json` sat next to it
 // carrying the same version and nothing checked it — so a version bump that
 // missed it would ship two manifests disagreeing, and the build would stay
 // green. That is the failure the src-06 validator (src-06
@@ -21,6 +26,8 @@ const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 // mode of the old version was a check that could not see a file that existed.
 
 const pkg = JSON.parse(readFileSync(join(repoRoot, "package.json"), "utf-8"));
+// The plugin display name is the package's unscoped name.
+const pluginName = pkg.name.split("/").pop();
 
 // Host packages under installer/hosts/ that carry a plugin manifest.
 const hostsDir = join(repoRoot, "installer", "hosts");
@@ -45,8 +52,8 @@ for (const { dir, path } of manifests) {
 
   assert.strictEqual(
     manifest.name,
-    pkg.name,
-    `${dir}/plugin.json name "${manifest.name}" must match package.json name "${pkg.name}"`,
+    pluginName,
+    `${dir}/plugin.json name "${manifest.name}" must match the package's unscoped name "${pluginName}"`,
   );
 
   assert.strictEqual(

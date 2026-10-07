@@ -76,6 +76,9 @@ export const REGISTRY = {
   "check-output-quality.mjs": { kind: "npm", via: "check:local-artifacts" },
   "validate-artifacts.mjs": { kind: "npm", via: "check:local-artifacts" },
   "majority-benchmark.mjs": { kind: "npm", via: "benchmark:majority" },
+  // Bumps the package + plugin manifests and writes a changelog entry; reached
+  // by `npm run release`.
+  "release.mjs": { kind: "npm", via: "release" },
 
   // --- Reached by tests, invoked only via npm sub-scripts ----------------
   // Promoted from "test" to "chain" on 2026-09-28. It used to always exit 0,

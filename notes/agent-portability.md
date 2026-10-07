@@ -14,11 +14,11 @@ Regenerated from the adapters on disk, 2026-10.
 
 | Host | Committed source | Install |
 |------|------------------|---------|
-| Claude Code | `installer/hosts/claude/plugin.json` | `npx skills add adeerkhan/vitruvius`, or `vitruvius-install --host claude` |
-| Codex | `AGENTS.md` (native) | `npx skills add adeerkhan/vitruvius --agent codex`, or `vitruvius-install --host codex` |
+| Claude Code | `installer/hosts/claude/plugin.json` | `npx skills add adeerkhan/vitruvius`, or `npx @adeerkhan/vitruvius --host claude` |
+| Codex | `AGENTS.md` (native) | `npx skills add adeerkhan/vitruvius --agent codex`, or `npx @adeerkhan/vitruvius --host codex` |
 | Command Code | — (rendered) | `cmd skills add adeerkhan/vitruvius` + `cmd mods add adeerkhan/vitruvius` |
-| Cursor | `installer/hosts/cursor/rules/vitruvius.mdc` | `vitruvius-install --host cursor` (skills copied to `~/.cursor/skills/vitruvius`) |
-| OpenCode | `installer/hosts/opencode/plugins/vitruvius.mjs` | `vitruvius-install --host opencode` |
+| Cursor | `installer/hosts/cursor/rules/vitruvius.mdc` | `npx @adeerkhan/vitruvius --host cursor` (skills copied to `~/.cursor/skills/vitruvius`) |
+| OpenCode | `installer/hosts/opencode/plugins/vitruvius.mjs` | `npx @adeerkhan/vitruvius --host opencode` |
 | Pi | skills as a package | `pi install git:github.com/adeerkhan/vitruvius` |
 
 The slash commands (OpenCode, Claude, Codex, Cursor), the seven OpenCode role
@@ -27,7 +27,7 @@ rendered by the installer and are not stored in the repository.
 
 ## Global installs
 
-`vitruvius-install --global` copies the Agent Skills bundle and shared ruleset
+`npx @adeerkhan/vitruvius --global` copies the Agent Skills bundle and shared ruleset
 into each harness's global config root (`<root>/vitruvius/`). Roots and env
 overrides mirror the reference distribution:
 

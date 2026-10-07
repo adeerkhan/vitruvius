@@ -75,6 +75,35 @@ Vitruvius research may draw on paper and scholar indexes where they serve the qu
 - Paper indexes and scholarly search (OpenAlex, Semantic Scholar, arXiv, alphaXiv) are acceptable discovery layers — but a claim is only `verified` when the underlying source has been read directly. Google Scholar has no official API and blocks automated access; do not scrape it, and use OpenAlex/Semantic Scholar citation counts instead.
 - When a full text is paywalled or unreachable, cite it from search metadata and mark full-text access as `blocked`. Never guess at contents.
 
+## Releasing
+
+Vitruvius is published to npm as `@adeerkhan/vitruvius` — the unscoped
+`vitruvius` name is owned by an unrelated project, so the package is scoped. The
+version lives in `package.json` and in every `installer/hosts/<host>/plugin.json`;
+`npm test` fails the build if they drift, so bump them together.
+
+1. Cut the version and changelog entry:
+
+```bash
+npm run release -- minor        # or patch | major | X.Y.Z
+npm run release -- minor --commit   # also create the commit and tag
+```
+
+2. Review, then tag and push:
+
+```bash
+git add package.json installer/hosts/*/plugin.json CHANGELOG.md
+git commit -m "chore(release): 0.2.0"
+git tag v0.2.0
+git push origin main --follow-tags
+```
+
+3. `.github/workflows/release.yml` runs on the `v*` tag: it checks the tag
+   matches `package.json`, runs `npm test`, publishes with provenance
+   (`npm publish --provenance --access public`), and creates the GitHub Release.
+   The publish step needs an `NPM_TOKEN` repository secret with rights to the
+   `@adeerkhan` scope; provenance needs the workflow's `id-token: write`.
+
 ## AI-Assisted Contributions
 
 AI-assisted PRs are fine. The contributor is still responsible for the diff.

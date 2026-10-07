@@ -11,8 +11,11 @@ concurrency:
 jobs:
   release:
     runs-on: ubuntu-latest
+    # id-token: write is what lets npm attach a provenance attestation tying the
+    # published tarball to this repository and commit.
     permissions:
       contents: write
+      id-token: write
     steps:
       # fetch-depth: 0 fetches the full history, matching CI. Nothing in `npm
       # test` reads historical objects today; this keeps a release run from
@@ -26,15 +29,26 @@ jobs:
           node-version: "22"
           registry-url: "https://registry.npmjs.org"
 
+      # A tag that does not match package.json would publish the wrong version,
+      # or fail after the GitHub Release already exists. Check it before either.
+      - name: Tag must match package.json version
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          version="$(node -p "require('./package.json').version")"
+          if [ "$tag" != "$version" ]; then
+            echo "tag ${GITHUB_REF_NAME} does not match package.json version ${version}" >&2
+            exit 1
+          fi
+
       - name: Run full test suite
         run: npm test
 
-      - name: Publish to npm
-        run: npm publish
+      - name: Publish to npm (with provenance)
+        run: npm publish --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Create GitHub Release
-        run: gh release create ${{ github.ref_name }} --generate-notes
+        run: gh release create "${GITHUB_REF_NAME}" --generate-notes
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

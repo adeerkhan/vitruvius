@@ -27,7 +27,8 @@ node installer/install.mjs --global --all
 node installer/install.mjs --global --host claude --host hermes
 ```
 
-Exposed as the `vitruvius-install` bin. Project dot-directories are derived
+Exposed as the `vitruvius` and `vitruvius-install` bins; from npm run
+`npx @adeerkhan/vitruvius <args>`. Project dot-directories are derived
 output; they are ignored at this repo's root, and should be added to
 `.gitignore` in any project that installs them.
 

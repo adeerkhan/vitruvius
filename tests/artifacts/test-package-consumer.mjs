@@ -6,6 +6,7 @@ import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 const root = join(fileURLToPath(new URL("../..", import.meta.url)));
+const pkgName = JSON.parse(readFileSync(join(root, "package.json"), "utf8")).name;
 const temp = mkdtempSync(join(tmpdir(), "vitruvius-consumer-"));
 
 const npm = process.platform === "win32" ? "npm.cmd" : "npm";
@@ -87,7 +88,7 @@ try {
   );
   assert.equal(install.status, 0, install.stderr);
 
-  const pkgDir = join(temp, "node_modules", "vitruvius");
+  const pkgDir = join(temp, "node_modules", ...pkgName.split("/"));
   assert.ok(existsSync(pkgDir), "package installed into the clean consumer");
 
   // 4. The declared validator bins resolve inside the consumer, and one runs.

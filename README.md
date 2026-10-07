@@ -327,14 +327,14 @@ cp -r skills/ ~/.codex/skills/vitruvius
 
 ```bash
 cmd skills add adeerkhan/vitruvius --global   # install all 25 skills
-npx vitruvius-install --host commandcode      # render the slash-command mod
+npx @adeerkhan/vitruvius --host commandcode      # render the slash-command mod
 ```
 
 ### OpenCode
 
 ```bash
 # Install Vitruvius's OpenCode adapters into a project (writes .opencode/):
-npx vitruvius-install --target . --host opencode
+npx @adeerkhan/vitruvius --target . --host opencode
 
 # Or run inside the cloned repo, which installs all host adapters first:
 git clone https://github.com/adeerkhan/vitruvius && cd vitruvius
@@ -345,7 +345,7 @@ node installer/install.mjs --target . --all && opencode
 ```
 
 The same installer projects the other hosts too (`--host claude`, `--host
-cursor`, ...); run `npx vitruvius-install --help` for the list.
+cursor`, ...); run `npx @adeerkhan/vitruvius --help` for the list.
 
 ### Pi
 
@@ -359,8 +359,8 @@ The installer ships the Agent Skills bundle and ruleset into each harness's
 global config root, so the same skills load without a project checkout:
 
 ```bash
-npx vitruvius-install --global --all
-npx vitruvius-install --global --host hermes --host grok --host deepseek
+npx @adeerkhan/vitruvius --global --all
+npx @adeerkhan/vitruvius --global --host hermes --host grok --host deepseek
 ```
 
 | Harness | Root |
