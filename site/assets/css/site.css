@@ -188,15 +188,17 @@ section[id] { scroll-margin-top: 5.5rem; }
 .brand { display: inline-flex; align-items: center; gap: 0.7rem; }
 /* The wordmark carries the figure itself rather than a placeholder diamond.
    It uses vitruvian-mark.svg, not the hero asset: SVG stroke width scales with
-   the drawing, so the hero's 1.9-unit hairline lands near 0.17px at this size
-   and disappears. The mark is the same trace at a weight that survives 34px. */
+   the drawing, so the hero's 1.9-unit hairline lands near 0.19px at this size
+   and disappears. The mark is the same trace at a weight chosen by rendering
+   candidates at this size, because a heavy one fills the figure in. The glow
+   stays low: at full strength the mark out-shouted the wordmark beside it. */
 .brand__mark {
-  width: 2.125rem;
+  width: 2.3rem;
   height: auto;
-  filter: drop-shadow(0 0 4px rgba(212, 175, 55, 0.4));
+  filter: drop-shadow(0 0 3px rgba(212, 175, 55, 0.22));
   transition: filter var(--dur) var(--ease);
 }
-.brand:hover .brand__mark { filter: drop-shadow(0 0 7px rgba(212, 175, 55, 0.6)); }
+.brand:hover .brand__mark { filter: drop-shadow(0 0 6px rgba(212, 175, 55, 0.4)); }
 .brand__name {
   font-family: var(--display);
   font-size: 1.35rem;
