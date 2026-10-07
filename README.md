@@ -5,7 +5,7 @@
 <h1 align="center">Vitruvius</h1>
 
 <p align="center">
-  <a href="https://adeerkhan.github.io/vitruvius/"><strong>Website</strong> &middot; <a href="https://adeerkhan.github.io/vitruvius/skills.html">skills</a></a>
+  <a href="https://adeerkhan.github.io/vitruvius/"><strong>Website</strong></a>
 </p>
 
 <p align="center">

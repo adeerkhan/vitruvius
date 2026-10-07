@@ -185,14 +185,18 @@ section[id] { scroll-margin-top: 5.5rem; }
   gap: 1rem;
   min-height: 4.5rem;
 }
-.brand { display: inline-flex; align-items: center; gap: 0.85rem; }
+.brand { display: inline-flex; align-items: center; gap: 0.7rem; }
+/* The wordmark carries the figure itself rather than a placeholder diamond.
+   It uses vitruvian-mark.svg, not the hero asset: SVG stroke width scales with
+   the drawing, so the hero's 1.9-unit hairline lands near 0.17px at this size
+   and disappears. The mark is the same trace at a weight that survives 34px. */
 .brand__mark {
-  width: 1.35rem;
-  height: 1.35rem;
-  border: 1px solid var(--gold);
-  transform: rotate(45deg);
-  box-shadow: var(--glow);
+  width: 2.125rem;
+  height: auto;
+  filter: drop-shadow(0 0 4px rgba(212, 175, 55, 0.4));
+  transition: filter var(--dur) var(--ease);
 }
+.brand:hover .brand__mark { filter: drop-shadow(0 0 7px rgba(212, 175, 55, 0.6)); }
 .brand__name {
   font-family: var(--display);
   font-size: 1.35rem;
@@ -311,8 +315,6 @@ section[id] { scroll-margin-top: 5.5rem; }
 
 /* --- cards ---------------------------------------------------------------- */
 .grid { display: grid; gap: 1.75rem; grid-template-columns: repeat(3, 1fr); }
-.grid--2 { grid-template-columns: repeat(2, 1fr); }
-.grid--5 { grid-template-columns: repeat(5, 1fr); }
 
 .card {
   position: relative;
@@ -359,14 +361,12 @@ section[id] { scroll-margin-top: 5.5rem; }
 .phase h3 { font-size: 1rem; text-transform: uppercase; letter-spacing: var(--track-mid); margin-bottom: 0.4rem; }
 .phase p { color: var(--muted); font-size: 0.85rem; line-height: 1.5; }
 
-/* --- disciplines ---------------------------------------------------------- */
-.discipline { display: flex; flex-direction: column; gap: 0.9rem; }
-.discipline code, .cmd code {
+/* --- install command ------------------------------------------------------ */
+.cmd code {
   font-family: var(--body);
   color: var(--gold);
   letter-spacing: 0.06em;
 }
-.discipline code { font-size: 0.95rem; }
 
 /* --- measured figures ----------------------------------------------------- */
 .figures { display: grid; gap: 1.75rem; grid-template-columns: repeat(3, 1fr); }
@@ -427,36 +427,52 @@ section[id] { scroll-margin-top: 5.5rem; }
 .install-note { margin-top: 1.5rem; color: var(--muted); font-size: 0.85rem; border-left: 2px solid var(--blue); padding-left: 0.9rem; }
 
 /* --- skills page ---------------------------------------------------------- */
-.skill-grid { display: grid; gap: 1.15rem; grid-template-columns: repeat(2, 1fr); }
+/* --- catalogue ------------------------------------------------------------ */
+/* Three columns: the catalogue is a reference list, not a set of feature
+   cards, so density beats roominess here. */
+.skill-grid { display: grid; gap: 1rem; grid-template-columns: repeat(3, 1fr); }
 .skill {
-  display: grid;
-  grid-template-columns: 1.9rem 1fr;
-  gap: 0.9rem;
-  align-items: start;
+  display: block;
+  text-align: center;
   border: 1px solid var(--line);
   background: var(--card);
-  padding: 1.15rem 1.25rem;
+  padding: 1.1rem 1rem 1.2rem;
   transition: border-color var(--dur-slow) var(--ease), background var(--dur-slow) var(--ease), transform var(--dur-slow) var(--ease);
 }
 .skill:hover, .skill:focus-within { border-color: var(--line-strong); background: var(--card-hi); transform: translateY(-5px); }
-.skill h3 { color: var(--gold); font-size: 1.05rem; text-transform: uppercase; letter-spacing: var(--track-mid); }
-.skill code { display: inline-block; color: var(--gold-bright); font-size: 0.8rem; letter-spacing: 0.05em; margin-bottom: 0.4rem; }
-.skill p { color: var(--muted); font-size: 0.88rem; }
+.skill h4 { color: var(--gold); font-size: 1rem; text-transform: uppercase; letter-spacing: var(--track-mid); margin-bottom: 0.35rem; }
+.skill code { display: block; color: var(--gold-bright); font-size: 0.78rem; letter-spacing: 0.05em; margin-bottom: 0.5rem; overflow-wrap: anywhere; }
+.skill p { color: var(--muted); font-size: 0.82rem; line-height: 1.55; }
 
-/* Plate number — a small Roman numeral over a hairline tick, the engraved
-   list marker. An empty diamond per row read as a hole, not a marker. */
+/* Plate number: the Roman numeral centred over a hairline that fits it.
+   The dash is on an inline-block so its border tracks the numeral's own width
+   instead of a fixed width the numeral overflowed — I and XVII were wider than
+   the 1.6rem tick they sat on. */
 .mark {
-  justify-self: start;
-  min-width: 1.6rem;
+  display: inline-block;
   font-family: var(--display);
   color: var(--gold);
-  font-size: 0.9rem;
+  font-size: 1.05rem;
   line-height: 1;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   padding-bottom: 0.4rem;
+  margin-bottom: 0.85rem;
   border-bottom: 1px solid var(--line);
 }
 .skill:hover .mark { border-color: var(--line-strong); }
+
+/* A tier is one group of the catalogue. Numerals restart inside each, so each
+   group is numbered from I rather than continuing I..XXV across all four. */
+.tier { margin-top: 3.5rem; }
+.tier .head { margin-bottom: 1.5rem; gap: 0.7rem; }
+.tier .head h3 {
+  font-size: clamp(1.4rem, 2.6vw, 1.9rem);
+  text-transform: uppercase;
+  letter-spacing: var(--track-mid);
+  color: var(--fg);
+}
+.tier .head h3 em { font-style: normal; color: var(--gold); }
+.tier .head p { font-size: 0.92rem; }
 
 /* Dot micro-grid in the corner, as on an engraved plate. */
 .dots {
@@ -499,9 +515,6 @@ section[id] { scroll-margin-top: 5.5rem; }
    document to 1123px and produced a horizontal scrollbar. */
 #measured .compass { top: 4rem; right: 0; opacity: 0.8; }
 @media (max-width: 62rem) { #measured .compass { display: none; } }
-.tier { margin-top: 0.75rem; }
-.tier .eyebrow { display: block; margin-bottom: 0.4rem; }
-.tier p { max-width: 60ch; }
 
 /* --- footer --------------------------------------------------------------- */
 .footer { border-top: 1px solid var(--line); padding-block: 4rem 3rem; }
@@ -560,7 +573,7 @@ section[id] { scroll-margin-top: 5.5rem; }
 /* --- responsive ----------------------------------------------------------- */
 @media (max-width: 62rem) {
   .loop { grid-template-columns: repeat(3, 1fr); }
-  .grid--5, .figures { grid-template-columns: repeat(2, 1fr); }
+  .figures { grid-template-columns: repeat(2, 1fr); }
   .install { grid-template-columns: 1fr; }
   .footer__grid { grid-template-columns: repeat(2, 1fr); }
 }
@@ -579,7 +592,7 @@ section[id] { scroll-margin-top: 5.5rem; }
   .nav__links.is-open { display: flex; }
   .nav__links a { width: 100%; padding-block: 0.85rem; border-bottom: 1px solid var(--hairline); }
   .nav__toggle { display: block; }
-  .grid, .grid--2, .grid--5, .skill-grid, .figures { grid-template-columns: 1fr; }
+  .grid, .skill-grid, .figures { grid-template-columns: 1fr; }
   .loop { grid-template-columns: repeat(2, 1fr); }
   .hosts div { grid-template-columns: 1fr; gap: 0.15rem; }
 }

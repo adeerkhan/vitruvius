@@ -18,7 +18,7 @@
     <header class="nav">
       <div class="shell nav__inner">
         <a class="brand" href="index.html" aria-label="Vitruvius home">
-          <span class="brand__mark" aria-hidden="true"></span>
+          <img class="brand__mark" src="assets/vitruvian-mark.svg" width="362" height="362" alt="" />
           <span class="brand__name">Vitruvius</span>
         </a>
         <button class="nav__toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="nav-links">
@@ -30,10 +30,9 @@
         <nav class="nav__links" id="nav-links" data-nav-links aria-label="Primary">
           <a href="#why">Why</a>
           <a href="#loop">The loop</a>
-          <a href="#disciplines">Disciplines</a>
+          <a href="#commands">Commands</a>
           <a href="#measured">Measured</a>
           <a href="#install">Install</a>
-          <a href="skills.html">Skills</a>
         </nav>
       </div>
     </header>
@@ -116,37 +115,204 @@
         </div>
       </section>
 
-      <!-- disciplines -->
-      <section class="section" id="disciplines" aria-labelledby="disciplines-title">
+      <!-- commands: generated from installer/contract.mjs; numerals restart per tier -->
+      <section class="section" id="commands" aria-labelledby="commands-title">
         <div class="shell">
+          <div class="head head--center" data-reveal>
+            <span class="rule rule--center" aria-hidden="true"></span>
+            <span class="eyebrow">The catalogue</span>
+            <h2 id="commands-title">Twenty-five <em>commands</em></h2>
+            <p>Every command in the contract, grouped by what it is for.</p>
+          </div>
+        <div class="tier">
+          <div class="head" data-reveal>
+            <span class="eyebrow">Entry points</span>
+            <h3 id="core-title">Start <em>here</em></h3>
+            <p>Every other skill dispatches into the shared method.</p>
+          </div>
+          <div class="skill-grid">
+            <article class="skill" data-reveal>
+              <span class="mark" aria-hidden="true">I</span>
+              <code>/vitruvius</code>
+              <h4>Dispatch</h4>
+              <p>Engineering research agent — dispatch to discipline or workflow skill</p>
+            </article>
+            <article class="skill" data-reveal data-delay="1">
+              <span class="mark" aria-hidden="true">II</span>
+              <code>/engineering-research</code>
+              <h4>The shared method</h4>
+              <p>Shared research method — discover, read, synthesize, verify, review</p>
+            </article>
+          </div>
+        </div>
+
+        <div class="tier">
           <div class="head" data-reveal>
             <span class="eyebrow">Evidence landscapes</span>
-            <h2 id="disciplines-title">Five disciplines, <em>one method</em></h2>
-            <p>Each discipline skill loads its own source-routing table into the same shared loop. The method is shared; the landscape is not.</p>
+            <h3 id="discipline-title">Five <em>disciplines</em></h3>
+            <p>Each carries its own source-routing table into the same loop.</p>
           </div>
-          <div class="grid grid--5">
-            <article class="card discipline" data-reveal>
+          <div class="skill-grid">
+            <article class="skill" data-reveal>
+              <span class="mark" aria-hidden="true">I</span>
               <code>/mechanical</code>
-              <p>Design, thermal, fluids, materials, manufacturing.</p>
+              <h4>Mechanical</h4>
+              <p>Mechanical engineering research — design, thermal, fluids, materials, manufacturing</p>
             </article>
-            <article class="card discipline" data-reveal data-delay="1">
+            <article class="skill" data-reveal data-delay="1">
+              <span class="mark" aria-hidden="true">II</span>
               <code>/software</code>
-              <p>Architecture, frameworks, protocols, security, benchmarks.</p>
+              <h4>Software</h4>
+              <p>Software engineering research — architecture, frameworks, protocols, security</p>
             </article>
-            <article class="card discipline" data-reveal data-delay="2">
+            <article class="skill" data-reveal data-delay="2">
+              <span class="mark" aria-hidden="true">III</span>
               <code>/civil</code>
-              <p>Buildings, bridges, steel, concrete, geotech, loads.</p>
+              <h4>Civil &amp; structural</h4>
+              <p>Civil/structural engineering research — buildings, bridges, steel, concrete, loads</p>
             </article>
-            <article class="card discipline" data-reveal>
+            <article class="skill" data-reveal>
+              <span class="mark" aria-hidden="true">IV</span>
               <code>/electrical</code>
-              <p>Power, electronics, controls, signal integrity, EMC.</p>
+              <h4>Electrical</h4>
+              <p>Electrical/electronics research — power, electronics, controls, EMC</p>
             </article>
-            <article class="card discipline" data-reveal data-delay="1">
+            <article class="skill" data-reveal data-delay="1">
+              <span class="mark" aria-hidden="true">V</span>
               <code>/architectural</code>
-              <p>Building science, facades, enclosure, codes, performance.</p>
+              <h4>Architectural</h4>
+              <p>Architectural research — building science, facades, codes, performance</p>
             </article>
           </div>
-          <p class="muted" data-reveal>All twenty-five commands are listed on the <a href="skills.html">skills page</a>.</p>
+        </div>
+
+        <div class="tier">
+          <div class="head" data-reveal>
+            <span class="eyebrow">Named research jobs</span>
+            <h3 id="workflow-title">Workflow <em>skills</em></h3>
+            <p>Each one runs the whole loop and ends at the same goal-check gate.</p>
+          </div>
+          <div class="skill-grid">
+            <article class="skill" data-reveal>
+              <span class="mark" aria-hidden="true">I</span>
+              <code>/gap-analysis</code>
+              <h4>Find gaps</h4>
+              <p>Identify research gaps via scholarly triangulation (OpenAlex, arXiv, web)</p>
+            </article>
+            <article class="skill" data-reveal data-delay="1">
+              <span class="mark" aria-hidden="true">II</span>
+              <code>/evidence-ranking</code>
+              <h4>Rank evidence</h4>
+              <p>Rank and score engineering evidence by quality using tier system</p>
+            </article>
+            <article class="skill" data-reveal data-delay="2">
+              <span class="mark" aria-hidden="true">III</span>
+              <code>/verifier</code>
+              <h4>Verify</h4>
+              <p>Verify a claim or calculation against authoritative sources</p>
+            </article>
+            <article class="skill" data-reveal>
+              <span class="mark" aria-hidden="true">IV</span>
+              <code>/design-alternatives</code>
+              <h4>Design alternatives</h4>
+              <p>Generate and compare 3+ engineering approaches with scored trade-off matrices</p>
+            </article>
+            <article class="skill" data-reveal data-delay="1">
+              <span class="mark" aria-hidden="true">V</span>
+              <code>/fmea-brainstorm</code>
+              <h4>FMEA</h4>
+              <p>FMEA-style failure mode brainstorming with S/O/D ratings and RPN ranking</p>
+            </article>
+            <article class="skill" data-reveal data-delay="2">
+              <span class="mark" aria-hidden="true">VI</span>
+              <code>/hypothesis-generation</code>
+              <h4>Hypotheses</h4>
+              <p>Generate and freeze rival engineering hypotheses with dated evidence boundaries</p>
+            </article>
+            <article class="skill" data-reveal>
+              <span class="mark" aria-hidden="true">VII</span>
+              <code>/peer-review</code>
+              <h4>Peer review</h4>
+              <p>Adversarial peer review of an engineering artifact with severity-graded findings</p>
+            </article>
+            <article class="skill" data-reveal data-delay="1">
+              <span class="mark" aria-hidden="true">VIII</span>
+              <code>/compare</code>
+              <h4>Compare</h4>
+              <p>Source/standard/design comparison matrix</p>
+            </article>
+            <article class="skill" data-reveal data-delay="2">
+              <span class="mark" aria-hidden="true">IX</span>
+              <code>/review</code>
+              <h4>Review</h4>
+              <p>Severity-graded adversarial review of an artifact</p>
+            </article>
+            <article class="skill" data-reveal>
+              <span class="mark" aria-hidden="true">X</span>
+              <code>/audit</code>
+              <h4>Audit</h4>
+              <p>Claim-vs-implementation mismatch audit (paper-vs-code, spec-vs-design)</p>
+            </article>
+            <article class="skill" data-reveal data-delay="1">
+              <span class="mark" aria-hidden="true">XI</span>
+              <code>/summarize</code>
+              <h4>Summarize</h4>
+              <p>Faithful structured digest of a standard, spec, or paper</p>
+            </article>
+            <article class="skill" data-reveal data-delay="2">
+              <span class="mark" aria-hidden="true">XII</span>
+              <code>/eli5</code>
+              <h4>Explain simply</h4>
+              <p>Plain-language engineering explanation</p>
+            </article>
+            <article class="skill" data-reveal>
+              <span class="mark" aria-hidden="true">XIII</span>
+              <code>/artifact-reading</code>
+              <h4>Read an artifact</h4>
+              <p>Anchored extraction from PDFs, drawings, specs</p>
+            </article>
+            <article class="skill" data-reveal data-delay="1">
+              <span class="mark" aria-hidden="true">XIV</span>
+              <code>/scholarly-research</code>
+              <h4>Scholarly literature</h4>
+              <p>Academic literature evidence layer (OpenAlex, arXiv, Semantic Scholar); synthesis goes to engineering-research</p>
+            </article>
+            <article class="skill" data-reveal data-delay="2">
+              <span class="mark" aria-hidden="true">XV</span>
+              <code>/standards-lookup</code>
+              <h4>Standards lookup</h4>
+              <p>Engineering standards lookup (AISC, ACI, ASCE, IEEE, Eurocode)</p>
+            </article>
+            <article class="skill" data-reveal>
+              <span class="mark" aria-hidden="true">XVI</span>
+              <code>/habit</code>
+              <h4>Habit</h4>
+              <p>Capture durable research preferences from a run (read-only, review-gated)</p>
+            </article>
+            <article class="skill" data-reveal data-delay="1">
+              <span class="mark" aria-hidden="true">XVII</span>
+              <code>/vitruvius-help</code>
+              <h4>Help</h4>
+              <p>Quick-reference card for all Vitruvius commands and the shared research method</p>
+            </article>
+          </div>
+        </div>
+
+        <div class="tier">
+          <div class="head" data-reveal>
+            <span class="eyebrow">End to end</span>
+            <h3 id="application-title">A whole <em>job</em></h3>
+            
+          </div>
+          <div class="skill-grid">
+            <article class="skill" data-reveal>
+              <span class="mark" aria-hidden="true">I</span>
+              <code>/proposal</code>
+              <h4>Research proposal</h4>
+              <p>Generate targeted Ph.D./Masters research proposals with gap analysis + verification</p>
+            </article>
+          </div>
+        </div>
         </div>
       </section>
 
@@ -256,7 +422,7 @@
           <div>
             <h2>This site</h2>
             <ul>
-              <li><a href="skills.html">All twenty-five skills</a></li>
+              <li><a href="#commands">All twenty-five commands</a></li>
               <li><a href="#measured">Measured results</a></li>
               <li><a href="https://github.com/adeerkhan/vitruvius/issues">Report an issue</a></li>
             </ul>

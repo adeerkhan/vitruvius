@@ -15,6 +15,11 @@
  * Those are transcribed by hand from `tasks/benchmark/RESULTS.md` and the
  * provenance footer says so. A generated page would not have this gap; this
  * one does, and the gap is named rather than papered over.
+ *
+ * The site is one page now. The skills page was folded into the home page's
+ * catalogue, so the page-count floor dropped from two to one; the check that
+ * every contract command is named on the site is the load-bearing one and is
+ * unchanged.
  */
 import { strict as assert } from "node:assert";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
@@ -26,7 +31,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const siteDir = join(root, "site");
 
 const pages = readdirSync(siteDir).filter((name) => name.endsWith(".html"));
-assert.ok(pages.length >= 2, `expected the site to have pages, found ${pages.length}`);
+assert.ok(pages.length >= 1, `expected the site to have a page, found ${pages.length}`);
 
 const problems = [];
 for (const page of pages) {
@@ -84,6 +89,7 @@ for (const asset of [
   "assets/js/site.js",
   "assets/favicon.svg",
   "assets/vitruvian.svg",
+  "assets/vitruvian-mark.svg",
   "assets/fonts/marcellus-latin.woff2",
   "assets/fonts/josefin-sans-latin.woff2",
   "assets/fonts/OFL-marcellus.txt",
