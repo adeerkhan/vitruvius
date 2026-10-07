@@ -31,9 +31,9 @@ jobs:
   check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: "22"
 
@@ -47,9 +47,15 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
+      # enablement: true creates the Pages site (Source: GitHub Actions) when it
+      # does not exist yet. Without it a repo that never enabled Pages fails
+      # here with "Get Pages site failed", which is exactly how the first
+      # deploy of this site failed.
       - uses: actions/configure-pages@v5
+        with:
+          enablement: true
 
       - name: Upload the site
         uses: actions/upload-pages-artifact@v3

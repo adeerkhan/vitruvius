@@ -175,7 +175,7 @@
                 <span class="badge"><b>5</b> disciplines</span>
                 <span class="badge"><b>25</b> skills</span>
                 <span class="badge"><b>7</b> agent roles</span>
-                <span class="badge">works in Claude Code, Cursor, Codex, OpenCode, Pi</span>
+                <span class="badge">works in 11 coding agents — Claude Code, Codex, OpenCode, Cursor, and more</span>
               </div>
             </div>
 
@@ -724,8 +724,16 @@
                 <div class="install-row">
                   <dt>OpenCode</dt>
                   <dd>
-                    Clone the repository and run <code>opencode</code> inside it. The plugin and skills
-                    auto-load, zero config.
+                    Render the adapters, then start OpenCode:
+                    <code>npx @adeerkhan/vitruvius --host opencode</code>.
+                  </dd>
+                </div>
+                <div class="install-row">
+                  <dt>Other harnesses</dt>
+                  <dd>
+                    Kilo, VS Code, Prime Agent, Oh My Pi, DeepSeek, Hermes, Grok and Reasonix install the
+                    skills bundle into their global config root:
+                    <code>npx @adeerkhan/vitruvius --global --all</code>.
                   </dd>
                 </div>
                 <div class="install-row">
