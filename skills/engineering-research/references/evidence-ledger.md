@@ -4,6 +4,39 @@
 existing L1 `run.v1` entry and refuses overwrite. It uses the shared
 `.log-run.lock` protocol.
 
+## What a pass does and does not mean
+
+`validate-evidence.mjs` prints, on success:
+
+> Structural check only. A pass here means the ledger is well-formed and its
+> hashes match the artifacts; it does not establish that the sources support
+> the claims.
+
+That sentence is the contract. The validator proves **structure** — required
+fields present, no unknown fields, statuses drawn from the closed sets, negative
+coverage for every search, and `sha256` matching the bytes on disk. Whether a
+source actually says what a claim says is a reading, and until a reader does it,
+the verdict stays `unverified`.
+
+## No placeholder values
+
+Every required text field must carry a real value. A field whose entire content
+is a stand-in is refused:
+
+| Refused | Examples |
+|---|---|
+| Placeholder words | `tbd`, `TODO:`, `unknown`, `n/a`, `none`, `placeholder`, `tbc`, `fixme`, `xxx` |
+| Bare shapes | `<anonymous>`, `[fill in]`, `{path}`, `...`, `***` |
+
+This is a whole-value match, so a locator may still contain brackets or the word
+`unknown` inside a longer string: `requirement.md#L3 (see [2])`,
+`doi:10.1000/unknown-registry`, and `mirror labelled <anonymous>` all pass.
+
+Before this rule, non-empty was the only test, so a run that never finished could
+name a locator or a boundary it did not have and still validate. The fix is to
+record the real value or mark the owning search or claim `blocked` — not to
+write a shrug into a required field.
+
 ## Root fields
 
 - `schema`: exactly `evidence.v1`

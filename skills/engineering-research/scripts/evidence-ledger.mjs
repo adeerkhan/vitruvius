@@ -24,6 +24,26 @@ function text(value) {
   return typeof value === "string" && value.trim() !== "" && !/[\u0000-\u001f\u007f]/.test(value);
 }
 
+// A required field has to carry a real value, not a shape that stands in for
+// one. "tbd", "todo" and "<...>" are what a run leaves behind when it could not
+// finish, and they used to pass the non-empty check above — so a ledger could
+// name a locator or a boundary it never had, and still be valid. Taken from
+// ref/scientific-agent-skills' evidence validator, which rejects the same set.
+const PLACEHOLDER_WORD = /^(?:tbd|todo|tk|tbc|fixme|unknown|n\/?a|none|null|nil|placeholder|example|sample|xxx+)[.!:]?$/i;
+const PLACEHOLDER_SHAPE = /^(?:<[^>]*>|\[[^\]]*\]|\{[^}]*\}|\.{2,}|[-_*x]{2,})$/i;
+
+export function isPlaceholder(value) {
+  if (typeof value !== "string") return false;
+  const trimmed = value.trim();
+  if (trimmed === "") return false;
+  return PLACEHOLDER_WORD.test(trimmed) || PLACEHOLDER_SHAPE.test(trimmed);
+}
+
+/** Non-empty, control-char free, and not a stand-in for a value that is missing. */
+export function substantiveText(value) {
+  return text(value) && !isPlaceholder(value);
+}
+
 function identifier(value, prefix) {
   return typeof value === "string" && value.length <= MAX_ID_LENGTH && new RegExp(`^${prefix}-[A-Z0-9][A-Z0-9._-]*$`).test(value);
 }
@@ -75,7 +95,11 @@ function exactKeys(record, allowed, label, errors) {
 
 function requireTextFields(record, fields, label, errors) {
   for (const field of fields) {
-    if (!text(record[field])) errors.push(`${label}.${field} must be a non-empty string`);
+    const value = record[field];
+    if (!text(value)) errors.push(`${label}.${field} must be a non-empty string`);
+    else if (isPlaceholder(value)) {
+      errors.push(`${label}.${field} is a placeholder ("${value.trim()}"); record the real value or mark the owning search or claim blocked`);
+    }
   }
 }
 

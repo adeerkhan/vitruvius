@@ -17,6 +17,12 @@ if (!file) {
       process.exitCode = 1;
     } else {
       console.log(`PASS: evidence.v1 valid (${report.sourceCount} sources, ${report.searchCount} searches, ${report.claimCount} claims; completion=${report.completion})`);
+      // Taken from ref/scientific-agent-skills' evidence validator, which prints
+      // the same sentence. A structural pass proves the ledger is well-formed
+      // and its hashes match the artifacts on disk. It does not establish that
+      // the sources say what the claims say — only a reader can do that, and
+      // until they do, the verdict is `unverified`.
+      console.log("  Structural check only. A pass here means the ledger is well-formed and its hashes match the artifacts; it does not establish that the sources support the claims.");
     }
   } catch (error) {
     console.error(`validate-evidence: ${error.message}`);

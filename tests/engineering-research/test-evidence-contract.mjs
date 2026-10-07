@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { validateEvidenceLedger } from "../../skills/engineering-research/scripts/evidence-ledger.mjs";
+import { isPlaceholder, substantiveText, validateEvidenceLedger } from "../../skills/engineering-research/scripts/evidence-ledger.mjs";
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const requirementPath = "evals/fixtures/c1/supported-evidence/requirement.md";
@@ -212,5 +212,39 @@ assert.equal(blockedReport.valid, true, blockedReport.errors.join("\n"));
 assert.equal(blockedReport.completion, "blocked");
 assert.equal(validateEvidenceLedger(blockedNegative("not_reached"), { repoRoot }).completion, "blocked");
 assert.match(validateEvidenceLedger(blockedNegative("measured_zero"), { repoRoot }).errors.join("\n"), /not valid for a blocked search/i);
+
+// --- placeholder rejection (pattern from ref/scientific-agent-skills) -----
+// A non-empty string was enough to pass before, so a run that never finished
+// could still name a locator or a boundary it did not have.
+for (const placeholder of ["tbd", "TBD", "todo", "TODO:", "unknown", "n/a", "N/A", "none", "placeholder", "xxx", "tbc", "fixme", "<anonymous>", "[fill in]", "{path}", "...", "***"]) {
+  assert.ok(isPlaceholder(placeholder), `${placeholder} is recognised as a placeholder`);
+  assert.match(
+    errorsFor((value) => { value.sources[0].locator = placeholder; }).join("\n"),
+    /locator is a placeholder/,
+    `sources[].locator rejects ${placeholder}`,
+  );
+}
+assert.match(errorsFor((value) => { value.sources[0].title = "TBD"; }).join("\n"), /title is a placeholder/);
+assert.match(errorsFor((value) => { value.searches[0].query = "unknown"; }).join("\n"), /query is a placeholder/);
+assert.match(errorsFor((value) => { value.searches[0].boundary = "<index to fill>"; }).join("\n"), /boundary is a placeholder/);
+assert.match(errorsFor((value) => { value.claims[0].text = "todo"; }).join("\n"), /text is a placeholder/);
+assert.match(errorsFor((value) => { value.claims[0].support[0].locator = "..."; }).join("\n"), /locator is a placeholder/);
+assert.match(errorsFor((value) => { value.coverage.negative[0].note = "n/a"; }).join("\n"), /note is a placeholder/);
+assert.match(errorsFor((value) => { value.coverage.negative[0].note = "[fill in]"; }).join("\n"), /note is a placeholder/);
+
+// Over-rejection guard: a real locator may legitimately contain brackets,
+// angle brackets, or the word "unknown" inside a longer string. The rule is a
+// whole-value match, so only a value that is *nothing but* a shape is caught.
+for (const real of ["requirement.md#L3", "requirement.md#L3 (see [2])", "doi:10.1000/unknown-registry", "mirror labelled <anonymous>", "10.0.0.1 (local mirror)", "none-of-the-above were found"]) {
+  assert.equal(isPlaceholder(real), false, `${real} is not a placeholder`);
+  assert.doesNotMatch(
+    errorsFor((value) => { value.sources[0].locator = real; }).join("\n"),
+    /is a placeholder/,
+    `sources[].locator accepts ${real}`,
+  );
+}
+assert.equal(substantiveText(""), false);
+assert.equal(substantiveText("tbd"), false);
+assert.equal(substantiveText("observed in run 4"), true);
 
 console.log("PASS: Q1 evidence.v1 contract accepts valid mappings and refuses malformed evidence");

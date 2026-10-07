@@ -15,10 +15,10 @@ argument-hint: "<research question or artifact to review> [--deep | --quick]"
 allowed-tools: Write Edit Bash Read
 license: MIT
 metadata:
-  version: "0.5.0"
+  version: "0.5.1"
 
 ---
-<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=ff51abf4f018298bdc31577f8897fc6630e0a534b022ca944867f84ee7954f0a -->
+<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=59b8c236fe022c1ff377b0f7c1aa5593fd01333f8d3be0f8bf286118c73b57b1 -->
 
 # Engineering Research
 
@@ -370,7 +370,7 @@ The skill-local wrapper is self-contained and defaults `.runs/` to the active pr
 
 ### Q1 evidence ledger
 
-After `log-run.mjs` returns a `run_id`, record the run's source, search, and claim mappings as one `evidence.v1` JSON document. The exact fields, local-only boundary, completion semantics, and fail-closed rules are in `references/evidence-ledger.md`.
+After `log-run.mjs` returns a `run_id`, record the run's source, search, and claim mappings as one `evidence.v1` JSON document. The exact fields, local-only boundary, completion semantics, and fail-closed rules are in `references/evidence-ledger.md`. Two rules decide whether a ledger is worth anything: a required field may not hold a placeholder (`tbd`, `unknown`, `<anonymous>`) — record the real value or mark the owning search or claim `blocked` — and a validator pass is a **structural** result only. It proves the shape and the hashes; it does not establish that a source says what a claim says, so the claim stays `unverified` until a reader confirms it.
 
 ```bash
 printf '%s\n' '<evidence_json>' | node <engineering-research-skill-root>/scripts/record-evidence.mjs --run-id <run_id>
