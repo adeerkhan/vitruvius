@@ -261,21 +261,20 @@ section[id] { scroll-margin-top: 5.5rem; }
   -webkit-mask-image: radial-gradient(60% 80% at 50% 0%, #000 0%, transparent 75%);
   mask-image: radial-gradient(60% 80% at 50% 0%, #000 0%, transparent 75%);
 }
-.hero__sun {
+/* The Vitruvian figure, drawn as vector so it stays hairline-crisp at hero
+   size. Its stroke is #d4af37 inside the file and the glow is layered here, so
+   both track the tokens rather than being baked into the asset. */
+.vitruvian {
   display: block;
-  width: 3.25rem;
-  height: 3.25rem;
-  margin: 0 auto 2rem;
-  border: 1px solid var(--line-strong);
-  transform: rotate(45deg);
-  box-shadow: var(--glow);
-  position: relative;
+  width: min(10.5rem, 60vw);
+  height: auto;
+  margin: 0 auto 2.25rem;
+  filter: drop-shadow(0 0 5px rgba(212, 175, 55, 0.35)) drop-shadow(0 0 20px rgba(212, 175, 55, 0.22));
+  transition: filter var(--dur-slow) var(--ease), transform var(--dur-slow) var(--ease);
 }
-.hero__sun::after {
-  content: "";
-  position: absolute;
-  inset: 7px;
-  border: 1px solid var(--line);
+.vitruvian:hover {
+  transform: translateY(-3px);
+  filter: drop-shadow(0 0 9px rgba(212, 175, 55, 0.5)) drop-shadow(0 0 30px rgba(212, 175, 55, 0.3));
 }
 .hero h1 {
   font-size: clamp(2.6rem, 7.5vw, 5rem);
@@ -297,46 +296,6 @@ section[id] { scroll-margin-top: 5.5rem; }
 }
 .badges span b { color: var(--gold); font-weight: 600; }
 
-/* --- plate ---------------------------------------------------------------- */
-/* The project's engraved plate, tipped into the hero like an illustration
-   bound into a book: gold hairline, dark matte, inner hairline. This is the
-   only light object on an obsidian page, which is why it reads as a plate and
-   not as a bright hole. */
-.plate {
-  width: min(11rem, 64vw);
-  margin: 0 auto 2.5rem;
-  padding: 0.6rem;
-  background: var(--card);
-  border: 1px solid var(--line-strong);
-  box-shadow:
-    0 0 0 1px rgba(212, 175, 55, 0.22),
-    0 0 0 5px var(--bg),
-    0 0 0 6px rgba(212, 175, 55, 0.4),
-    var(--glow);
-  transition: transform var(--dur-slow) var(--ease), box-shadow var(--dur-slow) var(--ease);
-}
-.plate:hover {
-  transform: translateY(-4px);
-  box-shadow:
-    0 0 0 1px rgba(212, 175, 55, 0.35),
-    0 0 0 5px var(--bg),
-    0 0 0 6px var(--gold),
-    var(--glow-strong);
-}
-.plate img { display: block; width: 100%; height: auto; }
-.plate figcaption {
-  margin-top: 0.65rem;
-  padding-top: 0.55rem;
-  border-top: 1px solid var(--hairline);
-  font-size: 0.6rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  line-height: 1.6;
-  color: var(--muted);
-  text-align: center;
-}
-.plate figcaption b { color: var(--gold); font-weight: 600; }
-.plate figcaption em { font-style: italic; }
 
 /* --- section head --------------------------------------------------------- */
 .head { display: grid; gap: 1.1rem; justify-items: start; margin-bottom: 3rem; }

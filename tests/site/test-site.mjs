@@ -83,7 +83,7 @@ for (const asset of [
   "assets/css/site.css",
   "assets/js/site.js",
   "assets/favicon.svg",
-  "assets/plate.jpg",
+  "assets/vitruvian.svg",
   "assets/fonts/marcellus-latin.woff2",
   "assets/fonts/josefin-sans-latin.woff2",
   "assets/fonts/OFL-marcellus.txt",
