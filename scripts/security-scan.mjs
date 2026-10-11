@@ -38,9 +38,10 @@
  * move on every edit above them.
  */
 
-import { readFileSync, readdirSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
+import { walkFiles } from "./fs-walk.mjs";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const REPO_ROOT = join(__dirname, "..");
@@ -289,26 +290,6 @@ export function partitionFindings(findings, waivers = WAIVERS) {
   return { blocking, allowed, invalid, stale };
 }
 
-function walkDir(dir, fn) {
-  const results = [];
-  let entries;
-  try {
-    entries = readdirSync(dir, { withFileTypes: true });
-  } catch {
-    return results;
-  }
-
-  for (const entry of entries) {
-    const fullPath = join(dir, entry.name);
-    if (entry.isDirectory()) {
-      results.push(...walkDir(fullPath, fn));
-    } else if (entry.isFile() && /\.(mjs|js|py|sh|ps1)$/.test(entry.name)) {
-      results.push(...fn(fullPath));
-    }
-  }
-  return results;
-}
-
 // Run scan. Guarded so a test can import partitionFindings/formatFinding above
 // without triggering the scan and its process.exit. Same entry-point guard as
 // scripts/margin-earnedness-check.mjs:150.
@@ -316,8 +297,10 @@ if (process.argv[1] && process.argv[1].endsWith("security-scan.mjs")) {
   console.log("Scanning skills and shipped proposal/eval/ledger runtime scripts for security issues...\n");
 
   const allProblems = [];
-  allProblems.push(...walkDir(SKILLS_DIR, scanFile));
-  allProblems.push(...walkDir(SKILLS_DIR, (f) => scanPersonalPaths(f)));
+  for (const file of walkFiles(SKILLS_DIR, { extensions: [".mjs", ".js", ".py", ".sh", ".ps1"] })) {
+    allProblems.push(...scanFile(file));
+    allProblems.push(...scanPersonalPaths(file));
+  }
   for (const runtimeFile of [
     join(SCRIPTS_DIR, 'extract-document.mjs'),
     join(SCRIPTS_DIR, 'extract-pdf.mjs'),

@@ -20,10 +20,11 @@
 // The scorer proves itself on fixtures in tests/baseline/test-baseline.mjs.
 
 import { createHash } from "node:crypto";
-import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { isNonEmptyString as isText, resolveRealFile } from "./path-safety.mjs";
+import { walkFiles } from "./fs-walk.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, "..");
@@ -274,21 +275,14 @@ export function aggregate(perCase) {
 
 function collectRecords(dir) {
   const records = [];
-  const walk = (d) => {
-    for (const entry of readdirSync(d, { withFileTypes: true })) {
-      const p = join(d, entry.name);
-      if (entry.isDirectory()) walk(p);
-      else if (entry.name.endsWith(".json")) {
-        try {
-          const parsed = JSON.parse(readFileSync(p, "utf8"));
-          if (parsed?.schema === RECORD_SCHEMA) records.push({ path: p, record: parsed });
-        } catch {
-          records.push({ path: p, record: null, parseError: true });
-        }
-      }
+  for (const p of walkFiles(dir, { extensions: [".json"] })) {
+    try {
+      const parsed = JSON.parse(readFileSync(p, "utf8"));
+      if (parsed?.schema === RECORD_SCHEMA) records.push({ path: p, record: parsed });
+    } catch {
+      records.push({ path: p, record: null, parseError: true });
     }
-  };
-  if (existsSync(dir) && statSync(dir).isDirectory()) walk(dir);
+  }
   return records;
 }
 

@@ -19,27 +19,19 @@ import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { hosts } from "../../installer/contract.mjs";
 import { renderAdapters } from "../../installer/render.mjs";
+import { walkFiles } from "../../scripts/fs-walk.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const installer = join(root, "installer", "install.mjs");
 
 const run = (args) => spawnSync(process.execPath, [installer, ...args], { cwd: root, encoding: "utf-8" });
 
-function walk(dir, out = []) {
-  for (const entry of readdirSync(dir, { withFileTypes: true })) {
-    const full = join(dir, entry.name);
-    if (entry.isDirectory()) walk(full, out);
-    else out.push(full);
-  }
-  return out;
-}
-
 // A source tree whose every file byte-matches the installed copy.
 function assertTreeCopied(from, to, label) {
   const stats = statSync(from);
   if (stats.isDirectory()) {
     assert.ok(existsSync(to), `${label}: ${to} must exist`);
-    for (const file of walk(from)) {
+    for (const file of walkFiles(from)) {
       const rel = file.slice(from.length + 1);
       const installed = join(to, rel);
       assert.ok(existsSync(installed), `${label}: expected ${rel} under ${to}`);
@@ -71,7 +63,7 @@ try {
 
   // 3. Generated output is byte-identical to a direct render.
   renderAdapters({ targetRoot: reference });
-  for (const file of walk(reference)) {
+  for (const file of walkFiles(reference)) {
     const rel = file.slice(reference.length + 1);
     const installed = join(temp, rel);
     assert.ok(existsSync(installed), `installer output is missing ${rel}`);

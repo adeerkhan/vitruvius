@@ -16,8 +16,9 @@
 // and the reason belongs with the code that would cite it.
 
 import { readdirSync, readFileSync, statSync } from "node:fs";
-import { join, dirname, extname } from "node:path";
+import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { walkFiles } from "./fs-walk.mjs";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const REPO_ROOT = join(__dirname, "..");
@@ -29,27 +30,11 @@ const REFERENCES_DIR = join(REPO_ROOT, "references");
 const SEARCH_ROOTS = ["skills", "agents", "installer", "scripts", "notes"];
 const SEARCH_FILES = ["README.md", "AGENTS.md", "CONTRIBUTING.md"];
 
-function walk(dir, out = []) {
-  let entries;
-  try {
-    entries = readdirSync(dir, { withFileTypes: true });
-  } catch {
-    return out;
-  }
-  for (const entry of entries) {
-    const full = join(dir, entry.name);
-    if (entry.isDirectory()) {
-      // Never descend into the reference corpus itself; that would make every
-      // file self-referential and the check meaningless.
-      if (full === REFERENCES_DIR) continue;
-      if (entry.name === "node_modules" || entry.name === ".git" || entry.name === ".codegraph") continue;
-      walk(full, out);
-    } else if (entry.isFile() && [".md", ".mjs", ".js", ".ts", ".json", ".sh"].includes(extname(entry.name))) {
-      out.push(full);
-    }
-  }
-  return out;
-}
+// File types an agent can load. The search never descends into the reference
+// corpus itself; that would make every file self-referential and the check
+// meaningless. (The search roots below do not contain references/, so the walk
+// does not need to exclude it.)
+const LOADABLE_EXTENSIONS = [".md", ".mjs", ".js", ".ts", ".json", ".sh"];
 
 function corpus() {
   try {
@@ -71,7 +56,7 @@ function allowedSet() {
 const files = [
   // `.flat()` is load-bearing: without it the array holds one sub-array per root
   // and every lookup below silently matches nothing.
-  ...SEARCH_ROOTS.flatMap((r) => walk(join(REPO_ROOT, r))),
+  ...SEARCH_ROOTS.flatMap((r) => walkFiles(join(REPO_ROOT, r), { extensions: LOADABLE_EXTENSIONS })),
   ...SEARCH_FILES.map((f) => join(REPO_ROOT, f)).filter((p) => {
     try {
       return statSync(p).isFile();

@@ -22,6 +22,7 @@ import { readdirSync, readFileSync, existsSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { join, dirname, basename } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { walkFiles } from "./fs-walk.mjs";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const REPO_ROOT = join(__dirname, "..");
@@ -113,6 +114,9 @@ export const REGISTRY = {
   // A security control with four definitions is a control where a fix can land
   // in one copy and leave the others vulnerable.
   "path-safety.mjs": { kind: "test" },
+  // The single recursive directory-walk definition, imported by the scripts
+  // that used to each carry their own copy.
+  "fs-walk.mjs": { kind: "test" },
   "yaml-frontmatter.mjs": { kind: "test" },
   // The single content-addressing definition, imported by the payload-manifest
   // CLI and the discipline generator so the two cannot hash differently.
@@ -150,23 +154,7 @@ const VALID_REASON_KINDS = new Set(["known-failing", "needs-model-run", "needs-n
 const VALID_STATUS = new Set(["passing", "pinned-failure"]);
 
 function testFiles(root) {
-  const out = [];
-  (function walk(dir) {
-    let entries;
-    try {
-      entries = readdirSync(dir, { withFileTypes: true });
-    } catch {
-      return;
-    }
-    for (const e of entries) {
-      const p = join(dir, e.name);
-      if (e.isDirectory()) {
-        if (e.name === "node_modules" || e.name === ".git") continue;
-        walk(p);
-      } else if (e.name.endsWith(".mjs")) out.push(p);
-    }
-  })(join(root, "tests"));
-  return out;
+  return walkFiles(join(root, "tests"), { extensions: [".mjs"] });
 }
 
 /**

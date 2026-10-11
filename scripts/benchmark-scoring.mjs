@@ -9,31 +9,18 @@ import {
   existsSync,
   readFileSync,
   readdirSync,
-  statSync,
 } from "node:fs";
 import { basename, dirname, join, resolve } from "node:path";
 import { parseGroundTruth, parseMachineVerdict } from "./verifier-parser.mjs";
+import { walkFiles } from "./fs-walk.mjs";
 
 const RESULT_SUFFIX = "-result.md";
 
 function walkMarkdown(directory) {
-  if (!existsSync(directory)) return [];
-  const files = [];
-  for (const entry of readdirSync(directory).sort()) {
-    const path = join(directory, entry);
-    let stat;
-    try {
-      stat = statSync(path);
-    } catch {
-      continue;
-    }
-    if (stat.isDirectory()) {
-      files.push(...walkMarkdown(path));
-    } else if (stat.isFile() && entry.endsWith(".md") && entry !== "README.md") {
-      files.push(path);
-    }
-  }
-  return files;
+  return walkFiles(directory, {
+    extensions: [".md"],
+    include: (file) => basename(file) !== "README.md",
+  });
 }
 
 function readVerdictLines(content) {

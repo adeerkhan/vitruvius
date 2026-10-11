@@ -19,10 +19,11 @@
 //
 // Usage: node scripts/tests-check.mjs [--json]
 
-import { readdirSync, existsSync, readFileSync } from "node:fs";
+import { existsSync } from "node:fs";
 import { join, dirname, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
+import { walkFiles } from "./fs-walk.mjs";
 
 const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const TESTS_DIR = join(REPO_ROOT, "tests");
@@ -52,21 +53,10 @@ const sh = (cmd, args) => {
   }
 };
 
-// Every file under tests/, recursively.
-function walk(dir) {
-  const found = [];
-  for (const entry of readdirSync(dir, { withFileTypes: true })) {
-    const p = join(dir, entry.name);
-    if (entry.isDirectory()) found.push(...walk(p));
-    else found.push(p);
-  }
-  return found;
-}
-
 if (!existsSync(TESTS_DIR)) {
   problems.push("tests/ does not exist; this check cannot confirm the suites are visible to git");
 } else {
-  for (const abs of walk(TESTS_DIR)) {
+  for (const abs of walkFiles(TESTS_DIR)) {
     const rel = relative(REPO_ROOT, abs).replaceAll("\\", "/");
     // `git check-ignore` exits 0 when the path IS ignored, 1 when it is not.
     // The path does not need to exist for the pattern to match, so an untracked
@@ -86,7 +76,7 @@ if (!existsSync(TESTS_DIR)) {
 // The mirror image: a suite on disk that is not tracked, which is the same
 // defect reached from the other side and is the state a fresh clone would be in.
 const tracked = new Set((sh("git", ["ls-files", "tests/"]) ?? "").split("\n").filter(Boolean));
-for (const abs of walk(TESTS_DIR)) {
+for (const abs of walkFiles(TESTS_DIR)) {
   const rel = relative(REPO_ROOT, abs).replaceAll("\\", "/");
   if (ALLOWED_IGNORED.has(rel)) continue;
   if (!tracked.has(rel)) {
@@ -99,12 +89,12 @@ for (const abs of walk(TESTS_DIR)) {
 
 const asJson = process.argv.includes("--json");
 if (asJson) {
-  console.log(JSON.stringify({ problems, tests: walk(TESTS_DIR).length }, null, 2));
+  console.log(JSON.stringify({ problems, tests: walkFiles(TESTS_DIR).length }, null, 2));
 } else if (problems.length > 0) {
   console.error(`FAIL: ${problems.length} problem(s) with test visibility:\n`);
   for (const p of problems) console.error(`  ${p}`);
 } else {
-  const count = walk(TESTS_DIR).length;
+  const count = walkFiles(TESTS_DIR).length;
   console.log(
     `PASS: all ${count} file(s) under tests/ are visible to git (${ALLOWED_IGNORED.size} declared diagnostic exception)`,
   );

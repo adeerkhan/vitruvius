@@ -81,6 +81,13 @@ const CASES = [
     test: "tests/engineering-research/test-isolated-tests.mjs",
   },
   {
+    file: "scripts/fs-walk.mjs",
+    rule: "the walk skips excluded directories",
+    find: /if \(skip\.has\(entry\.name\)\) continue;/,
+    replace: "if (false) continue;",
+    test: "tests/engineering-research/test-fs-walk.mjs",
+  },
+  {
     file: "scripts/run-isolated-tests.mjs",
     rule: "a failing skill suite propagates a non-zero exit",
     find: /if \(result\.status === 0\) \{/,
