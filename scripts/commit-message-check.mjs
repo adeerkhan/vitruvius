@@ -207,6 +207,11 @@ export function checkVersionBumps(changes) {
   for (const change of changes) {
     const m = /^skills\/([^/]+)\/SKILL\.md$/.exec(change.path);
     if (!m) continue;
+    // A newly added SKILL.md has no prior version to bump. N7 is a bump rule,
+    // so it applies to an edit, not to a first version — otherwise adding any
+    // skill would be permanently refused. A deleted or emptied version still
+    // fails: `after` is unreadable, so the check below refuses it.
+    if (change.added) continue;
     const skill = m[1];
     const versionOf = (text) => /^\s*version:\s*["']?([0-9]+\.[0-9]+\.[0-9]+)["']?\s*$/m.exec(text || "")?.[1];
     const before = versionOf(change.before);
@@ -230,7 +235,16 @@ export function checkVersionBumps(changes) {
 
 function sh(args) {
   try {
-    return execFileSync("git", args, { encoding: "utf8", cwd: REPO_ROOT, maxBuffer: 32 * 1024 * 1024 });
+    // stderr is discarded: a `git show HEAD^:path` for an ADDED file exits
+    // non-zero with "exists on disk, but not in HEAD^", which is expected here
+    // and would otherwise print on every commit that adds a file. The caller
+    // reads null and treats it as an absent blob.
+    return execFileSync("git", args, {
+      encoding: "utf8",
+      cwd: REPO_ROOT,
+      maxBuffer: 32 * 1024 * 1024,
+      stdio: ["ignore", "pipe", "ignore"],
+    });
   } catch {
     return null;
   }
@@ -241,20 +255,46 @@ function checkCommit(sha) {
   if (message === null) return [`cannot read commit ${sha}`];
   const problems = checkMessage(message);
 
-  const names = sh(["show", "--name-only", "--pretty=format:", sha]);
+  // --name-status, not --name-only: an added file carries status A, and N7 must
+  // exempt it (there is no prior version to bump).
+  const names = sh(["show", "--name-status", "--pretty=format:", sha]);
   if (names !== null) {
     const changes = names
       .split("\n")
-      .map((p) => p.trim())
-      .filter(Boolean)
-      .map((path) => ({
+      .map((line) => line.split("\t"))
+      .filter((parts) => parts.length >= 2)
+      .map(([status, path]) => ({
         path,
+        added: status.startsWith("A"),
         before: sh(["show", `${sha}^:${path}`]) ?? "",
         after: sh(["show", `${sha}:${path}`]) ?? "",
       }));
     problems.push(...checkVersionBumps(changes));
   }
   return problems;
+}
+
+/**
+ * The staged diff (index vs HEAD), the change set the commit-msg hook sees.
+ * `before` is the committed blob, `after` the staged blob; an added file is
+ * flagged so N7 exempts it. The hook only ever receives a message file, so N7
+ * has to be reachable from `--file --staged` — the flag alone, with no file,
+ * checks the change set and nothing else.
+ */
+function stagedChanges() {
+  const out = sh(["diff", "--cached", "--name-status", "--diff-filter=ACMR"]);
+  if (out === null) return [];
+  return out
+    .split("\n")
+    .filter(Boolean)
+    .map((line) => line.split("\t"))
+    .filter((parts) => parts.length >= 2)
+    .map(([status, path]) => ({
+      path,
+      added: status.startsWith("A"),
+      before: sh(["show", `HEAD:${path}`]) ?? "",
+      after: sh(["show", `:${path}`]) ?? "",
+    }));
 }
 
 function main(argv) {
@@ -297,6 +337,11 @@ function main(argv) {
       process.exit(1);
     }
     problems = checkMessage(readFileSync(path, "utf8"));
+    // The commit-msg hook passes `--file <path> --staged`. Without this, N7 was
+    // documented as hook-enforced but only --commit checked the diff.
+    if (argv.includes("--staged")) problems.push(...checkVersionBumps(stagedChanges()));
+  } else if (argv.includes("--staged")) {
+    problems = checkVersionBumps(stagedChanges());
   } else if (argv.includes("--commit")) {
     const sha = argv[argv.indexOf("--commit") + 1];
     if (!sha) {
