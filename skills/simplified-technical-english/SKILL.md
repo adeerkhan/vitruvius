@@ -9,10 +9,10 @@ description: >
 argument-hint: "<text or document to write, rewrite, or check> [--mode procedural|descriptive|mixed]"
 license: MIT for this skill's text; the approved-word list derives from the ASD-STE100 dictionary, which is ASD property. See references/asd-notice.md.
 metadata:
-  version: "0.1.0"
+  version: "0.1.1"
   source-specification: ASD-STE100 Issue 7 (2017-01-25)
 ---
-<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=b023595a22df450660277d5156a4fc30fdb3db7e81d0055080f830bbb2363633 -->
+<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=30156167087d642b91e99be6d96c4b3e9be964474dbbcaf2ff4cf4bb136dd930 -->
 
 # Simplified Technical English
 
@@ -129,8 +129,10 @@ The two types have different limits. Do not mix the two types in one paragraph.
 
 After you write, check your text. Do these steps:
 
-1. If you can run scripts and `python3` is available, run:
-   `python3 scripts/ste_check.py --mode <procedural|descriptive|mixed> <file>`
+1. If you can run scripts and `python3` is available, run the checker that ships
+   with this skill: `python3 <skill-dir>/scripts/ste_check.py --mode
+   <procedural|descriptive|mixed> <file>`. In a repository checkout,
+   `<skill-dir>` is `skills/simplified-technical-english`.
 2. If you cannot run scripts, do a manual scan of the checklist below.
 3. Correct each error.
 4. Check the text again. Stop only when the text has no errors.

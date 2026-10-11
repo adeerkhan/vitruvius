@@ -87,7 +87,7 @@ assert.match(
 // --- The checker, and its honest limit -------------------------------------
 assert.match(
   text,
-  /python3 scripts\/ste_check\.py/i,
+  /scripts\/ste_check\.py/i,
   "STE must name the checker command, or step 6 has no tool",
 );
 assert.match(
