@@ -1,4 +1,5 @@
 import { strict as assert } from "node:assert";
+import { ws } from "../_support/ws.mjs";
 import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -22,13 +23,6 @@ const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const text = readFileSync(join(repoRoot, "skills", "peer-review", "SKILL.md"), "utf8");
 const reviewText = readFileSync(join(repoRoot, "skills", "review", "SKILL.md"), "utf8");
 
-const ws = (s) =>
-  new RegExp(
-    s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
-      .split(/\s+/)
-      .join("\\s+"),
-    "i",
-  );
 
 // --- Independence is the whole point ---------------------------------------
 // A reviewer who has seen the author's reasoning will find the author's

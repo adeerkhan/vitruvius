@@ -1,4 +1,5 @@
 import { strict as assert } from "node:assert";
+import { ws } from "../_support/ws.mjs";
 import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -21,13 +22,6 @@ const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const text = readFileSync(join(repoRoot, "skills", "civil", "SKILL.md"), "utf8");
 
 /** Whitespace-insensitive match, so a rewrap does not break a rule. */
-const ws = (s) =>
-  new RegExp(
-    s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
-      .split(/\s+/)
-      .join("\\s+"),
-    "i",
-  );
 
 // --- The dispatch decision -------------------------------------------------
 // civil is a payload on the shared method, not a second research loop. A

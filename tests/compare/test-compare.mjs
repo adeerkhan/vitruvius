@@ -1,4 +1,5 @@
 import { strict as assert } from "node:assert";
+import { ws } from "../_support/ws.mjs";
 import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -16,13 +17,6 @@ const text = readFileSync(join(repoRoot, "skills", "compare", "SKILL.md"), "utf8
 // phrases whitespace-flexibly: escape regex metacharacters first, then let any
 // run of whitespace stand in for a single space. (Escaping first matters — a
 // literal "+" in a phrase would otherwise become a quantifier.)
-const ws = (s) =>
-  new RegExp(
-    s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
-      .split(/\s+/)
-      .join("\\s+"),
-    "i",
-  );
 
 // Failure mode: the matrix is built from titles and abstracts, so every cell
 // is plausible and none is checked. Reading each source directly is the whole

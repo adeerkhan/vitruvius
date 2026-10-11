@@ -1,4 +1,5 @@
 import { strict as assert } from "node:assert";
+import { ws } from "../_support/ws.mjs";
 import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -94,13 +95,6 @@ const ROLES = {
 };
 // The role list is a single wrapped sentence, so match whitespace-insensitively
 // rather than pinning it to one line — a rewrap must not read as a missing role.
-const ws = (s) =>
-  new RegExp(
-    s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
-      .split(/\s+/)
-      .join("\\s+"),
-    "i",
-  );
 
 for (const [role, does] of Object.entries(ROLES)) {
   assert.match(

@@ -1,4 +1,5 @@
 import { strict as assert } from "node:assert";
+import { ws } from "../_support/ws.mjs";
 import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -17,13 +18,6 @@ import { fileURLToPath } from "node:url";
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const text = readFileSync(join(repoRoot, "skills", "eli5", "SKILL.md"), "utf8");
 
-const ws = (s) =>
-  new RegExp(
-    s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
-      .split(/\s+/)
-      .join("\\s+"),
-    "i",
-  );
 
 // --- The goal is clarity, not reduction ------------------------------------
 assert.match(

@@ -1,4 +1,5 @@
 import { strict as assert } from "node:assert";
+import { ws } from "../_support/ws.mjs";
 import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -111,13 +112,6 @@ assert.match(
 // phrases whitespace-flexibly: escape regex metacharacters first, then let any
 // run of whitespace stand in for a single space. (Escaping first matters — a
 // literal "+" in a phrase would otherwise become a quantifier.)
-const ws = (s) =>
-  new RegExp(
-    s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
-      .split(/\s+/)
-      .join("\\s+"),
-    "i",
-  );
 
 assert.match(
   text,
