@@ -166,6 +166,7 @@ const baselineRoutingCases = [
   { prompt: "peer review my research brief before I submit it", skill: "peer-review" },
   { prompt: "summarize this datasheet into a digestible brief", skill: "summarize" },
   { prompt: "explain what a resistance factor is in simple terms", skill: "eli5" },
+  { prompt: "rewrite this procedure in simplified technical english controlled language", skill: "simplified-technical-english" },
   { prompt: "audit whether the paper's claims match its published code", skill: "audit" },
   { prompt: "compare what Eurocode and AISC say about this connection", skill: "compare" },
   { prompt: "extract the tables from this 80-page specification PDF", skill: "artifact-reading" },

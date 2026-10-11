@@ -126,7 +126,7 @@ if (process.argv.includes("--json")) {
 
 function printReport() {
   console.log(`E1 SUITE FLOOR (machine-checked, gated): ${covered.length}/${report.length} skills have a tests/<skill>/ suite`);
-  console.log(`E1 MODEL-RUN CATALOG:                    ${floor?.model_run_recorded ?? "unknown"}/25 skills have a blind model-run record`);
+  console.log(`E1 MODEL-RUN CATALOG:                    ${floor?.model_run_recorded ?? "unknown"}/${report.length} skills have a blind model-run record`);
   console.log("  (not machine-countable — needs a model run per skill; tracked by hand in skills/e1-suite-manifest.json)");
   console.log("E1 TEETH:                                 proven by tests/all-skills/test-e1-suites-have-teeth.mjs\n");
   for (const r of report) {

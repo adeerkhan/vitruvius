@@ -15,7 +15,7 @@ const content = readFileSync(reqPath, "utf8");
 // Must have a [skills] section
 assert.match(content, /^\[skills\]$/m, "requirements file must have a [skills] section");
 
-// Must define requirements for all 25 skills
+// Must define requirements for all 26 skills
 const skillsDir = join(repoRoot, "skills");
 const skillNames = readdirSync(skillsDir, { withFileTypes: true })
   .filter((e) => e.isDirectory())

@@ -23,6 +23,7 @@ peer-review = { runtime = "node", packages = [] }
 proposal = { runtime = "node", packages = [] }
 review = { runtime = "node", packages = [] }
 scholarly-research = { runtime = "node", packages = [] }
+simplified-technical-english = { runtime = "node", packages = [] }
 software = { runtime = "node", packages = [] }
 standards-lookup = { runtime = "node", packages = [] }
 summarize = { runtime = "node", packages = [] }

@@ -38,7 +38,7 @@ The differentiator, stated in one sentence: **Vitruvius is an engineering resear
 ## Repository Layout
 
 ```
-skills/                 25 skills (frontmatter contract, ≤500 lines each)
+skills/                 26 skills (frontmatter contract, ≤500 lines each)
   <discipline>/           5 thin dispatchers with domain evidence landscapes
   engineering-research/   the shared method (all others dispatch into it)
   verifier/               blind verification (8 checks, default-FAIL)
@@ -174,7 +174,7 @@ Five measurement layers are documented here; enforcement and reproducibility var
 | Verdict correctness | 20 adversarial cases × 5 disciplines plus 5 PASS scoring fixtures, blind headless runs (`tasks/benchmark/run-benchmark.sh` + `scripts/score-benchmark.mjs`) | Latest checked-in adversarial run: 80%; zero false approvals, zero false blocks, one conservative overcall; PASS scoring fixtures 5/5. Run-to-run variance is material and decision-grade certification remains open. Residuals: margin-earnedness and required-value boundaries sit on the variance line |
 | Integrity under persuasion | 5 pressure cases (authority, sunk-cost, time, reframe, pedantic) in `tasks/benchmark/pressure/` | Latest artifact: 4/5 held with one false approval; no false-block guarantee is claimed |
 | Trigger routing | `tests/routing/eval-routing.mjs`: trigram collision check + TF-IDF rank-1 over 20 labeled prompts covering all 5 disciplines | 16/20 rank-1 (75% floor); misses persisted to `tests/routing/last-misses.txt` |
-| Structural contract | `scripts/validate-contract.mjs`: frontmatter (with merged-key guard), 500-line cap, link/skill-reference resolution, no stray tests | 25/25 pass |
+| Structural contract | `scripts/validate-contract.mjs`: frontmatter (with merged-key guard), 500-line cap, link/skill-reference resolution, no stray tests | 26/26 pass |
 | Provenance schema | `scripts/validate-artifacts.mjs` (incl. inferred-derivation gate) | selected root/plan/draft paths pass; nested closure remains pending |
 
 Benchmark history and per-case residuals live in

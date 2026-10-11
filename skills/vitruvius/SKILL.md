@@ -13,10 +13,10 @@ description: >
 argument-hint: "<discipline or research question>"
 license: MIT
 metadata:
-  version: "0.1.1"
+  version: "0.1.2"
 
 ---
-<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=2cb16283e3702f6f018839897cd827b65e732cfde7d9be6dbdf3fe6a06a66e2a -->
+<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=e4dab2f306d8333f44109a4ae836154e716d860b971d7f35460c064672c116be -->
 
 # Vitruvius
 
@@ -56,6 +56,7 @@ discipline:
 | audit, does the code match the paper/spec, consistency check | `/vitruvius:audit` | Claim-vs-implementation mismatch audit |
 | summarize, condense, key requirements of this spec/standard/paper | `/vitruvius:summarize` | Faithful structured document digest |
 | explain like I'm 5, ELI5, simplify this, what does this mean | `/vitruvius:eli5` | Plain-language engineering explanation |
+| write/rewrite/check procedures, warnings, or plain technical text (Simplified Technical English, controlled language) | `/vitruvius:simplified-technical-english` | Rewrite or check technical text in STE (ASD-STE100) |
 | read/extract from PDF/datasheet/drawing/spec, answer from a document | `/vitruvius:artifact-reading` | Anchored document reading + extraction |
 
 If the user names a workflow the table does not cover, default to the

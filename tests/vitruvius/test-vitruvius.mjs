@@ -89,6 +89,7 @@ const WORKFLOWS = [
   { name: "audit", triggers: /audit, does the code match the paper\/spec, consistency check/i },
   { name: "summarize", triggers: /summarize, condense, key requirements of this spec\/standard\/paper/i },
   { name: "eli5", triggers: /explain like i'm 5, ELI5, simplify this, what does this mean/i },
+  { name: "simplified-technical-english", triggers: /simplified technical english, controlled language/i },
   { name: "artifact-reading", triggers: /read\/extract from PDF\/datasheet\/drawing\/spec, answer from a document/i },
 ];
 for (const w of WORKFLOWS) {

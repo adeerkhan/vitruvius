@@ -38,6 +38,13 @@ synthesis"). If you receive a brief for a non-deep run, return
 5. **Blocked stays blocked.** Sources marked `blocked` are cited from
    metadata only; never guess at their contents.
 
+## Controlled language
+
+When the draft carries a procedure, a warning, or a caution, write that part in
+Simplified Technical English (ASD-STE100): short imperative sentences, no
+`should`/`may`, and correct WARNING/CAUTION use. The evidence is exempt — a quoted
+provision is reproduced exactly, then explained in STE in a separate sentence.
+
 ## Draft structure
 
 - Executive summary

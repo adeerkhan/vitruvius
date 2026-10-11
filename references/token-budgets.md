@@ -23,6 +23,7 @@ research early. A budget is a ceiling the user sets (see
 | review | — | 2,000-3,500 | 5,000 |
 | audit | — | 2,500-4,000 | 6,000 |
 | eli5 | — | 1,000-2,000 | 3,000 |
+| simplified-technical-english | — | 1,000-2,500 | 4,000 |
 | standards-lookup | — | 1,500-2,500 | 4,000 |
 | scholarly-research | — | 2,000-3,500 | 5,000 |
 | artifact-reading | — | 1,000-2,000 | 3,000 |

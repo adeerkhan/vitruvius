@@ -1,0 +1,25 @@
+# NOTICE
+
+This repository includes a third-party skill that was copied, not only used as a
+pattern. Attribution is therefore required and this file records it.
+
+## Simplified Technical English skill
+
+`skills/simplified-technical-english/` contains text, a rules summary, examples,
+and a checker copied from the `0xpili/simplified-technical-english` project
+(https://github.com/0xpili/simplified-technical-english), which publishes them
+under the MIT licence, Copyright (c) 2026 0xpili.
+
+The MIT licence text and the copyright notice are reproduced in
+`skills/simplified-technical-english/references/asd-notice.md`, together with the
+notice for the ASD-STE100 word list. See also `ref/SOURCES.md` (local-only) for
+the upstream commit that was used.
+
+## ASD-STE100
+
+The approved-word list in
+`skills/simplified-technical-english/references/word-list.md` derives from the
+ASD-STE100 dictionary (Issue 7, 2017), which is the property of ASD. The list
+shows only words, parts of speech, and forms — not approved meanings,
+definitions, or dictionary examples. ASD-STE100 is a registered trade mark of
+ASD. This project is not affiliated with or endorsed by ASD.

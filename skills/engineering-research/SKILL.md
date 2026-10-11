@@ -15,10 +15,10 @@ argument-hint: "<research question or artifact to review> [--deep | --quick]"
 allowed-tools: Write Edit Bash Read
 license: MIT
 metadata:
-  version: "0.5.1"
+  version: "0.5.2"
 
 ---
-<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=59b8c236fe022c1ff377b0f7c1aa5593fd01333f8d3be0f8bf286118c73b57b1 -->
+<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=31347c35a4d488ddae29eaa68e92466ba2e6e39db4f20e6fb391f06703f3c0ee -->
 
 # Engineering Research
 
@@ -234,6 +234,13 @@ Three things stay inline because they are load-bearing:
   validator is not installed** — keep it and mark validation `BLOCKED`, never
   drop it. Repair a failed record by fixing the claim or the anchor, never by
   deleting the finding.
+
+**Controlled language for instructions, never for evidence.** When the brief
+carries a procedure, a warning, or a caution, write that part in Simplified
+Technical English (`/simplified-technical-english`): short imperative sentences
+and correct WARNING/CAUTION use. The evidence itself is exempt — a quoted
+provision is reproduced exactly, then explained in STE in a separate sentence, so
+the quotation is never changed into a cleaner paraphrase.
 
 ## Step 5: Verify (Blind Verifier)
 

@@ -157,6 +157,18 @@ const CASES = [
     replace: "Use analogies freely.",
   },
   {
+    skill: "simplified-technical-english",
+    rule: "the evidence must not be rewritten",
+    find: /Do not rewrite the evidence/,
+    replace: "Rewrite the evidence",
+  },
+  {
+    skill: "simplified-technical-english",
+    rule: "a value or risk must survive the rewrite",
+    find: /STE shortens sentences; it never changes a value or drops a risk/i,
+    replace: "STE may change a value when the sentence is clearer.",
+  },
+  {
     skill: "vitruvius",
     rule: "ask which discipline when none is named",
     find: /If the user names no discipline, ask which discipline the question belongs to\s+before starting/i,

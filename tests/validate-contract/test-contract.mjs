@@ -116,7 +116,7 @@ console.log("\n[Test] references/evidence-quality-tiers.md exists");
 
 console.log("\n[Test] A frontmatter value opening with a YAML indicator is refused");
 {
-  // The real-repo run proves all 25 skills conform; these fixtures prove the
+  // The real-repo run proves all 26 skills conform; these fixtures prove the
   // rule can actually fail, so a green run is meaningful. Strict YAML parsers
   // (PyYAML, psych) reject a plain scalar starting with ` @ % * , and a
   // one-line `|`/`>` header — this line-based parser would accept both.

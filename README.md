@@ -10,7 +10,7 @@
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT License"></a>
-  <img src="https://img.shields.io/badge/skills-25-green" alt="25 skills">
+  <img src="https://img.shields.io/badge/skills-26-green" alt="26 skills">
   <a href="https://github.com/adeerkhan/vitruvius/actions/workflows/ci.yml"><img src="https://github.com/adeerkhan/vitruvius/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <a href="https://github.com/adeerkhan/vitruvius/actions/workflows/security-scan.yml"><img src="https://github.com/adeerkhan/vitruvius/actions/workflows/security-scan.yml/badge.svg" alt="Security Scan"></a>
 </p>
@@ -20,7 +20,7 @@
 </p>
 
 <p align="center">
-  <strong>5 disciplines. 25 skills. Blind verification with a scored benchmark.</strong>
+  <strong>5 disciplines. 26 skills. Blind verification with a scored benchmark.</strong>
 </p>
 
 <p align="center">
@@ -76,15 +76,15 @@ The verifier is benchmarked, not asserted. Its checked-in results are on-disk, r
 | PASS scoring fixtures (5 disciplines) | 5/5 parser/scorer fixtures; these are not independent verifier runs | [control cases](tasks/benchmark/controls/cases) |
 | Benchmark integrity | Missing, malformed, duplicate, and unknown result files fail closed | [benchmark scorer](scripts/benchmark-scoring.mjs) |
 | Integrity under persuasion (5 pressure cases: authority, sunk cost, time, reframe, pedantry) | Latest artifact: 4/5 held with one false approval; no false-block guarantee is claimed | [pressure suite](tasks/benchmark/pressure/README.md) |
-| Skill routing (20 labeled prompts, 25 skills) | 16/20 rank-1, 0 collisions | [routing evals](tests/routing/eval-routing.mjs) |
-| E1 evaluation pilot | 4 fixture-backed priority skills; positive top-k 4/4 and owner-negative 4/4; full 25-skill coverage remains open | [evals/catalog.json](evals/catalog.json) |
+| Skill routing (21 labeled prompts, 26 skills) | 17/21 rank-1, 0 collisions | [routing evals](tests/routing/eval-routing.mjs) |
+| E1 evaluation pilot | 4 fixture-backed priority skills; positive top-k 4/4 and owner-negative 4/4; full 26-skill coverage remains open | [evals/catalog.json](evals/catalog.json) |
 | C1 fixed-case pilot | 3 local-only cases, 3 fresh subagent runs, independent review 3/3; host model cost unavailable | [evals/results/manifest.json](evals/results/manifest.json) |
 | GC1 GOAL-CHECK contract | deterministic positive/omitted-ask/repeated-gap fixtures; valid `NOT-DONE` is not promotable | [goal-check-contract.mjs](scripts/goal-check-contract.mjs) |
 | PR1 artifact closure | nested final/provenance, stale-byte, orphan, and path-escape fixtures | [artifact-closure.mjs](scripts/artifact-closure.mjs) |
 | V1 field-pilot contract | format and refusal tests only; no real external-source result claimed | [field-pilot README](evals/field-pilot/README.md) |
 | Baseline comparison (Vitruvius vs plain prompt, 10 cases) | fail-closed contract + deterministic scorer, proven by fixtures; 1-case pilot recorded and flagged `shared-harness` — a procedure check, not a comparison result | [baseline README](evals/baseline/README.md) |
 | Problem-anchor contract | anchors resolve to non-blank lines on disk; unanchored `repo` claims, uncited anchors, decisions with no finding, and empty negative coverage all fail closed | [problem-anchor-contract.mjs](scripts/problem-anchor-contract.mjs) |
-| Structural contract (25 skills) | enforced in CI | [validate-contract.mjs](scripts/validate-contract.mjs) |
+| Structural contract (26 skills) | enforced in CI | [validate-contract.mjs](scripts/validate-contract.mjs) |
 | Provenance schema (selected sidecars, `inferred` derivation traces) | selected root/plan/draft checks plus deterministic generic closure fixtures; legacy local closure remains opt-in | [validate-artifacts.mjs](scripts/validate-artifacts.mjs) |
 
 Reproduce:
@@ -163,6 +163,7 @@ Named engineering jobs over the shared loop:
 | `/audit` | Claim-vs-implementation (paper-vs-code, spec-vs-design) |
 | `/summarize` | Faithful structured digest of a standard, spec, or paper |
 | `/eli5` | Plain-language engineering explanation |
+| `/simplified-technical-english` | Write, rewrite, and check technical text in Simplified Technical English (ASD-STE100) |
 | `/artifact-reading` | Anchored extraction from PDFs, drawings, specs |
 | `/scholarly-research` | Academic literature evidence layer (OpenAlex, arXiv, Semantic Scholar) with need-based routing modes, code prior-art search, and page-anchored open-access PDF reading; synthesis goes to `/engineering-research` |
 | `/standards-lookup` | Engineering standards: AISC, ACI, ASCE, IEEE, Eurocode |
@@ -287,6 +288,7 @@ End-to-end workflows for specific tasks:
 | `/audit <code-vs-paper>` | Claim-vs-implementation mismatch audit |
 | `/summarize <document>` | Faithful structured digest of a standard, spec, or paper |
 | `/eli5 "topic"` | Plain-language engineering explanation |
+| `/simplified-technical-english <text>` | Rewrites technical text in Simplified Technical English (ASD-STE100) |
 | `/artifact-reading <file>` | Anchored extraction from PDFs, drawings, specs |
 | `/scholarly-research "topic"` | Academic literature evidence layer (OpenAlex, arXiv, Semantic Scholar) with routing modes, code prior art, and page-anchored PDF reading; synthesis goes to `/engineering-research` |
 | `/standards-lookup AISC 360` | Looks up AISC 360 provisions by section |
@@ -326,7 +328,7 @@ cp -r skills/ ~/.codex/skills/vitruvius
 ### Command Code
 
 ```bash
-cmd skills add adeerkhan/vitruvius --global   # install all 25 skills
+cmd skills add adeerkhan/vitruvius --global   # install all 26 skills
 npx @adeerkhan/vitruvius --host commandcode      # render the slash-command mod
 ```
 

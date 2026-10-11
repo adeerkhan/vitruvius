@@ -126,6 +126,12 @@ export const commands = [
     category: "workflow",
   },
   {
+    name: "simplified-technical-english",
+    description: "Write, rewrite, and check technical text in Simplified Technical English (ASD-STE100)",
+    argumentHint: "<text or document> [--mode procedural|descriptive|mixed]",
+    category: "workflow",
+  },
+  {
     name: "artifact-reading",
     description: "Anchored extraction from PDFs, drawings, specs",
     argumentHint: "<file to read>",

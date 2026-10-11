@@ -1,7 +1,7 @@
 /**
  * Structural tests for all skills not covered by other test suites.
  * Covers: mechanical, civil, electrical, software, architectural,
- *          compare, review, audit, summarize, eli5,
+ *          compare, review, audit, summarize, eli5, simplified-technical-english,
  *          artifact-reading, scholarly-research, standards-lookup.
  */
 
@@ -18,7 +18,7 @@ const skills = [
   // Discipline skills
   "mechanical", "civil", "electrical", "software", "architectural",
   // Workflow skills
-  "compare", "review", "audit", "summarize", "eli5",
+  "compare", "review", "audit", "summarize", "eli5", "simplified-technical-english",
   // Application skills
   "artifact-reading", "scholarly-research", "standards-lookup",
 ];
