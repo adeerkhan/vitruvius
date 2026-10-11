@@ -235,19 +235,38 @@ export function checkVersionBumps(changes) {
 
 function sh(args) {
   try {
-    // stderr is discarded: a `git show HEAD^:path` for an ADDED file exits
-    // non-zero with "exists on disk, but not in HEAD^", which is expected here
-    // and would otherwise print on every commit that adds a file. The caller
-    // reads null and treats it as an absent blob.
-    return execFileSync("git", args, {
+    return execFileSync("git", args, { encoding: "utf8", cwd: REPO_ROOT, maxBuffer: 32 * 1024 * 1024 });
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Blob content at `rev:path` or `:path`, or "" when it is absent. Only this
+ * lookup is expected to fail — an added file has no `HEAD^:path` — so this is
+ * the one call whose stderr is discarded rather than the whole `sh` helper.
+ */
+function showBlob(ref) {
+  try {
+    return execFileSync("git", ["show", ref], {
       encoding: "utf8",
       cwd: REPO_ROOT,
       maxBuffer: 32 * 1024 * 1024,
       stdio: ["ignore", "pipe", "ignore"],
     });
   } catch {
-    return null;
+    return "";
   }
+}
+
+/** `git --name-status` output -> `{ path, added }` records. */
+function parseNameStatus(text) {
+  return text
+    .split("\n")
+    .filter(Boolean)
+    .map((line) => line.split("\t"))
+    .filter((parts) => parts.length >= 2)
+    .map(([status, path]) => ({ path, added: status.startsWith("A") }));
 }
 
 function checkCommit(sha) {
@@ -259,16 +278,12 @@ function checkCommit(sha) {
   // exempt it (there is no prior version to bump).
   const names = sh(["show", "--name-status", "--pretty=format:", sha]);
   if (names !== null) {
-    const changes = names
-      .split("\n")
-      .map((line) => line.split("\t"))
-      .filter((parts) => parts.length >= 2)
-      .map(([status, path]) => ({
-        path,
-        added: status.startsWith("A"),
-        before: sh(["show", `${sha}^:${path}`]) ?? "",
-        after: sh(["show", `${sha}:${path}`]) ?? "",
-      }));
+    const changes = parseNameStatus(names).map(({ path, added }) => ({
+      path,
+      added,
+      before: showBlob(`${sha}^:${path}`),
+      after: showBlob(`${sha}:${path}`),
+    }));
     problems.push(...checkVersionBumps(changes));
   }
   return problems;
@@ -284,17 +299,12 @@ function checkCommit(sha) {
 function stagedChanges() {
   const out = sh(["diff", "--cached", "--name-status", "--diff-filter=ACMR"]);
   if (out === null) return [];
-  return out
-    .split("\n")
-    .filter(Boolean)
-    .map((line) => line.split("\t"))
-    .filter((parts) => parts.length >= 2)
-    .map(([status, path]) => ({
-      path,
-      added: status.startsWith("A"),
-      before: sh(["show", `HEAD:${path}`]) ?? "",
-      after: sh(["show", `:${path}`]) ?? "",
-    }));
+  return parseNameStatus(out).map(({ path, added }) => ({
+    path,
+    added,
+    before: showBlob(`HEAD:${path}`),
+    after: showBlob(`:${path}`),
+  }));
 }
 
 function main(argv) {
