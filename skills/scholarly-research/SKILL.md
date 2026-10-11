@@ -12,10 +12,10 @@ argument-hint: "<topic or paper identifier>"
 allowed-tools: Write Edit Bash Read
 license: MIT
 metadata:
-  version: "0.4.0"
+  version: "0.4.1"
 
 ---
-<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=643bfab96960f4ced24e14a711d17a3e3a67a3eb153fbe449e45ab146357fd83 -->
+<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=920243b7fc414be8c7831c2eb68db6435095303630ed5c4ddaa1981130fbf9c6 -->
 
 # Scholarly Research
 
@@ -61,12 +61,20 @@ See `references/input-gate.md`.
   Scholar has no official API, blocks automated browsers with captchas, and
   its scrapers violate its ToS — do not scrape it.** Use OpenAlex or Semantic
   Scholar citation counts instead, and say which source the count came from.
-- **A fallback never erases the failure.** If an index rate-limits, times out, or
-  returns nothing, record that search anyway as `status: partial` with the reason
-  in `notes`, *then* use the next index. Semantic Scholar's shared pool times
-  out regularly; when you fall back to OpenAlex, the timeout has to survive as a
-  record. A search that silently disappears leaves a hole in the evidence set
-  that no reader can see, and the coverage count quietly lies.
+- **A fallback never erases the failure, and an empty answer is not a failure.**
+  If an index rate-limits, times out, or returns 5xx, record that search as
+  `status: partial` with the reason in `notes`, *then* use the next index; if no
+  index answers, name the one that did not respond. Semantic Scholar's shared
+  pool times out regularly; when you fall back to OpenAlex, the timeout has to
+  survive as a record. A search that silently disappears leaves a hole in the
+  evidence set that no reader can see, and the coverage count quietly lies.
+- **An index that missed is a different state from an index that was down.**
+  A query that ran and returned zero results is a definitive negative: record it
+  explicitly as a zero-result search with the exact query, so the reader can see
+  the question was covered and the answer was empty. Do not file it as `partial`.
+  "The index was unavailable" and "the index found nothing" are different
+  evidence, and a reader who cannot tell them apart cannot tell a covered
+  question from an uncovered one.
 - Never invent a citation. Every claim maps to a fetched source: DOI, arXiv
   id, or URL you actually retrieved.
 - When a source is paywalled or unreachable, cite from search metadata and
@@ -123,6 +131,10 @@ GET https://export.arxiv.org/api/query?search_query=all:<topic>&max_results=20  
   429 once after the same wait rather than tightening the request.
 - Budget ~25s per request. A timeout is a `partial` search recorded as such, not
   a gap you fall back through.
+- **Keep the version suffix.** Record and cite `arXiv:1706.03762v5`, not
+  `arXiv:1706.03762`. An unversioned id resolves to the newest revision, so a
+  citation can change under a reader who checks it later; the `vN` is what makes
+  the source reproducible.
 - `max_results` caps at 100 for an id lookup; batch the ids rather than looping.
 
 ### 4. alphaXiv fast search — keyless arXiv discovery
