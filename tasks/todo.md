@@ -82,16 +82,16 @@
 - [x] Close the number/identifier half of rule 2 with a high-precision entailment
       proxy (`scripts/entailment.mjs`, gated on `status: "verified"` so a paraphrase
       scores `partial` rather than being punished as a falsehood)
-- [ ] Close the remaining half of rule 2: an anchored line that carries every
-      token of a claim but does not support it. The proxy is a token check, not
-      comprehension. The V1 pilot produced the cleanest example yet — a claim that
-      cited `RoomProfile.ts:35` as the aspect gate when `Constraints.ts:394-399`
-      names `AR_CAP` as the gate and RoomProfile as sizing-only. Both lines carry
-      `maxAspectRatio` and `2.0`, so the proxy passed it and the blind verifier
-      did not. Attentive re-anchoring is still a human act.
-- [ ] Close rule 3: `changes` is a required enum, so a finding can name
-      `change` without the change being specified. Nothing checks that the named
-      landing site is actionable.
+- [x] Close the remaining half of rule 2: a claim asserting governance over an
+      identifier must reach the file that DECLARES it, not one that merely uses
+      it (`governanceMismatch` in scripts/entailment.mjs, gated on
+      `status: "verified"`, comparing the record's own declared artifacts). The
+      V1 pilot's `RoomProfile.ts:35` class of error is now refused. Still
+      narrow and still not comprehension: it needs a governance verb, a
+      declaration shape, and the declaring module to be a declared artifact.
+- [x] Close rule 3: an action finding (`change`/`measure`/`defer`) must carry
+      the companion field that completes it (`remediation`/`metric`/`condition`),
+      and the field is refused on every other value
 - [x] Close rules 2 and 3, first pass: a decision with no finding and a finding
       with no landing site are both refused by the contract
 

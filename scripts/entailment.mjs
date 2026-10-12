@@ -57,6 +57,84 @@ function measureSupported(measure, line) {
 }
 
 /**
+ * Governance phrasing: the words that turn an identifier into a claim about
+ * *which* code governs a behaviour. "The room is 1.2 m wide" needs no
+ * declaration site; "the aspect gate caps the room at 2.0" does.
+ *
+ * Deliberately broad and matched case-insensitively: the point of the check is
+ * to *ask* for a re-anchor, not to be clever about prose.
+ */
+const GOVERNANCE =
+  /\b(?:gate|gates|cap|caps|capped|limit|limits|enforce[sd]?|enforcement|constrain[sd]?|constraint|govern[sd]?|is the source of|sets the|defines the|held by|carried by|centralised|centralized)\b/i;
+
+/**
+ * Escape a name for use in a regex. Identifiers carry `.`, `-` and `_`.
+ */
+function escapeName(name) {
+  return name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+// A non-global shape test. The module's IDENTIFIER carries the /g flag, so
+// `.test()` on it would advance lastIndex and answer from stale state.
+const IDENTIFIER_SHAPE = /^[A-Za-z][A-Za-z0-9]*(?:[._-][A-Za-z0-9]+)+$/;
+
+/**
+ * Does this line *declare* the identifier, or merely use it?
+ *
+ * Declaration shapes recognised: `const/let/var/function/class/def NAME`,
+ * `#define NAME`, `NAME =`, and `NAME:` as an object-literal key. A reference —
+ * `foo(NAME)` or `if (NAME > 2)` — is not a declaration, which is the whole
+ * distinction this check rests on.
+ *
+ * Conservative on purpose: a shape that is not a declaration here yields
+ * `false`, and a false `false` costs the check a hit rather than a false
+ * accusation. Over-reading prose comments as declarations is what would make
+ * this useless.
+ */
+export function declaresIdentifier(lineText, identifier) {
+  if (typeof lineText !== "string" || !identifier || !IDENTIFIER_SHAPE.test(identifier)) return false;
+  const name = escapeName(identifier);
+  return (
+    new RegExp(`\\b(?:const|let|var|function|class|def)\\s+${name}\\b`).test(lineText) ||
+    new RegExp(`^${name}\\s*[:=]`).test(lineText) ||
+    new RegExp(`#define\\s+${name}\\b`).test(lineText)
+  );
+}
+
+/**
+ * Does the claim assert governance over an identifier that the anchored line
+ * does not declare but some other artifact does?
+ *
+ * This is the half of the anchor check the token proxy cannot reach: a line can
+ * carry every identifier and number in a claim and still be the wrong line,
+ * because it *uses* the identifier where another file *defines* it. The V1
+ * pilot produced exactly that — a claim anchored to a profile that carries
+ * `maxAspectRatio` and `2.0` while the constraint file names the cap.
+ *
+ * Returns null when the check does not apply, which is most of the time.
+ *
+ * @param {string} claim
+ * @param {string[]} anchoredLines   lines of the anchored file
+ * @param {Array<{id: string, lines: string[]}>} otherArtifacts
+ * @returns {{identifier: string, declaringArtifacts: string[]} | null}
+ */
+export function governanceMismatch(claim, anchoredLines, otherArtifacts) {
+  if (typeof claim !== "string" || !GOVERNANCE.test(claim)) return null;
+  if (!Array.isArray(anchoredLines) || anchoredLines.length === 0) return null;
+
+  for (const match of claim.matchAll(IDENTIFIER)) {
+    const identifier = match[0];
+    // The anchor itself declares it: no mismatch, whatever else exists.
+    if (anchoredLines.some((line) => declaresIdentifier(line, identifier))) continue;
+    const declaringArtifacts = (otherArtifacts ?? [])
+      .filter((artifact) => Array.isArray(artifact.lines) && artifact.lines.some((line) => declaresIdentifier(line, identifier)))
+      .map((artifact) => artifact.id);
+    if (declaringArtifacts.length > 0) return { identifier, declaringArtifacts };
+  }
+  return null;
+}
+
+/**
  * @returns {{ token: string, kind: string }[]} unsupported high-precision tokens
  */
 export function unsupportedTokens(claim, anchoredLine) {

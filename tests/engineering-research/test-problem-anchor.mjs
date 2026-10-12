@@ -353,6 +353,130 @@ try {
     "a change finding that names what to change it to",
   );
 
+  // --- Rule 2, second half: the right token on the wrong line ---------------
+  // A carried identifier is not a supported claim. This is the error the V1
+  // pilot made by hand: a claim about the aspect gate anchored to a profile
+  // that reads the cap, while the constraints file declares it.
+  write("solver/Limits.ts", "export const AR_CAP = 2; // the aspect gate\n");
+  write("solver/Profile.ts", "if (width > AR_CAP) { resize(); } // sizing only\n");
+  const limitsPath = join(root, "solver", "Limits.ts");
+  const profilePath = join(root, "solver", "Profile.ts");
+  const govArtifacts = [
+    {
+      id: "A2",
+      path: "solver/Profile.ts",
+      sha256: digest(profilePath),
+      bytes: readFileSync(profilePath).length,
+    },
+    {
+      id: "A3",
+      path: "solver/Limits.ts",
+      sha256: digest(limitsPath),
+      bytes: readFileSync(limitsPath).length,
+    },
+  ];
+  const governanceClaim = "The aspect gate is `AR_CAP`, and it caps a room at 2.0";
+  const govDecision = { id: "D1", text: "Which module is the aspect gate" };
+
+  expectInvalid(
+    fixture({
+      decisions: [govDecision],
+      artifacts: govArtifacts,
+      findings: [
+        {
+          id: "F1",
+          decision_id: "D1",
+          claim: governanceClaim,
+          type: "repo",
+          anchor: { path: "solver/Profile.ts", line: 1 },
+          artifact_id: "A2",
+          changes: "change",
+          remediation: "cite Limits.ts for the aspect gate",
+          status: "verified",
+        },
+      ],
+    }),
+    "governance claim anchored to a file that only uses the identifier",
+    /attributes AR_CAP to .*but A3 declares it/,
+  );
+
+  // Anchored to the declaring line, the same claim is fine.
+  const govFinal = write(
+    "gov.md",
+    [
+      "# Governance",
+      "",
+      "F1: the aspect gate is `AR_CAP` (`solver/Limits.ts:1`).",
+      "",
+      "N1: searched the reviewed sources for a universal geometric slack factor; not found.",
+      "",
+    ].join("\n"),
+  );
+  expectValid(
+    fixture({
+      decisions: [govDecision],
+      artifacts: govArtifacts,
+      findings: [
+        {
+          id: "F1",
+          decision_id: "D1",
+          claim: governanceClaim,
+          type: "repo",
+          anchor: { path: "solver/Limits.ts", line: 1 },
+          artifact_id: "A3",
+          changes: "change",
+          remediation: "cite Limits.ts for the aspect gate",
+          status: "verified",
+        },
+      ],
+      final: {
+        path: "gov.md",
+        sha256: digest(govFinal),
+        bytes: readFileSync(govFinal).length,
+      },
+    }),
+    "governance claim anchored to the declaring line",
+  );
+
+  // The documented limit: without governance phrasing the check stays out of
+  // it, because a reference to an identifier is not a claim about who owns it.
+  const refFinal = write(
+    "ref.md",
+    [
+      "# Governance",
+      "",
+      "F1: the profile reads `AR_CAP` during sizing (`solver/Profile.ts:1`).",
+      "",
+      "N1: searched the reviewed sources for a universal geometric slack factor; not found.",
+      "",
+    ].join("\n"),
+  );
+  expectValid(
+    fixture({
+      decisions: [govDecision],
+      artifacts: govArtifacts,
+      findings: [
+        {
+          id: "F1",
+          decision_id: "D1",
+          claim: "The profile reads `AR_CAP` during sizing",
+          type: "repo",
+          anchor: { path: "solver/Profile.ts", line: 1 },
+          artifact_id: "A2",
+          changes: "change",
+          remediation: "state that the profile reads the cap",
+          status: "verified",
+        },
+      ],
+      final: {
+        path: "ref.md",
+        sha256: digest(refFinal),
+        bytes: readFileSync(refFinal).length,
+      },
+    }),
+    "a reference without governance phrasing is left alone",
+  );
+
   expectInvalid(
     fixture({
       findings: [

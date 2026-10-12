@@ -17,7 +17,7 @@ import { createHash } from "node:crypto";
 import { readFileSync, realpathSync, statSync } from "node:fs";
 import { isAbsolute, dirname, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
-import { unsupportedTokens } from "./entailment.mjs";
+import { governanceMismatch, unsupportedTokens } from "./entailment.mjs";
 import { isInside, isNonEmptyString as isText, isSafeRelativePath } from "./path-safety.mjs";
 
 const SCHEMA = "vitruvius-problem-anchor.v1";
@@ -230,7 +230,14 @@ export function validateProblemAnchor(record, { anchorRoot: anchorRootOption, re
       } else if (artifact.bytes !== bytes.length) {
         errors.push(`${label}.bytes does not match the file on disk`);
       }
-      artifacts.set(artifact.id, { ...artifact, present: true, digest, size: bytes.length, lines: lineCount(file.text) });
+      artifacts.set(artifact.id, {
+        ...artifact,
+        present: true,
+        digest,
+        size: bytes.length,
+        lines: lineCount(file.text),
+        textLines: file.text.split("\n"),
+      });
     });
   }
 
@@ -369,6 +376,7 @@ export function validateProblemAnchor(record, { anchorRoot: anchorRootOption, re
       // resolve the anchor against real bytes, and check that a `verified`
       // repo claim's high-precision content is actually carried by that line
       let anchoredLine = null;
+      let anchoredLines = [];
       if (anchored) {
         const anchorLabel = `${label}.anchor`;
         if (!isConfinedRelativePath(finding.anchor.path)) {
@@ -385,6 +393,7 @@ export function validateProblemAnchor(record, { anchorRoot: anchorRootOption, re
               errors.push(`${anchorLabel}.line ${finding.anchor.line} is blank; anchor a line that carries the claim`);
             } else {
               anchoredLine = lines[finding.anchor.line - 1];
+              anchoredLines = lines;
             }
           }
         }
@@ -406,6 +415,26 @@ export function validateProblemAnchor(record, { anchorRoot: anchorRootOption, re
             `${label} is verified but the anchored line does not carry its ${kind} ${token}; ` +
               `downgrade to partial or anchor the line that does`,
           );
+        }
+
+        // Rule 2, second half: a line can carry every identifier in a claim and
+        // still be the wrong line, because it *uses* the identifier where
+        // another declared artifact *declares* it. The V1 pilot produced that
+        // exact error — a claim about the aspect gate anchored to a profile
+        // that carries `maxAspectRatio` and `2.0` while the constraints file
+        // names the cap. The token proxy passed it; this asks for a re-anchor.
+        if (finding.type === "repo" && artifacts.size > 1) {
+          const otherArtifacts = [...artifacts.entries()]
+            .filter(([id]) => id !== finding.artifact_id)
+            .map(([id, artifact]) => ({ id, lines: artifact.textLines ?? [] }));
+          const mismatch = governanceMismatch(finding.claim, anchoredLines, otherArtifacts);
+          if (mismatch) {
+            errors.push(
+              `${label} attributes ${mismatch.identifier} to ${normalize(finding.anchor.path)}:${finding.anchor.line}, ` +
+                `but ${mismatch.declaringArtifacts.join(", ")} declares it; re-anchor to the declaring line or ` +
+                `downgrade to partial`,
+            );
+          }
         }
       }
 

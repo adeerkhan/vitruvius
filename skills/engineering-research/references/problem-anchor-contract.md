@@ -136,6 +136,39 @@ State these as limits, not as features:
 None of the three is a defect to fix by loosening the check. Loosening it is
 how a contract starts overstating what it proves.
 
+### Rule 2, second half: a carried identifier is not a supported claim
+
+Limit 1 above is the specific defect the V1 pilot produced by hand. A claim
+about the aspect gate was anchored to a room profile that carries
+`maxAspectRatio` and `2.0`, while the constraints file names the cap — every
+token was present, so the proxy passed a claim aimed at the wrong module.
+
+For a `repo` finding marked `verified` the validator therefore asks one more
+question, and only when the claim asserts **governance** — the vocabulary of
+who decides a behaviour (`gate`, `cap`, `limit`, `enforces`, `constrains`,
+`sets the`, `defines the`, `held by`): does the anchored file **declare** the
+identifier the claim names, or merely **use** it?
+
+- `const`/`let`/`var`/`function`/`class`/`def NAME`, `#define NAME`, `NAME =`,
+  and `NAME:` as an object key are declarations.
+- A call site, a comparison, or an import is a use.
+
+If the anchored line does not declare it and some *other declared artifact* in
+the same record does, the finding is refused: re-anchor to the declaring line,
+or mark it `partial`. This is deliberately narrow, and its limits are limits
+rather than features:
+
+1. **It only speaks when the claim claims governance.** "The profile reads
+   `AR_CAP`" is a true statement about the profile and is left alone.
+2. **It needs a declaration shape.** A cap defined in a table, a config file, or
+   prose is not caught — the check loses a hit rather than raising a false one.
+3. **It compares against the record's own artifacts.** If the declaring module
+   was never declared as an artifact, there is nothing to compare against and
+   the finding passes. Declaring the artifacts you studied is still your job.
+
+The check reads the artifact bytes the record already hash-pins, so it adds no
+new trust surface.
+
 ## Negative coverage
 
 `coverage.negative` is where "I looked and it is not there" becomes a checkable

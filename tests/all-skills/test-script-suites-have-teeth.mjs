@@ -102,6 +102,20 @@ const CASES = [
     test: "tests/engineering-research/test-problem-anchor.mjs",
   },
   {
+    file: "scripts/entailment.mjs",
+    rule: "a governance claim must reach the file that declares the identifier",
+    find: /  if \(typeof claim !== "string" \|\| !GOVERNANCE\.test\(claim\)\) return null;/,
+    replace: "  return null;",
+    test: "tests/engineering-research/test-problem-anchor.mjs",
+  },
+  {
+    file: "scripts/entailment.mjs",
+    rule: "a reference to an identifier is not a declaration of it",
+    find: /  if \(typeof lineText !== "string" \|\| !identifier \|\| !IDENTIFIER_SHAPE\.test\(identifier\)\) return false;/,
+    replace: "  return true;",
+    test: "tests/engineering-research/test-problem-anchor.mjs",
+  },
+  {
     file: "scripts/run-isolated-tests.mjs",
     rule: "a failing skill suite propagates a non-zero exit",
     find: /if \(result\.status === 0\) \{/,
