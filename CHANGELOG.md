@@ -6,6 +6,15 @@ All notable changes to Vitruvius are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-10-12
+
+- feat(review): require reading the source rather than a summary of it
+- feat(scholarly-research): record systematic-review coverage so the counts are auditable
+- fix(problem-anchor): refuse a governance claim aimed at the wrong file
+- fix(problem-anchor): refuse an action finding that never names its action
+- feat(scholarly-research): implement the open-access resolver the skill documents
+
+
 ## [0.4.0] - 2026-10-12
 
 - feat(evidence-ranking): score GRADE certainty and risk of bias beside the tier
