@@ -13,10 +13,10 @@ argument-hint: "<topic or paper identifier>"
 allowed-tools: Write Edit Bash Read
 license: MIT
 metadata:
-  version: "0.4.4"
+  version: "0.4.5"
 
 ---
-<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=99576ba7bdfdfc57116b36f78048d2d703be51ac58f6ecd455020a33180da6d0 -->
+<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=b637f35894941a4ab1b37b004bbfa96d60a0fb9ff3bc91c38f7fc668e138fac8 -->
 
 # Scholarly Research
 
@@ -198,14 +198,18 @@ GET https://api.unpaywall.org/v2/<doi>?email=<a real address>
 - **`is_oa: true` does not promise a PDF.** A green OA record can return
   `best_oa_location.url_for_pdf: null`; fall back to the landing-page URL, and
   read the full text through the page-anchored reader rather than scraping.
-- This skill ships the resolver that does it: `scripts/resolve-oa.mjs` (in a
-  repository checkout, `skills/scholarly-research/scripts/resolve-oa.mjs`).
-  `node <skill-dir>/scripts/resolve-oa.mjs <doi> --email <address>` prints the
-  record as JSON. It never throws: `ok: false` means the resolution **failed**
-  and is recorded as a failed search, while `paywalled: true` is the actual
-  paywall finding. The CLI exits 0 for both, so read the `ok` field.
+- **Run the resolver this skill ships** — `scripts/resolve-oa.mjs` (in a
+  repository checkout, `skills/scholarly-research/scripts/resolve-oa.mjs`) —
+  rather than transcribing the response by hand. It carries the failure policy
+  below and prints the record as JSON.
 - `is_oa: false` is a paywall finding for the evidence ledger — cite from
   metadata and mark full-text access `blocked`. Do not retry the publisher.
+- A resolution that could not be made — no contact address, network failure,
+  non-200, or the 422 above — is a **failed search**, recorded as such. Only
+  `is_oa: false` is a paywall finding. Collapsing the two turns "the API was
+  unreachable" into "there is no free copy", which is how an evidence ledger
+  quietly lies; the CLI reports both as `ok: false` and `ok: true`
+  respectively, so read the field.
 
 ### 8. OpenCitations (COCI) — the open citation graph
 
