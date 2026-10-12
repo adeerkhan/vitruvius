@@ -55,7 +55,7 @@ export function parseUnpaywall(payload, { doi } = {}) {
   const best = payload && typeof payload.best_oa_location === 'object' ? payload.best_oa_location : null;
   const isOa = Boolean(payload && payload.is_oa);
   const base = {
-    doi: doi ?? payload?.doi ?? null,
+    doi: doi ?? null,
     is_oa: isOa,
     oa_status: typeof payload?.oa_status === 'string' ? payload.oa_status : null,
     url_for_pdf: best && typeof best.url_for_pdf === 'string' ? best.url_for_pdf : null,
@@ -141,12 +141,17 @@ export function formatResult(decision, asJson = true) {
 async function runResolveOaCli(argv) {
   const args = argv.filter((a) => !a.startsWith('--'));
   const doi = args[0];
-  const emailFlag = argv.findIndex((a) => a === '--email');
-  const email = emailFlag === -1 ? process.env.UNPAYWALL_EMAIL : argv[emailFlag + 1];
+  // `--email <address>` and `--email=<address>` both work: a flag whose value
+  // silently lands as the next token, or as nothing when the flag was last, is
+  // how a caller ends up with `UNPAYWALL_EMAIL` they never set.
+  const emailFlag = argv.findIndex((a) => a === '--email' || a.startsWith('--email='));
+  const fromFlag = emailFlag === -1 ? undefined : (argv[emailFlag].includes('=') ? argv[emailFlag].slice(7) : argv[emailFlag + 1]);
+  const email = fromFlag ?? process.env.UNPAYWALL_EMAIL;
   const asJson = !argv.includes('--pretty');
 
-  if (!doi) {
+  if (!doi || email === undefined) {
     console.error('usage: node resolve-oa.mjs <doi> [--email <address>] [--pretty]');
+    console.error('       UNPAYWALL_EMAIL is the fallback when --email is absent.');
     process.exitCode = 1;
     return;
   }
