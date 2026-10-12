@@ -61,11 +61,15 @@ function measureSupported(measure, line) {
  * *which* code governs a behaviour. "The room is 1.2 m wide" needs no
  * declaration site; "the aspect gate caps the room at 2.0" does.
  *
- * Deliberately broad and matched case-insensitively: the point of the check is
- * to *ask* for a re-anchor, not to be clever about prose.
+ * Deliberately short and tested-adjacent: the vocabulary that fires is `gate`
+ * and `caps`, which is the error the V1 pilot actually produced. The longer
+ * prose variants that used to sit here (`is the source of`, `held by`,
+ * `carried by`, `centralised`) were never observed to fire on any claim, and a
+ * matcher nobody has seen match is a matcher nobody can reason about. Add a
+ * term when a real claim needs it, not in advance.
  */
 const GOVERNANCE =
-  /\b(?:gate|gates|cap|caps|capped|limit|limits|enforce[sd]?|enforcement|constrain[sd]?|constraint|govern[sd]?|is the source of|sets the|defines the|held by|carried by|centralised|centralized)\b/i;
+  /\b(?:gate|gates|cap|caps|capped|limit|limits|enforce[sd]?|enforcement|constrain[sd]?|constraint|govern[sd]?|sets the|defines the)\b/i;
 
 /**
  * Escape a name for use in a regex. Identifiers carry `.`, `-` and `_`.
@@ -90,15 +94,17 @@ const IDENTIFIER_SHAPE = /^[A-Za-z][A-Za-z0-9]*(?:[._-][A-Za-z0-9]+)+$/;
  * `false`, and a false `false` costs the check a hit rather than a false
  * accusation. Over-reading prose comments as declarations is what would make
  * this useless.
+ *
+ * One compiled alternation, not three: this runs per identifier per line of every
+ * artifact the record declares, so compiling once per call instead of three times
+ * is the difference that matters at that count.
  */
 export function declaresIdentifier(lineText, identifier) {
   if (typeof lineText !== "string" || !identifier || !IDENTIFIER_SHAPE.test(identifier)) return false;
   const name = escapeName(identifier);
-  return (
-    new RegExp(`\\b(?:const|let|var|function|class|def)\\s+${name}\\b`).test(lineText) ||
-    new RegExp(`^${name}\\s*[:=]`).test(lineText) ||
-    new RegExp(`#define\\s+${name}\\b`).test(lineText)
-  );
+  return new RegExp(
+    `\\b(?:const|let|var|function|class|def)\\s+${name}\\b|^${name}\\s*[:=]|#define\\s+${name}\\b`,
+  ).test(lineText);
 }
 
 /**
