@@ -70,6 +70,7 @@ const record = {
       anchor: { path: "furniture.ts", line: 1 },
       artifact_id: "A1",
       changes: "defer",
+      condition: "a room dimension the existing clearance kernel cannot express is proposed",
       status: "verified",
     },
     {
@@ -80,6 +81,7 @@ const record = {
       anchor: { path: "furniture.ts", line: 1 },
       artifact_id: "A1",
       changes: "change",
+      remediation: "drop the environmental-performance work item; nothing in the tree supports it",
       status: "verified",
     },
     {

@@ -122,6 +122,7 @@ function fixture(overrides = {}) {
         anchor: { path: "solver/squarify.ts", line: 1 },
         artifact_id: "A1",
         changes: "measure",
+        metric: "host fill ratio: nominal treemap area divided by host area",
         status: "verified",
       },
       {
@@ -132,6 +133,7 @@ function fixture(overrides = {}) {
         anchor: { path: "solver/RoomProfile.ts", line: 1 },
         artifact_id: "A2",
         changes: "defer",
+        condition: "a room dimension that `usableWallM` cannot express is proposed for evaluation",
         status: "verified",
       },
       {
@@ -193,6 +195,7 @@ try {
           anchor: { path: "solver/does-not-exist.ts", line: 1 },
           artifact_id: "A1",
           changes: "change",
+          remediation: "add no furniture evaluator; the `usableWallM` contract already carries it",
           status: "verified",
         },
       ],
@@ -212,6 +215,7 @@ try {
           anchor: { path: "solver/squarify.ts", line: 99 },
           artifact_id: "A1",
           changes: "measure",
+          metric: "host fill ratio: nominal treemap area divided by host area",
           status: "verified",
         },
       ],
@@ -231,6 +235,7 @@ try {
           anchor: { path: "solver/squarify.ts", line: 3 },
           artifact_id: "A1",
           changes: "measure",
+          metric: "host fill ratio: nominal treemap area divided by host area",
           status: "verified",
         },
       ],
@@ -248,12 +253,104 @@ try {
           claim: "The treemap fills its host",
           type: "repo",
           changes: "measure",
+          metric: "host fill ratio: nominal treemap area divided by host area",
           status: "verified",
         },
       ],
     }),
     "repo finding with no anchor",
     /must carry an anchor/,
+  );
+
+  // --- Rule 3: an action finding must say what the action is ---------------
+  // `changes` is a required enum, so before this a finding could name `change`
+  // and never say what to change it to: a recommendation with no
+  // recommendation in it, which nothing else in the record could see.
+  for (const [change, field] of [
+    ["change", "remediation"],
+    ["measure", "metric"],
+    ["defer", "condition"],
+  ]) {
+    expectInvalid(
+      fixture({
+        findings: [
+          {
+            id: "F1",
+            decision_id: "D1",
+            claim: "The treemap fills its host exactly",
+            type: "repo",
+            anchor: { path: "solver/squarify.ts", line: 1 },
+            artifact_id: "A1",
+            changes: change,
+            status: "verified",
+          },
+        ],
+      }),
+      `changes=${change} with no ${field}`,
+      new RegExp(`names changes=${change} but carries no ${field}`),
+    );
+  }
+
+  // A companion field on the wrong action is prose nothing enforces.
+  expectInvalid(
+    fixture({
+      findings: [
+        {
+          id: "F1",
+          decision_id: "D1",
+          claim: "The treemap fills its host exactly",
+          type: "repo",
+          anchor: { path: "solver/squarify.ts", line: 1 },
+          artifact_id: "A1",
+          changes: "defer",
+          metric: "host fill ratio",
+          status: "verified",
+        },
+      ],
+    }),
+    "metric on a defer finding",
+    /\.metric is only valid on changes=measure/,
+  );
+
+  // An empty string is not a companion field.
+  expectInvalid(
+    fixture({
+      findings: [
+        {
+          id: "F1",
+          decision_id: "D1",
+          claim: "The treemap fills its host exactly",
+          type: "repo",
+          anchor: { path: "solver/squarify.ts", line: 1 },
+          artifact_id: "A1",
+          changes: "change",
+          remediation: "   ",
+          status: "verified",
+        },
+      ],
+    }),
+    "blank remediation",
+    /carries no remediation/,
+  );
+
+  expectValid(
+    fixture({
+      decisions: [{ id: "D1", text: "Keep the treemap as an initializer rather than a feasibility solver" }],
+      findings: [
+        {
+          id: "F1",
+          decision_id: "D1",
+          claim: "The treemap fills its host exactly",
+          type: "repo",
+          anchor: { path: "solver/squarify.ts", line: 1 },
+          artifact_id: "A1",
+          changes: "change",
+          remediation: "replace the initializer with the host fill-ratio metric",
+          status: "verified",
+        },
+      ],
+    }),
+    "a change finding that names what to change it to",
   );
 
   expectInvalid(
@@ -267,6 +364,7 @@ try {
           anchor: { path: "solver/RoomProfile.ts", line: 1 },
           artifact_id: "A1",
           changes: "measure",
+          metric: "host fill ratio: nominal treemap area divided by host area",
           status: "verified",
         },
       ],
@@ -310,6 +408,7 @@ try {
           claim: "Add a spatial network layer",
           type: "product",
           changes: "change",
+          remediation: "add a spatial network layer beside the solver",
           status: "inferred",
         },
         {
@@ -336,6 +435,7 @@ try {
           type: "repo",
           anchor: { path: "solver/squarify.ts", line: 1 },
           changes: "change",
+          remediation: "reframe the scorer around the host fill ratio",
           status: "unverified",
         },
         {
@@ -417,6 +517,7 @@ try {
           anchor: { path: "solver/squarify.ts", line: 1 },
           artifact_id: "A1",
           changes: "measure",
+          metric: "host fill ratio: nominal treemap area divided by host area",
           status: "verified",
         },
       ],
@@ -505,6 +606,7 @@ try {
         anchor: { path: "solver/many.ts", line: 1 },
         artifact_id: "A1",
         changes: "measure",
+        metric: "host fill ratio",
         status: "verified",
       },
     ],
@@ -582,7 +684,7 @@ try {
   expectInvalid(
     fixture({
       findings: [
-        { id: "F1", decision_id: "D1", claim: "c", type: "repo", typo_field: 1, anchor: { path: "solver/squarify.ts", line: 1 }, artifact_id: "A1", changes: "measure", status: "verified" },
+        { id: "F1", decision_id: "D1", claim: "c", type: "repo", typo_field: 1, anchor: { path: "solver/squarify.ts", line: 1 }, artifact_id: "A1", changes: "measure", metric: "m", status: "verified" },
         d3(),
       ],
     }),
@@ -593,7 +695,7 @@ try {
     expectInvalid(
       fixture({
         findings: [
-          { id: "F1", decision_id: "D1", claim: "c", type: "repo", anchor: { path: "solver/squarify.ts", line }, artifact_id: "A1", changes: "measure", status: "verified" },
+          { id: "F1", decision_id: "D1", claim: "c", type: "repo", anchor: { path: "solver/squarify.ts", line }, artifact_id: "A1", changes: "measure", metric: "m", status: "verified" },
           d3(),
         ],
       }),
@@ -661,6 +763,7 @@ try {
           anchor: { path: "solver/link/secret.ts", line: 1 },
           artifact_id: "A1",
           changes: "measure",
+          metric: "host fill ratio: nominal treemap area divided by host area",
           status: "verified",
         },
         d3(),

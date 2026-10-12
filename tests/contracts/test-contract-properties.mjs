@@ -160,6 +160,7 @@ function problemAnchor(overrides = {}) {
         anchor: { path: SRC, line: 1 },
         artifact_id: "A1",
         changes: "measure",
+        metric: "corridor clear width",
         status: "verified",
       },
       {
@@ -170,6 +171,7 @@ function problemAnchor(overrides = {}) {
         anchor: { path: SRC, line: 2 },
         artifact_id: "A1",
         changes: "defer",
+        condition: "a core height below 5 m enters the brief",
         status: "verified",
       },
       {
@@ -447,9 +449,14 @@ console.log("\nP5 — one well-formed addition is additive; one ill-formed addit
     anchor: { path: SRC, line: 1 },
     artifact_id: "A1",
     changes: "measure",
+    metric: "corridor clear width",
     status: "verified",
   });
-  check("a well-formed extra finding is additive", runAnchor(r), validateProblemAnchor(r, anchorOpts).errors.join(" | "));
+  // `runAnchor(r)` was previously passed straight in as the condition, which is
+  // a result object and therefore always truthy — the assertion could not fail.
+  // It asserts validity now, so a record broken by a contract change lands here.
+  const additiveResult = validateProblemAnchor(r, anchorOpts);
+  check("a well-formed extra finding is additive", additiveResult.valid, additiveResult.errors.join(" | "));
   const broken = structuredClone(r);
   broken.findings.at(-1).anchor.line = 9999;
   const brokenResult = validateProblemAnchor(broken, anchorOpts);

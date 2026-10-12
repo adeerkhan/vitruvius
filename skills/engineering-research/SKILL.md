@@ -15,10 +15,10 @@ argument-hint: "<research question or artifact to review> [--deep | --quick]"
 allowed-tools: Write Edit Bash Read
 license: MIT
 metadata:
-  version: "0.5.2"
+  version: "0.5.3"
 
 ---
-<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=31347c35a4d488ddae29eaa68e92466ba2e6e39db4f20e6fb391f06703f3c0ee -->
+<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=d965166f8428ce023e9ead15cedd6d1d63025f6462132fb954e3bfd10df4dfb4 -->
 
 # Engineering Research
 
@@ -226,7 +226,10 @@ Three things stay inline because they are load-bearing:
 
 - Every finding carries an ID, a `type`, and a **changes** line naming its
   landing site: `change`, `measure`, `defer`, `product-decision`, or
-  `background`. A finding with no landing site must say which it is.
+  `background`. A finding with no landing site must say which it is. An action
+  landing site must also name the action — `change` carries a `remediation`,
+  `measure` a `metric`, `defer` a `condition` — and the record refuses one
+  without it.
 - `## What we did not find` and `## Impact vs. evidence` are mandatory.
   Silence reads as "no problems exist"; an unsupported priority ranking is a
   guess wearing a table.

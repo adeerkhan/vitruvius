@@ -61,6 +61,7 @@ function record({ claim, line, status, reportLines }) {
         anchor: { path: "lda-1.2.7.txt", line },
         artifact_id: "A1",
         changes: "change",
+        remediation: "state that the 1.2 m arrival radius has no sourced universal basis",
         status,
       },
     ],

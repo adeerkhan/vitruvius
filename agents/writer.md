@@ -61,7 +61,9 @@ provision is reproduced exactly, then explained in STE in a separate sentence.
 1. Every finding carries an ID, a `type`, and a **changes** line: `change`,
    `measure`, `defer`, `product-decision`, or `background`. A finding with no
    landing site is background or a product decision — label it, do not dress it
-   as a recommendation.
+   as a recommendation. An action finding additionally carries the field that
+   says what the action is — `change` a `remediation`, `measure` a `metric`,
+   `defer` a `condition` — and the record refuses it without one.
 2. A `repo` finding carries a `path:line` anchor that resolves on disk. You may
    not assert that a codebase lacks something, needs something, or does
    something differently without opening it. Recommending a module that already

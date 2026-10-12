@@ -59,7 +59,8 @@ Scope for what it cannot do.
 ## Finding records
 
 ```
-{ id, decision_id, claim, type, locator?, anchor?, artifact_id?, changes, status }
+{ id, decision_id, claim, type, locator?, anchor?, artifact_id?, changes,
+  remediation?, metric?, condition?, status }
 ```
 
 - `id` and `decision_id` must be short identifiers; `decision_id` must name a
@@ -68,7 +69,19 @@ Scope for what it cannot do.
 - `type` is one of `external`, `repo`, `product`, `background`.
 - `changes` is one of `change`, `measure`, `defer`, `product-decision`,
   `background`, and is mandatory. This is the "so what" field: every finding
-  declares its landing site.
+  declares its landing site. An action value must also carry the field that says
+  what the action is, and that field is refused on every other value, because
+  "recommend a change" with nothing to change it to is prose nothing enforces:
+
+  | `changes` | Required companion | The sentence it must complete |
+  |---|---|---|
+  | `change` | `remediation` | change it **to this** |
+  | `measure` | `metric` | measure **this** |
+  | `defer` | `condition` | re-open when **this** happens |
+
+  `product-decision` and `background` carry neither. A finding that names an
+  action and leaves its companion field out fails the record, which is the whole
+  point: the landing site has to be actionable, not just named.
 - `status` is one of `verified`, `partial`, `blocked`, `unverified`, `inferred`,
   `failed`. A `verified` finding needs either a resolvable anchor or a locator,
   and for a `repo` finding it must additionally survive the entailment proxy below.

@@ -30,6 +30,12 @@ const TYPES = new Set(["external", "repo", "product", "background"]);
 const CHANGES = new Set(["change", "measure", "defer", "product-decision", "background"]);
 const STATUSES = new Set(["verified", "partial", "blocked", "unverified", "inferred", "failed"]);
 const ACTION_CHANGES = new Set(["change", "measure", "defer"]);
+// Rule 3: `changes` is a required enum, so a finding could otherwise name
+// `change` and never say what to change it to — a recommendation with no
+// recommendation in it. Each action value carries its own companion field, and
+// those fields are refused on every other value so they cannot become prose
+// that nothing enforces.
+const ACTION_FIELD = { change: "remediation", measure: "metric", defer: "condition" };
 
 const ROOT_KEYS = [
   "schema",
@@ -44,7 +50,20 @@ const ROOT_KEYS = [
 ];
 const ARTIFACT_KEYS = ["id", "path", "sha256", "bytes"];
 const DECISION_KEYS = ["id", "text"];
-const FINDING_KEYS = ["id", "decision_id", "claim", "type", "locator", "anchor", "artifact_id", "changes", "status"];
+const FINDING_KEYS = [
+  "id",
+  "decision_id",
+  "claim",
+  "type",
+  "locator",
+  "anchor",
+  "artifact_id",
+  "changes",
+  "remediation",
+  "metric",
+  "condition",
+  "status",
+];
 const ANCHOR_KEYS = ["path", "line"];
 const NEGATIVE_KEYS = ["id", "searched", "not_found", "boundary"];
 const FINAL_KEYS = ["path", "sha256", "bytes"];
@@ -277,7 +296,7 @@ export function validateProblemAnchor(record, { anchorRoot: anchorRootOption, re
   } else {
     record.findings.forEach((finding, index) => {
       const label = `findings[${index}]`;
-      if (!exactKeys(finding, FINDING_KEYS, label, errors, ["locator", "anchor", "artifact_id"])) return;
+      if (!exactKeys(finding, FINDING_KEYS, label, errors, ["locator", "anchor", "artifact_id", "remediation", "metric", "condition"])) return;
       if (!isIdentifier(finding.id)) errors.push(`${label}.id must be a short identifier`);
       else if (findingIds.has(finding.id)) errors.push(`${label}.id is duplicated`);
       else findingIds.add(finding.id);
@@ -287,6 +306,21 @@ export function validateProblemAnchor(record, { anchorRoot: anchorRootOption, re
       if (!TYPES.has(finding.type)) errors.push(`${label}.type must be one of ${[...TYPES].join(", ")}`);
       if (!CHANGES.has(finding.changes)) errors.push(`${label}.changes must be one of ${[...CHANGES].join(", ")}`);
       if (!STATUSES.has(finding.status)) errors.push(`${label}.status must be one of ${[...STATUSES].join(", ")}`);
+
+      // An action finding must say what the action is. `changes: "change"` with
+      // no `remediation` is a recommendation with no recommendation in it.
+      const actionField = ACTION_FIELD[finding.changes];
+      if (actionField && !isText(finding[actionField])) {
+        errors.push(
+          `${label} names changes=${finding.changes} but carries no ${actionField}; name what the change is`,
+        );
+      }
+      // And a companion field on the wrong finding is prose nothing enforces.
+      for (const [change, field] of Object.entries(ACTION_FIELD)) {
+        if (finding.changes !== change && finding[field] !== undefined) {
+          errors.push(`${label}.${field} is only valid on changes=${change}`);
+        }
+      }
 
       const anchored = finding.anchor !== undefined;
       if (finding.type === "repo" && !anchored) {

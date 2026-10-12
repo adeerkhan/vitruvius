@@ -88,6 +88,20 @@ const CASES = [
     test: "tests/engineering-research/test-fs-walk.mjs",
   },
   {
+    file: "scripts/problem-anchor-contract.mjs",
+    rule: "an action finding must carry the companion field naming its action",
+    find: /      if \(actionField && !isText\(finding\[actionField\]\)\) \{/,
+    replace: "      if (false) {",
+    test: "tests/engineering-research/test-problem-anchor.mjs",
+  },
+  {
+    file: "scripts/problem-anchor-contract.mjs",
+    rule: "a companion field is refused on the action it does not belong to",
+    find: /        if \(finding\.changes !== change && finding\[field\] !== undefined\) \{/,
+    replace: "        if (false) {",
+    test: "tests/engineering-research/test-problem-anchor.mjs",
+  },
+  {
     file: "scripts/run-isolated-tests.mjs",
     rule: "a failing skill suite propagates a non-zero exit",
     find: /if \(result\.status === 0\) \{/,
