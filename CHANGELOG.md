@@ -6,6 +6,15 @@ All notable changes to Vitruvius are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.5.1] - 2026-10-12
+
+- fix(scholarly-research): point at the resolver instead of restating its internals
+- refactor(resolve-oa): accept --email= and drop the dead doi fallback
+- refactor(entailment): cut untested governance vocabulary and compile one pattern
+- refactor(tests): factor the governance fixture into one case builder
+- fix(problem-anchor): build the artifact line index once per record
+
+
 ## [0.5.0] - 2026-10-12
 
 - feat(review): require reading the source rather than a summary of it
