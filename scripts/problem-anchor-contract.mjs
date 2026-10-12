@@ -236,7 +236,10 @@ export function validateProblemAnchor(record, { anchorRoot: anchorRootOption, re
         digest,
         size: bytes.length,
         lines: lineCount(file.text),
-        textLines: file.text.split("\n"),
+        // Split the same way the anchor lookup splits, so a CRLF artifact's
+        // declaration lines are compared against its own anchored line rather
+        // than against a half-split view of it.
+        textLines: file.text.split(/\r?\n/),
       });
     });
   }
@@ -298,6 +301,14 @@ export function validateProblemAnchor(record, { anchorRoot: anchorRootOption, re
   // --- findings ----------------------------------------------------------
   const findingIds = new Set();
   const coveredDecisions = new Set();
+  // Built once per record, not once per finding: the governance check asks of
+  // every artifact whether it declares an identifier, and rebuilding a spread
+  // of the map inside the loop charged O(findings x artifacts) allocations for
+  // a list that never changes.
+  const artifactLines = [...artifacts.entries()].map(([id, artifact]) => ({
+    id,
+    lines: artifact.textLines ?? [],
+  }));
   if (!Array.isArray(record.findings) || record.findings.length === 0) {
     errors.push("findings must be a non-empty array");
   } else {
@@ -423,11 +434,8 @@ export function validateProblemAnchor(record, { anchorRoot: anchorRootOption, re
         // exact error — a claim about the aspect gate anchored to a profile
         // that carries `maxAspectRatio` and `2.0` while the constraints file
         // names the cap. The token proxy passed it; this asks for a re-anchor.
-        if (finding.type === "repo" && artifacts.size > 1) {
-          const otherArtifacts = [...artifacts.entries()]
-            .filter(([id]) => id !== finding.artifact_id)
-            .map(([id, artifact]) => ({ id, lines: artifact.textLines ?? [] }));
-          const mismatch = governanceMismatch(finding.claim, anchoredLines, otherArtifacts);
+        if (finding.type === "repo" && anchoredLines.length > 0 && artifacts.size > 1) {
+          const mismatch = governanceMismatch(finding.claim, anchoredLines, artifactLines, finding.artifact_id);
           if (mismatch) {
             errors.push(
               `${label} attributes ${mismatch.identifier} to ${normalize(finding.anchor.path)}:${finding.anchor.line}, ` +

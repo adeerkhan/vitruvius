@@ -115,10 +115,11 @@ export function declaresIdentifier(lineText, identifier) {
  *
  * @param {string} claim
  * @param {string[]} anchoredLines   lines of the anchored file
- * @param {Array<{id: string, lines: string[]}>} otherArtifacts
+ * @param {Array<{id: string, lines: string[]}>} artifacts every declared artifact
+ * @param {string} [skippingId]     the anchored artifact, excluded from the comparison
  * @returns {{identifier: string, declaringArtifacts: string[]} | null}
  */
-export function governanceMismatch(claim, anchoredLines, otherArtifacts) {
+export function governanceMismatch(claim, anchoredLines, artifacts, skippingId) {
   if (typeof claim !== "string" || !GOVERNANCE.test(claim)) return null;
   if (!Array.isArray(anchoredLines) || anchoredLines.length === 0) return null;
 
@@ -126,8 +127,13 @@ export function governanceMismatch(claim, anchoredLines, otherArtifacts) {
     const identifier = match[0];
     // The anchor itself declares it: no mismatch, whatever else exists.
     if (anchoredLines.some((line) => declaresIdentifier(line, identifier))) continue;
-    const declaringArtifacts = (otherArtifacts ?? [])
-      .filter((artifact) => Array.isArray(artifact.lines) && artifact.lines.some((line) => declaresIdentifier(line, identifier)))
+    const declaringArtifacts = (artifacts ?? [])
+      .filter(
+        (artifact) =>
+          artifact.id !== skippingId &&
+          Array.isArray(artifact.lines) &&
+          artifact.lines.some((line) => declaresIdentifier(line, identifier)),
+      )
       .map((artifact) => artifact.id);
     if (declaringArtifacts.length > 0) return { identifier, declaringArtifacts };
   }

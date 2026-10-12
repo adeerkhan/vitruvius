@@ -169,6 +169,16 @@ rather than features:
 The check reads the artifact bytes the record already hash-pins, so it adds no
 new trust surface.
 
+**Validated against real records, 2026-10-12.** The NEC baseline record in
+`evals/` re-validates PASS with this check active, and a record anchored to real
+files in this checkout (`DOWNLOAD_BUDGET_MS`, declared in
+`skills/scholarly-research/scripts/extract-pdf.mjs:198`, used in
+`tests/scholarly-research/test-extract-pdf.mjs:117`) produced exactly the
+intended behaviour: the true claim anchored to the declaring line validated with
+no error, the same claim anchored to the usage line was refused naming the
+declaring artifact, and the claim without governance vocabulary stayed silent.
+No false positive was observed on a true claim.
+
 ## Negative coverage
 
 `coverage.negative` is where "I looked and it is not there" becomes a checkable
