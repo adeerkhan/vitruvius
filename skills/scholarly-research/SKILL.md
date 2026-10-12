@@ -13,10 +13,10 @@ argument-hint: "<topic or paper identifier>"
 allowed-tools: Write Edit Bash Read
 license: MIT
 metadata:
-  version: "0.4.3"
+  version: "0.4.4"
 
 ---
-<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=bfe021e345338031dc00540ab848473460f9767b620283138f869ee8a9cf4636 -->
+<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=99576ba7bdfdfc57116b36f78048d2d703be51ac58f6ecd455020a33180da6d0 -->
 
 # Scholarly Research
 
@@ -344,6 +344,33 @@ record; the deleted binary is replaced by its link and hash, so a reader can
 re-fetch and re-hash to confirm the same bytes. Never keep a claim that rests
 only on a link you did not extract or read.
 
+## Systematic-review coverage
+
+When the user asks for a systematic, scoping, or exhaustive review, the counts
+are part of the answer, not decoration. Record them at each stage so a reader can
+tell "we looked" from "we looked everywhere" (method from `src-07`,
+`literature-review`):
+
+| Stage | What to record |
+|---|---|
+| Identification | queries and indexes used, and the number of records each returned |
+| Screening | how many records were excluded, and on what stated criterion |
+| Included | the sources that survive into the evidence table |
+
+Two distinctions that keep the numbers honest:
+
+- **Records vs studies.** A DOI, an arXiv id, and a preprint of the same work are
+  three records and one study. Deduplicate on the work (see Source identity),
+  and state which count you are reporting.
+- **Removed is not the same as not found.** An excluded record is a decision you
+  can defend; a search that returned nothing is negative coverage. Never fold one
+  into the other — an inflated "included" count is the cheapest way to make a
+  review look more systematic than it was.
+
+PRISMA is the accounting frame, not a compliance claim: this is engineering
+evidence, not a health-science review, so adopt the flow and say that the counts
+describe this run rather than certifying a standard.
+
 ## Output
 
 Write findings as an evidence table with stable numeric IDs (see the
@@ -363,6 +390,9 @@ resolves, and close with two required sections:
   questions this evidence set cannot answer. Product policy, jurisdiction
   choice, and anything about the user's own code belong there, not in a
   finding.
+- For a systematic review, add **`## Search coverage`** — identification,
+  screening, and included counts as above, with the record-vs-study basis
+  stated. Without it the reader has to take your thoroughness on trust.
 
 ## Scope and Boundaries
 

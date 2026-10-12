@@ -50,8 +50,7 @@ assert.match(skill, /disagreement between versions is a finding/i, "a version di
 
 // Resolution and enrichment layers. Crossref, Unpaywall and OpenCitations answer
 // a question about a DOI we already hold; they are not discovery routes, and
-// asserting that distinction is what keeps them out of the ranking table.
-assert.match(skill, /resolution and enrichment.*not discovery/i, "the DOI layers are marked as enrichment, not discovery");
+// asserting that distinction is what keeps them out of the ranking table.assert.match(skill, /resolution and enrichment.*not discovery/i, "the DOI layers are marked as enrichment, not discovery");
 assert.match(skill, /metadata of record/, "Crossref is named the metadata of record");
 
 // Every endpoint below was fetched and answered 200 before it was written into
@@ -79,6 +78,17 @@ assert.match(skill, /does not promise a PDF/i, "records that is_oa true can stil
 assert.match(skill, /tens of megabytes/i, "records the OpenCitations citations payload size risk");
 assert.match(skill, /unverified coverage/i, "a COCI gap is marked unverified coverage, not absence of citation");
 assert.match(skill, /api\.opencitations\.net/, "the resolved OpenCitations host is used, not the redirecting one");
+
+// Systematic-review coverage. The counts are part of the answer, and the two
+// distinctions that keep them honest are asserted so neither can be dropped.
+assert.match(skill, /## Systematic-review coverage/, "has a systematic-review coverage section");
+for (const stage of ["Identification", "Screening", "Included"]) {
+  assert.ok(skill.includes(stage), `records the ${stage} stage`);
+}
+assert.match(skill, /Records vs studies/i, "separates records from studies");
+assert.match(skill, /Removed is not the same as not found/i, "separates an exclusion from a zero-result search");
+assert.match(skill, /## Search coverage/i, "requires a search-coverage section in the output");
+assert.match(skill, /accounting frame, not a compliance claim/i, "states the accounting frame is not a compliance claim");
 
 const version = skill.match(/version:\s*"(\d+)\.(\d+)\.(\d+)"/);
 assert.ok(version, "scholarly-research has a version");
