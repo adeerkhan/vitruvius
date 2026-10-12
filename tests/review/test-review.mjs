@@ -172,7 +172,27 @@ assert.doesNotMatch(
   "review must not claim peer-review's independence framing",
 );
 
+// A criticism of a claim the reviewer never opened is not a finding. This is
+// the failure the review skill most invites: readable prose about an unread
+// source reads exactly like a verified one.
+assert.match(
+  text,
+  /Read the source itself, not a summary of it/i,
+  "review must require reading the source rather than a summary of it",
+);
+assert.match(
+  text,
+  /a criticism of a claim you\s+did not open is not a finding/i,
+  "review must call an unread claim blocked rather than a finding",
+);
+assert.match(
+  text,
+  /naming the source and location that was actually read/i,
+  "review must name what was read beside each criticism",
+);
+
 console.log(
   "PASS: review asserts the artifact-is-the-subject framing, per-artifact-type checks, " +
-    "blocked-not-pass, the anti-rubber-stamp pair, and its separation from peer-review",
+    "blocked-not-pass, the anti-rubber-stamp pair, source-preserving verification, " +
+    "and its separation from peer-review",
 );

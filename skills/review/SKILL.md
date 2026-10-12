@@ -10,10 +10,10 @@ argument-hint: "<artifact to review>"
 allowed-tools: Write Edit Bash Read
 license: MIT
 metadata:
-  version: "0.1.1"
+  version: "0.1.2"
 
 ---
-<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=9d42659f0d433d8db5368970c730d40c687c62a89e50583ff8d9e00a3c04fd25 -->
+<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=51dcbbab5baa8c661dd568db96584a718bad29b02fb43ae7ba0e016d674621b3 -->
 
 # Engineering Artifact Review
 
@@ -37,14 +37,19 @@ Follow the artifact contract: save findings to `outputs/<slug>-review.md`.
 2. **Verify the load-bearing items** — for a design: loads, factors, material
    properties, code sections, sign conventions. For a report: every number,
    figure, and citation. Check each against the primary source.
-3. **Produce a severity-graded review**:
+3. **Read the source itself, not a summary of it** — a criticism of a claim you
+   did not open is not a finding; it is `blocked`. Name the source and location
+   you actually read beside every criticism, so the reader can re-check it
+   rather than take your word for it. Report a problem you inferred only when it
+   is labelled `inferred`, and never smooth a missing read into a pass.
+4. **Produce a severity-graded review**:
    - **FATAL** — unsafe, non-compliant, or unsupported; must fix before use
    - **MAJOR** — likely wrong or a real gap; fix before finalizing
    - **MINOR** — clarity, consistency, polish
    Each finding cites the specific section/line/claim it targets.
-4. **Check what was NOT verified** — mark `blocked` where the source could not
+5. **Check what was NOT verified** — mark `blocked` where the source could not
    be read; never let a missing check read as a pass.
-5. **Write a revision plan** — prioritized, concrete steps per finding.
+6. **Write a revision plan** — prioritized, concrete steps per finding.
 
 ## Output
 
@@ -53,7 +58,8 @@ Save exactly one review to `outputs/<slug>-review.md`:
 - Summary assessment
 - Strengths (tied to specific evidence)
 - Findings (FATAL / MAJOR / MINOR, each anchored to a section/claim)
-- Verification status (`verified` / `inferred` / `blocked` per load-bearing item)
+- Verification status (`verified` / `inferred` / `blocked` per load-bearing item,
+  each naming the source and location that was actually read)
 - Revision plan
 
 Do not praise vaguely. Do not predict "approval" — assess revision risk and

@@ -199,6 +199,12 @@ const CASES = [
     replace: "| # | Source | Year | Venue | Tier | Score | Key Claim | Status |",
   },
   {
+    skill: "review",
+    rule: "a criticism of an unread claim is blocked, not a finding",
+    find: /a criticism of a claim you\s+did not open is not a finding/,
+    replace: "state any criticism you can form",
+  },
+  {
     skill: "vitruvius-help",
     rule: "the card is one-shot and persists nothing",
     find: /One-shot; do not persist anything/i,
