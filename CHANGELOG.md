@@ -6,6 +6,12 @@ All notable changes to Vitruvius are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-10-12
+
+- feat(evidence-ranking): score GRADE certainty and risk of bias beside the tier
+- feat(scholarly-research): resolve a known DOI against Crossref, Unpaywall, and OpenCitations
+
+
 ## [0.3.0] - 2026-10-11
 
 - refactor(commit-msg): narrow the quiet git lookup and share the name-status parse
