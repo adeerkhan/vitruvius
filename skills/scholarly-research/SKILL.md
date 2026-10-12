@@ -6,16 +6,17 @@ description: >
   conference proceedings, prior art, or citation data — or when the user names
   a paper, arXiv id, DOI, or asks "what does the literature say". Provides
   keyless REST recipes (OpenAlex, Semantic Scholar, arXiv, alphaXiv fast
-  search) and host-tool guidance. Do NOT use for standards/code research that
+  search) and host-tool guidance. Crossref, Unpaywall and OpenCitations then
+  resolve a known DOI's metadata, licensed full text, and citation edges. Do NOT use for standards/code research that
   has no scholarly layer.
 argument-hint: "<topic or paper identifier>"
 allowed-tools: Write Edit Bash Read
 license: MIT
 metadata:
-  version: "0.4.1"
+  version: "0.4.2"
 
 ---
-<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=920243b7fc414be8c7831c2eb68db6435095303630ed5c4ddaa1981130fbf9c6 -->
+<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=c21e299c85548eae67877fc5959872dbe21899c979c9c16a6273af87a419edb8 -->
 
 # Scholarly Research
 
@@ -156,6 +157,69 @@ sources (vendor docs, standards bodies, news, blogs), for conceptual or very
 recent work the keyword indexes miss, and to confirm recency — not as the
 primary paper index. Do not point a browser at scholar.google.com.
 
+### 6. Crossref — the metadata of record
+
+Layers 6–8 are **resolution and enrichment**, not discovery: they answer a
+question *about a work you already have a DOI for*, so they are reached for after
+layers 1–4 have identified a candidate, never instead of them.
+
+```
+GET https://api.crossref.org/works/<doi>
+GET https://api.crossref.org/works?query.bibliographic=<terms>&rows=5&select=DOI,title,issued
+```
+
+- **Use it to settle metadata disputes.** Crossref is the DOI registrar, so
+  `title`, `issued`, `container-title`, `is-referenced-by-count` and the
+  `reference` array are the record of authority. When OpenAlex and Semantic
+  Scholar disagree on a year or a title, Crossref breaks the tie — and you say
+  it did.
+- `query.bibliographic` is the right query when the user hands you a reference
+  string with no DOI: it matches the citation as printed.
+- Send `mailto=<a real address>` in the `User-Agent` so you land in the polite
+  pool. A bare `curl` is rate-limited harder. No key.
+- No relevance ordering: it knows what is cited, not what is good. Do not use it
+  to rank discovery results.
+- The `reference` array is included in the work record, which is often the
+  cheapest way to get a work's reference list.
+
+### 7. Unpaywall — lawful open-access resolution
+
+```
+GET https://api.unpaywall.org/v2/<doi>?email=<a real address>
+```
+
+- **Use it before downloading anything.** `is_oa` and
+  `best_oa_location.*` answer "is there a free, licensed copy, and where", which
+  is the question `scripts/extract-pdf.mjs` needs answered before it fetches.
+- The `email` parameter is a **contact address, not a credential** — no signup
+  and no key. Unpaywall rejects a placeholder address with
+  `422 "Please use your own email address"`, so ask the user for an address or
+  use the project's and record which was used.
+- **`is_oa: true` does not promise a PDF.** A green OA record can return
+  `best_oa_location.url_for_pdf: null`; fall back to the landing-page URL, and
+  read the full text through the page-anchored reader rather than scraping.
+- `is_oa: false` is a paywall finding for the evidence ledger — cite from
+  metadata and mark full-text access `blocked`. Do not retry the publisher.
+
+### 8. OpenCitations (COCI) — the open citation graph
+
+```
+GET https://api.opencitations.net/index/v1/references/<doi>
+GET https://api.opencitations.net/index/v1/citations/<doi>
+```
+
+- **Use it for citation edges by DOI.** `references` is the work's reference
+  list; `citations` is who cites it. Both return an array of `oci`,
+  `citing`, `cited`, `creation`, `timespan` records — no key, no quota key.
+- Prefer `references`: for a heavily cited work the `citations` payload can run
+  to tens of megabytes, so cap the request (`curl --max-time`) and treat a
+  truncated read as `status: partial`, never as an empty result.
+- The historic `opencitations.net/index/coci/api/v1/...` host 301-redirects to
+  `api.opencitations.net/index/v1/...`; use the resolved host directly.
+- COCI covers DOI-based works and misses preprints and proceedings without a
+  registered DOI. Treat a gap here as **unverified coverage**, not as "nothing
+  cites it" — say which index you checked.
+
 ## What each index is actually good for
 
 Stated so the routing table below has a reason behind it. An index that answers
@@ -169,6 +233,9 @@ like a good one.
 | arXiv | **resolving a known preprint id**, reading a specific version | topic discovery as a primary route — lexical, poorly ranked (see layer 3) |
 | alphaXiv | fast keyword discovery inside arXiv, paper Q&A over full text | primary citation metadata |
 | Host web / browser | vendor docs, standards bodies, recent news, code at source | the primary paper index |
+| Crossref | metadata of record for a DOI, a reference-list fetch, a printed-citation lookup | discovery ranking |
+| Unpaywall | answering "is there a licensed free copy, and where" before a download | discovery, or proving a work exists |
+| OpenCitations | open citation edges (`references`, `citations`) by DOI | citation *counts*, or works with no DOI |
 
 Where two indexes disagree, that disagreement is a finding: record both, mark
 the claim `ambiguous`, and say which index produced which number. Never average

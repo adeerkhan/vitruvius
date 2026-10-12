@@ -48,6 +48,38 @@ assert.match(skill, /two sources for one work/, "names the double-count risk");
 assert.match(skill, /hep-th\/9901001/, "names the legacy id shape");
 assert.match(skill, /disagreement between versions is a finding/i, "a version disagreement is a finding, not a merge");
 
+// Resolution and enrichment layers. Crossref, Unpaywall and OpenCitations answer
+// a question about a DOI we already hold; they are not discovery routes, and
+// asserting that distinction is what keeps them out of the ranking table.
+assert.match(skill, /resolution and enrichment.*not discovery/i, "the DOI layers are marked as enrichment, not discovery");
+assert.match(skill, /metadata of record/, "Crossref is named the metadata of record");
+
+// Every endpoint below was fetched and answered 200 before it was written into
+// the skill, so a URL that stops resolving is a regression this suite catches.
+for (const layer of ["Crossref", "Unpaywall", "OpenCitations"]) {
+  assert.match(skill, new RegExp(`\\|\\s*${layer}`), `capability table covers ${layer}`);
+}
+for (const endpoint of [
+  "https://api.crossref.org/works/<doi>",
+  "https://api.crossref.org/works?query.bibliographic=",
+  "https://api.unpaywall.org/v2/<doi>?email=",
+  "https://api.opencitations.net/index/v1/references/<doi>",
+  "https://api.opencitations.net/index/v1/citations/<doi>",
+]) {
+  assert.ok(skill.includes(endpoint), `scholarly-research must carry the verified endpoint ${endpoint}`);
+}
+
+// Each layer's honest limits, each of which was observed on a real response:
+// a mandatory contact address that is not a credential, an OA record with no
+// PDF, and a citation payload large enough to truncate a read.
+assert.match(skill, /mailto=/, "Crossref requires the polite-pool contact address");
+assert.match(skill, /contact address, not a credential/i, "Unpaywall's email is stated as a contact, not a key");
+assert.match(skill, /422/, "Unpaywall's rejection of a placeholder address is recorded");
+assert.match(skill, /does not promise a PDF/i, "records that is_oa true can still have no PDF");
+assert.match(skill, /tens of megabytes/i, "records the OpenCitations citations payload size risk");
+assert.match(skill, /unverified coverage/i, "a COCI gap is marked unverified coverage, not absence of citation");
+assert.match(skill, /api\.opencitations\.net/, "the resolved OpenCitations host is used, not the redirecting one");
+
 const version = skill.match(/version:\s*"(\d+)\.(\d+)\.(\d+)"/);
 assert.ok(version, "scholarly-research has a version");
 assert.ok(
@@ -55,4 +87,4 @@ assert.ok(
   `scholarly-research version is 0.2.0+ (got ${version[1]}.${version[2]}.${version[3]})`,
 );
 
-console.log("PASS: scholarly-research declares routing modes, per-index capability limits, exact-first source identity and arXiv version rules");
+console.log("PASS: scholarly-research declares routing modes, per-index capability limits, the verified resolution layers (Crossref, Unpaywall, OpenCitations) and arXiv version rules");
