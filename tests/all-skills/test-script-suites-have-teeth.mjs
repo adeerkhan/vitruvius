@@ -225,6 +225,20 @@ const CASES = [
     test: "tests/scholarly-research/test-extract-pdf-ssrf.mjs",
   },
   {
+    file: "skills/scholarly-research/scripts/resolve-oa.mjs",
+    rule: "a non-200 response is an error, not a paywall",
+    find: /if \(!response \|\| response\.ok !== true\) \{/,
+    replace: "if (false) {",
+    test: "tests/scholarly-research/test-resolve-oa.mjs",
+  },
+  {
+    file: "skills/scholarly-research/scripts/resolve-oa.mjs",
+    rule: "is_oa false is recorded as a paywall, not as an open record",
+    find: /  if \(!isOa\) \{/,
+    replace: "  if (false) {",
+    test: "tests/scholarly-research/test-resolve-oa.mjs",
+  },
+  {
     file: "skills/scholarly-research/scripts/extract-pdf.mjs",
     rule: "the budget is composed with the caller's signal, not replaced by it",
     find: /const composed = signal \? AbortSignal\.any\(\[signal, budget\]\) : budget;/,

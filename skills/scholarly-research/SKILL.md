@@ -13,10 +13,10 @@ argument-hint: "<topic or paper identifier>"
 allowed-tools: Write Edit Bash Read
 license: MIT
 metadata:
-  version: "0.4.2"
+  version: "0.4.3"
 
 ---
-<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=c21e299c85548eae67877fc5959872dbe21899c979c9c16a6273af87a419edb8 -->
+<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=bfe021e345338031dc00540ab848473460f9767b620283138f869ee8a9cf4636 -->
 
 # Scholarly Research
 
@@ -198,6 +198,12 @@ GET https://api.unpaywall.org/v2/<doi>?email=<a real address>
 - **`is_oa: true` does not promise a PDF.** A green OA record can return
   `best_oa_location.url_for_pdf: null`; fall back to the landing-page URL, and
   read the full text through the page-anchored reader rather than scraping.
+- This skill ships the resolver that does it: `scripts/resolve-oa.mjs` (in a
+  repository checkout, `skills/scholarly-research/scripts/resolve-oa.mjs`).
+  `node <skill-dir>/scripts/resolve-oa.mjs <doi> --email <address>` prints the
+  record as JSON. It never throws: `ok: false` means the resolution **failed**
+  and is recorded as a failed search, while `paywalled: true` is the actual
+  paywall finding. The CLI exits 0 for both, so read the `ok` field.
 - `is_oa: false` is a paywall finding for the evidence ledger — cite from
   metadata and mark full-text access `blocked`. Do not retry the publisher.
 
