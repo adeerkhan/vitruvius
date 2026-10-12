@@ -181,6 +181,24 @@ const CASES = [
     replace: "`researcher`, `writer`, `verifier`",
   },
   {
+    skill: "evidence-ranking",
+    rule: "the tier is never summed into the appraisal",
+    find: /They are recorded side by side and never summed into one number\./,
+    replace: "They are combined into one score.",
+  },
+  {
+    skill: "evidence-ranking",
+    rule: "a framework that does not apply is recorded as n/a with the reason",
+    find: /- \[ \] Each item carries a certainty and a bias judgement, or `n\/a` with the reason stated/,
+    replace: "- [ ] Each item scored on all criteria",
+  },
+  {
+    skill: "evidence-ranking",
+    rule: "the ranking table carries certainty, bias, and applicability",
+    find: /\| # \| Source \| Year \| Venue \| Tier \| Score \| Certainty \| Bias \| Applicability \| Key Claim \| Status \|/,
+    replace: "| # | Source | Year | Venue | Tier | Score | Key Claim | Status |",
+  },
+  {
     skill: "vitruvius-help",
     rule: "the card is one-shot and persists nothing",
     find: /One-shot; do not persist anything/i,
