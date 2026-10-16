@@ -11,10 +11,10 @@ argument-hint: "<artifact to review>"
 allowed-tools: Write Edit Bash Read
 license: MIT
 metadata:
-  version: "0.1.4"
+  version: "0.1.5"
 
 ---
-<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=9faa7e9472ad2193fe83c3dc0fc46c86e6df7e5bfbd9a1800b1018159cc255c0 -->
+<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=e8ba0a7b5fcf45352100679e140369df1408b5d905b406a5dfa84808a3c23e71 -->
 
 # Engineering Peer Review
 
@@ -45,7 +45,23 @@ Attach or point to: research brief, design document, calculation set, or report.
    - Check code/standard applicability (right domain? right edition? right jurisdiction?)
    - Confirm the source actually supports the claim at the pinned location
 
-3. **Produce severity-graded findings**:
+3. **Sweep the strength-side checks** — the routine, labor-intensive
+   scrutiny the study credits AI reviewers with doing better than
+   time-pressed humans (arXiv:2605.20668, S1/S4/S5):
+   - **Numerical and methodological rigor (S1)** — data/sample independence
+     behind each quantitative claim, calibration vs. validation splits,
+     uncertainty reporting (error bars, tolerances, confidence).
+   - **Internal consistency across sections (S4)** — summary numbers match
+     the body, conclusions match results, units and notation agree wherever
+     a value reappears.
+   - **Reproducibility and dependencies (S5)** — could a reader rebuild the
+     result from the stated inputs, versions, and editions? Name the missing
+     piece.
+
+   Report what each sweep cleared in **Strengths** — a clean sweep is a
+   result, not the absence of findings.
+
+4. **Produce severity-graded findings**:
    - **FATAL** — unsafe, non-compliant, or unsupported; must fix before use
    - **MAJOR** — likely wrong or a real gap; fix before finalizing
    - **MINOR** — clarity, consistency, polish
@@ -60,9 +76,9 @@ Attach or point to: research brief, design document, calculation set, or report.
    state the strongest defense and the evidence that rules it out — a FATAL
    without a refuted defense is a suspicion, not a FATAL.
 
-4. **Check what was NOT verified** — mark `blocked` where the source could not be read. Never let a missing check read as a pass.
+5. **Check what was NOT verified** — mark `blocked` where the source could not be read. Never let a missing check read as a pass.
 
-5. **Write a revision plan** — prioritized, concrete steps per finding.
+6. **Write a revision plan** — prioritized, concrete steps per finding.
 
 ## Output
 

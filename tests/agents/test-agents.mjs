@@ -111,6 +111,14 @@ check(
   /carry the refuted defense\s+in the finding itself/.test(reviewerText),
 );
 check(
+  "reviewer: strength-side checks are explicit",
+  /Strength-side checks/.test(reviewerText) &&
+    /\(S1\)/.test(reviewerText) &&
+    /\(S4\)/.test(reviewerText) &&
+    /\(S5\)/.test(reviewerText) &&
+    /Reproducibility and dependencies/.test(reviewerText),
+);
+check(
   "verifier skill: no-op loop gate",
   /No-op loop/i.test(read(join(REPO_ROOT, "skills", "verifier", "SKILL.md")) ?? ""),
 );

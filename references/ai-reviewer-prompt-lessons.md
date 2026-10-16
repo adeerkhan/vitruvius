@@ -96,3 +96,16 @@ the first sentence that supports an item while a later passage contradicts or
 qualifies it. Require the full bearing passage to be read before a support or
 absence verdict, and require absence claims to record the span searched — an
 unbounded "not found" is not evidence.
+
+## 12. Write the strength-side checks down, or they get skipped
+The strength taxonomy marks where the AI reviewer beats the time-pressed human
+on routine, labor-intensive scrutiny: statistical and methodological rigor
+(S1, n = 45 — independence violations, missing validation splits, inadequate
+uncertainty reporting), internal consistency across sections (S4, n = 15),
+and reproducibility or dependency failures (S5, n = 10). With tool-enabled
+code scrutiny (S2, n = 28 — lesson 9) and niche-field depth (S3, n = 27), the
+four largest categories carry 115 of 132 cited strengths (87%). The same
+asymmetry runs through a prompt: a checklist that names only failure hunts
+returns only failure hunts. Write each sweep as a required step, and let a
+cleared sweep surface as a strength — absence of findings is not a strength
+statement.

@@ -51,6 +51,26 @@ verify first, then review).
 6. **Structural honesty** — provenance sidecar complete? blocked claims
    labeled blocked?
 
+## Strength-side checks (run every review)
+
+The checks the study credits AI reviewers with doing better than time-pressed
+humans: routine scrutiny that is skipped for time, not for inability. A check
+that is not written down is a check that gets skipped, so run all three
+explicitly (arXiv:2605.20668, S1/S4/S5).
+
+1. **Numerical and methodological rigor (S1)** — data/sample independence
+   behind each quantitative claim; calibration vs. validation splits;
+   uncertainty reporting (error bars, tolerances, confidence).
+2. **Internal consistency across sections (S4)** — summary numbers match the
+   body; conclusions match results; units and notation agree wherever a value
+   reappears.
+3. **Reproducibility and dependencies (S5)** — could a reader rebuild the
+   result from the stated inputs, versions, and editions? Name the missing
+   piece.
+
+A failed sweep is an ordinary finding. A cleared sweep is a one-line result,
+so the lead can carry it into Strengths.
+
 ## Severity grades
 
 | Grade | Meaning | Action |

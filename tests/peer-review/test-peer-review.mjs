@@ -161,6 +161,36 @@ assert.match(
   "peer-review must confirm the source supports the claim at the pinned location",
 );
 
+// --- The strength-side sweeps are explicit ---------------------------------
+// arXiv:2605.20668 S1/S4/S5: the routine scrutiny AI reviewers are credited
+// with doing better than time-pressed humans. The value exists only when the
+// prompt names the work and a cleared sweep is allowed to be a result.
+assert.match(
+  text,
+  ws("Sweep the strength-side checks"),
+  "peer-review must sweep the strength-side checks (S1/S4/S5)",
+);
+assert.match(
+  text,
+  /numerical and methodological rigor \(S1\)/i,
+  "peer-review must sweep numerical and methodological rigor (S1)",
+);
+assert.match(
+  text,
+  /internal consistency across sections \(S4\)/i,
+  "peer-review must sweep internal consistency across sections (S4)",
+);
+assert.match(
+  text,
+  ws("could a reader rebuild the result from the stated inputs, versions, and editions?"),
+  "peer-review must sweep reproducibility and dependencies (S5)",
+);
+assert.match(
+  text,
+  ws("a clean sweep is a result, not the absence of findings"),
+  "a cleared sweep must surface as a strength, not disappear into the findings list",
+);
+
 // --- The artifact contract ------------------------------------------------
 assert.match(
   text,
@@ -267,5 +297,6 @@ assert.ok(
 console.log(
   "PASS: peer-review asserts independence, default-FAIL, the no-softening rule, " +
     "blocked-not-pass, actionable, grounded, and fully-substantiated findings, " +
-    "the line-pinned evidence trail, and a scored review-item.v1 pass record",
+    "the strength-side sweeps, the line-pinned evidence trail, and a scored " +
+    "review-item.v1 pass record",
 );

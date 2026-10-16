@@ -125,6 +125,12 @@ const CASES = [
     replace: "For a FATAL, act decisively.",
   },
   {
+    skill: "peer-review",
+    rule: "the reproducibility sweep names the missing piece (S5)",
+    find: /\*\*Reproducibility and dependencies \(S5\)\*\* — could a reader rebuild the\s+result from the stated inputs, versions, and editions\? Name the missing\s+piece\./,
+    replace: "**Reproducibility and dependencies — trust the inputs as given.**",
+  },
+  {
     skill: "artifact-reading",
     rule: "never fill a gap you could not read",
     find: /Never fill a gap you could not read/i,
