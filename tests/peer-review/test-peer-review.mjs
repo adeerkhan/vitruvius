@@ -1,6 +1,7 @@
 import { strict as assert } from "node:assert";
 import { ws } from "../_support/ws.mjs";
-import { readFileSync } from "node:fs";
+import { validateRecord } from "../../scripts/review-item-contract.mjs";
+import { existsSync, readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -228,8 +229,43 @@ assert.match(
   "review must forbid predicting approval",
 );
 
+// --- A review can be scored item-by-item, and the first pass is on file -----
+// review-item.v1 (arXiv:2605.20668 Tier-3) scores a reviewer's criticisms rather
+// than its verdict: one atomic item per finding, cascading correctness ->
+// significance -> evidence_sufficiency, plus the flaw vocabulary whose
+// field-norm tokens lesson 6 reserves for miscalibration incidents. The record
+// below is the first qualitative pass over a real run; this gate keeps it and
+// its example review from drifting apart.
+const passRecord = JSON.parse(
+  readFileSync(join(repoRoot, "tests", "peer-review", "example-am-ti6al4v-review-items.json"), "utf8"),
+);
+const passResult = validateRecord(passRecord);
+assert.equal(
+  passResult.valid,
+  true,
+  "the pass record validates against review-item.v1: " + JSON.stringify(passResult.errors),
+);
+assert.equal(passResult.invalidCount, 0, "every scored item satisfies the cascading rules");
+
+const exampleReview = readFileSync(
+  join(repoRoot, "tests", "peer-review", "example-am-ti6al4v-review.md"),
+  "utf8",
+);
+const findingIds = [...exampleReview.matchAll(/^####\s+([FmM]\d+):/gm)].map((m) => m[1]);
+assert.ok(findingIds.length >= 1, "the example review carries severity-prefixed findings");
+for (const id of findingIds) {
+  assert.ok(
+    passRecord.items.some((item) => item.id === id),
+    `the pass record scores every finding in the review (missing ${id})`,
+  );
+}
+assert.ok(
+  existsSync(join(repoRoot, "tests", "gap-analysis", "02-am-ti6al4v-variable-amplitude.md")),
+  "the scored review's target fixture stays on disk",
+);
+
 console.log(
   "PASS: peer-review asserts independence, default-FAIL, the no-softening rule, " +
     "blocked-not-pass, actionable, grounded, and fully-substantiated findings, " +
-    "and the line-pinned evidence trail",
+    "the line-pinned evidence trail, and a scored review-item.v1 pass record",
 );

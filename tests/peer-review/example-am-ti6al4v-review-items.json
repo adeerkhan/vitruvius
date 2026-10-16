@@ -1,0 +1,218 @@
+{
+  "schema": "review-item.v1",
+  "items": [
+    {
+      "id": "F1",
+      "target": "tests/gap-analysis/02-am-ti6al4v-variable-amplitude.md:35 (Suggested Research Questions, Q5)",
+      "claim": "Q5 labels ASTM E466 and ISO 12107 'spectrum-fatigue standards'; neither standard governs spectrum/variable-amplitude fatigue (E466 is a constant-amplitude practice; ISO 12107 covers statistical planning and analysis), so the question's premise is wrong as labeled and carries no editions.",
+      "evidence": [
+        {
+          "quote": "Are existing spectrum-fatigue standards (ASTM E466, ISO 12107) sufficient for AM material, or do they require amendments for defect-driven short-crack initiation?",
+          "locator": "tests/gap-analysis/02-am-ti6al4v-variable-amplitude.md:35"
+        },
+        {
+          "quote": "Standard Practice for Conducting Force Controlled Constant Amplitude Axial Fatigue Tests of Metallic Materials",
+          "locator": "ASTM E466-21 title (store.astm.org/standards/e466), the scope cited by the review"
+        },
+        {
+          "quote": "A standard citation that does not say what is claimed",
+          "locator": "references/reviewer-severity-levels.md:21 (FATAL classification rule)"
+        }
+      ],
+      "correctness": "correct",
+      "significance": "significant",
+      "evidence_sufficiency": "sufficient",
+      "requires_adjudication": false,
+      "adjudication_reason": "none",
+      "flaw": "none"
+    },
+    {
+      "id": "M1",
+      "target": "tests/gap-analysis/02-am-ti6al4v-variable-amplitude.md:87 (Validation table, OpenAlex query row 1); echoed at :109 and in the sidecar triangulation table",
+      "claim": "The row calls the 9-hit narrow query 'inside the gap signal threshold (0–5)' — internally contradictory and against the skill's documented criterion — and the 'Gap signal' mark and triangulation verdict inherit the misstatement.",
+      "evidence": [
+        {
+          "quote": "Narrow-query hit count inside the gap signal threshold (0–5 off-topic-or-low-citation pattern; here 9 hits but only 1–2 directly fill the gap).",
+          "locator": "tests/gap-analysis/02-am-ti6al4v-variable-amplitude.md:87"
+        },
+        {
+          "quote": "Gap signal: If the narrow query returns 0–5 hits",
+          "locator": "skills/gap-analysis/SKILL.md:72"
+        },
+        {
+          "quote": "Narrow query returns 0–5 relevant hits",
+          "locator": "skills/gap-analysis/SKILL.md:82"
+        }
+      ],
+      "correctness": "correct",
+      "significance": "significant",
+      "evidence_sufficiency": "sufficient",
+      "requires_adjudication": false,
+      "adjudication_reason": "none",
+      "flaw": "none"
+    },
+    {
+      "id": "M2",
+      "target": "tests/gap-analysis/02-am-ti6al4v-variable-amplitude.md:95-96 (Validation, arXiv query rows 4–5); sidecar query rows 4–5; triangulation arXiv row at :110",
+      "claim": "The recorded arXiv queries are not narrow intersections: the recorded URL expands to a term union with totalResults 493,853, so the '19 (returned)' / '20 (returned)' pages cannot carry the tier's '0 preprints directly on the gap' conclusion as documented.",
+      "evidence": [
+        {
+          "quote": "arXiv Query: search_query=all:additive OR all:manufactured OR all:Ti-6Al-4V OR all:variable OR all:amplitude OR all:fatigue",
+          "locator": "export.arxiv.org API, Q4 URL re-run by this pass, 2026-10-16"
+        },
+        {
+          "quote": "<opensearch:totalResults>493853</opensearch:totalResults>",
+          "locator": "export.arxiv.org API, Q4 URL re-run by this pass, 2026-10-16"
+        },
+        {
+          "quote": "19 (returned)",
+          "locator": "tests/gap-analysis/02-am-ti6al4v-variable-amplitude.md:95"
+        }
+      ],
+      "correctness": "correct",
+      "significance": "significant",
+      "evidence_sufficiency": "sufficient",
+      "requires_adjudication": false,
+      "adjudication_reason": "none",
+      "flaw": "none"
+    },
+    {
+      "id": "M3",
+      "target": "tests/gap-analysis/02-am-ti6al4v-variable-amplitude.md:27 (Why It Matters, Economic impact)",
+      "claim": "The dossier names LEAP fuel nozzles and structural brackets as examples of AM Ti-6Al-4V components; the documented part materials are cobalt-chrome (LEAP fuel nozzle tips are PBF-LB CoCr; the GEnx PDOS bracket is CoCr), and the parenthetical carries no citation.",
+      "evidence": [
+        {
+          "quote": "Aerospace AM Ti-6Al-4V components (e.g., LEAP fuel nozzles, structural brackets) carry high buy-to-fly ratios and long qualification cycles",
+          "locator": "tests/gap-analysis/02-am-ti6al4v-variable-amplitude.md:27"
+        },
+        {
+          "quote": "LEAP fuel nozzle tips are PBF-LB cobalt-chrome; the FAA-certified GEnx PDOS bracket is cobalt-chrome",
+          "locator": "example-am-ti6al4v-review.provenance.md R10 (sources: TCT 2023-07-04; Metal AM 2023-12-18; GE Aerospace News 2018-07-16)"
+        }
+      ],
+      "correctness": "correct",
+      "significance": "significant",
+      "evidence_sufficiency": "sufficient",
+      "requires_adjudication": false,
+      "adjudication_reason": "none",
+      "flaw": "none"
+    },
+    {
+      "id": "M4",
+      "target": "tests/gap-analysis/02-am-ti6al4v-variable-amplitude.md:39-79 (Key Papers entries 1–7); sidecar Edge papers table",
+      "claim": "Six of seven key-paper entries omit authors although the field is labeled 'Authors / Year / DOI' and the skill requires 'Title, authors, year, DOI'; entry 7 lists four of the arXiv paper's eight authors as the author list.",
+      "evidence": [
+        {
+          "quote": "Authors / Year / DOI: Multiaxial-fatigue review (2020). DOI 10.1016/j.ijfatigue.2020.105479.",
+          "locator": "tests/gap-analysis/02-am-ti6al4v-variable-amplitude.md:40"
+        },
+        {
+          "quote": "Title, authors, year, DOI",
+          "locator": "skills/gap-analysis/SKILL.md:94"
+        },
+        {
+          "quote": "Yi, Tang, Zhu, Liang (2023, arXiv preprint of a comprehensive review). 201 pages, 154 figures.",
+          "locator": "tests/gap-analysis/02-am-ti6al4v-variable-amplitude.md:76"
+        },
+        {
+          "quote": "Min Yi, Wei Tang, Yiqi Zhu, Chenguang Liang, Ziming Tang, Yan Yin, Weiwei He, Shen Sun",
+          "locator": "arXiv API record for 2311.07046, re-fetched by this pass, 2026-10-16"
+        }
+      ],
+      "correctness": "correct",
+      "significance": "significant",
+      "evidence_sufficiency": "sufficient",
+      "requires_adjudication": false,
+      "adjudication_reason": "none",
+      "flaw": "none"
+    },
+    {
+      "id": "m1",
+      "target": "tests/gap-analysis/02-am-ti6al4v-variable-amplitude.md:17 and :89",
+      "claim": "Two specific works underpinning claims are cited by description only with no identifier ('fan-blade CCF 2004', 'the SLM vibration-fatigue paper'), so a reader cannot trace them.",
+      "evidence": [
+        {
+          "quote": "fan-blade CCF 2004",
+          "locator": "tests/gap-analysis/02-am-ti6al4v-variable-amplitude.md:17"
+        },
+        {
+          "quote": "only 2 of 20 are AM-specific (the multiaxial review, the SLM vibration-fatigue paper)",
+          "locator": "tests/gap-analysis/02-am-ti6al4v-variable-amplitude.md:89"
+        }
+      ],
+      "correctness": "correct",
+      "significance": "marginal",
+      "evidence_sufficiency": "sufficient",
+      "requires_adjudication": false,
+      "adjudication_reason": "none",
+      "flaw": "none"
+    },
+    {
+      "id": "m2",
+      "target": "tests/gap-analysis/02-am-ti6al4v-variable-amplitude.provenance.md:3 and :51-53 (Dossier pointer; Files written)",
+      "claim": "The sidecar's Dossier pointer (outputs/gap-analysis/...) and its Files-written entry outputs/test-3-gap-analysis-report.md no longer exist in the tree, so the pointer is dangling and the Files-written claim is unverifiable as archived.",
+      "evidence": [
+        {
+          "quote": "Dossier: `outputs/gap-analysis/02-am-ti6al4v-variable-amplitude.md`",
+          "locator": "tests/gap-analysis/02-am-ti6al4v-variable-amplitude.provenance.md:3"
+        },
+        {
+          "quote": "`outputs/test-3-gap-analysis-report.md` — test report",
+          "locator": "tests/gap-analysis/02-am-ti6al4v-variable-amplitude.provenance.md:53"
+        },
+        {
+          "quote": "ls: cannot access 'outputs/test-3-gap-analysis-report.md': No such file or directory",
+          "locator": "filesystem check by this pass, 2026-10-16"
+        }
+      ],
+      "correctness": "correct",
+      "significance": "marginal",
+      "evidence_sufficiency": "sufficient",
+      "requires_adjudication": false,
+      "adjudication_reason": "none",
+      "flaw": "none"
+    },
+    {
+      "id": "m3",
+      "target": "tests/gap-analysis/02-am-ti6al4v-variable-amplitude.md:121 and :60 (Confidence; entry 4) and entry 3 annotation at :54",
+      "claim": "The dossier attributes an explicit gap acknowledgment to W4414399775 that its own annotation does not support, and both paywalled content attributions lack verbatim quotes or section pointers, so readers cannot check them.",
+      "evidence": [
+        {
+          "quote": "The 2025 paper W4414399775 (dwell + overload) is the strongest recent acknowledgment by a peer-reviewed source.",
+          "locator": "tests/gap-analysis/02-am-ti6al4v-variable-amplitude.md:121"
+        },
+        {
+          "quote": "Misses: Block sequences rather than continuous spectrum; dwell-specific (cold-creep interaction) which is partly distinct from generic VA; AM-specific defect statistics are not the central modeling input.",
+          "locator": "tests/gap-analysis/02-am-ti6al4v-variable-amplitude.md:54 (entry 3 annotation)"
+        }
+      ],
+      "correctness": "correct",
+      "significance": "marginal",
+      "evidence_sufficiency": "sufficient",
+      "requires_adjudication": false,
+      "adjudication_reason": "none",
+      "flaw": "none"
+    },
+    {
+      "id": "m4",
+      "target": "tests/gap-analysis/02-am-ti6al4v-variable-amplitude.md:61 and :32 (editorial)",
+      "claim": "Two editorial defects: a broken sentence with stray punctuation at line 61 and an ambiguous '√area_max pore' notation at line 32.",
+      "evidence": [
+        {
+          "quote": "The author has acknowledged the gap it does not cover.).",
+          "locator": "tests/gap-analysis/02-am-ti6al4v-variable-amplitude.md:61"
+        },
+        {
+          "quote": "(e.g., √area_max pore)",
+          "locator": "tests/gap-analysis/02-am-ti6al4v-variable-amplitude.md:32"
+        }
+      ],
+      "correctness": "correct",
+      "significance": "marginal",
+      "evidence_sufficiency": "sufficient",
+      "requires_adjudication": false,
+      "adjudication_reason": "none",
+      "flaw": "none"
+    }
+  ]
+}
