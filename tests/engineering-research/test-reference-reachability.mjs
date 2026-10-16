@@ -1,8 +1,7 @@
 import { strict as assert } from "node:assert";
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, writeFileSync, readFileSync, rmSync, renameSync } from "node:fs";
+import { writeFileSync, readFileSync, readdirSync, rmSync } from "node:fs";
 import { join, dirname } from "node:path";
-import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -12,43 +11,58 @@ function run(args = []) {
   return spawnSync("node", [script, ...args], { encoding: "utf8" });
 }
 
+// The expected count comes from the live corpus, not a pinned number. A pinned
+// "24/24" rotted when the corpus grew to 26, and nothing noticed because this
+// suite was in no default runner; a count read from disk cannot drift.
+const corpusSize = readdirSync(join(repoRoot, "references")).filter((f) => f.endsWith(".md")).length;
+
 // --- Baseline: every reference is reachable -------------------------------
 const clean = run();
 assert.strictEqual(clean.status, 0, `baseline must pass, got: ${clean.stdout}${clean.stderr}`);
-assert.match(clean.stdout, /24\/24 referenced/, `baseline must report 24/24, got: ${clean.stdout}`);
+assert.match(
+  clean.stdout,
+  new RegExp(`${corpusSize}/${corpusSize} referenced`),
+  `baseline must report ${corpusSize}/${corpusSize}, got: ${clean.stdout}`,
+);
 
 // --- The real corpus is walked, not a stub --------------------------------
 assert.match(
   clean.stdout,
-  /reference reachability: \d+\/24/,
+  new RegExp(`reference reachability: \\d+/${corpusSize}`),
   "the check must run against the real references/ corpus",
 );
 
 // --- An orphan must fail closed -------------------------------------------
-// Move a live reference aside under a name nothing cites, and confirm the gate
-// refuses. This is the whole point: a dead reference file must not pass.
-const probeDir = mkdtempSync(join(tmpdir(), "ref-reach-"));
+// Add a file nothing cites, and confirm the gate refuses. This is the whole
+// point: a dead reference file must not pass. The probe is removed in a
+// `finally` so a failing assertion cannot leave the tree dirty — an orphan
+// left behind would poison every later run of the gate.
 const orphanName = "zz-orphan-probe.md";
 const orphanPath = join(repoRoot, "references", orphanName);
-writeFileSync(orphanPath, "# Probe\n\nA file nothing cites.\n", "utf8");
+try {
+  writeFileSync(orphanPath, "# Probe\n\nA file nothing cites.\n", "utf8");
 
-const dirty = run();
-assert.strictEqual(
-  dirty.status,
-  1,
-  `an uncited reference must fail the gate, got exit ${dirty.status}: ${dirty.stdout}`,
-);
-assert.match(dirty.stdout, /UNREACHABLE/, "the failing file must be named");
-assert.match(dirty.stdout, new RegExp(orphanName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")), "the orphan name must appear in the report");
-assert.match(dirty.stderr, /dead file/, "the failure must explain why it matters");
+  const dirty = run();
+  assert.strictEqual(
+    dirty.status,
+    1,
+    `an uncited reference must fail the gate, got exit ${dirty.status}: ${dirty.stdout}`,
+  );
+  assert.match(dirty.stdout, /UNREACHABLE/, "the failing file must be named");
+  assert.match(
+    dirty.stdout,
+    new RegExp(orphanName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")),
+    "the orphan name must appear in the report",
+  );
+  assert.match(dirty.stderr, /dead file/, "the failure must explain why it matters");
 
-// --- --allow waives it, and the waiver is reported -------------------------
-const waived = run(["--allow", orphanName]);
-assert.strictEqual(waived.status, 0, "--allow must turn the failure into a pass");
-assert.match(waived.stdout, /waived/, "a waiver must be reported, not silently applied");
-
-rmSync(probeDir, { recursive: true, force: true });
-rmSync(orphanPath, { force: true });
+  // --- --allow waives it, and the waiver is reported ---------------------
+  const waived = run(["--allow", orphanName]);
+  assert.strictEqual(waived.status, 0, "--allow must turn the failure into a pass");
+  assert.match(waived.stdout, /waived/, "a waiver must be reported, not silently applied");
+} finally {
+  rmSync(orphanPath, { force: true });
+}
 
 // --- Removing the probe restores the baseline -----------------------------
 const restored = run();
