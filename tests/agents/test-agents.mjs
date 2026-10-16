@@ -72,8 +72,27 @@ check("verifier: FAIL is not a verdict value", /never a verdict value|never the 
 check("verifier: quality gate has 7 items incl. required-value check", /Required-value check/.test(verifier));
 check("verifier: 8 adversarial checks", /8\.\s+\*\*Citation entailment/.test(verifier));
 check("verifier: no-op loop stop", /No-op loop stop/i.test(verifier) && /unrepairable/i.test(verifier));
+check(
+  "verifier: three gates G1/G2/G3 classify every finding",
+  /## Three gates/.test(verifier) &&
+    /G1\s*[—–-]\s*Integrity/.test(verifier) &&
+    /G2\s*[—–-]\s*Completeness/.test(verifier) &&
+    /G3\s*[—–-]\s*Scientist's bar/.test(verifier),
+);
+check(
+  "verifier: devils-advocate pass on borderline findings",
+  /Devil.s-advocate pass/.test(verifier) && /arXiv:2605\.20668/.test(verifier),
+);
+check(
+  "verifier: no empty evidence; resolved vs unresolved counted separately",
+  /Non-empty inspectable evidence/.test(verifier) && /resolved/.test(verifier) && /unresolved/.test(verifier),
+);
 const reviewerText = read(join(AGENTS_DIR, "reviewer.md")) ?? "";
 check("reviewer: no-op loop stop", /no-op/i.test(reviewerText));
+check(
+  "reviewer: steel-man before condemning",
+  /Steel-man before condemning/.test(reviewerText) && /arXiv:2605\.20668/.test(reviewerText),
+);
 check(
   "verifier skill: no-op loop gate",
   /No-op loop/i.test(read(join(REPO_ROOT, "skills", "verifier", "SKILL.md")) ?? ""),
@@ -85,6 +104,17 @@ check("goal-checker: default NOT-DONE", /default is NOT-DONE|Default NOT-DONE|st
 check("goal-checker: re-derives from original question, not plan", /original research question|ORIGINAL/i.test(goalChecker) && /cross-reference/i.test(goalChecker));
 check("goal-checker: E2E machine line", /E2E:\s*scope=/.test(goalChecker));
 check("goal-checker: prompt=gap catches too-small plans", /prompt=gap/.test(goalChecker));
+check(
+  "goal-checker: bounded completion loop capped at 5",
+  /Bounded completion loop/.test(goalChecker) && /up to \*\*5\*\* times/.test(goalChecker),
+);
+check(
+  "goal-checker: three gates G1/G2/G3, non-averaged",
+  /Three gates \(independent, no averaging\)/.test(goalChecker) &&
+    /G1/.test(goalChecker) &&
+    /G2/.test(goalChecker) &&
+    /G3/.test(goalChecker),
+);
 
 // --- 5. engineering-research loop wiring ---
 const method = read(join(REPO_ROOT, "skills", "engineering-research", "SKILL.md")) ?? "";
@@ -92,6 +122,10 @@ check("engineering-research: Step 7 GOAL-CHECK gate", /GOAL-CHECK gate/.test(met
 check("engineering-research: dispatches goal-checker role", /agents\/goal-checker\.md/.test(method));
 check("engineering-research: repair loop (named items only, retain evidence)", /repair the named items only|repair only named/i.test(method) && /retain/i.test(method));
 check("engineering-research: records E2E line in provenance", /GOAL-CHECK: E2E:/.test(method));
+check(
+  "engineering-research: provenance records agent configuration",
+  /\*\*Agent configuration:\*\*/.test(method),
+);
 check("engineering-research: escalation 1→2→3", /2 parallel verifiers|two verifiers|escalat/i.test(method));
 
 // --- 6. Host adapters mirror canonical roles (exact role set, no strays) ---
