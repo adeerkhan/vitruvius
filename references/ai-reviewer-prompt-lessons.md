@@ -15,10 +15,15 @@ State the primary gate first and make it.ordering explicit. A significance rule
 without a correctness gate produces "impressive but wrong" output. For reviewers,
 correctness = the main point is factually wrong (not a peripheral detail).
 
-## 2. Hard caps as precision filters
+## 2. Hard caps as precision filters, not volume quotas
 Caps like "at most five items; zero allowed if none qualify" and "no
 introduction/summary" are cheap and effective. State them as rules, not
-preferences.
+preferences. A cap is a selection filter, not a budget to fill: in the
+paper's platform comparison (Table 9), raising GPT-5.4's per-paper cap from
+5 to 15 roughly doubled output (3.60 → 7.35 items) rather than filling it,
+and precision rose (93.81% → 95.46%) while recall climbed (26.55% →
+42.32%). Output stayed under the cap in both runs — the reviewer chose what
+to raise instead of padding to a count.
 
 ## 3. Evidence must be exact and checkable
 Require exact quotes (paper/code/literature), a citation list with a minimum

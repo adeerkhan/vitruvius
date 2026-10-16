@@ -11,10 +11,10 @@ argument-hint: "<artifact to review>"
 allowed-tools: Write Edit Bash Read
 license: MIT
 metadata:
-  version: "0.1.2"
+  version: "0.1.3"
 
 ---
-<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=1aaa90353e990303c694eea64604d974611a31de0f8babbac3364e9ba8d304fc -->
+<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=a2362536a12768907666a8791b0764dbb20582537866a6ea6de97cba2b46a284 -->
 
 # Engineering Peer Review
 
@@ -50,6 +50,10 @@ Attach or point to: research brief, design document, calculation set, or report.
    - **MAJOR** — likely wrong or a real gap; fix before finalizing
    - **MINOR** — clarity, consistency, polish
    - Each finding cites the specific section/line/claim it targets
+
+   Every finding must be fully substantiated — a location you read plus
+   evidence that supports it. An empty tier is a valid result: write `none`
+   rather than padding to a count.
 
 4. **Check what was NOT verified** — mark `blocked` where the source could not be read. Never let a missing check read as a pass.
 

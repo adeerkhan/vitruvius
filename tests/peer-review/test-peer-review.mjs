@@ -115,6 +115,20 @@ assert.match(
   "peer-review's output contract must carry a concrete Fix, not just a problem statement",
 );
 
+// --- No filler: fully substantiated or not at all --------------------------
+// arXiv:2605.20668 Table 9: a cap that output stays under is selection; padding
+// to a count is noise. An invented MINOR buries the real findings.
+assert.match(
+  text,
+  /Every\s+finding must be fully substantiated/i,
+  "peer-review must require every finding to be fully substantiated",
+);
+assert.match(
+  text,
+  /An empty tier is a valid result: write `none`\s+rather\s+than padding to a count/i,
+  "peer-review must treat an empty tier as valid and forbid padding to a count",
+);
+
 // --- Load-bearing items are re-derived, not accepted -----------------------
 assert.match(
   text,
@@ -202,5 +216,5 @@ assert.match(
 
 console.log(
   "PASS: peer-review asserts independence, default-FAIL, the no-softening rule, " +
-    "blocked-not-pass, actionable findings, and the line-pinned evidence trail",
+    "blocked-not-pass, actionable and fully-substantiated findings, and the line-pinned evidence trail",
 );

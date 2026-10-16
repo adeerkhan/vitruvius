@@ -115,6 +115,21 @@ assert.match(
   "review must forbid predicting approval and require revision-risk assessment instead",
 );
 
+// --- No filler: an empty tier is a valid result ----------------------------
+// arXiv:2605.20668 Table 9: output that stays under its cap is selection, not
+// padding. An invented MINOR buries the real findings and makes a thin review
+// read as thorough.
+assert.match(
+  text,
+  /Every\s+finding must be fully substantiated/i,
+  "review must require every finding to be fully substantiated",
+);
+assert.match(
+  text,
+  /An empty tier is a valid result: write `none` rather\s+than padding to a count/i,
+  "review must treat an empty tier as valid and forbid padding to a count",
+);
+
 // --- The artifact contract -------------------------------------------------
 assert.match(
   text,
@@ -193,6 +208,6 @@ assert.match(
 
 console.log(
   "PASS: review asserts the artifact-is-the-subject framing, per-artifact-type checks, " +
-    "blocked-not-pass, the anti-rubber-stamp pair, source-preserving verification, " +
-    "and its separation from peer-review",
+    "blocked-not-pass, the anti-rubber-stamp pair, no-filler acceptance, " +
+    "source-preserving verification, and its separation from peer-review",
 );

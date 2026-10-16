@@ -10,10 +10,10 @@ argument-hint: "<artifact to review>"
 allowed-tools: Write Edit Bash Read
 license: MIT
 metadata:
-  version: "0.1.2"
+  version: "0.1.3"
 
 ---
-<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=51dcbbab5baa8c661dd568db96584a718bad29b02fb43ae7ba0e016d674621b3 -->
+<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=ab2fdb3b49dcb275462bf81fb9a3142f291e733d85b2a0e94585a638ea5d0c3c -->
 
 # Engineering Artifact Review
 
@@ -46,7 +46,10 @@ Follow the artifact contract: save findings to `outputs/<slug>-review.md`.
    - **FATAL** — unsafe, non-compliant, or unsupported; must fix before use
    - **MAJOR** — likely wrong or a real gap; fix before finalizing
    - **MINOR** — clarity, consistency, polish
-   Each finding cites the specific section/line/claim it targets.
+   Each finding cites the specific section/line/claim it targets. Every
+   finding must be fully substantiated — a location you read plus evidence
+   that supports it. An empty tier is a valid result: write `none` rather
+   than padding to a count.
 5. **Check what was NOT verified** — mark `blocked` where the source could not
    be read; never let a missing check read as a pass.
 6. **Write a revision plan** — prioritized, concrete steps per finding.
