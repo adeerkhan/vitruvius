@@ -10,6 +10,10 @@ const FLAW_TYPES = new Set([
   "none", "code_misapplication", "unit_sign_error", "omission", "missing_factor",
   "calculation_error", "synthesis_overreach", "conflicting_standard", "criterion_mismatch", "entailment_failure",
   "unverifiable_source", "criterion_mismatch_qualification",
+  "context_norm_blindspot", "over_harsh_out_of_scope", "false_absence",
+  "not_actionable", "trivial_nitpick", "term_of_art_confusion",
+  "anachronistic_evidence", "stated_limitation_restated", "visual_evidence_error",
+  "misquote",
 ]);
 const GROUND_TRUTH_FLAWS = FLAW_TYPES;
 const GROUND_TRUTH_MARKER = /\*\*Ground-truth verdict:\*\*/gi;
