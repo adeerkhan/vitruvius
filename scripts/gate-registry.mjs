@@ -148,6 +148,7 @@ export const REGISTRY = {
   "citation-audit.mjs": { kind: "test" },
   "result-provenance-audit.mjs": { kind: "test" },
   "review-item-contract.mjs": { kind: "test" },
+  "verdict-gate-contract.mjs": { kind: "test" },
 };
 
 const VALID_KINDS = new Set(["chain", "npm", "test", "manual"]);
