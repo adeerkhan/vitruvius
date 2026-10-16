@@ -15,10 +15,10 @@ argument-hint: "<research question or artifact to review> [--deep | --quick]"
 allowed-tools: Write Edit Bash Read
 license: MIT
 metadata:
-  version: "0.5.3"
+  version: "0.5.4"
 
 ---
-<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=d965166f8428ce023e9ead15cedd6d1d63025f6462132fb954e3bfd10df4dfb4 -->
+<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=12f6a4d69171ded213360e2d955734fad767a3a27f4ad88d51958d5cbf5e016f -->
 
 # Engineering Research
 
@@ -343,6 +343,10 @@ paper-style artifacts). Write provenance next to it as `<slug>.provenance.md`:
 - **Final SHA-256:** `<64 lowercase hex characters>`
 - **Final bytes:** `<positive integer>`
 - **Date:** [date]
+- **Agent configuration:** model ID and version, Vitruvius skill version, run
+  budget, context-trim strategy, tools available, and source claim (sha of the
+  prompt/agent config if one was frozen) — arXiv:2605.20668 § B.5 shows this
+  is itself an experimental variable
 - **Rounds:** [number of research rounds]
 - **Sources consulted:** [count and/or list]
 - **Sources accepted:** [count and/or list]
