@@ -49,6 +49,11 @@ for (const role of ROLES) {
     check(`${role}: mission pointer (SHA-256)`, /SHA-256/.test(text));
     check(`${role}: INVALID-BRIEF on mismatch`, text.includes("INVALID-BRIEF"));
   }
+  // Escaped line breaks leak into the prompt as literal backslash-n text; the
+  // shared independence-guard block has carried this defect (reviewer,
+  // verifier, and goal-checker before its rewrite), and it appeared at more
+  // than one line break in the same file. No role file may contain the escape.
+  check(`${role}: no literal backslash-n escapes leak into prompt text`, !/\\n/.test(text));
 }
 
 // --- 2. Tool bounds: judges read-only, producers bounded ---
