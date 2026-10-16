@@ -255,6 +255,9 @@ function validateRecord(record) {
   };
 }
 
+// Export the validator so the Phase-2 engine can reuse its semantics.
+export { validateRecord as validateVerdictGate };
+
 if (isMainModule()) {
   const arg = process.argv[2];
   if (!arg || process.argv.includes("--help") || process.argv.includes("-h")) {

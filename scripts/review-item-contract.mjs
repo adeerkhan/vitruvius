@@ -262,6 +262,10 @@ function main(argv) {
   if (result.errors.length > 0) process.exit(1);
 }
 
+// Export the validator so downstream machinery (verdict-gate, meta-reviewer)
+// can reuse the exact semantics rather than re-implement them and drift.
+export { validateRecord, validateItem };
+
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   main(process.argv.slice(2));
 }
