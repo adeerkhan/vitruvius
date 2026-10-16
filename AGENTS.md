@@ -82,7 +82,11 @@ When writing a prompt, plan, or instruction for any agent or subagent:
 `references/prompt-patterns.md` catalogs the failure modes to catch on review —
 vague quantifiers, unspecified authority, false precision, citation laundering,
 and others — numbered by strength, each with what to watch for and why it is a
-tell. Read it before reviewing or rewriting a prompt.
+tell. Read it before reviewing or rewriting a prompt. `references/ai-reviewer-prompt-lessons.md`
+captures the empirical prompt-engineering lessons from arXiv:2605.20668 (correctness
+before significance, hard caps, exact evidence, devil’s-advocate, boundaries,
+tool-enabled scrutiny) — apply them when authoring or revising reviewer, verifier,
+or meta-reviewer prompts.
 
 ### Anti-Rationalization Tables
 

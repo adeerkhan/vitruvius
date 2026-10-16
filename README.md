@@ -483,6 +483,8 @@ Vitruvius points research at the best free, verifiable layers for the job:
 - **Academic literature**: OpenAlex (primary, keyless), Semantic Scholar, arXiv, alphaXiv fast search
 - **Web search**: Used for non-academic sources and recency (when host exposes the tool)
 
+**Empirical reference (AI reviewers):** Kim, S. et al. (2026), *“On the limits and opportunities of AI reviewers: Reviewing the reviews of Nature-family papers with 45 expert scientists”*, arXiv:2605.20668. https://arxiv.org/pdf/2605.20668 — a 469-hour, 45-scientist expert annotation study of 2,960 review items across 82 Nature-family papers. It is the empirical basis for the reviewer/meta-reviewer prompt, significance-bar, devil’s-advocate, and severity-calibration guidance applied throughout Vitruvius; see the extracted copy in `docs/` (gitignored for local reading) for full details.
+
 **Rejected sources:** Undated blog posts, content aggregators, forum posts without primary links, sources that appear AI-generated.
 
 **Paywalled sources:** Cited from metadata and marked `blocked` — never guessed at.

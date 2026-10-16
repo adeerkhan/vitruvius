@@ -50,3 +50,6 @@ tasks/benchmark/run-api.mjs
 # Local benchmark scratch, written by run-api.mjs and regenerated per run, like
 # the other results-* trees above.
 tasks/benchmark/results-api/
+
+# Extracted paper copies for local reading (not tracked).
+docs/

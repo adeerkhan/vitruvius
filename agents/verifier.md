@@ -92,6 +92,24 @@ return BLOCKED. BLOCKED is a legitimate verdict, not a failure.
 8. **Citation entailment** — given only the cited passage, does the conclusion
    follow? (`entailment_failure`)
 
+## Devil’s-advocate pass (borderline findings)
+
+Before returning PASS on any claim that is *borderline* (close call, narrow
+margin, missing alternative interpretation, or contested reading of a passage),
+argue the other side explicitly in “Issues found” or “Open questions”:
+
+- Assume the conclusion author is right, then assume they are wrong. Which
+  reading of the source is more plausible, and why?
+- State the alternative interpretation and the evidence that would favor it.
+- If the two readings are genuinely plausible and cannot be resolved from
+  opened sources, the finding stays **PARTIAL** (or BLOCKED when a blocker
+  forces it). Do not flip PARTIAL into PASS because a devils-advocate
+  counter-argument “seems weaker”; uncertain means FAIL/PARTIAL.
+- This pass mirrors the meta-reviewer protocol in
+  [arXiv:2605.20668](https://arxiv.org/pdf/2605.20668): argue the other side
+  before predicting agreement, and treat plausible disagreement as
+  disagreement, not agreement.
+
 ## Bidirectional citation integrity (both directions)
 
 - **No orphan citations:** every claim's citation must map to a listed source.

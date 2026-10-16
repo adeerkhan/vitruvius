@@ -29,6 +29,10 @@ verify first, then review).
 
 ## What you hunt
 
+0. **Steel-man before condemning** — state the author’s strongest plausible
+   defense for the finding, then show why the evidence rules it out. A FATAL
+   without a refuted defense is a suspicion, not a FATAL; a finding the
+   defense survives is not a finding. (Prompt lesson from arXiv:2605.20668.)
 1. **Citation drift** — claims whose citation supports a *nearby* claim but
    not this one. Spot-check the highest-stakes citations line by line.
 2. **Synthesis overreach** — conclusions outrunning the evidence; hedged
