@@ -87,6 +87,10 @@ The verifier is benchmarked, not asserted. Its checked-in results are on-disk, r
 | Structural contract (26 skills) | enforced in CI | [validate-contract.mjs](scripts/validate-contract.mjs) |
 | Provenance schema (selected sidecars, `inferred` derivation traces) | selected root/plan/draft checks plus deterministic generic closure fixtures; legacy local closure remains opt-in | [validate-artifacts.mjs](scripts/validate-artifacts.mjs) |
 
+Repository-only assets (not in the npm package): `outputs/`, `evals/` run
+records and `tasks/benchmark/results/`. These are development artefacts;
+run `npm run check:local-artifacts` against a clean outputs tree to reproduce.
+
 Reproduce:
 
 ```bash
