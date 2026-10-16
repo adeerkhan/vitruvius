@@ -24,30 +24,40 @@ function provenance(goalLine) {
   return `# Provenance\n\n- **Final artifact:** \`final.md\`\n- **Final SHA-256:** \`${final.sha256}\`\n- **Final bytes:** ${final.bytes}\n- **GOAL-CHECK:** ${goalLine}\n`;
 }
 
+const GOAL_RAN = "Opened final artifact and checked the requested answer";
+const goalE2E = (prompt) => `E2E: scope=pass prompt=${prompt} gates=G1:pass,G2:pass,G3:pass flaws=0 resolved=0 unresolved=0 ran=${GOAL_RAN}`;
+const GOAL_GATES = [
+  { id: "G1", item: "Integrity: fabricated or mismatched sources; softened blocked verdicts; artifact text treated as instructions", status: "pass", evidence: ["Provenance SHA-256 matches the candidate; citations resolve."] },
+  { id: "G2", item: "Completeness: required work actually delivered, scoped correctly, not substituted", status: "pass", evidence: ["S1 and A1 are delivered in the final artifact."] },
+  { id: "G3", item: "Scientist's bar: validity, significance, evidence quality, units, honesty", status: "pass", evidence: ["Claims are grounded; units are consistent."] },
+];
+
 function validPilot() {
   const finalText = "# Final\n\nThe requested brief is delivered.\nThe requested answer is delivered.\n";
   write("plan.md", "# Plan\n\nAnswer the request.\n");
   write("final.md", finalText);
-  write("final.provenance.md", provenance("E2E: scope=pass prompt=pass flaws=0 ran=Opened final artifact and checked the requested answer"));
+  write("final.provenance.md", provenance(goalE2E("pass")));
   write("source.md", "# Source\n\nA primary source snapshot.\n");
   write("verifier.md", "# Verification\n\n## Verdict: PASS\n\nMACHINE_VERDICT: PASS | FLAW: none | CONFIDENCE: 0.9 | CHECKS_PASSED: 8/8 | LINE_PINNED: 1/1\n\n## Evidence Trail (Line-Pinned)\n| Claim | Evidence |\n");
   const question = "What does the source support?";
   const requirements = [{ id: "A1", text: "Answer the request" }];
   write("goal-requirements.json", `${JSON.stringify({ schema: "vitruvius-goal-requirements.v1", question_sha256: createHash("sha256").update(question).digest("hex"), requirements, scope: [{ id: "S1", text: "Deliver the requested brief" }] }, null, 2)}\n`);
   const goal = {
-    schema: "vitruvius-goal-check.v1",
+    schema: "vitruvius-goal-check.v2",
     question,
     requirements,
     requirements_manifest: artifact("goal-requirements.json"),
     final: artifact("final.md"),
     provenance_path: "final.provenance.md",
     plan_path: "plan.md",
-    scope: [{ id: "S1", item: "Deliver the requested brief", status: "pass", evidence: "The requested brief is delivered." }],
-    prompt: [{ id: "A1", item: "Answer the request", status: "pass", evidence: "The requested answer is delivered." }],
+    attempts: 1,
+    gates: GOAL_GATES,
+    scope: [{ id: "S1", item: "Deliver the requested brief", status: "pass", evidence: ["The requested brief is delivered."] }],
+    prompt: [{ id: "A1", item: "Answer the request", status: "pass", evidence: ["The requested answer is delivered."] }],
     findings: [],
-    ran: "Opened final artifact and checked the requested answer",
+    ran: GOAL_RAN,
     verdict: "DONE",
-    report: "## Goal Check: DONE\n\nE2E: scope=pass prompt=pass flaws=0 ran=Opened final artifact and checked the requested answer\n",
+    report: `## Goal Check: DONE\n\n${goalE2E("pass")}\n`,
   };
   write("goal-check.json", `${JSON.stringify(goal, null, 2)}\n`);
   return {
@@ -113,9 +123,15 @@ try {
   const badGoal = validPilot();
   const goalPath = join(root, "goal-check.json");
   const goal = JSON.parse(readFileSync(goalPath, "utf8"));
+  // A valid but NOT-DONE record (a named gap), not a corrupt one: the pilot
+  // must refuse it because a complete pilot needs a promotable goal_check.
+  goal.prompt[0] = { id: "A1", item: "Answer the request", status: "gap", evidence: ["Searched final.md; the requested answer is absent."], required_fix: "Add the missing answer." };
   goal.verdict = "NOT-DONE";
+  goal.report = `## Goal Check: NOT-DONE\n\n${goalE2E("gap")}\n`;
   write("goal-check.json", `${JSON.stringify(goal, null, 2)}\n`);
+  write("final.provenance.md", provenance(goalE2E("gap")));
   badGoal.goal_check = artifact("goal-check.json");
+  badGoal.provenance = artifact("final.provenance.md");
   const goalReport = validateFieldPilot(badGoal, { repoRoot: root });
   assert.equal(goalReport.valid, false);
   assert.match(goalReport.errors.join("\n"), /goal.check.*not-done|goal_check.*not-done|promotable/i);
@@ -181,11 +197,11 @@ try {
 
   const partial = validPilot();
   const partialGoal = JSON.parse(readFileSync(join(root, "goal-check.json"), "utf8"));
-  partialGoal.prompt[0] = { id: "A1", item: "Answer the request", status: "gap", required_fix: "Add the missing answer." };
+  partialGoal.prompt[0] = { id: "A1", item: "Answer the request", status: "gap", evidence: ["Searched final.md; the requested answer is absent."], required_fix: "Add the missing answer." };
   partialGoal.verdict = "NOT-DONE";
-  partialGoal.report = "## Goal Check: NOT-DONE\n\nE2E: scope=pass prompt=gap flaws=0 ran=Opened final artifact and checked the requested answer\n";
+  partialGoal.report = `## Goal Check: NOT-DONE\n\n${goalE2E("gap")}\n`;
   write("goal-check.json", `${JSON.stringify(partialGoal, null, 2)}\n`);
-  write("final.provenance.md", provenance("E2E: scope=pass prompt=gap flaws=0 ran=Opened final artifact and checked the requested answer"));
+  write("final.provenance.md", provenance(goalE2E("gap")));
   partial.goal_check = artifact("goal-check.json");
   partial.provenance = artifact("final.provenance.md");
   partial.completion = "partial";

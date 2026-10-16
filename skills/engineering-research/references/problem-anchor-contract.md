@@ -224,7 +224,7 @@ This record is not a substitute for any of them, and it is not a promotion
 gate on its own:
 
 - `vitruvius-goal-requirements.v1` freezes *what was asked*, before dispatch.
-- `vitruvius-goal-check.v1` checks *whether the question was answered*, at the
+- `vitruvius-goal-check.v2` checks *whether the question was answered*, at the
   end.
 - `vitruvius-problem-anchor.v1` checks *whether the answer is about the thing
   that was studied*, continuously.

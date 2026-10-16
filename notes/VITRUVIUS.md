@@ -76,7 +76,7 @@ through it. Steps and their gates:
 | **4. Draft** | Every claim carries a source reference; blocked sources cited from metadata only |
 | **5. Verify** | Blind verifier (below); conditional escalation 1→2→3 (A4); severity→verdict gate |
 | **6. Review** | Final self-review, then the mandatory post-edit citation audit (Step 6.5); do not claim an independent reviewer where the method requires self-review |
-| **7. Deliver** | **GOAL-CHECK gate**: independent re-derivation of every ask from the original question — default NOT-DONE, machine line `E2E: scope= prompt= flaws= ran=`. Then artifacts + provenance sidecar |
+| **7. Deliver** | **GOAL-CHECK gate**: independent re-derivation of every ask from the original question — default NOT-DONE, machine line `E2E: scope= prompt= gates= flaws= resolved= unresolved= ran=`. Then artifacts + provenance sidecar |
 
 Repair rule: a NOT-DONE goal check or a verifier FAIL sends work back to the
 responsible step to **repair the named items only** — accepted evidence and
@@ -129,10 +129,12 @@ BLOCKED > PARTIAL > PASS.
 `agents/goal-checker.md`. Independent end-of-run check, default NOT-DONE.
 Re-derives every ask from the **original question text alone** (the plan is a
 cross-reference; a plan that dropped an ask is caught as `prompt=gap`).
-Tri-axis machine line `E2E: scope=<pass|gap> prompt=<pass|gap> flaws=<n>
-ran=<phrase>`; DONE requires scope=pass, prompt=pass, flaws=0 (MINOR
-included; WONTFIX needs a one-line evidenced justification). Documented
-BLOCKED verdicts in the artifact are not flaws.
+Machine line `E2E: scope=<pass|gap> prompt=<pass|gap>
+gates=G1:<pass|gap>,G2:<pass|gap>,G3:<pass|gap> flaws=<n> resolved=<n>
+unresolved=<n> ran=<phrase>`; DONE requires scope=pass, prompt=pass, all
+three gates pass, flaws=0 (MINOR included; WONTFIX needs a one-line evidenced
+justification), and a capped `attempts` (1-5) count. Documented BLOCKED
+verdicts in the artifact are not flaws.
 
 ### Agent contracts (N11)
 

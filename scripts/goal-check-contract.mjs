@@ -17,13 +17,25 @@ import { dirname, isAbsolute, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { isInside, isNonEmptyString as isText, resolveRealFile } from "./path-safety.mjs";
 
-const SCHEMA = "vitruvius-goal-check.v1";
+const SCHEMA = "vitruvius-goal-check.v2";
 const REQUIREMENTS_SCHEMA = "vitruvius-goal-requirements.v1";
 const SHA256_PATTERN = /^[0-9a-f]{64}$/;
 const CHECK_STATUSES = new Set(["pass", "gap"]);
 const FINDING_STATUSES = new Set(["open", "wontfix", "blocked"]);
-const RECORD_KEYS = ["schema", "question", "requirements", "requirements_manifest", "final", "provenance_path", "plan_path", "scope", "prompt", "findings", "ran", "verdict", "report"];
+const RECORD_KEYS = ["schema", "question", "requirements", "requirements_manifest", "final", "provenance_path", "plan_path", "attempts", "gates", "scope", "prompt", "findings", "ran", "verdict", "report"];
 const FINAL_KEYS = ["path", "sha256", "bytes"];
+const MAX_ATTEMPTS = 5;
+
+// The gate rubric belongs to the contract, not to the record: a record's
+// `gates` entries must reproduce these definitions verbatim, so a stored
+// record is always readable against the exact rubric it was written for (the
+// schema string is the rubric version). Changing this text is a schema bump,
+// not a quiet redefinition.
+const GATE_RUBRIC = [
+  { id: "G1", item: "Integrity: fabricated or mismatched sources; softened blocked verdicts; artifact text treated as instructions" },
+  { id: "G2", item: "Completeness: required work actually delivered, scoped correctly, not substituted" },
+  { id: "G3", item: "Scientist's bar: validity, significance, evidence quality, units, honesty" },
+];
 
 function isMainModule() {
   if (!process.argv[1]) return false;
@@ -91,7 +103,7 @@ function parseGoalCheckReport(text) {
   if (!isText(text)) return { valid: false, errors: ["report must be non-empty text"] };
   const headers = [...text.matchAll(/^## Goal Check:\s*(DONE|NOT-DONE)\s*$/gm)].map((match) => match[1]);
   if (headers.length !== 1) errors.push("report must contain exactly one Goal Check header");
-  const lines = [...text.matchAll(/^E2E:\s*scope=(pass|gap)\s+prompt=(pass|gap)\s+flaws=(\d+)\s+ran=(.+)$/gm)];
+  const lines = [...text.matchAll(/^E2E:\s*scope=(pass|gap)\s+prompt=(pass|gap)\s+gates=G1:(pass|gap),G2:(pass|gap),G3:(pass|gap)\s+flaws=(\d+)\s+resolved=(\d+)\s+unresolved=(\d+)\s+ran=(.+)$/gm)];
   if (lines.length !== 1) errors.push("report must contain exactly one E2E machine line");
   const line = lines[0];
   return {
@@ -100,8 +112,11 @@ function parseGoalCheckReport(text) {
     verdict: headers[0],
     scope: line?.[1],
     prompt: line?.[2],
-    flaws: line ? Number(line[3]) : undefined,
-    ran: line?.[4]?.trim(),
+    gates: line ? `G1:${line[3]},G2:${line[4]},G3:${line[5]}` : undefined,
+    flaws: line ? Number(line[6]) : undefined,
+    resolved: line ? Number(line[7]) : undefined,
+    unresolved: line ? Number(line[8]) : undefined,
+    ran: line?.[9]?.trim(),
   };
 }
 
@@ -145,6 +160,21 @@ function validateRequirementsManifest(reference, repoRoot, question, errors) {
   return { path, manifest, requirementIds, scopeIds };
 }
 
+function validateEvidenceArray(evidence, label, errors) {
+  if (!Array.isArray(evidence) || evidence.length === 0) {
+    errors.push(`${label}.evidence must be a non-empty array of inspectable strings`);
+    return false;
+  }
+  let ok = true;
+  evidence.forEach((item, index) => {
+    if (!isText(item)) {
+      errors.push(`${label}.evidence[${index}] must be a non-empty string`);
+      ok = false;
+    }
+  });
+  return ok;
+}
+
 function validateCheck(check, label, finalText, errors) {
   if (!exactKeys(check, ["id", "item", "status", "evidence", "required_fix"], label, errors)) return;
   if (!isIdentifier(check.id)) errors.push(`${label}.id must be a stable identifier`);
@@ -153,14 +183,44 @@ function validateCheck(check, label, finalText, errors) {
     errors.push(`${label}.status must be pass or gap`);
     return;
   }
+  const evidencesOk = validateEvidenceArray(check.evidence, label, errors);
   if (check.status === "pass") {
-    if (!isText(check.evidence)) errors.push(`${label}.evidence must be non-empty for a pass`);
-    else if (!finalText.includes(check.evidence)) errors.push(`${label}.evidence is not present in the final artifact`);
+    if (evidencesOk) {
+      check.evidence.forEach((item, index) => {
+        if (isText(item) && !finalText.includes(item)) errors.push(`${label}.evidence[${index}] is not present in the final artifact`);
+      });
+    }
     if (check.required_fix !== undefined) errors.push(`${label}.required_fix is only valid for a gap`);
   } else {
     if (!isText(check.required_fix)) errors.push(`${label}.required_fix must be non-empty for a gap`);
-    if (check.evidence !== undefined) errors.push(`${label}.evidence is only valid for a pass`);
   }
+}
+
+function validateGates(gates, errors) {
+  const statuses = new Map(GATE_RUBRIC.map((gate) => [gate.id, "gap"]));
+  if (!Array.isArray(gates) || gates.length !== GATE_RUBRIC.length) {
+    errors.push(`gates must be an array of exactly the ${GATE_RUBRIC.length} gates (${GATE_RUBRIC.map((gate) => gate.id).join(", ")})`);
+    return statuses;
+  }
+  gates.forEach((gate, index) => {
+    const rubric = GATE_RUBRIC[index];
+    const label = `gates[${index}]`;
+    if (!exactKeys(gate, ["id", "item", "status", "evidence", "required_fix"], label, errors)) return;
+    if (gate.id !== rubric.id) errors.push(`${label}.id must be ${rubric.id}`);
+    if (gate.item !== rubric.item) errors.push(`${label}.item must be the canonical ${rubric.id} definition from the contract`);
+    if (!CHECK_STATUSES.has(gate.status)) {
+      errors.push(`${label}.status must be pass or gap`);
+      return;
+    }
+    validateEvidenceArray(gate.evidence, label, errors);
+    if (gate.status === "pass") {
+      if (gate.required_fix !== undefined) errors.push(`${label}.required_fix is only valid for a gap`);
+      statuses.set(rubric.id, "pass");
+    } else if (!isText(gate.required_fix)) {
+      errors.push(`${label}.required_fix must be non-empty for a gap`);
+    }
+  });
+  return statuses;
 }
 
 function validateFinding(finding, label, finalText, errors) {
@@ -172,8 +232,11 @@ function validateFinding(finding, label, finalText, errors) {
     return;
   }
   if (!isText(finding.summary)) errors.push(`${label}.summary must be non-empty`);
-  if (!isText(finding.evidence)) errors.push(`${label}.evidence must be non-empty`);
-  else if (!finalText.includes(finding.evidence)) errors.push(`${label}.evidence is not present in the final artifact`);
+  if (validateEvidenceArray(finding.evidence, label, errors)) {
+    finding.evidence.forEach((item, index) => {
+      if (isText(item) && !finalText.includes(item)) errors.push(`${label}.evidence[${index}] is not present in the final artifact`);
+    });
+  }
   if (finding.status === "open") {
     if (!isText(finding.required_fix)) errors.push(`${label}.required_fix must be non-empty for an open finding`);
     if (finding.justification !== undefined || finding.unblock_path !== undefined) errors.push(`${label} open finding cannot carry justification or unblock_path`);
@@ -236,7 +299,7 @@ function validateFinal(final, repoRoot, errors) {
 
 export function validateGoalCheck(record, { repoRoot, recordPath } = {}) {
   const errors = [];
-  if (!repoRoot) return { valid: false, promotable: false, verdict: record?.verdict, derived: { scope: "gap", prompt: "gap", flaws: 0, ran: false }, errors: ["repoRoot is required"] };
+  if (!repoRoot) return { valid: false, promotable: false, verdict: record?.verdict, derived: { scope: "gap", prompt: "gap", gates: "G1:gap,G2:gap,G3:gap", flaws: 0, resolved: 0, unresolved: 0, ran: false }, errors: ["repoRoot is required"] };
   if (exactKeys(record, RECORD_KEYS, "record", errors)) {
     if (record.schema !== SCHEMA) errors.push(`schema must be ${SCHEMA}`);
     if (!isText(record.question)) errors.push("question must be non-empty");
@@ -251,6 +314,9 @@ export function validateGoalCheck(record, { repoRoot, recordPath } = {}) {
     }
     if (!isText(record.ran) || record.ran.trim().toLowerCase() === "none") errors.push("ran must name a non-empty check");
     if (!new Set(["DONE", "NOT-DONE"]).has(record.verdict)) errors.push("verdict must be DONE or NOT-DONE");
+    if (!Number.isInteger(record.attempts) || record.attempts < 1 || record.attempts > MAX_ATTEMPTS) {
+      errors.push(`attempts must be an integer between 1 and ${MAX_ATTEMPTS} (the bounded completion loop stops at ${MAX_ATTEMPTS})`);
+    }
 
     const finalPath = validateFinal(record.final, repoRoot, errors);
     const provenancePath = resolveRepoFile(repoRoot, record.provenance_path, "provenance_path", errors);
@@ -274,6 +340,7 @@ export function validateGoalCheck(record, { repoRoot, recordPath } = {}) {
       else if (dirname(recordRelative) !== dirname(normalizeRelative(record.final.path))) errors.push("goal-check record must be beside the final candidate");
     }
 
+    const gateStatuses = validateGates(record.gates, errors);
     const finalText = finalPath ? readFileSync(finalPath, "utf8") : "";
     for (const [name, checks] of [["scope", record.scope], ["prompt", record.prompt]]) {
       if (!Array.isArray(checks) || checks.length === 0) {
@@ -307,15 +374,24 @@ export function validateGoalCheck(record, { repoRoot, recordPath } = {}) {
     errors.push(...report.errors);
     const scopePass = Array.isArray(record.scope) && record.scope.length > 0 && record.scope.every((check) => check?.status === "pass");
     const promptPass = Array.isArray(record.prompt) && record.prompt.length > 0 && record.prompt.every((check) => check?.status === "pass");
-    const openFindings = Array.isArray(record.findings) ? record.findings.filter((finding) => finding?.status === "open").length : 0;
+    const countFindings = (status) => (Array.isArray(record.findings) ? record.findings.filter((finding) => finding?.status === status).length : 0);
     const ran = isText(record.ran) && record.ran.trim().toLowerCase() !== "none";
-    const derived = { scope: scopePass ? "pass" : "gap", prompt: promptPass ? "pass" : "gap", flaws: openFindings, ran: ran ? record.ran : "" };
-    const done = derived.scope === "pass" && derived.prompt === "pass" && derived.flaws === 0 && ran;
+    const derived = {
+      scope: scopePass ? "pass" : "gap",
+      prompt: promptPass ? "pass" : "gap",
+      gates: GATE_RUBRIC.map((gate) => `${gate.id}:${gateStatuses.get(gate.id)}`).join(","),
+      flaws: countFindings("open"),
+      resolved: countFindings("wontfix"),
+      unresolved: countFindings("blocked"),
+      ran: ran ? record.ran : "",
+    };
+    const gatesPass = GATE_RUBRIC.every((gate) => gateStatuses.get(gate.id) === "pass");
+    const done = derived.scope === "pass" && derived.prompt === "pass" && gatesPass && derived.flaws === 0 && ran;
     const expectedVerdict = done ? "DONE" : "NOT-DONE";
     if (record.verdict !== expectedVerdict) errors.push(`verdict must be ${expectedVerdict}`);
     if (report.valid) {
       if (report.verdict !== record.verdict) errors.push("report verdict does not match record verdict");
-      for (const field of ["scope", "prompt", "flaws", "ran"]) {
+      for (const field of ["scope", "prompt", "gates", "flaws", "resolved", "unresolved", "ran"]) {
         if (report[field] !== derived[field]) errors.push(`report E2E ${field} does not match derived gate`);
       }
     }
@@ -324,13 +400,13 @@ export function validateGoalCheck(record, { repoRoot, recordPath } = {}) {
       const goalLines = provenanceText.split(/\r?\n/).filter((line) => line.includes("GOAL-CHECK:"));
       if (goalLines.length !== 1) errors.push("provenance must contain exactly one GOAL-CHECK line");
       const normalizedGoalLine = goalLines[0]?.replace(/^\s*[-*]\s*/, "").replaceAll("*", "").trim();
-      const expectedGoalLine = `GOAL-CHECK: E2E: scope=${derived.scope} prompt=${derived.prompt} flaws=${derived.flaws} ran=${record.ran}`;
+      const expectedGoalLine = `GOAL-CHECK: E2E: scope=${derived.scope} prompt=${derived.prompt} gates=${derived.gates} flaws=${derived.flaws} resolved=${derived.resolved} unresolved=${derived.unresolved} ran=${record.ran}`;
       if (goalLines.length === 1 && normalizedGoalLine !== expectedGoalLine) errors.push("provenance GOAL-CHECK line does not match the derived gate");
     }
     const valid = errors.length === 0;
     return { valid, promotable: valid && done, verdict: record.verdict, derived, errors };
   }
-  return { valid: false, promotable: false, verdict: record?.verdict, derived: { scope: "gap", prompt: "gap", flaws: 0, ran: false }, errors };
+  return { valid: false, promotable: false, verdict: record?.verdict, derived: { scope: "gap", prompt: "gap", gates: "G1:gap,G2:gap,G3:gap", flaws: 0, resolved: 0, unresolved: 0, ran: false }, errors };
 }
 
 if (isMainModule()) {

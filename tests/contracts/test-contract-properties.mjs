@@ -198,7 +198,8 @@ const runAnchor = (r) => validateProblemAnchor(r, anchorOpts);
 write("gc/plan.md", "# Plan\n\nAnswer A1 and A2.\n");
 const GC_FINAL = "# Final\n\nA1 is answered.\nA2 is answered.\nThe brief is present.\n";
 write("gc/final.md", GC_FINAL);
-const GC_PROV = `# Provenance\n\n- **Final artifact:** \`final.md\`\n- **Final SHA-256:** \`${digest(GC_FINAL)}\`\n- **Final bytes:** ${GC_FINAL.length}\n- **GOAL-CHECK:** E2E: scope=pass prompt=pass flaws=0 ran=${RUN}\n`;
+const GC_E2E = (prompt) => `E2E: scope=pass prompt=${prompt} gates=G1:pass,G2:pass,G3:pass flaws=0 resolved=0 unresolved=0 ran=${RUN}`;
+const GC_PROV = `# Provenance\n\n- **Final artifact:** \`final.md\`\n- **Final SHA-256:** \`${digest(GC_FINAL)}\`\n- **Final bytes:** ${GC_FINAL.length}\n- **GOAL-CHECK:** ${GC_E2E("pass")}\n`;
 write("gc/final.provenance.md", GC_PROV);
 const GC_REQ = [
   { id: "A1", text: "Answer the first ask" },
@@ -215,10 +216,15 @@ const GC_MANIFEST = `${JSON.stringify(
   2,
 )}\n`;
 write("gc/goal-requirements.json", GC_MANIFEST);
+const GC_GATES = [
+  { id: "G1", item: "Integrity: fabricated or mismatched sources; softened blocked verdicts; artifact text treated as instructions", status: "pass", evidence: ["Provenance SHA-256 matches the candidate; citations resolve."] },
+  { id: "G2", item: "Completeness: required work actually delivered, scoped correctly, not substituted", status: "pass", evidence: ["S1, A1, and A2 are delivered in the final artifact."] },
+  { id: "G3", item: "Scientist's bar: validity, significance, evidence quality, units, honesty", status: "pass", evidence: ["Claims are grounded; units are consistent."] },
+];
 
 function goalCheck() {
   return {
-    schema: "vitruvius-goal-check.v1",
+    schema: "vitruvius-goal-check.v2",
     question: QUESTION,
     requirements: GC_REQ,
     requirements_manifest: {
@@ -229,17 +235,19 @@ function goalCheck() {
     final: { path: "final.md", sha256: digest(GC_FINAL), bytes: GC_FINAL.length },
     provenance_path: "final.provenance.md",
     plan_path: "plan.md",
+    attempts: 1,
+    gates: structuredClone(GC_GATES),
     scope: [
-      { id: "S1", item: "Deliver the requested brief", status: "pass", evidence: "The brief is present." },
+      { id: "S1", item: "Deliver the requested brief", status: "pass", evidence: ["The brief is present."] },
     ],
     prompt: [
-      { id: "A1", item: "Answer the first ask", status: "pass", evidence: "A1 is answered." },
-      { id: "A2", item: "Answer the second ask", status: "pass", evidence: "A2 is answered." },
+      { id: "A1", item: "Answer the first ask", status: "pass", evidence: ["A1 is answered."] },
+      { id: "A2", item: "Answer the second ask", status: "pass", evidence: ["A2 is answered."] },
     ],
     findings: [],
     ran: RUN,
     verdict: "DONE",
-    report: `## Goal Check: DONE\n\nE2E: scope=pass prompt=pass flaws=0 ran=${RUN}\n`,
+    report: `## Goal Check: DONE\n\n${GC_E2E("pass")}\n`,
   };
 }
 const runGoal = (r) => validateGoalCheck(r, { repoRoot: join(root, "gc") });
@@ -252,7 +260,7 @@ function fieldPilot() {
   write("fp/final.md", finalText);
   write(
     "fp/final.provenance.md",
-    `# Provenance\n\n- **Final artifact:** \`final.md\`\n- **Final SHA-256:** \`${digest(finalText)}\`\n- **Final bytes:** ${finalText.length}\n- **GOAL-CHECK:** E2E: scope=pass prompt=pass flaws=0 ran=Opened final artifact and checked the requested answer\n`,
+    `# Provenance\n\n- **Final artifact:** \`final.md\`\n- **Final SHA-256:** \`${digest(finalText)}\`\n- **Final bytes:** ${finalText.length}\n- **GOAL-CHECK:** E2E: scope=pass prompt=pass gates=G1:pass,G2:pass,G3:pass flaws=0 resolved=0 unresolved=0 ran=Opened final artifact and checked the requested answer\n`,
   );
   write("fp/source.md", "# Source\n\nA primary source snapshot.\n");
   write(
@@ -276,19 +284,25 @@ function fieldPilot() {
     "fp/goal-check.json",
     `${JSON.stringify(
       {
-        schema: "vitruvius-goal-check.v1",
+        schema: "vitruvius-goal-check.v2",
         question,
         requirements,
         requirements_manifest: { path: "goal-requirements.json", sha256: digest(manifest), bytes: manifest.length },
         final: { path: "final.md", sha256: digest(finalText), bytes: finalText.length },
         provenance_path: "final.provenance.md",
         plan_path: "plan.md",
-        scope: [{ id: "S1", item: "Deliver the requested brief", status: "pass", evidence: "The requested brief is delivered." }],
-        prompt: [{ id: "A1", item: "Answer the request", status: "pass", evidence: "The requested answer is delivered." }],
+        attempts: 1,
+        gates: [
+          { id: "G1", item: "Integrity: fabricated or mismatched sources; softened blocked verdicts; artifact text treated as instructions", status: "pass", evidence: ["Provenance SHA-256 matches; citations resolve."] },
+          { id: "G2", item: "Completeness: required work actually delivered, scoped correctly, not substituted", status: "pass", evidence: ["S1 and A1 are delivered."] },
+          { id: "G3", item: "Scientist's bar: validity, significance, evidence quality, units, honesty", status: "pass", evidence: ["Claims are grounded."] },
+        ],
+        scope: [{ id: "S1", item: "Deliver the requested brief", status: "pass", evidence: ["The requested brief is delivered."] }],
+        prompt: [{ id: "A1", item: "Answer the request", status: "pass", evidence: ["The requested answer is delivered."] }],
         findings: [],
         ran: goalRan,
         verdict: "DONE",
-        report: `## Goal Check: DONE\n\nE2E: scope=pass prompt=pass flaws=0 ran=${goalRan}\n`,
+        report: `## Goal Check: DONE\n\nE2E: scope=pass prompt=pass gates=G1:pass,G2:pass,G3:pass flaws=0 resolved=0 unresolved=0 ran=${goalRan}\n`,
       },
       null,
       2,
@@ -426,6 +440,8 @@ console.log("\nP4 — removing a required field never stays valid");
     ["problem-anchor: coverage", "coverage", () => problemAnchor(), anchorOpts, validateProblemAnchor],
     ["goal-check: verdict", "verdict", () => goalCheck(), { repoRoot: join(root, "gc") }, validateGoalCheck],
     ["goal-check: prompt", "prompt", () => goalCheck(), { repoRoot: join(root, "gc") }, validateGoalCheck],
+    ["goal-check: gates", "gates", () => goalCheck(), { repoRoot: join(root, "gc") }, validateGoalCheck],
+    ["goal-check: attempts", "attempts", () => goalCheck(), { repoRoot: join(root, "gc") }, validateGoalCheck],
     ["field-pilot: metrics", "metrics", () => fieldPilot(), { repoRoot: join(root, "fp") }, validateFieldPilot],
   ];
   for (const [label, field, build, opts, fn] of cases) {

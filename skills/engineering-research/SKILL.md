@@ -15,10 +15,10 @@ argument-hint: "<research question or artifact to review> [--deep | --quick]"
 allowed-tools: Write Edit Bash Read
 license: MIT
 metadata:
-  version: "0.5.4"
+  version: "0.5.5"
 
 ---
-<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=12f6a4d69171ded213360e2d955734fad767a3a27f4ad88d51958d5cbf5e016f -->
+<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=061a41d9981a5831544a86d60642d8ee61281e53a646fc0e43453e9bd8d1ec88 -->
 
 # Engineering Research
 
@@ -316,7 +316,7 @@ Dispatch the `goal-checker` role (`agents/goal-checker.md`) with: the original
 research question verbatim plus its frozen requirements IDs/manifest, the final candidate path (+ SHA-256 + byte count),
 the provenance sidecar path, the plan path, and the problem-anchor record path
 so it can confirm the report is about the artifact it claims to study. In
-`--quick` mode, run the tri-axis check inline in the same format, and write the
+`--quick` mode, run the same check inline in the same format, and write the
 [machine contract](references/goal-check-contract.md) record beside the candidate.
 Validate it with `vitruvius-goal-check <record>` (or
 `node scripts/goal-check-contract.mjs <record>` in a checkout). **The record is
@@ -325,14 +325,15 @@ validation `BLOCKED`. Only a valid `DONE` and promotable record permits
 delivery.
 
 Default NOT-DONE: every ask re-derived from the original question must be
-delivered (`scope=pass prompt=pass flaws=0`, non-empty `ran=`). Any NOT-DONE
+delivered (`scope=pass prompt=pass gates=G1:pass,G2:pass,G3:pass flaws=0`,
+non-empty `ran=`). Any NOT-DONE
 goes back to the responsible step to repair the named items only — retain all
 accepted evidence and verifier results; do not redo the run. A second
 NOT-DONE on the same axis: deliver honestly with the unmet asks listed, never
 silently. Record in the provenance notes:
 
 ```
-GOAL-CHECK: E2E: scope=<pass|gap> prompt=<pass|gap> flaws=<n> ran=<phrase>
+GOAL-CHECK: E2E: scope=<pass|gap> prompt=<pass|gap> gates=G1:<pass|gap>,G2:<pass|gap>,G3:<pass|gap> flaws=<n> resolved=<n> unresolved=<n> ran=<phrase>
 ```
 
 Copy the final candidate to `outputs/<slug>.md` (or `papers/<slug>.md` for
@@ -357,7 +358,7 @@ paper-style artifacts). Write provenance next to it as `<slug>.provenance.md`:
 - **Claims blocked:** [count — source unreachable or unverifiable]
 - **Claims unverified:** [count — default, not yet checked]
 - **Plan:** outputs/.plans/<slug>.md
-- **GOAL-CHECK:** E2E: scope=<pass|gap> prompt=<pass|gap> flaws=<n> ran=<phrase>
+- **GOAL-CHECK:** E2E: scope=<pass|gap> prompt=<pass|gap> gates=G1:<pass|gap>,G2:<pass|gap>,G3:<pass|gap> flaws=<n> resolved=<n> unresolved=<n> ran=<phrase>
 ```
 Generate a ledger entry (JSON) and log it:
 

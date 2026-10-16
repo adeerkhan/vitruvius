@@ -24,7 +24,7 @@ const base = [
   "- **Verification:** partial",
   "- **Claims verified:** 2",
   "- **Plan:** outputs/.plans/test.md",
-  "- **GOAL-CHECK:** E2E: scope=pass prompt=pass flaws=0 ran=three rounds",
+  "- **GOAL-CHECK:** E2E: scope=pass prompt=pass gates=G1:pass,G2:pass,G3:pass flaws=0 resolved=0 unresolved=0 ran=three rounds",
   "",
 ].join("\n");
 

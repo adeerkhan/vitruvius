@@ -131,6 +131,23 @@ check(
     /G2/.test(goalChecker) &&
     /G3/.test(goalChecker),
 );
+check(
+  "goal-checker: three-gate E2E machine line",
+  /gates=G1:<pass\|gap>/.test(goalChecker),
+);
+check("goal-checker: record schema v2", /vitruvius-goal-check\.v2/.test(goalChecker));
+check(
+  "goal-checker: bounded attempts recorded",
+  /`attempts` \(1-5\)/.test(goalChecker),
+);
+check(
+  "goal-checker: evidence arrays required for pass and gap",
+  /non-empty `evidence` array/.test(goalChecker),
+);
+check(
+  "goal-checker: canonical rubric copied verbatim",
+  /copied verbatim from `references\/goal-check-contract\.md`/.test(goalChecker),
+);
 
 // --- 5. engineering-research loop wiring ---
 const method = read(join(REPO_ROOT, "skills", "engineering-research", "SKILL.md")) ?? "";
@@ -138,6 +155,10 @@ check("engineering-research: Step 7 GOAL-CHECK gate", /GOAL-CHECK gate/.test(met
 check("engineering-research: dispatches goal-checker role", /agents\/goal-checker\.md/.test(method));
 check("engineering-research: repair loop (named items only, retain evidence)", /repair the named items only|repair only named/i.test(method) && /retain/i.test(method));
 check("engineering-research: records E2E line in provenance", /GOAL-CHECK: E2E:/.test(method));
+check(
+  "engineering-research: provenance records the three-gate E2E line",
+  /gates=G1:/.test(method),
+);
 check(
   "engineering-research: provenance records agent configuration",
   /\*\*Agent configuration:\*\*/.test(method),
