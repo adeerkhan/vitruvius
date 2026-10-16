@@ -58,7 +58,13 @@ incorrectness — merging the categories erases the calibration signal. The
 miscalibrated for the subfield — W1's dominant pattern, n = 54),
 `over_harsh_out_of_scope` (severity read against the community's routine
 practice as if it were a defect — W2, n = 46), and `trivial_nitpick` (minor
-issues graded as significant).
+issues graded as significant). The study's other weakness categories map onto
+existing tokens the same way: `false_absence` (the artifact states X; the
+criticism says it is missing — W3, n = 37), `not_actionable` (vague, verbose,
+or no concrete fix — W5, n = 24), and `anachronistic_evidence` (the cited
+evidence postdates the artifact — W8, n = 9). W4 — the same criticism repeated
+across several AI reviewers (n = 28) — is a property of the panel, not of one
+item, and has no per-item token: track it as panel-level overlap (lesson 10).
 
 ## 7. Devil's advocate before predicting agreement
 On borderline judgments, argue the other side explicitly; if both readings remain
