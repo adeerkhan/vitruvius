@@ -11,3 +11,10 @@ turn count.
 - **Small batches.** Write after each meaningful chunk of work, not at the end.
 - **Re-read after interruption.** Before resuming, read the plan and any research notes to restore context.
 - **Budget is a ceiling, not a target.** If evidence saturates before the budget is spent, stop. If the budget is hit mid-investigation, note what is incomplete.
+- **Record the choices.** Context management is an experimental variable, not
+  plumbing: the study's W3 — a reviewer claiming the paper is missing what it
+  states — traces to context summarization dropping information the reviewer
+  needed (arXiv:2605.20668). The provenance `Agent configuration` field records
+  the trim strategy, which turns/state were preserved across compactions, any
+  condenser that rewrote context, and the model settings, so a later comparison
+  can attribute a difference to the method rather than to the plumbing.

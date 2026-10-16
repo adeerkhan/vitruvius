@@ -168,6 +168,10 @@ check(
   "engineering-research: provenance records agent configuration",
   /\*\*Agent configuration:\*\*/.test(method),
 );
+check(
+  "engineering-research: configuration records model settings and context management",
+  /model settings/.test(method) && /condenser/.test(method) && /preserved\s+across compactions/.test(method),
+);
 check("engineering-research: escalation 1→2→3", /2 parallel verifiers|two verifiers|escalat/i.test(method));
 
 // --- 6. Host adapters mirror canonical roles (exact role set, no strays) ---

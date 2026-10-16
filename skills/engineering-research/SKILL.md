@@ -15,10 +15,10 @@ argument-hint: "<research question or artifact to review> [--deep | --quick]"
 allowed-tools: Write Edit Bash Read
 license: MIT
 metadata:
-  version: "0.5.5"
+  version: "0.5.6"
 
 ---
-<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=061a41d9981a5831544a86d60642d8ee61281e53a646fc0e43453e9bd8d1ec88 -->
+<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=aa04b4e94fbec51a1e9a36821bf1beae58363f82b58bfb5e235ec09fa26da8d7 -->
 
 # Engineering Research
 
@@ -344,10 +344,13 @@ paper-style artifacts). Write provenance next to it as `<slug>.provenance.md`:
 - **Final SHA-256:** `<64 lowercase hex characters>`
 - **Final bytes:** `<positive integer>`
 - **Date:** [date]
-- **Agent configuration:** model ID and version, Vitruvius skill version, run
-  budget, context-trim strategy, tools available, and source claim (sha of the
-  prompt/agent config if one was frozen) — arXiv:2605.20668 § B.5 shows this
-  is itself an experimental variable
+- **Agent configuration:** model ID and version plus model settings (temperature
+  and sampling parameters); Vitruvius skill version; run budget; context
+  management — the context-trim strategy, which turns/state were preserved
+  across compactions, and any condenser/summarizer that rewrote context
+  (summarized context drops stated information: the study's W3, arXiv:2605.20668);
+  tools available; and source claim (sha of the prompt/agent config if one was
+  frozen) — arXiv:2605.20668 § B.5 shows this is itself an experimental variable
 - **Rounds:** [number of research rounds]
 - **Sources consulted:** [count and/or list]
 - **Sources accepted:** [count and/or list]

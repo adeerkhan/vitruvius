@@ -50,6 +50,16 @@ can be Significant in one subfield and noise in another (the study's most
 frequent weakness category, W1), so ground each grade in the artifact's own
 claims and stated limitations.
 
+When a qualitative pass scores review output, file field-norm miscalibration
+incidents under their own category instead of folding them into generic
+incorrectness — merging the categories erases the calibration signal. The
+`review-item.v1` flaw vocabulary reserves distinct tokens for them:
+`context_norm_blindspot` (accurate against a discipline-neutral standard but
+miscalibrated for the subfield — W1's dominant pattern, n = 54),
+`over_harsh_out_of_scope` (severity read against the community's routine
+practice as if it were a defect — W2, n = 46), and `trivial_nitpick` (minor
+issues graded as significant).
+
 ## 7. Devil's advocate before predicting agreement
 On borderline judgments, argue the other side explicitly; if both readings remain
 plausible, record disagreement / PARTIAL rather than PASS. Do not treat
@@ -68,7 +78,11 @@ reviewers and are skipped by humans due to time, not ability.
 ## 10. Treat AI as an augmenter, not a substitute
 AI reviewers overlap heavily with each other; mixed panels preserve diversity
 better. Match reviewer identity to the review phase (human or mixed panel), and
-evaluate on per-axis standards rather than verdict agreement.
+evaluate on per-axis standards rather than verdict agreement. If AI review is
+ever deployed operationally, track the panel's recommendations separately from
+individual reviewer quality: panel agreement can mask one reviewer's failures,
+and a lone correct dissent is invisible at the panel level — agreement is a
+property of the panel, not a score for each reviewer.
 
 ## 11. Evidence closure, not first-hit evidence
 The meta-reviewer's signature failure was the partial-evidence trap: accepting

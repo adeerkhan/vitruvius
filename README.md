@@ -128,6 +128,14 @@ node scripts/fixed-case.mjs results evals/results/manifest.json evals/results
 
 The E1/C1 subagent runs are on-demand evidence and are not part of `npm test`; the checked-in C1 bundle records their artifact hashes and independent grades. GC1, PR1, and V1 are deterministic contract checks; V1 still requires a real pilot record before any outcome claim. The problem-anchor contract is also deterministic: it proves a report is bound to the artifacts it studied, not that its claims are correct. When installed as a package, the same validators are available as `vitruvius-goal-check`, `vitruvius-artifact-closure`, `vitruvius-field-pilot`, and `vitruvius-problem-anchor`; `test:package-consumer` proves that by installing the packed tarball into a clean consumer. `test:input-gate` proves every standalone research skill declares the shared gate in `references/input-gate.md`. `test:majority` scores the verifier benchmark across independent runs, takes the per-case majority verdict, and publishes agreement and per-run residuals (`benchmark:majority` runs it on real result directories); a majority false approval fails the strict gate. OpenCode role adapters are rendered from `agents/*.md` by `installer/render.mjs`, so they cannot drift from the role contracts.
 
+**Recording comparison work.** A local run used for comparison work against
+the empirical study records both references alongside the run — the paper
+([arXiv:2605.20668](https://arxiv.org/pdf/2605.20668)) and the benchmark
+repository
+([prometheus-eval/into-the-unknown](https://github.com/prometheus-eval/into-the-unknown)),
+pinned by commit — so a comparison result is attributed to a method revision
+instead of being reconstructed from memory later.
+
 ## Worked Examples
 
 Three real runs — including one that ends in an honest **BLOCKED** — in
