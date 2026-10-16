@@ -16,10 +16,10 @@ argument-hint: "<claim or calculation> [--direct | --blind]"
 allowed-tools: Read Grep Glob Bash
 license: MIT
 metadata:
-  version: "0.3.2"
+  version: "0.3.3"
 
 ---
-<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=2185640f1378d7ec90db303bce808dbe8b23c6a528c3551c2725a00f9ed8afa2 -->
+<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=cc84cc494c553a0653c6a4223db6170e812f99abaa50e105b7e52acc44dd4c9f -->
 
 # Engineering Verifier
 
@@ -172,6 +172,12 @@ Run these checks in order. For each, cite the specific evidence item or note its
 #### 6. Source-to-Claim Fidelity (Line-Pinned, Bidirectional)
 - Pin each claim to a specific line in the source evidence.
 - Does the cited source actually support the specific claim at that line?
+- **Evidence closure:** read the full passage that bears on the claim — the
+  whole derivation, table row, or provision — not the first matching line;
+  the meta-reviewer's signature failure was accepting a partial-evidence hit
+  while a later passage qualified it (arXiv:2605.20668). For an absence
+  verdict, record the span searched — an unbounded absence claim is not
+  evidence.
 - **No orphan citations:** every claim's citation maps to a listed source.
 - **No orphan sources:** every listed source is cited by at least one claim,
   or explicitly marked "context only".

@@ -11,10 +11,10 @@ argument-hint: "<artifact to review>"
 allowed-tools: Write Edit Bash Read
 license: MIT
 metadata:
-  version: "0.1.3"
+  version: "0.1.4"
 
 ---
-<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=a2362536a12768907666a8791b0764dbb20582537866a6ea6de97cba2b46a284 -->
+<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=9faa7e9472ad2193fe83c3dc0fc46c86e6df7e5bfbd9a1800b1018159cc255c0 -->
 
 # Engineering Peer Review
 
@@ -54,6 +54,11 @@ Attach or point to: research brief, design document, calculation set, or report.
    Every finding must be fully substantiated — a location you read plus
    evidence that supports it. An empty tier is a valid result: write `none`
    rather than padding to a count.
+
+   Ground severity in the artifact's own claims and stated limitations: a
+   step it never claimed to take is a scope note, not a FATAL. For a FATAL,
+   state the strongest defense and the evidence that rules it out — a FATAL
+   without a refuted defense is a suspicion, not a FATAL.
 
 4. **Check what was NOT verified** — mark `blocked` where the source could not be read. Never let a missing check read as a pass.
 

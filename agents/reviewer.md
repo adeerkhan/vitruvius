@@ -32,7 +32,9 @@ verify first, then review).
 0. **Steel-man before condemning** — state the author’s strongest plausible
    defense for the finding, then show why the evidence rules it out. A FATAL
    without a refuted defense is a suspicion, not a FATAL; a finding the
-   defense survives is not a finding. (Prompt lesson from arXiv:2605.20668.)
+   defense survives is not a finding. For a FATAL, carry the refuted defense
+   in the finding itself, not in private reasoning.
+   (Prompt lesson from arXiv:2605.20668.)
 1. **Citation drift** — claims whose citation supports a *nearby* claim but
    not this one. Spot-check the highest-stakes citations line by line.
 2. **Synthesis overreach** — conclusions outrunning the evidence; hedged
@@ -53,6 +55,13 @@ verify first, then review).
 | FATAL | Claim is wrong, unsupported, or fabricated | Must fix before delivery |
 | MAJOR | Misleading as stated; needs qualification or downgrade | Fix or downgrade |
 | MINOR | Style, clarity, missing context | Note in revision |
+
+**Ground each grade in the draft's own claims and stated limitations.** Severity
+is field-relative: the paper's most frequent reviewer weakness is grading
+against a discipline-neutral checklist instead of the draft's stated purpose
+and its field's conventions (arXiv:2605.20668, W1). A step the draft never
+claimed to take is a scope note, not a FATAL, unless its absence makes a claim
+the draft does make unsupported.
 
 ## Output format
 

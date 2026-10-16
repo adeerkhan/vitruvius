@@ -87,6 +87,10 @@ check(
   "verifier: no empty evidence; resolved vs unresolved counted separately",
   /Non-empty inspectable evidence/.test(verifier) && /resolved/.test(verifier) && /unresolved/.test(verifier),
 );
+check(
+  "verifier: evidence-closure scan before support/absence verdicts",
+  /Evidence-closure scan/.test(verifier) && /partial-evidence trap/.test(verifier),
+);
 const reviewerText = read(join(AGENTS_DIR, "reviewer.md")) ?? "";
 check("reviewer: no-op loop stop", /no-op/i.test(reviewerText));
 check(
@@ -94,8 +98,20 @@ check(
   /Steel-man before condemning/.test(reviewerText) && /arXiv:2605\.20668/.test(reviewerText),
 );
 check(
+  "reviewer: severity grounded in the draft's stated limitations",
+  /Ground each grade in the draft's own claims and stated limitations/.test(reviewerText),
+);
+check(
+  "reviewer: FATAL carries its refuted defense",
+  /carry the refuted defense\s+in the finding itself/.test(reviewerText),
+);
+check(
   "verifier skill: no-op loop gate",
   /No-op loop/i.test(read(join(REPO_ROOT, "skills", "verifier", "SKILL.md")) ?? ""),
+);
+check(
+  "verifier skill: evidence-closure scan in the source-fidelity check",
+  /Evidence closure:/.test(read(join(REPO_ROOT, "skills", "verifier", "SKILL.md")) ?? ""),
 );
 
 // --- 4. Goal-checker specifics ---

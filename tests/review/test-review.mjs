@@ -130,6 +130,20 @@ assert.match(
   "review must treat an empty tier as valid and forbid padding to a count",
 );
 
+// --- Severity is grounded; a FATAL carries its refuted defense -------------
+// arXiv:2605.20668 W1: field-norm miscalibration was the most frequent reviewer
+// weakness. A FATAL is only a FATAL once the author's strongest defense fails.
+assert.match(
+  text,
+  ws("Ground severity in the artifact's own claims and stated limitations"),
+  "review must ground severity in the artifact's own claims and limitations",
+);
+assert.match(
+  text,
+  ws("For a FATAL, state the strongest defense and the evidence that rules it out"),
+  "review must require a refuted defense for every FATAL",
+);
+
 // --- The artifact contract -------------------------------------------------
 assert.match(
   text,
@@ -209,5 +223,5 @@ assert.match(
 console.log(
   "PASS: review asserts the artifact-is-the-subject framing, per-artifact-type checks, " +
     "blocked-not-pass, the anti-rubber-stamp pair, no-filler acceptance, " +
-    "source-preserving verification, and its separation from peer-review",
+    "severity grounding, source-preserving verification, and its separation from peer-review",
 );

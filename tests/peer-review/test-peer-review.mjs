@@ -129,6 +129,20 @@ assert.match(
   "peer-review must treat an empty tier as valid and forbid padding to a count",
 );
 
+// --- Severity is grounded; a FATAL carries its refuted defense -------------
+// arXiv:2605.20668 W1: field-norm miscalibration was the most frequent reviewer
+// weakness. A FATAL is only a FATAL once the author's strongest defense fails.
+assert.match(
+  text,
+  ws("Ground severity in the artifact's own claims and stated limitations"),
+  "peer-review must ground severity in the artifact's own claims and limitations",
+);
+assert.match(
+  text,
+  ws("For a FATAL, state the strongest defense and the evidence that rules it out"),
+  "peer-review must require a refuted defense for every FATAL",
+);
+
 // --- Load-bearing items are re-derived, not accepted -----------------------
 assert.match(
   text,
@@ -216,5 +230,6 @@ assert.match(
 
 console.log(
   "PASS: peer-review asserts independence, default-FAIL, the no-softening rule, " +
-    "blocked-not-pass, actionable and fully-substantiated findings, and the line-pinned evidence trail",
+    "blocked-not-pass, actionable, grounded, and fully-substantiated findings, " +
+    "and the line-pinned evidence trail",
 );

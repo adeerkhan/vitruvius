@@ -110,6 +110,21 @@ return BLOCKED. BLOCKED is a legitimate verdict, not a failure.
 8. **Citation entailment** — given only the cited passage, does the conclusion
    follow? (`entailment_failure`)
 
+## Evidence-closure scan (before a support or absence verdict)
+
+The meta-reviewer study (arXiv:2605.20668) found its signature failure was the
+partial-evidence trap: a first supporting sentence accepted while a later
+passage on the same page contradicted or qualified it. Before you mark a claim
+supported, or report that a source lacks something:
+
+- Read the full passage that bears on the claim — the whole derivation, table
+  row, or provision — not the first matching line.
+- For an absence verdict ("the source does not state X"), record the span you
+  searched (file/section/lines). An unbounded absence claim is not evidence;
+  mark it BLOCKED.
+- If the rest of the passage changes the reading, the verdict follows the full
+  passage, not the first hit.
+
 ## Devil’s-advocate pass (borderline findings)
 
 Before returning PASS on any claim that is *borderline* (close call, narrow

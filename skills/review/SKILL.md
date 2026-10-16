@@ -10,10 +10,10 @@ argument-hint: "<artifact to review>"
 allowed-tools: Write Edit Bash Read
 license: MIT
 metadata:
-  version: "0.1.3"
+  version: "0.1.4"
 
 ---
-<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=ab2fdb3b49dcb275462bf81fb9a3142f291e733d85b2a0e94585a638ea5d0c3c -->
+<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=b1e41d2a4017dc0788831c4d53f45f9cf5cc024dade131d9cf0c13f8928c6ae6 -->
 
 # Engineering Artifact Review
 
@@ -49,7 +49,11 @@ Follow the artifact contract: save findings to `outputs/<slug>-review.md`.
    Each finding cites the specific section/line/claim it targets. Every
    finding must be fully substantiated — a location you read plus evidence
    that supports it. An empty tier is a valid result: write `none` rather
-   than padding to a count.
+   than padding to a count. Ground severity in the artifact's own claims
+   and stated limitations: a step it never claimed to take is a scope note,
+   not a FATAL. For a FATAL, state the strongest defense and the evidence
+   that rules it out — a FATAL without a refuted defense is a suspicion,
+   not a FATAL.
 5. **Check what was NOT verified** — mark `blocked` where the source could not
    be read; never let a missing check read as a pass.
 6. **Write a revision plan** — prioritized, concrete steps per finding.

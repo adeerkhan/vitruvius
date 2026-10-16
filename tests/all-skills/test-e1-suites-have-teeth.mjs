@@ -113,6 +113,18 @@ const CASES = [
     replace: "Treat unchecked items as passing.",
   },
   {
+    skill: "peer-review",
+    rule: "severity is grounded in the artifact's stated limitations",
+    find: /Ground severity in the artifact's own claims\s+and stated limitations/,
+    replace: "Grade severity by general expectations.",
+  },
+  {
+    skill: "peer-review",
+    rule: "a FATAL must state its refuted defense",
+    find: /For a FATAL,\s+state the strongest defense and the evidence\s+that rules it out/,
+    replace: "For a FATAL, act decisively.",
+  },
+  {
     skill: "artifact-reading",
     rule: "never fill a gap you could not read",
     find: /Never fill a gap you could not read/i,
@@ -143,6 +155,18 @@ const CASES = [
     rule: "predicting approval is forbidden",
     find: /Do not predict ["“]approval["”]/i,
     replace: "Say whether it will pass.",
+  },
+  {
+    skill: "review",
+    rule: "severity is grounded in the artifact's stated limitations",
+    find: /Ground severity in the artifact's own claims\s+and stated limitations/,
+    replace: "Grade severity by general expectations.",
+  },
+  {
+    skill: "review",
+    rule: "a FATAL must state its refuted defense",
+    find: /For a FATAL,\s+state the strongest defense and the evidence\s+that rules it out/,
+    replace: "For a FATAL, act decisively.",
   },
   {
     skill: "eli5",

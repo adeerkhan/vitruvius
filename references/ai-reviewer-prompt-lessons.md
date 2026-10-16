@@ -45,7 +45,10 @@ output consistent across runs.
 Define the bar in natural language: "Would addressing this improve the paper?"
 Classify missing statistics/undefined annotations/mismatches as Significant and
 only typos/stylistic preferences as Marginal. A single well-worded sentence
-outperforms an abstract 0-2 scale.
+outperforms an abstract 0-2 scale. Severity is field-relative: the same demand
+can be Significant in one subfield and noise in another (the study's most
+frequent weakness category, W1), so ground each grade in the artifact's own
+claims and stated limitations.
 
 ## 7. Devil's advocate before predicting agreement
 On borderline judgments, argue the other side explicitly; if both readings remain
@@ -66,3 +69,10 @@ reviewers and are skipped by humans due to time, not ability.
 AI reviewers overlap heavily with each other; mixed panels preserve diversity
 better. Match reviewer identity to the review phase (human or mixed panel), and
 evaluate on per-axis standards rather than verdict agreement.
+
+## 11. Evidence closure, not first-hit evidence
+The meta-reviewer's signature failure was the partial-evidence trap: accepting
+the first sentence that supports an item while a later passage contradicts or
+qualifies it. Require the full bearing passage to be read before a support or
+absence verdict, and require absence claims to record the span searched — an
+unbounded "not found" is not evidence.
