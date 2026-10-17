@@ -86,6 +86,7 @@ The verifier is benchmarked, not asserted. Its checked-in results are on-disk, r
 | Problem-anchor contract | anchors resolve to non-blank lines on disk; unanchored `repo` claims, uncited anchors, decisions with no finding, and empty negative coverage all fail closed | [problem-anchor-contract.mjs](scripts/problem-anchor-contract.mjs) |
 | Structural contract (26 skills) | enforced in CI | [validate-contract.mjs](scripts/validate-contract.mjs) |
 | Provenance schema (selected sidecars, `inferred` derivation traces) | selected root/plan/draft checks plus deterministic generic closure fixtures; legacy local closure remains opt-in | [validate-artifacts.mjs](scripts/validate-artifacts.mjs) |
+| External comparison yardstick (into-the-unknown, 15 research tasks) | Referenced by pinned commit; no local run executed — requires model credentials (agent runs plus a GPT-6-Astra judge) | [into-the-unknown](https://github.com/prometheus-eval/into-the-unknown) (pinned commit) + Recording comparison work note below |
 
 Repository-only assets (not in the npm package): `outputs/`, `evals/` run
 records and `tasks/benchmark/results/`. These are development artefacts;
@@ -134,7 +135,12 @@ the empirical study records both references alongside the run — the paper
 repository
 ([prometheus-eval/into-the-unknown](https://github.com/prometheus-eval/into-the-unknown)),
 pinned by commit — so a comparison result is attributed to a method revision
-instead of being reconstructed from memory later.
+instead of being reconstructed from memory later. The benchmark clone is
+fetched and pinned at commit `119415510777efabeb6d633c7eb17ff163e6b1e2`;
+tasks download with `python prepare_tasks.py` in that clone. No local
+comparison run has been executed — it requires model credentials (agent runs
+on the 15 tasks plus a GPT-6-Astra judge) — so the row above records the
+yardstick, not a result.
 
 ## Worked Examples
 
