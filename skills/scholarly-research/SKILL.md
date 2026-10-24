@@ -13,10 +13,10 @@ argument-hint: "<topic or paper identifier>"
 allowed-tools: Write Edit Bash Read
 license: MIT
 metadata:
-  version: "0.4.5"
+  version: "0.4.6"
 
 ---
-<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=b637f35894941a4ab1b37b004bbfa96d60a0fb9ff3bc91c38f7fc668e138fac8 -->
+<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=dd29a4d4103469bf070821f9e76f0fa1c69d6df11ec11c5bbeb6a1c313620a00 -->
 
 # Scholarly Research
 
@@ -137,6 +137,15 @@ GET https://export.arxiv.org/api/query?search_query=all:<topic>&max_results=20  
   citation can change under a reader who checks it later; the `vN` is what makes
   the source reproducible.
 - `max_results` caps at 100 for an id lookup; batch the ids rather than looping.
+- **Two recovery routes when a lookup misses.** OpenAlex indexes new arXiv
+  preprints days late, so a known-DOI lookup can 404 for a preprint that
+  exists: strip the `10.48550/arXiv.` prefix, resolve the bare id on the arXiv
+  API, and record that OpenAlex was the miss. And when an id lookup times out
+  or keeps answering 429/5xx past its one retry, the same ids resolve through
+  Semantic Scholar's `arXiv:<id>` route — record both attempts and say which
+  index produced the metadata you cite. A recovery route never erases the
+  failure it recovered from: the miss and the substitution both stay in the
+  evidence set.
 
 ### 4. alphaXiv fast search — keyless arXiv discovery
 
