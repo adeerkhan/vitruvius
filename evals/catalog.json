@@ -139,6 +139,42 @@
       "skill": "verifier",
       "prompt": "summarize this datasheet into a digestible brief",
       "top_k": 3
+    },
+    {
+      "id": "scholarly-not-for-standards-lookup",
+      "skill": "scholarly-research",
+      "prompt": "what does ACI 318-19 require for development length of a #8 bar in normal-weight concrete",
+      "top_k": 3
+    },
+    {
+      "id": "scholarly-not-for-tolerance-tables",
+      "skill": "scholarly-research",
+      "prompt": "look up the ISO 2768 general tolerances table for machined parts",
+      "top_k": 3
+    },
+    {
+      "id": "ste-not-for-generic-editing",
+      "skill": "simplified-technical-english",
+      "prompt": "proofread my cover letter for a job application",
+      "top_k": 3
+    },
+    {
+      "id": "eli5-not-for-cited-evidence-ranking",
+      "skill": "eli5",
+      "prompt": "rank the evidence for additive-manufactured Ti-6Al-4V fatigue prediction methods with citations",
+      "top_k": 3
+    },
+    {
+      "id": "mechanical-not-for-software-review",
+      "skill": "mechanical",
+      "prompt": "review this TypeScript module for race conditions in its async database calls",
+      "top_k": 3
+    },
+    {
+      "id": "software-not-for-structural-sizing",
+      "skill": "software",
+      "prompt": "size a steel beam for a 6 meter span under uniform load",
+      "top_k": 3
     }
   ]
 }
