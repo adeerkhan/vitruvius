@@ -4,18 +4,28 @@
  * Usage:
  *   echo '{"skill":"gap-analysis","verdict":"PASS"}' | node scripts/log-run.mjs
  *   node scripts/log-run.mjs --runs-dir .runs --run-id <uuid>
+ *   node scripts/log-run.mjs --begin --run-id <uuid> [--freeze <path>...]
+ *
+ * --begin writes a dispatch marker (no ledger entry): it records the start
+ * time and the sha256 of any --freeze file, normally the goal-requirements
+ * manifest that the method freezes before evidence gathering starts. The
+ * matching completion entry then carries began_at, wall_ms, and frozen, so
+ * wall time is measured rather than guessed and the Step-1 freeze is a gate:
+ * a frozen file that changed before completion fails the entry unless
+ * --refreeze records the change (was/now hashes) in the entry.
  */
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import {
   appendFileSync,
   existsSync,
   mkdirSync,
   readFileSync,
   readdirSync,
+  statSync,
   unlinkSync,
   writeFileSync,
 } from "node:fs";
-import { join, resolve } from "node:path";
+import { isAbsolute, join, resolve } from "node:path";
 
 const PROJECT_ROOT = resolve(process.env.VITRUVIUS_PROJECT_ROOT || process.cwd());
 const DEFAULT_RUNS_DIR = join(PROJECT_ROOT, ".runs");
@@ -39,7 +49,13 @@ function usage() {
     "  --runs-dir <path>  Override the ledger directory (or set VITRUVIUS_RUNS_DIR)",
     "  VITRUVIUS_PROJECT_ROOT  Select the project root for the default .runs/ path",
     "  --run-id <uuid>    Use an explicit UUID for a controlled/resumed run",
-    "  --help              Show this help",
+    "  --begin            Record a dispatch marker instead of a ledger entry;",
+    "                     requires --run-id, ignores stdin",
+    "  --freeze <path>    (with --begin) pin a file's sha256 at dispatch — the",
+    "                     goal-requirements manifest frozen before evidence work",
+    "  --refreeze         Allow a frozen file that changed, recording was/now",
+    "                     hashes in the entry; a deleted file is never allowed",
+    "  --help             Show this help",
     "Input: one JSON object on stdin",
   ].join("\n");
 }
@@ -47,20 +63,28 @@ function usage() {
 function parseOptions(args) {
   let runsDir = resolve(process.env.VITRUVIUS_RUNS_DIR || DEFAULT_RUNS_DIR);
   let runId = null;
+  let begin = false;
+  let refreeze = false;
+  const freezePaths = [];
   for (let index = 0; index < args.length; index++) {
     const option = args[index];
-    if (option === "--help") return { help: true, runsDir, runId };
-    if (option === "--runs-dir" || option === "--run-id") {
+    if (option === "--help") return { help: true, runsDir, runId, begin, refreeze, freezePaths };
+    if (option === "--begin") { begin = true; continue; }
+    if (option === "--refreeze") { refreeze = true; continue; }
+    if (option === "--runs-dir" || option === "--run-id" || option === "--freeze") {
       const value = args[index + 1];
       if (!value || value.startsWith("--")) throw new Error(`${option} requires a value`);
       if (option === "--runs-dir") runsDir = resolve(value);
       if (option === "--run-id") runId = value;
+      if (option === "--freeze") freezePaths.push(value);
       index++;
       continue;
     }
     throw new Error(`unknown option: ${option}`);
   }
-  return { help: false, runsDir, runId };
+  if (freezePaths.length > 0 && !begin) throw new Error("--freeze requires --begin");
+  if (refreeze && begin) throw new Error("--refreeze applies to completion, not --begin");
+  return { help: false, runsDir, runId, begin, refreeze, freezePaths };
 }
 
 function validateInput(value) {
@@ -91,6 +115,15 @@ function validateInput(value) {
   }
   if (value.error !== undefined && value.error !== null && typeof value.error !== "string") {
     throw new Error("error must be a string or null when provided");
+  }
+  // Dispatch-measured fields are recorded by this tool from the begin marker,
+  // never accepted from the caller: a wall_ms the caller asserts is a claim,
+  // not a measurement, and a frozen hash the caller asserts is the exact
+  // after-the-fact rewrite the freeze exists to catch.
+  for (const field of ["began_at", "wall_ms", "frozen", "refrozen"]) {
+    if (value[field] !== undefined) {
+      throw new Error(`${field} is recorded from the dispatch marker, not stdin; use --begin${field === "refrozen" ? " --refreeze" : ""}`);
+    }
   }
   return value;
 }
@@ -204,10 +237,57 @@ function releaseLock(lock) {
   }
 }
 
+function markerPath(runsDir, runId) {
+  return join(runsDir, `.begin-${runId}.json`);
+}
+
+function sha256File(absolutePath) {
+  return createHash("sha256").update(readFileSync(absolutePath)).digest("hex");
+}
+
+function hashFreezeTargets(projectRoot, freezePaths) {
+  return freezePaths.map((given) => {
+    if (typeof given !== "string" || given.trim() === "") throw new Error("--freeze requires a non-empty path");
+    if (isAbsolute(given) || given.split(/[\\/]/).includes("..")) {
+      throw new Error(`--freeze path must be relative to the project root and stay inside it: ${given}`);
+    }
+    const absolute = resolve(projectRoot, given);
+    let st;
+    try {
+      st = statSync(absolute);
+    } catch {
+      throw new Error(`--freeze file does not exist: ${given} — freeze the goal-requirements manifest at dispatch, before evidence gathering`);
+    }
+    if (!st.isFile()) throw new Error(`--freeze target is not a regular file: ${given}`);
+    return { path: given.replaceAll("\\", "/"), abs: absolute, sha256: sha256File(absolute) };
+  });
+}
+
 async function main() {
   const options = parseOptions(process.argv.slice(2));
   if (options.help) {
     console.log(usage());
+    return;
+  }
+
+  const runId = (options.runId || randomUUID()).toLowerCase();
+  if (!UUID_PATTERN.test(runId)) throw new Error("run-id must be a valid UUID");
+
+  if (options.begin) {
+    if (!options.runId) throw new Error("--begin requires an explicit --run-id so the completion entry can match it");
+    const frozen = hashFreezeTargets(PROJECT_ROOT, options.freezePaths);
+    mkdirSync(options.runsDir, { recursive: true });
+    const marker = {
+      schema: "run-begin.v1",
+      run_id: runId,
+      began_at: new Date().toISOString(),
+      frozen,
+    };
+    // Overwriting a previous marker restarts the dispatch window: that is the
+    // resumed-run case (--run-id reuse after a failure), where the earlier
+    // begin measured nothing that completed.
+    writeFileSync(markerPath(options.runsDir, runId), `${JSON.stringify(marker)}\n`, "utf-8");
+    console.log(`Begin: ${runId} -> ${markerPath(options.runsDir, runId)} (${frozen.length} frozen)`);
     return;
   }
 
@@ -220,14 +300,57 @@ async function main() {
     throw new Error(`invalid JSON: ${error.message}`);
   }
   const input = validateInput(parsed);
-  const runId = (options.runId || randomUUID()).toLowerCase();
-  if (!UUID_PATTERN.test(runId)) throw new Error("run-id must be a valid UUID");
+
+  // Reconcile the dispatch marker, if one exists for this run_id.
+  const markerFile = markerPath(options.runsDir, runId);
+  let dispatch = null;
+  if (existsSync(markerFile)) {
+    try {
+      dispatch = JSON.parse(readFileSync(markerFile, "utf-8"));
+    } catch (error) {
+      throw new Error(`dispatch marker is not valid JSON (${markerFile}): ${error.message}`);
+    }
+    if (dispatch.run_id !== runId) throw new Error("dispatch marker run_id mismatch");
+  } else if (options.refreeze) {
+    throw new Error("--refreeze has no dispatch marker to compare against; run --begin first");
+  }
+
+  let frozen = null;
+  let refrozen = null;
+  if (dispatch) {
+    frozen = [];
+    refrozen = [];
+    for (const pinned of dispatch.frozen ?? []) {
+      let currentHash;
+      try {
+        currentHash = sha256File(pinned.abs);
+      } catch {
+        throw new Error(`frozen file was deleted after dispatch: ${pinned.path} — deleting the frozen requirements manifest is not a re-freeze; restore it or start a new run`);
+      }
+      if (currentHash === pinned.sha256) {
+        frozen.push({ path: pinned.path, sha256: pinned.sha256 });
+      } else if (options.refreeze) {
+        frozen.push({ path: pinned.path, sha256: currentHash });
+        refrozen.push({ path: pinned.path, was_sha256: pinned.sha256, now_sha256: currentHash });
+      } else {
+        throw new Error(`frozen file changed after dispatch: ${pinned.path} — pass --refreeze to record the change honestly, or restore the frozen bytes`);
+      }
+    }
+    if (refrozen.length === 0) refrozen = null;
+  }
+
   const entry = {
     ...input,
     schema: "run.v1",
     run_id: runId,
     timestamp: new Date().toISOString(),
   };
+  if (dispatch) {
+    entry.began_at = dispatch.began_at;
+    entry.wall_ms = Math.max(0, Date.parse(entry.timestamp) - Date.parse(dispatch.began_at));
+    entry.frozen = frozen;
+    if (refrozen) entry.refrozen = refrozen;
+  }
 
   mkdirSync(options.runsDir, { recursive: true });
   const lock = await acquireLock(options.runsDir);
@@ -244,7 +367,8 @@ async function main() {
       if (existingText && !existingText.endsWith("\n")) throw new Error(`existing ledger is not newline-terminated: ${ledgerFile}`);
     }
     appendFileSync(ledgerFile, `${JSON.stringify(entry)}\n`, "utf-8");
-    console.log(`Logged: ${entry.run_id} -> ${ledgerFile}`);
+    if (dispatch) unlinkSync(markerFile);
+    console.log(`Logged: ${entry.run_id} -> ${ledgerFile}${entry.wall_ms !== undefined ? ` (wall ${entry.wall_ms}ms)` : ""}`);
   } finally {
     releaseLock(lock);
   }

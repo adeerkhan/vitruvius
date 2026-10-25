@@ -478,6 +478,8 @@ echo '{"skill":"engineering-research","status":"completed","verdict":"verified"}
 
 The logger generates a UUID and UTC timestamp, rejects malformed input and duplicate IDs, and supports `--runs-dir <path>` or `VITRUVIUS_RUNS_DIR` for isolated runs. `VITRUVIUS_PROJECT_ROOT` selects the project root for the default `.runs/` path when the command is run from another directory. With no override, the repository compatibility command preserves its historical repository-local `.runs/` default; the skill-local wrapper defaults to the active project working directory. Concurrent writers wait briefly for the ledger lock. A holder writes a bounded lease (`VITRUVIUS_LOCK_TTL_MS`, default 60s), so an expired lease left by a crashed process is reclaimed automatically while a live lease — or a legacy lock without an expiry — is never stolen. The engineering-research skill carries a self-contained wrapper for copied-skill installations; the repository command remains available at `scripts/log-run.mjs`.
 
+`--begin --run-id <uuid> [--freeze <path>]` records a dispatch marker before evidence gathering: the matching completion entry then carries a measured `wall_ms` and the sha256 of each frozen file (normally the goal-requirements manifest), turning the Step-1 freeze into a gate — a frozen file that changed fails the entry unless `--refreeze` records the change, and a caller-asserted `wall_ms` is refused.
+
 ## Evidence Ledger
 
 After the run logger returns a `run_id`, record the run's source, search, and claim mappings as one fail-closed `evidence.v1` document:

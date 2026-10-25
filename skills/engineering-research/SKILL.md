@@ -15,10 +15,10 @@ argument-hint: "<research question or artifact to review> [--deep | --quick]"
 allowed-tools: Write Edit Bash Read
 license: MIT
 metadata:
-  version: "0.5.6"
+  version: "0.5.7"
 
 ---
-<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=aa04b4e94fbec51a1e9a36821bf1beae58363f82b58bfb5e235ec09fa26da8d7 -->
+<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=631bb196329e4d992e18fbd9b425c373e48c9c9ea98af915b7f155af22784dd2 -->
 
 # Engineering Research
 
@@ -383,6 +383,20 @@ Pipe the entry through the logger; `run.v1` adds the stable `run_id` and UTC `ti
 ```bash
 echo '<ledger_json>' | node <engineering-research-skill-root>/scripts/log-run.mjs
 ```
+
+**Start the run at dispatch, not at delivery.** When Step 1 ends, record a
+dispatch marker pinning the start time and the frozen requirements manifest:
+
+```bash
+node <skill-root>/scripts/log-run.mjs --begin --run-id <uuid> --freeze <slug>-goal-requirements.json
+```
+
+The completion entry (same `--run-id`) then carries a **measured** `wall_ms`
+and the frozen sha256 — the logger refuses a caller-asserted wall time. A
+frozen file changed after dispatch fails the entry unless `--refreeze` records
+the change (was/now hashes); a deleted manifest is never allowed. This is the
+mechanical Step-1 freeze: the manifest-after-evidence deviation recorded in
+the first field pilot is the failure it refuses.
 
 The skill-local wrapper is self-contained and defaults `.runs/` to the active project working directory; a repository checkout may use the compatibility command `node scripts/log-run.mjs`, which preserves the checkout-local default unless an override is supplied. Set `VITRUVIUS_PROJECT_ROOT` when the active project is not the command's working directory. Concurrent writes wait briefly for a ledger lock; an interrupted process leaves the lock in place and later writes fail closed until an operator verifies it is safe to remove `.log-run.lock`.
 

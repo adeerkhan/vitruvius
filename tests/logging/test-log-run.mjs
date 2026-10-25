@@ -1,4 +1,5 @@
 import { strict as assert } from "node:assert";
+import { createHash } from "node:crypto";
 import { closeSync, cpSync, existsSync, mkdirSync, mkdtempSync, openSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { tmpdir } from "node:os";
@@ -9,6 +10,7 @@ const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const logger = join(repoRoot, "scripts", "log-run.mjs");
 const skillLogger = join(repoRoot, "skills", "engineering-research", "scripts", "log-run.mjs");
 const tempRoot = mkdtempSync(join(tmpdir(), "vitruvius-run-ledger-"));
+let dispatchRoot = null;
 const runsDir = join(tempRoot, "runs");
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -196,6 +198,103 @@ try {
   assert.equal(entries(independentDir).length, 4);
   assert.equal(new Set(entries(independentDir).map((entry) => entry.run_id)).size, 4);
 
+  // A plain entry (no --begin) carries no dispatch-measured fields.
+  for (const field of ["began_at", "wall_ms", "frozen", "refrozen"]) {
+    assert.equal(entries(independentDir)[0][field], undefined, `plain entry must not carry ${field}`);
+  }
+
+  // Dispatch markers: --begin records start time and frozen hashes without a
+  // ledger entry; the completion entry turns them into measured wall_ms and a
+  // Step-1 freeze gate. Freeze paths resolve against VITRUVIUS_PROJECT_ROOT,
+  // so these tests pin a temp project root and never touch the repository.
+  dispatchRoot = mkdtempSync(join(tmpdir(), "vitruvius-run-dispatch-"));
+  const dispatchRuns = join(dispatchRoot, "runs");
+  const dispatchId = "33333333-3333-4333-8333-333333333333";
+  const runDispatch = (args, input = "") => spawnSync(process.execPath, [logger, ...args], {
+    cwd: repoRoot,
+    env: { ...process.env, VITRUVIUS_RUNS_DIR: dispatchRuns, VITRUVIUS_PROJECT_ROOT: dispatchRoot },
+    input,
+    encoding: "utf-8",
+  });
+  const markerFile = join(dispatchRuns, `.begin-${dispatchId}.json`);
+  const manifestPath = join(dispatchRoot, "outputs", "demo-goal-requirements.json");
+  mkdirSync(join(dispatchRoot, "outputs"), { recursive: true });
+  writeFileSync(manifestPath, '{"asks":["a","b"]}\n', "utf-8");
+  const manifestSha = createHash("sha256").update(readFileSync(manifestPath)).digest("hex");
+
+  const beginNoId = runDispatch(["--begin"]);
+  assert.notEqual(beginNoId.status, 0, "--begin without --run-id must fail");
+  assert.match(beginNoId.stderr, /--begin requires an explicit --run-id/);
+
+  const beginMissing = runDispatch(["--begin", "--run-id", dispatchId, "--freeze", "outputs/nope.json"]);
+  assert.notEqual(beginMissing.status, 0, "--freeze on a missing file must fail");
+  assert.match(beginMissing.stderr, /does not exist: outputs\/nope\.json/);
+
+  const beginEscape = runDispatch(["--begin", "--run-id", dispatchId, "--freeze", "../outside.json"]);
+  assert.notEqual(beginEscape.status, 0, "--freeze outside the project root must fail");
+  assert.match(beginEscape.stderr, /relative to the project root/);
+
+  const freezeWithoutBegin = runDispatch(["--run-id", dispatchId, "--freeze", "outputs/demo-goal-requirements.json"]);
+  assert.notEqual(freezeWithoutBegin.status, 0, "--freeze without --begin must fail");
+  assert.match(freezeWithoutBegin.stderr, /--freeze requires --begin/);
+
+  const begin = runDispatch(["--begin", "--run-id", dispatchId, "--freeze", "outputs/demo-goal-requirements.json"]);
+  assert.equal(begin.status, 0, begin.stderr);
+  assert.equal(entries(dispatchRuns).length, 0, "--begin must not append a ledger entry");
+  const marker = JSON.parse(readFileSync(markerFile, "utf-8"));
+  assert.equal(marker.schema, "run-begin.v1");
+  assert.equal(marker.run_id, dispatchId);
+  assert.match(marker.began_at, /^\d{4}-\d{2}-\d{2}T/);
+  assert.equal(marker.frozen.length, 1);
+  assert.equal(marker.frozen[0].path, "outputs/demo-goal-requirements.json");
+  assert.equal(marker.frozen[0].sha256, manifestSha);
+
+  const assertedWall = runDispatch(["--run-id", dispatchId], JSON.stringify({ skill: "test", wall_ms: 5 }));
+  assert.notEqual(assertedWall.status, 0, "caller-asserted wall_ms must fail");
+  assert.match(assertedWall.stderr, /recorded from the dispatch marker, not stdin/);
+
+  await delay(120);
+  const completed = runDispatch(["--run-id", dispatchId], JSON.stringify({ skill: "engineering-research", status: "completed", verdict: "PASS" }));
+  assert.equal(completed.status, 0, completed.stderr);
+  const dispatched = entries(dispatchRuns);
+  assert.equal(dispatched.length, 1);
+  assert.equal(dispatched[0].began_at, marker.began_at);
+  assert.ok(Number.isInteger(dispatched[0].wall_ms) && dispatched[0].wall_ms >= 100, `wall_ms should measure the dispatch window, got ${dispatched[0].wall_ms}`);
+  assert.deepEqual(dispatched[0].frozen, [{ path: "outputs/demo-goal-requirements.json", sha256: manifestSha }]);
+  assert.equal(dispatched[0].refrozen, undefined);
+  assert.equal(existsSync(markerFile), false, "completion must consume the dispatch marker");
+
+  const refreezeId = "44444444-4444-4444-8444-444444444444";
+  writeFileSync(manifestPath, '{"asks":["a","b","c"]}\n', "utf-8");
+  const changedSha = createHash("sha256").update(readFileSync(manifestPath)).digest("hex");
+  const beginAgain = runDispatch(["--begin", "--run-id", refreezeId, "--freeze", "outputs/demo-goal-requirements.json"]);
+  assert.equal(beginAgain.status, 0, beginAgain.stderr);
+  writeFileSync(manifestPath, '{"asks":["a","b","c","d"]}\n', "utf-8");
+  const thirdSha = createHash("sha256").update(readFileSync(manifestPath)).digest("hex");
+
+  const frozenChanged = runDispatch(["--run-id", refreezeId], JSON.stringify({ skill: "test" }));
+  assert.notEqual(frozenChanged.status, 0, "a frozen file changing after dispatch must fail the entry");
+  assert.match(frozenChanged.stderr, /frozen file changed after dispatch/);
+  assert.equal(entries(dispatchRuns).length, 1, "the refused entry must not reach the ledger");
+  assert.equal(existsSync(join(dispatchRuns, `.begin-${refreezeId}.json`)), true, "the marker survives a refusal so the run can be resolved");
+
+  const refrozen = runDispatch(["--refreeze", "--run-id", refreezeId], JSON.stringify({ skill: "test" }));
+  assert.equal(refrozen.status, 0, refrozen.stderr);
+  const refrozenEntry = entries(dispatchRuns).find((entry) => entry.run_id === refreezeId);
+  assert.deepEqual(refrozenEntry.refrozen, [{ path: "outputs/demo-goal-requirements.json", was_sha256: changedSha, now_sha256: thirdSha }]);
+  assert.deepEqual(refrozenEntry.frozen, [{ path: "outputs/demo-goal-requirements.json", sha256: thirdSha }]);
+
+  const deletedId = "55555555-5555-4555-8555-555555555555";
+  assert.equal(runDispatch(["--begin", "--run-id", deletedId, "--freeze", "outputs/demo-goal-requirements.json"]).status, 0);
+  rmSync(manifestPath);
+  const deletedRefused = runDispatch(["--refreeze", "--run-id", deletedId], JSON.stringify({ skill: "test" }));
+  assert.notEqual(deletedRefused.status, 0, "deleting a frozen file is not a re-freeze");
+  assert.match(deletedRefused.stderr, /frozen file was deleted after dispatch/);
+
+  const refreezeNoMarker = runDispatch(["--refreeze", "--run-id", "66666666-6666-4666-8666-666666666666"], JSON.stringify({ skill: "test" }));
+  assert.notEqual(refreezeNoMarker.status, 0, "--refreeze without a marker must fail");
+  assert.match(refreezeNoMarker.stderr, /no dispatch marker to compare against/);
+
   const invalidDir = join(tempRoot, "invalid-runs");
   const invalidInputs = [
     "not json",
@@ -304,6 +403,7 @@ try {
   assert.match(unknown.stderr, /unknown option/i);
 } finally {
   rmSync(tempRoot, { recursive: true, force: true });
+  if (dispatchRoot) rmSync(dispatchRoot, { recursive: true, force: true });
 }
 
 console.log("PASS: run.v1 JSONL logger, validation, duplicate refusal, and isolation");
