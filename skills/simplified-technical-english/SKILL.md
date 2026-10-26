@@ -1,15 +1,15 @@
 ---
 name: simplified-technical-english
 description: >
-  Write and rewrite text in Simplified Technical English (ASD-STE100), a
-  controlled language for clear technical documentation. Use when the user asks
-  for STE, Simplified Technical English, controlled language, or plain technical
-  writing, or asks to write, rewrite, review, or check technical documentation,
-  procedures, manuals, instructions, warnings, or reports.
+  A controlled language for clear technical documentation (ASD-STE100). Use
+  when the user asks for STE, Simplified Technical English, controlled
+  language, or plain technical writing, or asks to have technical
+  documentation, procedures, manuals, instructions, warnings, or reports
+  written, rewritten, reviewed, or checked in that controlled style.
 argument-hint: "<text or document to write, rewrite, or check> [--mode procedural|descriptive|mixed]"
 license: MIT for this skill's text; the approved-word list derives from the ASD-STE100 dictionary, which is ASD property. See references/asd-notice.md.
 metadata:
-  version: "0.1.1"
+  version: "0.1.2"
   source-specification: ASD-STE100 Issue 7 (2017-01-25)
 ---
 <!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=30156167087d642b91e99be6d96c4b3e9be964474dbbcaf2ff4cf4bb136dd930 -->
