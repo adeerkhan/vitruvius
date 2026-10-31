@@ -8,9 +8,9 @@ description: >
   do I use vitruvius".
 license: MIT
 metadata:
-  version: "0.1.7"
+  version: "0.1.8"
 ---
-<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=5aa9655f63563bef833786a499daa22a75d0e2fc514a70470cc1484a3e71f860 -->
+<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=8c44b0fd88037afd9b57b7e39418075d19c6921e09bcb413a1e0dd8a106d3cbd -->
 
 # Vitruvius Help
 
@@ -36,7 +36,7 @@ with auditable provenance.
 | `/vitruvius:review <artifact>` | Severity-graded artifact review. |
 | `/vitruvius:audit <target>` | Claim-vs-implementation mismatch audit. |
 | `/vitruvius:summarize <doc>` | Faithful structured document digest. |
-| `/vitruvius:research-to-post <pdf-or-repo>` | Draft 2–3 hook posts and render a copy-first HTML card with the source's own media. |
+| `/vitruvius:research-to-post <pdf-or-repo>` | Draft 2–3 catchy hooks and a simple copy-first HTML card. |
 | `/vitruvius:eli5 <topic>` | Plain-language engineering explanation. |
 | `/vitruvius:simplified-technical-english <text>` | Rewrite technical text in Simplified Technical English (ASD-STE100). |
 | `/vitruvius:artifact-reading <doc>` | Anchored document reading + extraction. |

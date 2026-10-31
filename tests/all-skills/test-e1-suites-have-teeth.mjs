@@ -260,9 +260,9 @@ const CASES = [
   },
   {
     skill: "research-to-post",
-    rule: "the source's own media comes before a generated chart",
-    find: /Prefer the source's own figure, screenshot,\s+GIF, or video over a generated chart/,
-    replace: "Use a generated chart first.",
+    rule: "the no-ledger choice is deliberate",
+    find: /By design\. The source\s+link is the provenance\./,
+    replace: "Add them back.",
   },
 ];
 

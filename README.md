@@ -180,7 +180,7 @@ Named engineering jobs over the shared loop:
 | `/review` | Severity-graded adversarial review of an artifact |
 | `/audit` | Claim-vs-implementation (paper-vs-code, spec-vs-design) |
 | `/summarize` | Faithful structured digest of a standard, spec, or paper |
-| `/research-to-post` | Turn a PDF or GitHub repo into 2–3 hook posts plus an HTML card with the source's own media |
+| `/research-to-post` | Turn a PDF or GitHub repo into 2–3 catchy hook posts plus a simple copy-first HTML card |
 | `/eli5` | Plain-language engineering explanation |
 | `/simplified-technical-english` | Write, rewrite, and check technical text in Simplified Technical English (ASD-STE100) |
 | `/artifact-reading` | Anchored extraction from PDFs, drawings, specs |
@@ -196,16 +196,14 @@ new grounded evidence is still arriving.
 
 ### Research to post
 
-`/research-to-post` turns a source that has already been read and verified into
-**2–3 hook posts** and a copy-first HTML card at `outputs/<slug>-post.html`. It
-converts a PDF to Markdown first (`pdftotext` plus `pdfimages`), reads the
-paper, and follows a GitHub repo or project page to its screenshots, GIFs, and
-videos. The card puts the posts first with Copy and Copy all posts buttons,
-links the source, and shows the source's own media with credit and a checked
-license. It drafts and previews; it never posts, schedules, scrapes X, or calls a
-platform API, and it does not promise virality. With `--metrics <csv>` it
-describes patterns in the user's own past posts; below 20 samples it reports an
-observation, not a finding.
+`/research-to-post` turns a paper or repo into **2–3 catchy hook posts** and a
+simple copy-first HTML card at `outputs/<slug>-post.html`. It converts a PDF to
+Markdown first (`pdftotext -layout`), reads the intro, result, and conclusion,
+and follows a GitHub repo or project page for the plain-language story. The
+card is just the posts, Copy and Copy all posts buttons, and the source link: no
+claim ledger, no verification section, and no media. It drafts and previews; it
+never posts, schedules, scrapes X, or calls a platform API, and it does not
+promise virality.
 
 ## Grounding: keeping a report about your problem
 
@@ -319,7 +317,7 @@ End-to-end workflows for specific tasks:
 | `/review <artifact>` | Severity-graded adversarial review |
 | `/audit <code-vs-paper>` | Claim-vs-implementation mismatch audit |
 | `/summarize <document>` | Faithful structured digest of a standard, spec, or paper |
-| `/research-to-post <pdf-or-repo>` | Drafts 2–3 hook posts and renders `outputs/<slug>-post.html` with the source's own media |
+| `/research-to-post <pdf-or-repo>` | Drafts 2–3 catchy hooks and renders a simple copy-first card at `outputs/<slug>-post.html` |
 | `/eli5 "topic"` | Plain-language engineering explanation |
 | `/simplified-technical-english <text>` | Rewrites technical text in Simplified Technical English (ASD-STE100) |
 | `/artifact-reading <file>` | Anchored extraction from PDFs, drawings, specs |

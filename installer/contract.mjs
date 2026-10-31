@@ -121,8 +121,8 @@ export const commands = [
   },
   {
     name: "research-to-post",
-    description: "Turn a PDF, arXiv/DOI paper, or GitHub repo into 2-3 hook posts plus an HTML card with the source's own media",
-    argumentHint: "<pdf, arXiv/DOI, GitHub repo, or project page> [--format single|thread|figure] [--media source|chart|text]",
+    description: "Turn a PDF or GitHub repo into 2-3 catchy hook posts plus a simple copy-first HTML card",
+    argumentHint: "<pdf, arXiv/DOI, GitHub repo, or project page> [--voice <path>]",
     category: "workflow",
   },
   {
