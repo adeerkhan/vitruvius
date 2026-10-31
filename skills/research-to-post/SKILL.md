@@ -13,7 +13,7 @@ argument-hint: "<paper link, DOI, repo, or idea> [--format single|thread|figure]
 allowed-tools: Write Edit Bash Read
 license: MIT
 metadata:
-  version: "0.2.1"
+  version: "0.2.2"
 
 ---
 <!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=9d23284a4a76a639bab2115114e2045b224fee3c81bbe35a172971af3b563a71 -->

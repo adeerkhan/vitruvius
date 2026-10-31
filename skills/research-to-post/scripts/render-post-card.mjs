@@ -340,6 +340,9 @@ function barChart(chart, alt) {
   parts.push(`<svg role="img" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">`);
   parts.push(`<title>${escapeHtml(chart.title)}</title><desc>${escapeHtml(alt)}</desc>`);
   parts.push(`<rect x="0" y="0" width="${width}" height="${height}" fill="transparent"/>`);
+  parts.push(
+    `<text x="${pad.left}" y="20" font-size="13" font-weight="600" fill="currentColor">${escapeHtml(chart.title)} <tspan fill-opacity="0.65" font-weight="400">(${escapeHtml(chart.unit)})</tspan></text>`,
+  );
   parts.push(`<line x1="${pad.left}" y1="${zeroY}" x2="${width - pad.right}" y2="${zeroY}" stroke="currentColor" stroke-opacity="0.35"/>`);
 
   if (chart.type === "bar") {
@@ -350,11 +353,12 @@ function barChart(chart, alt) {
       const top = Math.min(y(point.value), zeroY);
       const barHeight = Math.abs(y(point.value) - zeroY);
       const baseline = /baseline|control|before/i.test(point.label);
+      const accent = /equilibrium|fixed|after/i.test(point.label) ? "#d97706" : "#2f6fed";
       parts.push(
-        `<rect x="${(center - barWidth / 2).toFixed(1)}" y="${top.toFixed(1)}" width="${barWidth.toFixed(1)}" height="${Math.max(barHeight, 1).toFixed(1)}" rx="4" fill="${baseline ? "currentColor" : "#2f6fed"}" fill-opacity="${baseline ? "0.35" : "0.9"}"/>`,
+        `<rect x="${(center - barWidth / 2).toFixed(1)}" y="${top.toFixed(1)}" width="${barWidth.toFixed(1)}" height="${Math.max(barHeight, 1).toFixed(1)}" rx="4" fill="${baseline ? "currentColor" : accent}" fill-opacity="${baseline ? "0.35" : "0.9"}"/>`,
       );
       parts.push(
-        `<text x="${center.toFixed(1)}" y="${(top - 8).toFixed(1)}" text-anchor="middle" font-size="14" font-weight="600" fill="currentColor">${escapeHtml(String(point.value))}${escapeHtml(chart.unit)}</text>`,
+        `<text x="${center.toFixed(1)}" y="${(top - 8).toFixed(1)}" text-anchor="middle" font-size="14" font-weight="600" fill="currentColor">${escapeHtml(String(point.value))}</text>`,
       );
       parts.push(
         `<text x="${center.toFixed(1)}" y="${(height - 24).toFixed(1)}" text-anchor="middle" font-size="12" fill="currentColor" fill-opacity="0.75">${escapeHtml(point.label)}</text>`,
@@ -372,7 +376,7 @@ function barChart(chart, alt) {
     points.forEach((p) => {
       parts.push(`<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="4" fill="#2f6fed"/>`);
       parts.push(
-        `<text x="${p.x.toFixed(1)}" y="${(p.y - 12).toFixed(1)}" text-anchor="middle" font-size="13" font-weight="600" fill="currentColor">${escapeHtml(String(p.point.value))}${escapeHtml(chart.unit)}</text>`,
+        `<text x="${p.x.toFixed(1)}" y="${(p.y - 12).toFixed(1)}" text-anchor="middle" font-size="13" font-weight="600" fill="currentColor">${escapeHtml(String(p.point.value))}</text>`,
       );
       parts.push(
         `<text x="${p.x.toFixed(1)}" y="${(height - 24).toFixed(1)}" text-anchor="middle" font-size="12" fill="currentColor" fill-opacity="0.75">${escapeHtml(p.point.label)}</text>`,
