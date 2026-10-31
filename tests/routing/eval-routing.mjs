@@ -165,6 +165,7 @@ const baselineRoutingCases = [
   { prompt: "formulate testable hypotheses for why this beam cracked", skill: "hypothesis-generation" },
   { prompt: "peer review my research brief before I submit it", skill: "peer-review" },
   { prompt: "summarize this datasheet into a digestible brief", skill: "summarize" },
+  { prompt: "write a twitter thread about this paper's result", skill: "research-to-post" },
   { prompt: "explain what a resistance factor is in simple terms", skill: "eli5" },
   { prompt: "rewrite this procedure in simplified technical english controlled language", skill: "simplified-technical-english" },
   { prompt: "audit whether the paper's claims match its published code", skill: "audit" },

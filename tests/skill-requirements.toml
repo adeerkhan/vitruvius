@@ -21,6 +21,7 @@ hypothesis-generation = { runtime = "node", packages = [] }
 mechanical = { runtime = "node", packages = [] }
 peer-review = { runtime = "node", packages = [] }
 proposal = { runtime = "node", packages = [] }
+research-to-post = { runtime = "node", packages = [] }
 review = { runtime = "node", packages = [] }
 scholarly-research = { runtime = "node", packages = [] }
 simplified-technical-english = { runtime = "node", packages = [] }

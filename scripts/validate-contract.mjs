@@ -38,6 +38,7 @@ const FILE_WRITING_SKILLS = new Set([
   "architectural", "scholarly-research", "gap-analysis", "evidence-ranking",
   "design-alternatives", "fmea-brainstorm", "hypothesis-generation",
   "peer-review", "compare", "review", "audit", "summarize", "proposal", "habit",
+  "research-to-post",
 ]);
 const ARTIFACT_PATHS = ["outputs/.plans/", "outputs/.drafts/", "outputs/<slug>.md", ".provenance.md"];
 const SLUG_PATTERN = /slug|lowercase.*hyphen|hyphenat/;

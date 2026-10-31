@@ -20,7 +20,7 @@ const skills = [
   // Workflow skills
   "compare", "review", "audit", "summarize", "eli5", "simplified-technical-english",
   // Application skills
-  "artifact-reading", "scholarly-research", "standards-lookup",
+  "artifact-reading", "scholarly-research", "standards-lookup", "research-to-post",
 ];
 
 const disciplineExtras = ["Evidence Landscape", "Verification Criteria"];

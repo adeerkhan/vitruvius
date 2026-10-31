@@ -120,6 +120,12 @@ export const commands = [
     category: "workflow",
   },
   {
+    name: "research-to-post",
+    description: "Turn a verified research source into a post/thread plus an HTML post card with source-grounded media",
+    argumentHint: "<paper link, DOI, repo, or idea> [--format single|thread|figure] [--media auto|figure|chart|video]",
+    category: "workflow",
+  },
+  {
     name: "eli5",
     description: "Plain-language engineering explanation",
     argumentHint: "<engineering topic>",

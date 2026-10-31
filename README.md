@@ -10,7 +10,7 @@
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT License"></a>
-  <img src="https://img.shields.io/badge/skills-26-green" alt="26 skills">
+  <img src="https://img.shields.io/badge/skills-27-green" alt="27 skills">
   <a href="https://github.com/adeerkhan/vitruvius/actions/workflows/ci.yml"><img src="https://github.com/adeerkhan/vitruvius/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <a href="https://github.com/adeerkhan/vitruvius/actions/workflows/security-scan.yml"><img src="https://github.com/adeerkhan/vitruvius/actions/workflows/security-scan.yml/badge.svg" alt="Security Scan"></a>
 </p>
@@ -20,7 +20,7 @@
 </p>
 
 <p align="center">
-  <strong>5 disciplines. 26 skills. Blind verification with a scored benchmark.</strong>
+  <strong>5 disciplines. 27 skills. Blind verification with a scored benchmark.</strong>
 </p>
 
 <p align="center">
@@ -76,15 +76,15 @@ The verifier is benchmarked, not asserted. Its checked-in results are on-disk, r
 | PASS scoring fixtures (5 disciplines) | 5/5 parser/scorer fixtures; these are not independent verifier runs | [control cases](tasks/benchmark/controls/cases) |
 | Benchmark integrity | Missing, malformed, duplicate, and unknown result files fail closed | [benchmark scorer](scripts/benchmark-scoring.mjs) |
 | Integrity under persuasion (5 pressure cases: authority, sunk cost, time, reframe, pedantry) | Latest artifact: 4/5 held with one false approval; no false-block guarantee is claimed | [pressure suite](tasks/benchmark/pressure/README.md) |
-| Skill routing (21 labeled prompts, 26 skills) | 17/21 rank-1, 0 collisions | [routing evals](tests/routing/eval-routing.mjs) |
-| E1 evaluation pilot | 4 fixture-backed priority skills; positive top-k 4/4 and owner-negative 4/4; full 26-skill coverage remains open | [evals/catalog.json](evals/catalog.json) |
+| Skill routing (22 labeled prompts, 27 skills) | 18/22 rank-1, 0 collisions | [routing evals](tests/routing/eval-routing.mjs) |
+| E1 evaluation pilot | 4 fixture-backed priority skills; positive top-k 4/4 and owner-negative 4/4; full 27-skill coverage remains open | [evals/catalog.json](evals/catalog.json) |
 | C1 fixed-case pilot | 3 local-only cases, 3 fresh subagent runs, independent review 3/3; host model cost unavailable | [evals/results/manifest.json](evals/results/manifest.json) |
 | GC1 GOAL-CHECK contract | deterministic positive/omitted-ask/repeated-gap fixtures; valid `NOT-DONE` is not promotable | [goal-check-contract.mjs](scripts/goal-check-contract.mjs) |
 | PR1 artifact closure | nested final/provenance, stale-byte, orphan, and path-escape fixtures | [artifact-closure.mjs](scripts/artifact-closure.mjs) |
 | V1 field-pilot contract | format and refusal tests only; no real external-source result claimed | [field-pilot README](evals/field-pilot/README.md) |
 | Baseline comparison (Vitruvius vs plain prompt, 10 cases) | fail-closed contract + deterministic scorer, proven by fixtures; 1-case pilot recorded and flagged `shared-harness` — a procedure check, not a comparison result | [baseline README](evals/baseline/README.md) |
 | Problem-anchor contract | anchors resolve to non-blank lines on disk; unanchored `repo` claims, uncited anchors, decisions with no finding, and empty negative coverage all fail closed | [problem-anchor-contract.mjs](scripts/problem-anchor-contract.mjs) |
-| Structural contract (26 skills) | enforced in CI | [validate-contract.mjs](scripts/validate-contract.mjs) |
+| Structural contract (27 skills) | enforced in CI | [validate-contract.mjs](scripts/validate-contract.mjs) |
 | Provenance schema (selected sidecars, `inferred` derivation traces) | selected root/plan/draft checks plus deterministic generic closure fixtures; legacy local closure remains opt-in | [validate-artifacts.mjs](scripts/validate-artifacts.mjs) |
 | External comparison yardstick (into-the-unknown, 15 research tasks) | Referenced by pinned commit; no local run executed — requires model credentials (agent runs plus a GPT-6-Astra judge) | [into-the-unknown](https://github.com/prometheus-eval/into-the-unknown) (pinned commit) + Recording comparison work note below |
 
@@ -180,6 +180,7 @@ Named engineering jobs over the shared loop:
 | `/review` | Severity-graded adversarial review of an artifact |
 | `/audit` | Claim-vs-implementation (paper-vs-code, spec-vs-design) |
 | `/summarize` | Faithful structured digest of a standard, spec, or paper |
+| `/research-to-post` | Turn a verified source into a post/thread plus an HTML post card with source-grounded media |
 | `/eli5` | Plain-language engineering explanation |
 | `/simplified-technical-english` | Write, rewrite, and check technical text in Simplified Technical English (ASD-STE100) |
 | `/artifact-reading` | Anchored extraction from PDFs, drawings, specs |
@@ -192,6 +193,18 @@ research. Pass `--deep` to force multi-agent coverage, `--quick` for an explicit
 fast lookup, or `--turns N` / `--budget N` (or plain language like "run ~200
 turns") to set your own effort ceiling. With no budget, the run continues while
 new grounded evidence is still arriving.
+
+### Research to post
+
+`/research-to-post` turns a source that has already been read and verified into
+a public post or thread, then renders a self-contained HTML post card at
+`outputs/<slug>-post.html`. The card carries the ready-to-paste text, the claim
+ledger, the verification summary, and the chosen media: the source's own figure
+(only after a license check), a chart built strictly from ledger numbers, or a
+short video storyboard. It drafts and previews; it never posts, schedules,
+scrapes, or calls a platform API, and it does not promise virality. With
+`--metrics <csv>` it describes patterns in the user's own past posts; below 20
+samples it reports an observation, not a finding.
 
 ## Grounding: keeping a report about your problem
 
@@ -305,6 +318,7 @@ End-to-end workflows for specific tasks:
 | `/review <artifact>` | Severity-graded adversarial review |
 | `/audit <code-vs-paper>` | Claim-vs-implementation mismatch audit |
 | `/summarize <document>` | Faithful structured digest of a standard, spec, or paper |
+| `/research-to-post <paper>` | Drafts an accurate post/thread and renders `outputs/<slug>-post.html` with a source figure or ledger chart |
 | `/eli5 "topic"` | Plain-language engineering explanation |
 | `/simplified-technical-english <text>` | Rewrites technical text in Simplified Technical English (ASD-STE100) |
 | `/artifact-reading <file>` | Anchored extraction from PDFs, drawings, specs |
@@ -346,7 +360,7 @@ cp -r skills/ ~/.codex/skills/vitruvius
 ### Command Code
 
 ```bash
-cmd skills add adeerkhan/vitruvius --global   # install all 26 skills
+cmd skills add adeerkhan/vitruvius --global   # install all 27 skills
 npx @adeerkhan/vitruvius --host commandcode      # render the slash-command mod
 ```
 

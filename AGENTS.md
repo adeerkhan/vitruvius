@@ -226,6 +226,7 @@ runs `--check` and fails when the generated file and the payload disagree.
 - Cited brief: `outputs/.drafts/<slug>-cited.md`
 - Verification: `<slug>-verification.md`
 - Final output: `outputs/<slug>.md` or `papers/<slug>.md`
+- Post draft and card: `outputs/<slug>-post.md`, `outputs/<slug>-post.html`
 - Goal-check record: `<slug>-goal-check.json` (machine gate beside the candidate)
 - Goal requirements manifest: `<slug>-goal-requirements.json` (frozen before goal-check)
 - Problem anchor: `<slug>-problem-anchor.json` (binds findings to the artifacts studied)

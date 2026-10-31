@@ -85,6 +85,7 @@ const WORKFLOWS = [
   { name: "eli5", triggers: /explain like i'm 5, ELI5, simplify this, what does this mean/i },
   { name: "simplified-technical-english", triggers: /simplified technical english, controlled language/i },
   { name: "artifact-reading", triggers: /read\/extract from PDF\/datasheet\/drawing\/spec, answer from a document/i },
+  { name: "research-to-post", triggers: /write a post\/thread about this paper, share this research on X, promote my paper/i },
 ];
 for (const w of WORKFLOWS) {
   assert.match(text, new RegExp(`/vitruvius:${w.name}`), `vitruvius must route to ${w.name}`);

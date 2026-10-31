@@ -6,6 +6,8 @@ All notable changes to Vitruvius are documented here. The format follows
 
 ## [Unreleased]
 
+- feat(research-to-post): turn a verified source into an accurate post/thread and an HTML post card with source-grounded media
+
 ## [0.5.1] - 2026-10-12
 
 - fix(scholarly-research): point at the resolver instead of restating its internals
