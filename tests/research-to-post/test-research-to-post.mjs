@@ -21,8 +21,10 @@ assert.match(text, /Plain language/i, "the skill must ask for plain language");
 assert.match(text, /It never posts, never\s+calls a social-media API, and never scrapes X/i, "the draft must never be posted or scraped");
 assert.match(text, /No claim ledger/i, "the skill must explicitly drop the claim ledger");
 assert.match(text, /no verification section/i, "the skill must explicitly drop the verification section");
-assert.match(text, /no media/i, "the skill must explicitly drop media");
-assert.match(text, /By design\. The source\s+link is the provenance\./i, "the no-ledger choice must be deliberate");
+assert.match(text, /one best source image/i, "the skill must keep one best source image");
+assert.match(text, /pdfimages -png -p/i, "the PDF figures must be extracted");
+assert.match(text, /outputs\/<slug>-media\.png/, "the chosen media must have a declared path");
+assert.match(text, /By design\. The source\s+link is\s+the provenance\./i, "the no-ledger choice must be deliberate");
 assert.match(text, /Never more|4\+ post|4\+ post threads/i, "the skill must refuse 4+ post threads");
 assert.match(text, /Post 1: the question or surprise\. No link\./i, "post 1 must be a hook with no link");
 assert.match(text, /Post 3: the source link plus a closing hook/i, "the last post must carry the link");
@@ -48,6 +50,19 @@ assert.match(text, /## Common Rationalizations/, "the mandatory gate must carry 
 const temp = mkdtempSync(join(repoRoot, ".rtp-test-"));
 process.on("exit", () => rmSync(temp, { recursive: true, force: true }));
 
+const mediaId = `rtp-test-${process.pid}`;
+const mediaPath = `outputs/.${mediaId}.png`;
+const videoPath = `outputs/.${mediaId}.mp4`;
+writeFileSync(join(repoRoot, mediaPath), Buffer.from(
+  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=",
+  "base64",
+));
+writeFileSync(join(repoRoot, videoPath), Buffer.from([0]));
+process.on("exit", () => {
+  rmSync(join(repoRoot, mediaPath), { force: true });
+  rmSync(join(repoRoot, videoPath), { force: true });
+});
+
 function baseCard() {
   return {
     slug: "softmax-hooks",
@@ -61,6 +76,16 @@ function baseCard() {
       "The usual fix hides the overflow, not the bug. Above a certain confidence, the target gradient goes to zero while every other gradient stays alive. The math stops adding up.",
       "The fix is not another surrogate loss. It rewrites softmax and cross-entropy in log space. Test accuracy on a toy task: 94.3% → 100%. Paper: https://arxiv.org/abs/2610.31642v3",
     ],
+    media: {
+      kind: "image",
+      src: mediaPath,
+      alt: "Figure 3: the step collapses at the fp32 cliff and the equilibrium sits just above it.",
+      caption: "Figure 3: normalized step vs. logit margin.",
+      credit: "Figure 3, Barron et al.",
+      license: "CC BY 4.0",
+      licenseChecked: true,
+      sourceUrl: "https://arxiv.org/abs/2610.31642v3",
+    },
     limit: 280,
   };
 }
@@ -77,19 +102,65 @@ function run(args) {
   return spawnSync(process.execPath, [script, ...args], { cwd: repoRoot, encoding: "utf8" });
 }
 
-// A valid 3-post card renders the posts, the copy buttons, and the source link,
-// and contains no ledger, verification table, or media.
+// A valid 3-post card renders the posts, the copy buttons, the source link, and
+// the one best image. It contains no ledger or verification table.
 const validInput = writeCard("valid");
 const validOutput = join(temp, "valid.html");
 const valid = run(["--input", validInput, "--output", validOutput]);
 assert.equal(valid.status, 0, valid.stderr);
 const html = readFileSync(validOutput, "utf8");
-for (const marker of ["Copy all posts", "data-copy=", "https://arxiv.org/abs/2610.31642v3", "<article", "post-text"]) {
+for (const marker of ["Copy all posts", "data-copy=", "https://arxiv.org/abs/2610.31642v3", "<article", "post-text", "<img", "data:image/png;base64", "Figure 3", "CC BY 4.0"]) {
   assert.ok(html.includes(marker), `rendered card must contain ${marker}`);
 }
-for (const forbidden of ["<img", "<video", "<table", "Claim ledger", "Verification"]) {
+for (const forbidden of ["<table", "Claim ledger", "Verification"]) {
   assert.ok(!html.includes(forbidden), `rendered card must not contain ${forbidden}`);
 }
+
+// The image is optional: without media the card is text-only.
+const textOnlyInput = writeCard("text-only", (card) => { delete card.media; });
+const textOnlyOutput = join(temp, "text-only.html");
+const textOnly = run(["--input", textOnlyInput, "--output", textOnlyOutput]);
+assert.equal(textOnly.status, 0, textOnly.stderr);
+const textOnlyHtml = readFileSync(textOnlyOutput, "utf8");
+assert.ok(!textOnlyHtml.includes("<img"), "a text-only card must not contain an image");
+assert.ok(!textOnlyHtml.includes("<video"), "a text-only card must not contain a video");
+
+// A remote image is linked, not embedded.
+const remoteInput = writeCard("remote", (card) => { card.media.src = "https://example.org/figure.png"; });
+const remoteOutput = join(temp, "remote.html");
+const remote = run(["--input", remoteInput, "--output", remoteOutput]);
+assert.equal(remote.status, 0, remote.stderr);
+assert.match(readFileSync(remoteOutput, "utf8"), /https:\/\/example\.org\/figure\.png/);
+
+// A video renders a video element.
+const videoInput = writeCard("video", (card) => {
+  card.media = {
+    kind: "video",
+    src: videoPath,
+    alt: "Demo video.",
+    caption: "Demo.",
+    credit: "Project page.",
+    license: "Apache 2.0",
+    licenseChecked: true,
+    sourceUrl: "https://example.org",
+  };
+});
+const videoOutput = join(temp, "video.html");
+const video = run(["--input", videoInput, "--output", videoOutput]);
+assert.equal(video.status, 0, video.stderr);
+assert.match(readFileSync(videoOutput, "utf8"), /<video /);
+
+// An unchecked license stops the render.
+const licenseInput = writeCard("license", (card) => { card.media.licenseChecked = false; });
+const license = run(["--input", licenseInput]);
+assert.notEqual(license.status, 0);
+assert.match(license.stderr, /licenseChecked must be true/);
+
+// A local media path outside outputs/ is refused.
+const outsideInput = writeCard("outside", (card) => { card.media.src = "/tmp/figure.png"; });
+const outside = run(["--input", outsideInput]);
+assert.notEqual(outside.status, 0);
+assert.match(outside.stderr, /must be an http\(s\) URL or a file under outputs\//);
 
 // --check validates without writing.
 const checkOutput = join(temp, "check-only.html");
@@ -138,6 +209,6 @@ assert.notEqual(overLimit.status, 0);
 assert.match(overLimit.stderr, /over the 280-character limit/);
 
 console.log(
-  "PASS: research-to-post renders 2-3 plain-language hooks with a source link and a copy-first card, " +
+  "PASS: research-to-post renders 2-3 plain-language hooks with the best source image and a copy-first card, " +
     "and refuses 1-post, 4-post, first-link, missing-last-link, and over-limit drafts",
 );

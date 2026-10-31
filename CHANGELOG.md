@@ -6,7 +6,7 @@ All notable changes to Vitruvius are documented here. The format follows
 
 ## [Unreleased]
 
-- feat(research-to-post): simplify to 2-3 catchy hook posts and a copy-first card
+- feat(research-to-post): add the best source image to the 2-3 hook copy-first card
 
 ## [0.5.1] - 2026-10-12
 

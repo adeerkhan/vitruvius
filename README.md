@@ -180,7 +180,7 @@ Named engineering jobs over the shared loop:
 | `/review` | Severity-graded adversarial review of an artifact |
 | `/audit` | Claim-vs-implementation (paper-vs-code, spec-vs-design) |
 | `/summarize` | Faithful structured digest of a standard, spec, or paper |
-| `/research-to-post` | Turn a PDF or GitHub repo into 2–3 catchy hook posts plus a simple copy-first HTML card |
+| `/research-to-post` | Turn a PDF or GitHub repo into 2–3 catchy hook posts plus a copy-first card with the best source image |
 | `/eli5` | Plain-language engineering explanation |
 | `/simplified-technical-english` | Write, rewrite, and check technical text in Simplified Technical English (ASD-STE100) |
 | `/artifact-reading` | Anchored extraction from PDFs, drawings, specs |
@@ -197,13 +197,13 @@ new grounded evidence is still arriving.
 ### Research to post
 
 `/research-to-post` turns a paper or repo into **2–3 catchy hook posts** and a
-simple copy-first HTML card at `outputs/<slug>-post.html`. It converts a PDF to
-Markdown first (`pdftotext -layout`), reads the intro, result, and conclusion,
-and follows a GitHub repo or project page for the plain-language story. The
-card is just the posts, Copy and Copy all posts buttons, and the source link: no
-claim ledger, no verification section, and no media. It drafts and previews; it
-never posts, schedules, scrapes X, or calls a platform API, and it does not
-promise virality.
+copy-first HTML card at `outputs/<slug>-post.html`. It converts a PDF to
+Markdown first (`pdftotext -layout`), extracts the figures with `pdfimages`, and
+picks the one that carries the hook; a GitHub repo or project page supplies its
+best screenshot, GIF, or video. The card is the posts, Copy and Copy all posts
+buttons, the one best image, and the source link: no claim ledger and no
+verification section. It drafts and previews; it never posts, schedules, scrapes
+X, or calls a platform API, and it does not promise virality.
 
 ## Grounding: keeping a report about your problem
 
@@ -317,7 +317,7 @@ End-to-end workflows for specific tasks:
 | `/review <artifact>` | Severity-graded adversarial review |
 | `/audit <code-vs-paper>` | Claim-vs-implementation mismatch audit |
 | `/summarize <document>` | Faithful structured digest of a standard, spec, or paper |
-| `/research-to-post <pdf-or-repo>` | Drafts 2–3 catchy hooks and renders a simple copy-first card at `outputs/<slug>-post.html` |
+| `/research-to-post <pdf-or-repo>` | Drafts 2–3 catchy hooks and a copy-first card with the best source image |
 | `/eli5 "topic"` | Plain-language engineering explanation |
 | `/simplified-technical-english <text>` | Rewrites technical text in Simplified Technical English (ASD-STE100) |
 | `/artifact-reading <file>` | Anchored extraction from PDFs, drawings, specs |

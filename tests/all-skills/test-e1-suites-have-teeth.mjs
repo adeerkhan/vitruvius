@@ -261,7 +261,7 @@ const CASES = [
   {
     skill: "research-to-post",
     rule: "the no-ledger choice is deliberate",
-    find: /By design\. The source\s+link is the provenance\./,
+    find: /By design\. The source\s+link is\s+the provenance\./,
     replace: "Add them back.",
   },
 ];

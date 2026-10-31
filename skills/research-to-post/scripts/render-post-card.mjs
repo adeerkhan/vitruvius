@@ -3,9 +3,9 @@
  * render-post-card.mjs — render a simple, copy-first HTML card for the
  * research-to-post skill.
  *
- * The card shows 2-3 short hook posts and a source link. It has no claim
- * ledger, no verification section, and no media. It never posts, schedules, or
- * scrapes.
+ * The card shows 2-3 short hook posts, the single best source image/video, and
+ * a source link. It has no claim ledger and no verification section. It never
+ * posts, schedules, or scrapes.
  *
  * Usage:
  *   node skills/research-to-post/scripts/render-post-card.mjs --input <json> --output <html>
@@ -15,11 +15,15 @@
  * Exit 1 = validation failed; no card is written.
  */
 
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, join, resolve } from "node:path";
+import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { dirname, extname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const MEDIA_KINDS = new Set(["image", "gif", "video"]);
+const IMAGE_EXT = new Set([".png", ".jpg", ".jpeg", ".webp", ".gif", ".svg"]);
+const VIDEO_EXT = new Set([".mp4", ".webm", ".mov"]);
+const MAX_MEDIA_BYTES = 10 * 1024 * 1024;
 
 function parseArgs(argv) {
   const args = { input: null, output: null, check: false };
@@ -48,6 +52,72 @@ function charLength(value) {
 
 function isHttpUrl(value) {
   return /^https?:\/\/\S+$/i.test(value);
+}
+
+function safeLocalMedia(value, field, errors) {
+  const src = text(value);
+  if (!src) return null;
+  if (!src.startsWith("outputs/")) {
+    errors.push(`${field} must be a file under outputs/ (got ${src})`);
+    return null;
+  }
+  const full = resolve(process.cwd(), src);
+  const root = resolve(process.cwd());
+  if (!full.startsWith(`${root}${sep}`)) {
+    errors.push(`${field} must stay inside the project`);
+    return null;
+  }
+  if (!existsSync(full) || !statSync(full).isFile()) {
+    errors.push(`${field} does not exist: ${src}`);
+    return null;
+  }
+  if (statSync(full).size > MAX_MEDIA_BYTES) {
+    errors.push(`${field} is larger than 10 MB`);
+    return null;
+  }
+  return { full, rel: src };
+}
+
+function validateMedia(media, add) {
+  if (!isObject(media)) {
+    add("media must be an object when present");
+    return;
+  }
+  if (!MEDIA_KINDS.has(media.kind)) add("media.kind must be image, gif, or video");
+  if (!text(media.src)) add("media.src is required");
+  if (!text(media.alt)) add("media.alt is required; it is the image description");
+  if (!text(media.credit)) add("media.credit is required");
+  if (!text(media.license)) add("media.license is required");
+  if (media.licenseChecked !== true) add("media.licenseChecked must be true before source media is shown");
+
+  if (text(media.src)) {
+    if (isHttpUrl(media.src)) {
+      // Remote media is linked; the license fields above still apply.
+    } else {
+      const local = safeLocalMedia(media.src, "media.src", []);
+      if (!local) {
+        add("media.src must be an http(s) URL or a file under outputs/");
+      } else if (media.kind === "video" && !VIDEO_EXT.has(extname(local.full).toLowerCase())) {
+        add("media.src must be an mp4, webm, or mov file for a video");
+      } else if (media.kind !== "video" && !IMAGE_EXT.has(extname(local.full).toLowerCase())) {
+        add("media.src must be a png, jpg, jpeg, webp, gif, or svg file for an image");
+      }
+    }
+  }
+
+  if (media.kind === "video" && media.poster !== undefined && text(media.poster)) {
+    if (isHttpUrl(media.poster)) {
+      // remote poster
+    } else {
+      const local = safeLocalMedia(media.poster, "media.poster", []);
+      if (!local) add("media.poster must be an http(s) URL or a file under outputs/");
+      else if (!IMAGE_EXT.has(extname(local.full).toLowerCase())) add("media.poster must be an image file");
+    }
+  }
+
+  if (media.sourceUrl !== undefined && media.sourceUrl !== null && !isHttpUrl(String(media.sourceUrl))) {
+    add("media.sourceUrl must be an http(s) URL when present");
+  }
 }
 
 /** Validate the whole input and return every problem found. */
@@ -87,6 +157,8 @@ export function validateCard(data) {
     }
   }
 
+  if (data.media !== undefined && data.media !== null) validateMedia(data.media, add);
+
   return errors;
 }
 
@@ -96,7 +168,53 @@ export function escapeHtml(value) {
   return String(value ?? "").replace(/[&<>"']/g, (char) => ESCAPES[char]);
 }
 
-function renderCard(data) {
+function embedLocalImage(src) {
+  const full = resolve(process.cwd(), src);
+  const ext = extname(full).toLowerCase();
+  const mime = {
+    ".png": "image/png",
+    ".jpg": "image/jpeg",
+    ".jpeg": "image/jpeg",
+    ".webp": "image/webp",
+    ".gif": "image/gif",
+    ".svg": "image/svg+xml",
+  }[ext];
+  if (!mime) throw new Error(`unsupported image type: ${ext || "none"}`);
+  const bytes = readFileSync(full);
+  if (bytes.length > MAX_MEDIA_BYTES) throw new Error("image is larger than 10 MB");
+  return `data:${mime};base64,${bytes.toString("base64")}`;
+}
+
+function mediaSrc(src, outputDir, { embed = false } = {}) {
+  if (isHttpUrl(src)) return src;
+  if (embed) return embedLocalImage(src);
+  return relative(outputDir, resolve(process.cwd(), src)).split(sep).join("/");
+}
+
+function renderMedia(media, outputDir) {
+  let body = "";
+  if (media.kind === "video") {
+    const src = mediaSrc(media.src, outputDir);
+    const poster = media.poster ? ` poster="${escapeHtml(mediaSrc(media.poster, outputDir, { embed: true }))}"` : "";
+    body = `<video controls preload="metadata" src="${escapeHtml(src)}"${poster}></video>`;
+  } else {
+    body = `<img src="${escapeHtml(mediaSrc(media.src, outputDir, { embed: true }))}" alt="${escapeHtml(media.alt)}" loading="lazy" />`;
+  }
+  const link = media.sourceUrl
+    ? ` <a href="${escapeHtml(media.sourceUrl)}" target="_blank" rel="noopener">Open original</a>`
+    : "";
+  return `
+    <figure class="media">
+      <div class="media-body">${body}</div>
+      <figcaption>
+        ${media.caption ? `<p class="caption">${escapeHtml(media.caption)}</p>` : ""}
+        <p class="credit">${escapeHtml(media.credit)}. License: ${escapeHtml(media.license)}.${link}</p>
+      </figcaption>
+    </figure>`;
+}
+
+function renderCard(data, outputPath) {
+  const outputDir = dirname(resolve(process.cwd(), outputPath));
   const source = isObject(data.source) ? data.source : {};
   const sourceLink = source.url
     ? `<a href="${escapeHtml(source.url)}" target="_blank" rel="noopener">${escapeHtml(source.citation)}</a>`
@@ -115,6 +233,8 @@ function renderCard(data) {
         </article>`,
     )
     .join("");
+
+  const media = data.media ? renderMedia(data.media, outputDir) : "";
 
   return `<!doctype html>
 <html lang="en">
@@ -139,6 +259,14 @@ function renderCard(data) {
   .post-head { display: flex; align-items: center; gap: 12px; color: var(--muted); font-size: .8rem; }
   .post-head button.copy { margin-left: auto; }
   .post-text { margin: 8px 0 0; white-space: pre-wrap; font-size: 1.08rem; }
+  .media { margin: 22px 0 0; background: var(--card); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+  .media-body { display: grid; place-items: center; background: #0f0f0f; }
+  .media-body img, .media-body video { display: block; width: 100%; height: auto; max-height: 520px; object-fit: contain; }
+  figcaption { padding: 12px 14px; }
+  figcaption p { margin: 4px 0; }
+  .caption { font-size: .95rem; }
+  .credit { color: var(--muted); font-size: .82rem; }
+  .credit a { color: var(--accent); }
   button.copy, button.action { border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 999px; padding: 4px 12px; font: inherit; font-size: .82rem; cursor: pointer; }
   button.copy:active, button.action:active { transform: translateY(1px); }
   footer { margin-top: 36px; color: var(--muted); font-size: .82rem; }
@@ -154,6 +282,7 @@ function renderCard(data) {
 
   <div class="copy-all"><button type="button" class="action" data-copy-all>Copy all posts</button></div>
   <section>${posts}</section>
+  ${media}
 
   <footer>Draft generated by Vitruvius <code>research-to-post</code>. Not posted, scheduled, or scraped.</footer>
 </main>
@@ -219,7 +348,7 @@ function main() {
 
   const output = resolve(process.cwd(), args.output || join("outputs", `${data.slug}-post.html`));
   mkdirSync(dirname(output), { recursive: true });
-  writeFileSync(output, renderCard(data), "utf8");
+  writeFileSync(output, renderCard(data, output), "utf8");
   console.log(`PASS: wrote ${output}`);
   return 0;
 }

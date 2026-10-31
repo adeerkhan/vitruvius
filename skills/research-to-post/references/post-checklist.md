@@ -9,6 +9,9 @@ Run before delivery. Keep it short.
 - [ ] Each post fits the character limit.
 - [ ] Plain language. No equations, no jargon dump, no paper-abstract voice.
 - [ ] The hook is a question, a surprise, a contradiction, or a before/after.
-- [ ] No claim ledger, no verification section, no media.
+- [ ] One best source image (optional): it carries the hook, with `alt`,
+      `credit`, `license`, and `licenseChecked: true`.
+- [ ] No claim ledger, no verification section, no media gallery.
 - [ ] `outputs/<slug>-post.md` and `outputs/<slug>-post.html` exist.
-- [ ] The user receives the ready-to-paste posts and the card path.
+- [ ] The user receives the ready-to-paste posts, the card path, and the image
+      if one was used.

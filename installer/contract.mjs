@@ -121,7 +121,7 @@ export const commands = [
   },
   {
     name: "research-to-post",
-    description: "Turn a PDF or GitHub repo into 2-3 catchy hook posts plus a simple copy-first HTML card",
+    description: "Turn a PDF or GitHub repo into 2-3 catchy hook posts plus a simple copy-first HTML card with the best source image",
     argumentHint: "<pdf, arXiv/DOI, GitHub repo, or project page> [--voice <path>]",
     category: "workflow",
   },

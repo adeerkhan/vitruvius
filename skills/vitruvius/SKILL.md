@@ -13,7 +13,7 @@ description: >
 argument-hint: "<discipline or research question>"
 license: MIT
 metadata:
-  version: "0.1.5"
+  version: "0.1.6"
 
 ---
 <!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=7cf64f2c5ad7df2099bbfe1e8083a4552fffdf057259ba092a123553725e24cb -->
