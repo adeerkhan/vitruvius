@@ -249,7 +249,7 @@ const CASES = [
   {
     skill: "research-to-post",
     rule: "the draft is never posted or scraped by the agent",
-    find: /It never posts, never calls a\s+social-media API, and never scrapes any platform\./,
+    find: /It never posts, never\s+calls a social-media API, and never scrapes X\./,
     replace: "It may post the draft automatically.",
   },
   {
@@ -260,9 +260,9 @@ const CASES = [
   },
   {
     skill: "research-to-post",
-    rule: "a figure license is checked before the figure is embedded",
-    find: /if its license is\s+checked/,
-    replace: "without checking its license",
+    rule: "the source's own media comes before a generated chart",
+    find: /Prefer the source's own figure, screenshot,\s+GIF, or video over a generated chart/,
+    replace: "Use a generated chart first.",
   },
 ];
 

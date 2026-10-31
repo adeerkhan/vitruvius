@@ -180,7 +180,7 @@ Named engineering jobs over the shared loop:
 | `/review` | Severity-graded adversarial review of an artifact |
 | `/audit` | Claim-vs-implementation (paper-vs-code, spec-vs-design) |
 | `/summarize` | Faithful structured digest of a standard, spec, or paper |
-| `/research-to-post` | Turn a verified source into a post/thread plus an HTML post card with source-grounded media |
+| `/research-to-post` | Turn a PDF or GitHub repo into 2–3 hook posts plus an HTML card with the source's own media |
 | `/eli5` | Plain-language engineering explanation |
 | `/simplified-technical-english` | Write, rewrite, and check technical text in Simplified Technical English (ASD-STE100) |
 | `/artifact-reading` | Anchored extraction from PDFs, drawings, specs |
@@ -197,14 +197,15 @@ new grounded evidence is still arriving.
 ### Research to post
 
 `/research-to-post` turns a source that has already been read and verified into
-a public post or thread, then renders a self-contained HTML post card at
-`outputs/<slug>-post.html`. The card carries the ready-to-paste text, the claim
-ledger, the verification summary, and the chosen media: the source's own figure
-(only after a license check), a chart built strictly from ledger numbers, or a
-short video storyboard. It drafts and previews; it never posts, schedules,
-scrapes, or calls a platform API, and it does not promise virality. With
-`--metrics <csv>` it describes patterns in the user's own past posts; below 20
-samples it reports an observation, not a finding.
+**2–3 hook posts** and a copy-first HTML card at `outputs/<slug>-post.html`. It
+converts a PDF to Markdown first (`pdftotext` plus `pdfimages`), reads the
+paper, and follows a GitHub repo or project page to its screenshots, GIFs, and
+videos. The card puts the posts first with Copy and Copy all posts buttons,
+links the source, and shows the source's own media with credit and a checked
+license. It drafts and previews; it never posts, schedules, scrapes X, or calls a
+platform API, and it does not promise virality. With `--metrics <csv>` it
+describes patterns in the user's own past posts; below 20 samples it reports an
+observation, not a finding.
 
 ## Grounding: keeping a report about your problem
 
@@ -318,7 +319,7 @@ End-to-end workflows for specific tasks:
 | `/review <artifact>` | Severity-graded adversarial review |
 | `/audit <code-vs-paper>` | Claim-vs-implementation mismatch audit |
 | `/summarize <document>` | Faithful structured digest of a standard, spec, or paper |
-| `/research-to-post <paper>` | Drafts an accurate post/thread and renders `outputs/<slug>-post.html` with a source figure or ledger chart |
+| `/research-to-post <pdf-or-repo>` | Drafts 2–3 hook posts and renders `outputs/<slug>-post.html` with the source's own media |
 | `/eli5 "topic"` | Plain-language engineering explanation |
 | `/simplified-technical-english <text>` | Rewrites technical text in Simplified Technical English (ASD-STE100) |
 | `/artifact-reading <file>` | Anchored extraction from PDFs, drawings, specs |

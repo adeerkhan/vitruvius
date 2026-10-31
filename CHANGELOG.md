@@ -6,7 +6,7 @@ All notable changes to Vitruvius are documented here. The format follows
 
 ## [Unreleased]
 
-- feat(research-to-post): turn a verified source into an accurate post/thread and an HTML post card with source-grounded media
+- feat(research-to-post): turn a PDF or GitHub repo into 2-3 hook posts plus a copy-first card with the source's own media
 
 ## [0.5.1] - 2026-10-12
 

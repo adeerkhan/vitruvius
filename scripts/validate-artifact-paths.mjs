@@ -29,7 +29,9 @@ const ROOT = process.env.VITRUVIUS_ARTIFACT_ROOT
 const ALLOWED = [
   /^outputs\/$/,
   /^outputs\/\.drafts\/$/,
-  /^outputs\/\.drafts\/[A-Za-z0-9._<>-]+\.(?:md|json)$/,
+  /^outputs\/\.drafts\/[A-Za-z0-9._<>-]+\.(?:md|json|txt|pdf|html)$/,
+  /^outputs\/\.drafts\/[A-Za-z0-9._<>-]+\/$/,
+  /^outputs\/\.drafts\/[A-Za-z0-9._<>-]+\/[A-Za-z0-9._<>/-]+$/,
   /^outputs\/\.plans\/[A-Za-z0-9._<>-]+\.md$/,
   /^outputs\/\.habits\/[A-Za-z0-9._<>-]+\.(?:json|md)$/,
   /^outputs\/[A-Za-z0-9._<>-]+\.(?:md|json|html)$/,

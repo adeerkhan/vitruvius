@@ -13,10 +13,10 @@ description: >
 argument-hint: "<discipline or research question>"
 license: MIT
 metadata:
-  version: "0.1.3"
+  version: "0.1.4"
 
 ---
-<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=daa717a42063646b2bc2d9f456fce1571f8e6e2f62f7421c9558f3e95d1e95e4 -->
+<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=0d2ffbaf2df0f6f39823efb1da82a66e5cfdd2efa4b8edaed208efa04ef908a5 -->
 
 # Vitruvius
 
@@ -57,7 +57,7 @@ discipline:
 | summarize, condense, key requirements of this spec/standard/paper | `/vitruvius:summarize` | Faithful structured document digest |
 | explain like I'm 5, ELI5, simplify this, what does this mean | `/vitruvius:eli5` | Plain-language engineering explanation |
 | write/rewrite/check procedures, warnings, or plain technical text (Simplified Technical English, controlled language) | `/vitruvius:simplified-technical-english` | Rewrite or check technical text in STE (ASD-STE100) |
-| write a post/thread about this paper, share this research on X, promote my paper | `/vitruvius:research-to-post` | Draft an accurate post/thread and HTML post card with source-grounded media |
+| write a post/thread about this paper, share this research on X, promote my paper, turn this repo into a post | `/vitruvius:research-to-post` | Draft 2–3 hook posts and a copy-first HTML card with the source's own media |
 | read/extract from PDF/datasheet/drawing/spec, answer from a document | `/vitruvius:artifact-reading` | Anchored document reading + extraction |
 
 If the user names a workflow the table does not cover, default to the

@@ -121,8 +121,8 @@ export const commands = [
   },
   {
     name: "research-to-post",
-    description: "Turn a verified research source into a post/thread plus an HTML post card with source-grounded media",
-    argumentHint: "<paper link, DOI, repo, or idea> [--format single|thread|figure] [--media auto|figure|chart|video]",
+    description: "Turn a PDF, arXiv/DOI paper, or GitHub repo into 2-3 hook posts plus an HTML card with the source's own media",
+    argumentHint: "<pdf, arXiv/DOI, GitHub repo, or project page> [--format single|thread|figure] [--media source|chart|text]",
     category: "workflow",
   },
   {

@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 /**
- * render-post-card.mjs — render a self-contained HTML post card for the
+ * render-post-card.mjs — render a copy-first HTML post card for the
  * research-to-post skill.
  *
  * The card is a preview for a human to inspect before publishing. It does not
- * post, schedule, scrape, or call any platform API. It embeds the chosen figure
- * as a data URI (or draws a chart as inline SVG) so the file travels on its own.
+ * post, schedule, scrape, or call any platform API. It shows 2-3 hook posts,
+ * the source's own media (local files embedded, remote files linked), the claim
+ * ledger, and the verification summary.
  *
  * Usage:
  *   node skills/research-to-post/scripts/render-post-card.mjs --input <json> --output <html>
@@ -16,15 +17,17 @@
  */
 
 import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
-import { dirname, extname, join, resolve, sep } from "node:path";
+import { basename, dirname, extname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const FORMATS = new Set(["single", "thread", "figure"]);
 const STATUSES = new Set(["verified", "partial", "blocked", "unverified", "inferred", "failed"]);
 const FACT_STATUSES = new Set(["verified", "partial"]);
-const MEDIA_KINDS = new Set(["figure", "chart", "text", "video", "none"]);
+const MEDIA_KINDS = new Set(["image", "gif", "video", "chart", "text"]);
 const CHART_TYPES = new Set(["bar", "line"]);
-const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
+const IMAGE_EXT = new Set([".png", ".jpg", ".jpeg", ".webp", ".gif", ".svg"]);
+const VIDEO_EXT = new Set([".mp4", ".webm", ".mov"]);
+const MAX_MEDIA_BYTES = 10 * 1024 * 1024;
 const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const CLAIM_ID = /^C[0-9]+$/;
 
@@ -57,6 +60,82 @@ function isHttpUrl(value) {
   return /^https?:\/\/\S+$/i.test(value);
 }
 
+function isRemote(value) {
+  return isHttpUrl(value);
+}
+
+function safeLocalMedia(value, field, errors) {
+  const src = text(value);
+  if (!src) return null;
+  if (!src.startsWith("outputs/")) {
+    errors.push(`${field} must be a file under outputs/ (got ${src})`);
+    return null;
+  }
+  const full = resolve(process.cwd(), src);
+  const root = resolve(process.cwd());
+  if (!full.startsWith(`${root}${sep}`)) {
+    errors.push(`${field} must stay inside the project`);
+    return null;
+  }
+  if (!existsSync(full) || !statSync(full).isFile()) {
+    errors.push(`${field} does not exist: ${src}`);
+    return null;
+  }
+  if (statSync(full).size > MAX_MEDIA_BYTES) {
+    errors.push(`${field} is larger than 10 MB`);
+    return null;
+  }
+  return { full, rel: src };
+}
+
+function validateChart(chart, where, byId, add) {
+  if (!isObject(chart)) {
+    add(`${where} is required`);
+    return;
+  }
+  if (!CHART_TYPES.has(chart.type)) add(`${where}.type must be bar or line`);
+  if (!text(chart.title)) add(`${where}.title is required`);
+  if (!text(chart.unit)) add(`${where}.unit is required`);
+  if (!Array.isArray(chart.data) || chart.data.length === 0) add(`${where}.data must be a non-empty array`);
+  else if (chart.data.length > 12) add(`${where}.data supports at most 12 points`);
+  else {
+    chart.data.forEach((point, index) => {
+      const at = `${where}.data[${index}]`;
+      if (!isObject(point)) {
+        add(`${at} must be an object`);
+        return;
+      }
+      if (!text(point.label)) add(`${at}.label is required`);
+      if (typeof point.value !== "number" || !Number.isFinite(point.value)) add(`${at}.value must be a finite number`);
+      const claim = byId.get(point.claim);
+      if (!claim) {
+        add(`${at}.claim must name a ledger claim`);
+        return;
+      }
+      if (claim.used !== true) add(`${at}.claim ${point.claim} is not marked used`);
+      if (!FACT_STATUSES.has(claim.status)) add(`${at}.claim ${point.claim} is ${claim.status}; a chart may only plot verified or partial claims`);
+      if (claim.numeric === false) add(`${at}.claim ${point.claim} is marked non-numeric`);
+      if (text(claim.unit) && text(chart.unit) && text(claim.unit) !== text(chart.unit)) {
+        add(`${at}.claim ${point.claim} has unit ${claim.unit}, but the chart unit is ${chart.unit}`);
+      }
+      if (point.role !== undefined && point.role !== "baseline" && point.role !== "value") {
+        add(`${at}.role must be baseline or value when present`);
+      }
+      const role = point.role === "baseline" ? "baseline" : "value";
+      if (role === "baseline" && !text(claim.baseline)) add(`${at}.role is baseline, but ${point.claim} has no baseline value`);
+      const ledgerText = role === "baseline" ? text(claim.baseline) : text(claim.value);
+      const ledgerValue = Number.parseFloat(ledgerText.replace(/,/g, ""));
+      if (Number.isFinite(ledgerValue)) {
+        if (Math.abs(ledgerValue - point.value) > 1e-9) {
+          add(`${at}.value ${point.value} does not match ${point.claim}'s ledger ${role} ${ledgerText}`);
+        }
+      } else if (text(ledgerText)) {
+        add(`${at}.claim ${point.claim} has a non-numeric ${role} ${ledgerText}`);
+      }
+    });
+  }
+}
+
 /** Validate the whole input and return every problem found. */
 export function validateCard(data) {
   const errors = [];
@@ -71,8 +150,10 @@ export function validateCard(data) {
   if (!isObject(source)) add("source must be an object");
   else {
     if (!text(source.citation)) add("source.citation is required");
-    if (source.url !== undefined && source.url !== null && !isHttpUrl(String(source.url))) {
-      add("source.url must be an http(s) URL when present");
+    for (const key of ["url", "projectUrl", "repoUrl"]) {
+      if (source[key] !== undefined && source[key] !== null && !isHttpUrl(String(source[key]))) {
+        add(`source.${key} must be an http(s) URL when present`);
+      }
     }
   }
 
@@ -83,7 +164,6 @@ export function validateCard(data) {
   if (!text(data.angle)) add("angle is required");
   if (!text(data.angle_reason)) add("angle_reason is required");
 
-  // --- hooks ---------------------------------------------------------------
   const hooks = data.hooks;
   if (!Array.isArray(hooks) || hooks.length !== 3) add("hooks must contain exactly three variants");
   else {
@@ -95,7 +175,6 @@ export function validateCard(data) {
     if (recommended !== 1) add("exactly one hook must be marked recommended");
   }
 
-  // --- claims --------------------------------------------------------------
   const claims = data.claims;
   const byId = new Map();
   if (!Array.isArray(claims)) add("claims must be an array");
@@ -121,9 +200,7 @@ export function validateCard(data) {
         if (!FACT_STATUSES.has(claim.status)) {
           add(`${where} is used as fact but its status is ${claim.status}; only verified or partial may appear as fact`);
         }
-        if (claim.status === "partial" && !text(claim.qualifier)) {
-          add(`${where} is partial but has no qualifier to carry into the post`);
-        }
+        if (claim.status === "partial" && !text(claim.qualifier)) add(`${where} is partial but has no qualifier to carry into the post`);
         if (numeric) {
           if (!text(claim.value)) add(`${where}.value is required for a used numeric claim`);
           if (!text(claim.unit)) add(`${where}.unit is required for a used numeric claim`);
@@ -137,15 +214,14 @@ export function validateCard(data) {
     });
   }
 
-  // --- posts ---------------------------------------------------------------
   const posts = data.post;
   const referenced = new Set();
   if (!Array.isArray(posts) || posts.length === 0) add("post must be a non-empty array");
   else {
     if (data.format === "single" && posts.length !== 1) add("a single post must contain exactly one post");
     if (data.format === "figure" && posts.length !== 1) add("a figure post must contain exactly one post");
-    if (data.format === "thread" && (posts.length < 4 || posts.length > 7)) {
-      add("a thread must contain 4 to 7 posts");
+    if (data.format === "thread" && (posts.length < 2 || posts.length > 3)) {
+      add("a hook thread must contain 2 or 3 posts, never more");
     }
     posts.forEach((post, index) => {
       const where = `post[${index}]`;
@@ -165,131 +241,83 @@ export function validateCard(data) {
         }
       }
     });
-  }
-  for (const [id, claim] of byId) {
-    if (claim.used === true && !referenced.has(id)) {
-      add(`${id} is marked used but no post references it`);
+    const last = posts[posts.length - 1];
+    if (data.format !== "single" && isObject(last) && text(source?.url) && !text(last.text).includes(text(source.url))) {
+      add("the last post must carry the source URL so the reader can click through");
     }
   }
+  for (const [id, claim] of byId) {
+    if (claim.used === true && !referenced.has(id)) add(`${id} is marked used but no post references it`);
+  }
 
-  // --- media ---------------------------------------------------------------
   const media = data.media;
   if (!isObject(media)) add("media must be an object");
   else {
-    if (!MEDIA_KINDS.has(media.kind)) add("media.kind must be figure, chart, text, video, or none");
-    if (!text(media.alt)) add("media.alt is required; alt text is part of the post");
-    if (!text(media.why)) add("media.why is required; say why this visual fits the angle");
-    if (media.kind !== "none" && !text(media.credit)) add("media.credit is required for a figure, chart, text, or video");
-
-    if (media.kind === "text" && !text(media.text)) {
-      add("media.text is required for a text card");
-    }
-
-    if (media.kind === "figure") {
-      const figure = media.figure;
-      if (!isObject(figure) || !text(figure.path)) add("media.figure.path is required");
-      else {
-        const figurePath = resolve(process.cwd(), figure.path);
-        const root = resolve(process.cwd());
-        if (figurePath !== root && !figurePath.startsWith(`${root}${sep}`)) {
-          add("media.figure.path must stay inside the project");
-        } else if (!existsSync(figurePath) || !statSync(figurePath).isFile()) {
-          add(`media.figure.path does not exist: ${figure.path}`);
-        } else if (![".png", ".jpg", ".jpeg", ".webp", ".gif", ".svg"].includes(extname(figurePath).toLowerCase())) {
-          add("media.figure.path must be a png, jpg, jpeg, webp, gif, or svg file");
+    if (!text(media.why)) add("media.why is required; say why these visuals fit the hook");
+    if (!Array.isArray(media.items) || media.items.length === 0) add("media.items must be a non-empty array");
+    else if (media.items.length > 6) add("media.items supports at most 6 items");
+    else {
+      media.items.forEach((item, index) => {
+        const where = `media.items[${index}]`;
+        if (!isObject(item)) {
+          add(`${where} must be an object`);
+          return;
         }
-      }
-      if (!text(media.license)) add("media.license is required for a figure");
-      if (media.licenseChecked !== true) add("media.licenseChecked must be true before a figure is embedded");
-    }
+        if (!MEDIA_KINDS.has(item.kind)) add(`${where}.kind must be image, gif, video, chart, or text`);
+        if (!text(item.alt)) add(`${where}.alt is required; alt text is part of the post`);
+        if (!text(item.credit)) add(`${where}.credit is required`);
 
-    if (media.kind === "chart") {
-      const chart = media.chart;
-      if (!isObject(chart)) add("media.chart is required for a chart");
-      else {
-        if (!CHART_TYPES.has(chart.type)) add("media.chart.type must be bar or line");
-        if (!text(chart.title)) add("media.chart.title is required");
-        if (!text(chart.unit)) add("media.chart.unit is required");
-        if (!Array.isArray(chart.data) || chart.data.length === 0) add("media.chart.data must be a non-empty array");
-        else if (chart.data.length > 12) add("media.chart.data supports at most 12 points");
-        else {
-          chart.data.forEach((point, index) => {
-            const where = `media.chart.data[${index}]`;
-            if (!isObject(point)) {
-              add(`${where} must be an object`);
-              return;
+        if (item.kind === "image" || item.kind === "gif") {
+          if (!text(item.src)) add(`${where}.src is required`);
+          else if (isRemote(item.src)) {
+            if (!text(item.license)) add(`${where}.license is required for remote media`);
+            if (item.licenseChecked !== true) add(`${where}.licenseChecked must be true before remote media is shown`);
+          } else {
+            const local = safeLocalMedia(item.src, `${where}.src`, errors);
+            if (local && !IMAGE_EXT.has(extname(local.full).toLowerCase())) {
+              add(`${where}.src must be a png, jpg, jpeg, webp, gif, or svg file`);
             }
-            if (!text(point.label)) add(`${where}.label is required`);
-            if (typeof point.value !== "number" || !Number.isFinite(point.value)) {
-              add(`${where}.value must be a finite number`);
-            }
-            const claim = byId.get(point.claim);
-            if (!claim) {
-              add(`${where}.claim must name a ledger claim`);
-              return;
-            }
-            if (claim.used !== true) add(`${where}.claim ${point.claim} is not marked used`);
-            if (!FACT_STATUSES.has(claim.status)) {
-              add(`${where}.claim ${point.claim} is ${claim.status}; a chart may only plot verified or partial claims`);
-            }
-            if (claim.numeric === false) add(`${where}.claim ${point.claim} is marked non-numeric`);
-            if (text(claim.unit) && text(chart.unit) && text(claim.unit) !== text(chart.unit)) {
-              add(`${where}.claim ${point.claim} has unit ${claim.unit}, but the chart unit is ${chart.unit}`);
-            }
-            if (point.role !== undefined && point.role !== "baseline" && point.role !== "value") {
-              add(`${where}.role must be baseline or value when present`);
-            }
-            const role = point.role === "baseline" ? "baseline" : "value";
-            if (role === "baseline" && !text(claim.baseline)) {
-              add(`${where}.role is baseline, but ${point.claim} has no baseline value`);
-            }
-            const ledgerText = role === "baseline" ? text(claim.baseline) : text(claim.value);
-            const ledgerValue = Number.parseFloat(ledgerText.replace(/,/g, ""));
-            if (Number.isFinite(ledgerValue)) {
-              if (Math.abs(ledgerValue - point.value) > 1e-9) {
-                add(`${where}.value ${point.value} does not match ${point.claim}'s ledger ${role} ${ledgerText}`);
-              }
-            } else if (text(ledgerText)) {
-              add(`${where}.claim ${point.claim} has a non-numeric ${role} ${ledgerText}`);
-            }
-          });
+            if (!text(item.license)) add(`${where}.license is required for source media`);
+            if (item.licenseChecked !== true) add(`${where}.licenseChecked must be true before source media is shown`);
+          }
         }
-      }
-    }
 
-    if (media.kind === "video") {
-      const video = media.video;
-      if (!isObject(video)) add("media.video is required for a video");
-      else {
-        if (!Number.isFinite(video.duration_s) || video.duration_s < 1 || video.duration_s > 60) {
-          add("media.video.duration_s must be between 1 and 60 seconds");
-        }
-        if (!Array.isArray(video.shots) || video.shots.length === 0) add("media.video.shots must be a non-empty array");
-        else if (video.shots.length > 8) add("media.video.shots supports at most 8 shots");
-        else {
-          video.shots.forEach((shot, index) => {
-            const where = `media.video.shots[${index}]`;
-            if (!isObject(shot)) {
-              add(`${where} must be an object`);
-              return;
+        if (item.kind === "video") {
+          if (!text(item.src)) add(`${where}.src is required`);
+          else if (isRemote(item.src)) {
+            if (!text(item.license)) add(`${where}.license is required for remote media`);
+            if (item.licenseChecked !== true) add(`${where}.licenseChecked must be true before remote media is shown`);
+          } else {
+            const local = safeLocalMedia(item.src, `${where}.src`, errors);
+            if (local && !VIDEO_EXT.has(extname(local.full).toLowerCase())) {
+              add(`${where}.src must be an mp4, webm, or mov file`);
             }
-            for (const key of ["t", "visual", "text"]) {
-              if (!text(shot[key])) add(`${where}.${key} is required`);
+            if (!text(item.license)) add(`${where}.license is required for source media`);
+            if (item.licenseChecked !== true) add(`${where}.licenseChecked must be true before source media is shown`);
+          }
+          if (item.poster !== undefined && text(item.poster)) {
+            if (isRemote(item.poster)) {
+              if (!isHttpUrl(item.poster)) add(`${where}.poster must be an http(s) URL or a local outputs/ file`);
+            } else {
+              safeLocalMedia(item.poster, `${where}.poster`, errors);
             }
-          });
+          }
         }
-      }
+
+        if (item.kind === "chart") validateChart(item.chart, `${where}.chart`, byId, add);
+        if (item.kind === "text" && !text(item.text)) add(`${where}.text is required for a text card`);
+        if (item.sourceUrl !== undefined && item.sourceUrl !== null && !isHttpUrl(String(item.sourceUrl))) {
+          add(`${where}.sourceUrl must be an http(s) URL when present`);
+        }
+      });
     }
   }
 
-  // --- verification --------------------------------------------------------
   const verification = data.verification;
   if (!isObject(verification)) add("verification must be an object");
   else {
     for (const key of ["verified", "partial", "blocked"]) {
-      if (!Number.isInteger(verification[key]) || verification[key] < 0) {
-        add(`verification.${key} must be a non-negative integer`);
-      }
+      if (!Number.isInteger(verification[key]) || verification[key] < 0) add(`verification.${key} must be a non-negative integer`);
     }
     if (!text(verification.checked_by)) add("verification.checked_by is required");
     const counts = { verified: 0, partial: 0, blocked: 0 };
@@ -297,9 +325,7 @@ export function validateCard(data) {
       if (counts[claim.status] !== undefined) counts[claim.status]++;
     }
     for (const key of ["verified", "partial", "blocked"]) {
-      if (verification[key] !== counts[key]) {
-        add(`verification.${key} is ${verification[key]}, but the ledger has ${counts[key]}`);
-      }
+      if (verification[key] !== counts[key]) add(`verification.${key} is ${verification[key]}, but the ledger has ${counts[key]}`);
     }
   }
 
@@ -323,10 +349,10 @@ function statusClass(status) {
   return "muted";
 }
 
-function barChart(chart, alt) {
+function chartSvg(chart, alt) {
   const width = 640;
   const height = 360;
-  const pad = { top: 32, right: 24, bottom: 56, left: 56 };
+  const pad = { top: 44, right: 24, bottom: 56, left: 56 };
   const plotWidth = width - pad.left - pad.right;
   const plotHeight = height - pad.top - pad.bottom;
   const values = chart.data.map((point) => point.value);
@@ -341,7 +367,7 @@ function barChart(chart, alt) {
   parts.push(`<title>${escapeHtml(chart.title)}</title><desc>${escapeHtml(alt)}</desc>`);
   parts.push(`<rect x="0" y="0" width="${width}" height="${height}" fill="transparent"/>`);
   parts.push(
-    `<text x="${pad.left}" y="20" font-size="13" font-weight="600" fill="currentColor">${escapeHtml(chart.title)} <tspan fill-opacity="0.65" font-weight="400">(${escapeHtml(chart.unit)})</tspan></text>`,
+    `<text x="${pad.left}" y="22" font-size="13" font-weight="600" fill="currentColor">${escapeHtml(chart.title)} <tspan fill-opacity="0.65" font-weight="400">(${escapeHtml(chart.unit)})</tspan></text>`,
   );
   parts.push(`<line x1="${pad.left}" y1="${zeroY}" x2="${width - pad.right}" y2="${zeroY}" stroke="currentColor" stroke-opacity="0.35"/>`);
 
@@ -357,38 +383,26 @@ function barChart(chart, alt) {
       parts.push(
         `<rect x="${(center - barWidth / 2).toFixed(1)}" y="${top.toFixed(1)}" width="${barWidth.toFixed(1)}" height="${Math.max(barHeight, 1).toFixed(1)}" rx="4" fill="${baseline ? "currentColor" : accent}" fill-opacity="${baseline ? "0.35" : "0.9"}"/>`,
       );
-      parts.push(
-        `<text x="${center.toFixed(1)}" y="${(top - 8).toFixed(1)}" text-anchor="middle" font-size="14" font-weight="600" fill="currentColor">${escapeHtml(String(point.value))}</text>`,
-      );
-      parts.push(
-        `<text x="${center.toFixed(1)}" y="${(height - 24).toFixed(1)}" text-anchor="middle" font-size="12" fill="currentColor" fill-opacity="0.75">${escapeHtml(point.label)}</text>`,
-      );
+      parts.push(`<text x="${center.toFixed(1)}" y="${(top - 8).toFixed(1)}" text-anchor="middle" font-size="14" font-weight="600" fill="currentColor">${escapeHtml(String(point.value))}</text>`);
+      parts.push(`<text x="${center.toFixed(1)}" y="${(height - 24).toFixed(1)}" text-anchor="middle" font-size="12" fill="currentColor" fill-opacity="0.75">${escapeHtml(point.label)}</text>`);
     });
   } else {
     const slot = chart.data.length === 1 ? 0 : plotWidth / (chart.data.length - 1);
-    const points = chart.data.map((point, index) => ({
-      x: pad.left + slot * index,
-      y: y(point.value),
-      point,
-    }));
+    const points = chart.data.map((point, index) => ({ x: pad.left + slot * index, y: y(point.value), point }));
     const path = points.map((p, index) => `${index === 0 ? "M" : "L"}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ");
     parts.push(`<path d="${path}" fill="none" stroke="#2f6fed" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>`);
     points.forEach((p) => {
       parts.push(`<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="4" fill="#2f6fed"/>`);
-      parts.push(
-        `<text x="${p.x.toFixed(1)}" y="${(p.y - 12).toFixed(1)}" text-anchor="middle" font-size="13" font-weight="600" fill="currentColor">${escapeHtml(String(p.point.value))}</text>`,
-      );
-      parts.push(
-        `<text x="${p.x.toFixed(1)}" y="${(height - 24).toFixed(1)}" text-anchor="middle" font-size="12" fill="currentColor" fill-opacity="0.75">${escapeHtml(p.point.label)}</text>`,
-      );
+      parts.push(`<text x="${p.x.toFixed(1)}" y="${(p.y - 12).toFixed(1)}" text-anchor="middle" font-size="13" font-weight="600" fill="currentColor">${escapeHtml(String(p.point.value))}</text>`);
+      parts.push(`<text x="${p.x.toFixed(1)}" y="${(height - 24).toFixed(1)}" text-anchor="middle" font-size="12" fill="currentColor" fill-opacity="0.75">${escapeHtml(p.point.label)}</text>`);
     });
   }
   parts.push(`</svg>`);
   return parts.join("");
 }
 
-function embedFigure(figurePath) {
-  const full = resolve(process.cwd(), figurePath);
+function embedLocalImage(src) {
+  const full = resolve(process.cwd(), src);
   const ext = extname(full).toLowerCase();
   const mime = {
     ".png": "image/png",
@@ -398,52 +412,77 @@ function embedFigure(figurePath) {
     ".gif": "image/gif",
     ".svg": "image/svg+xml",
   }[ext];
-  if (!mime) throw new Error(`media.figure.path has an unsupported image type: ${ext || "none"}`);
+  if (!mime) throw new Error(`unsupported image type: ${ext || "none"}`);
   const bytes = readFileSync(full);
-  if (bytes.length > MAX_IMAGE_BYTES) throw new Error("media.figure.path is larger than 10 MB");
+  if (bytes.length > MAX_MEDIA_BYTES) throw new Error("image is larger than 10 MB");
   return `data:${mime};base64,${bytes.toString("base64")}`;
 }
 
-function renderMedia(media, slug) {
-  if (media.kind === "none") {
-    return `<div class="media none"><p class="muted">No visual: the claim is qualitative or no honest visual is available.</p></div>`;
-  }
-  if (media.kind === "chart") {
-    return `<div class="media chart">${barChart(media.chart, media.alt)}<p><button type="button" class="copy" id="download-chart">Download chart as PNG</button></p></div>`;
-  }
-  if (media.kind === "figure") {
-    const src = embedFigure(media.figure.path);
-    return `<div class="media figure"><img src="${src}" alt="${escapeHtml(media.alt)}" /><p><a class="copy" download="${escapeHtml(slug)}-figure.png" href="${src}">Download figure</a></p></div>`;
-  }
-  if (media.kind === "text") {
-    return `<div class="media text"><blockquote>${escapeHtml(media.text).replace(/\n/g, "<br />")}</blockquote></div>`;
-  }
-  const shots = media.video.shots
-    .map(
-      (shot) => `<li><span class="shot-time">${escapeHtml(shot.t)}</span><span><b>${escapeHtml(shot.visual)}</b><br />${escapeHtml(shot.text)}</span></li>`,
-    )
-    .join("");
-  return `<div class="media video"><p class="muted">Storyboard only. ${escapeHtml(String(media.video.duration_s))} s, sound off.</p><ol class="shots">${shots}</ol></div>`;
+function mediaSrc(src, outputDir, { embed = false } = {}) {
+  if (isRemote(src)) return src;
+  const full = resolve(process.cwd(), src);
+  if (embed) return embedLocalImage(src);
+  return relative(outputDir, full).split(sep).join("/");
 }
 
-function renderCard(data) {
-  const sourceLine = data.source.url
-    ? `<a href="${escapeHtml(data.source.url)}">${escapeHtml(data.source.citation)}</a>`
-    : escapeHtml(data.source.citation);
+function renderMediaItem(item, index, outputDir) {
+  let body = "";
+  let download = "";
+  if (item.kind === "image" || item.kind === "gif") {
+    body = `<img src="${escapeHtml(mediaSrc(item.src, outputDir, { embed: true }))}" alt="${escapeHtml(item.alt)}" loading="lazy" />`;
+  } else if (item.kind === "video") {
+    const src = mediaSrc(item.src, outputDir);
+    const poster = item.poster ? ` poster="${escapeHtml(mediaSrc(item.poster, outputDir, { embed: true }))}"` : "";
+    body = `<video controls preload="metadata" src="${escapeHtml(src)}"${poster}></video>`;
+  } else if (item.kind === "chart") {
+    body = chartSvg(item.chart, item.alt);
+    download = `<p><button type="button" class="action" data-download-chart="${index}">Download chart as PNG</button></p>`;
+  } else if (item.kind === "text") {
+    body = `<blockquote>${escapeHtml(item.text).replace(/\n/g, "<br />")}</blockquote>`;
+  }
+
+  const link = item.sourceUrl
+    ? ` <a href="${escapeHtml(item.sourceUrl)}" target="_blank" rel="noopener">Open original</a>`
+    : "";
+  const license = item.license ? ` License: ${escapeHtml(item.license)}.` : "";
+  return `
+    <figure class="media-item" data-media-index="${index}">
+      <div class="media-body">${body}</div>
+      <figcaption>
+        ${item.caption ? `<p class="caption">${escapeHtml(item.caption)}</p>` : ""}
+        <p class="credit">${escapeHtml(item.credit)}.${license}${link}</p>
+        ${download}
+      </figcaption>
+    </figure>`;
+}
+
+function renderCard(data, outputPath) {
+  const outputDir = dirname(resolve(process.cwd(), outputPath));
+  const sourceLinks = [];
+  if (data.source.url) sourceLinks.push(`<a href="${escapeHtml(data.source.url)}" target="_blank" rel="noopener">Source</a>`);
+  if (data.source.projectUrl) sourceLinks.push(`<a href="${escapeHtml(data.source.projectUrl)}" target="_blank" rel="noopener">Project page</a>`);
+  if (data.source.repoUrl) sourceLinks.push(`<a href="${escapeHtml(data.source.repoUrl)}" target="_blank" rel="noopener">Repository</a>`);
+
   const posts = data.post
     .map(
       (post, index) => `
         <article class="post${index === 0 ? " hook" : ""}">
-          <div class="post-head"><span>${index + 1}/${data.post.length}</span><span>${charLength(post.text)}/${data.limit ?? 280}</span></div>
-          <p>${escapeHtml(post.text).replace(/\n/g, "<br />")}</p>
+          <div class="post-head">
+            <span>${index + 1}/${data.post.length}</span>
+            <span>${charLength(post.text)}/${data.limit ?? 280}</span>
+            <button type="button" class="copy" data-copy="${escapeHtml(post.text)}">Copy</button>
+          </div>
+          <p class="post-text">${escapeHtml(post.text).replace(/\n/g, "<br />")}</p>
           <div class="claims">${post.claims.map((id) => `<code>${escapeHtml(id)}</code>`).join(" ")}</div>
         </article>`,
     )
     .join("");
 
+  const media = data.media.items.map((item, index) => renderMediaItem(item, index, outputDir)).join("");
+
   const hooks = data.hooks
     .map(
-      (hook) => `<li class="${hook.recommended ? "recommended" : ""}">${escapeHtml(hook.text)}${hook.recommended ? " <span class=\"tag\">recommended</span>" : ""}</li>`,
+      (hook) => `<li class="${hook.recommended ? "recommended" : ""}">${escapeHtml(hook.text)}${hook.recommended ? ' <span class="tag">recommended</span>' : ""}</li>`,
     )
     .join("");
 
@@ -462,28 +501,18 @@ function renderCard(data) {
     )
     .join("");
 
-  const copyBlocks = data.post
-    .map(
-      (post, index) => `
-        <div class="copy-block">
-          <div class="post-head"><span>Post ${index + 1}</span><button type="button" class="copy" data-copy="${escapeHtml(post.text)}">Copy</button></div>
-          <pre>${escapeHtml(post.text)}</pre>
-        </div>`,
-    )
-    .join("");
-
   const verification = data.verification;
   const warning =
     verification.partial > 0 || verification.blocked > 0
-      ? `<p class="warning">Partial: ${verification.partial}. Blocked: ${verification.blocked}. The post must carry each partial qualifier; blocked claims may not appear as fact.</p>`
-      : `<p class="ok-line">All ledger claims used in the post are verified.</p>`;
+      ? `<p class="warning">Partial: ${verification.partial}. Blocked: ${verification.blocked}. A partial claim must carry its qualifier; a blocked claim may not appear as fact.</p>`
+      : `<p class="ok-line">All ledger claims used in the posts are verified.</p>`;
 
   return `<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="description" content="${escapeHtml(data.title)} — a research-to-post draft with its claim ledger and media." />
+<meta name="description" content="${escapeHtml(data.title)} — a research-to-post draft with ${data.post.length} hook posts and source media." />
 <title>${escapeHtml(data.title)} — post card</title>
 <style>
   :root { color-scheme: light dark; --bg: #f7f7f5; --card: #ffffff; --ink: #1c1c1a; --muted: #62625c; --line: #d9d9d2; --accent: #2f6fed; --warn: #9a6400; --bad: #a3231b; --ok: #1f6b3a; }
@@ -494,43 +523,46 @@ function renderCard(data) {
   h1 { font-size: 1.75rem; line-height: 1.2; margin: 0 0 8px; }
   h2 { font-size: 1.05rem; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); margin: 36px 0 12px; }
   .source { color: var(--muted); margin: 0 0 4px; }
+  .source a { color: var(--accent); }
   .angle { display: inline-block; border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; font-size: .8rem; color: var(--muted); margin-top: 8px; }
   .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 18px; }
   .post { border: 1px solid var(--line); border-radius: 12px; padding: 14px; margin: 0 0 12px; background: var(--card); }
   .post.hook { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
   .post p { margin: 6px 0 8px; white-space: pre-wrap; }
-  .post-head { display: flex; justify-content: space-between; gap: 12px; color: var(--muted); font-size: .8rem; }
+  .post-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; color: var(--muted); font-size: .8rem; }
+  .post-head button.copy { margin-left: auto; }
   .claims code { font-size: .75rem; color: var(--muted); }
-  .media { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px; }
-  .media svg { width: 100%; height: auto; color: var(--ink); }
-  .media img { display: block; max-width: 100%; height: auto; border-radius: 8px; }
-  .media.none p { margin: 0; }
-  .media.text blockquote { margin: 0; font-size: 1.15rem; line-height: 1.45; border-left: 4px solid var(--accent); padding-left: 14px; }
-  .shots { margin: 8px 0 0; padding-left: 0; list-style: none; }
-  .shots li { display: grid; grid-template-columns: 64px 1fr; gap: 10px; padding: 8px 0; border-top: 1px solid var(--line); }
-  .shot-time { color: var(--muted); font-variant-numeric: tabular-nums; }
-  .alt { color: var(--muted); font-size: .9rem; margin: 10px 0 0; }
-  .why { font-size: .9rem; margin: 10px 0 0; }
+  .copy-all { display: flex; justify-content: flex-end; margin: 0 0 10px; }
+  .gallery { display: grid; gap: 16px; }
+  .media-item { margin: 0; background: var(--card); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+  .media-body { display: grid; place-items: center; background: #0f0f0f; }
+  .media-body img, .media-body video { display: block; width: 100%; height: auto; max-height: 520px; object-fit: contain; }
+  .media-body svg { width: 100%; height: auto; color: var(--ink); background: var(--card); }
+  .media-body blockquote { margin: 0; padding: 22px; font-size: 1.15rem; line-height: 1.45; border-left: 4px solid var(--accent); }
+  figcaption { padding: 12px 14px; }
+  figcaption p { margin: 4px 0; }
+  .caption { font-size: .95rem; }
+  .credit { color: var(--muted); font-size: .82rem; }
+  .credit a { color: var(--accent); }
   ul.hooks { margin: 0; padding-left: 20px; }
   ul.hooks li { margin: 6px 0; }
   .tag { font-size: .7rem; text-transform: uppercase; letter-spacing: .06em; color: var(--accent); border: 1px solid currentColor; border-radius: 999px; padding: 1px 6px; }
-  .table-wrap { overflow-x: auto; background: var(--card); border: 1px solid var(--line); border-radius: 14px; }
+  details { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 12px 16px; }
+  summary { cursor: pointer; color: var(--muted); font-weight: 600; }
+  .table-wrap { overflow-x: auto; margin-top: 12px; }
   table { border-collapse: collapse; width: 100%; font-size: .88rem; }
   th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
   th { color: var(--muted); font-weight: 600; }
   .status { font-size: .75rem; padding: 1px 7px; border-radius: 999px; border: 1px solid currentColor; }
   .status.ok { color: var(--ok); } .status.warn { color: var(--warn); } .status.bad { color: var(--bad); } .status.muted { color: var(--muted); }
-  .verification { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; }
-  .verification dl { display: grid; grid-template-columns: max-content 1fr; gap: 6px 18px; margin: 0; }
+  .verification dl { display: grid; grid-template-columns: max-content 1fr; gap: 6px 18px; margin: 12px 0 0; }
   .verification dt { color: var(--muted); }
   .verification dd { margin: 0; }
   .warning { color: var(--warn); margin: 12px 0 0; }
   .ok-line { color: var(--ok); margin: 12px 0 0; }
   .muted { color: var(--muted); }
-  .copy-block { margin: 0 0 12px; }
-  .copy-block pre { white-space: pre-wrap; word-wrap: break-word; background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px; margin: 6px 0 0; font: inherit; }
-  button.copy { border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 999px; padding: 3px 10px; font: inherit; font-size: .8rem; cursor: pointer; }
-  button.copy:active { transform: translateY(1px); }
+  button.copy, button.action { border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 999px; padding: 3px 10px; font: inherit; font-size: .8rem; cursor: pointer; }
+  button.copy:active, button.action:active { transform: translateY(1px); }
   footer { margin-top: 40px; color: var(--muted); font-size: .82rem; }
 </style>
 </head>
@@ -538,36 +570,35 @@ function renderCard(data) {
 <main>
   <header>
     <h1>${escapeHtml(data.title)}</h1>
-    <p class="source">${sourceLine}</p>
-    <span class="angle">${escapeHtml(data.angle)} · ${escapeHtml(data.format)}</span>
+    <p class="source">${escapeHtml(data.source.citation)}${sourceLinks.length ? " · " + sourceLinks.join(" · ") : ""}</p>
+    <span class="angle">${escapeHtml(data.angle)} · ${data.post.length} hook${data.post.length === 1 ? "" : "s"}</span>
   </header>
 
-  <h2>Post</h2>
+  <h2>Posts</h2>
+  <div class="copy-all"><button type="button" class="action" data-copy-all>Copy all posts</button></div>
   <section class="card">${posts}</section>
 
   <h2>Media</h2>
-  <section class="media-wrap">
-    ${renderMedia(data.media, data.slug)}
-    <p class="alt"><b>Alt text:</b> ${escapeHtml(data.media.alt)}</p>
-    ${data.media.why ? `<p class="why"><b>Why this visual:</b> ${escapeHtml(data.media.why)}</p>` : ""}
-    ${data.media.caption ? `<p class="why"><b>Caption:</b> ${escapeHtml(data.media.caption)}</p>` : ""}
-    ${data.media.credit ? `<p class="why"><b>Credit:</b> ${escapeHtml(data.media.credit)}</p>` : ""}
-    ${data.media.license ? `<p class="why"><b>License:</b> ${escapeHtml(data.media.license)}</p>` : ""}
-  </section>
+  <p class="muted">${escapeHtml(data.media.why)}</p>
+  <section class="gallery">${media}</section>
 
   <h2>Hooks</h2>
   <section class="card"><ul class="hooks">${hooks}</ul></section>
 
   <h2>Claim ledger</h2>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>#</th><th>Claim</th><th>Value</th><th>Baseline</th><th>Source</th><th>Status</th><th>Used</th></tr></thead>
-      <tbody>${rows}</tbody>
-    </table>
-  </div>
+  <details>
+    <summary>${data.claims.length} claims · ${verification.verified} verified · ${verification.partial} partial · ${verification.blocked} blocked</summary>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>#</th><th>Claim</th><th>Value</th><th>Baseline</th><th>Source</th><th>Status</th><th>Used</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+  </details>
 
   <h2>Verification</h2>
-  <section class="verification">
+  <details class="verification">
+    <summary>${escapeHtml(verification.checked_by)}</summary>
     <dl>
       <dt>Verified</dt><dd>${verification.verified}</dd>
       <dt>Partial</dt><dd>${verification.partial}</dd>
@@ -576,10 +607,7 @@ function renderCard(data) {
       ${verification.notes ? `<dt>Notes</dt><dd>${escapeHtml(verification.notes)}</dd>` : ""}
     </dl>
     ${warning}
-  </section>
-
-  <h2>Ready to paste</h2>
-  <section>${copyBlocks}</section>
+  </details>
 
   <footer>
     Draft generated by Vitruvius <code>research-to-post</code>. Not posted, scheduled, or scraped.
@@ -592,15 +620,22 @@ function renderCard(data) {
     button.addEventListener("click", function () {
       var value = button.getAttribute("data-copy") || "";
       function done() { var old = button.textContent; button.textContent = "Copied"; setTimeout(function () { button.textContent = old; }, 1200); }
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(value).then(done, function () {});
-      }
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(value).then(done, function () {});
     });
   });
-  var chartButton = document.getElementById("download-chart");
-  if (chartButton) {
-    chartButton.addEventListener("click", function () {
-      var svg = document.querySelector(".media.chart svg");
+  var copyAll = document.querySelector("[data-copy-all]");
+  if (copyAll) {
+    copyAll.addEventListener("click", function () {
+      var posts = Array.from(document.querySelectorAll(".post-text")).map(function (p) { return p.textContent.trim(); });
+      var value = posts.join("\\n\\n");
+      function done() { var old = copyAll.textContent; copyAll.textContent = "Copied all"; setTimeout(function () { copyAll.textContent = old; }, 1200); }
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(value).then(done, function () {});
+    });
+  }
+  document.querySelectorAll("[data-download-chart]").forEach(function (button) {
+    button.addEventListener("click", function () {
+      var figure = button.closest("figure");
+      var svg = figure && figure.querySelector("svg");
       if (!svg) return;
       var xml = new XMLSerializer().serializeToString(svg);
       var blob = new Blob([xml], { type: "image/svg+xml;charset=utf-8" });
@@ -619,14 +654,14 @@ function renderCard(data) {
           if (!png) return;
           var link = document.createElement("a");
           link.href = URL.createObjectURL(png);
-          link.download = (document.body.dataset.slug || "post") + "-chart.png";
+          link.download = (document.body.dataset.slug || "post") + "-chart-" + button.getAttribute("data-download-chart") + ".png";
           link.click();
           setTimeout(function () { URL.revokeObjectURL(link.href); }, 1000);
         }, "image/png");
       };
       image.src = url;
     });
-  }
+  });
 </script>
 </body>
 </html>
@@ -674,15 +709,15 @@ function main() {
     return 0;
   }
 
+  const output = resolve(process.cwd(), args.output || join("outputs", `${data.slug}-post.html`));
   let html;
   try {
-    html = renderCard(data);
+    html = renderCard(data, output);
   } catch (error) {
     console.error(`FAIL: ${error.message}`);
     return 1;
   }
 
-  const output = resolve(process.cwd(), args.output || join("outputs", `${data.slug}-post.html`));
   mkdirSync(dirname(output), { recursive: true });
   writeFileSync(output, html, "utf8");
   console.log(`PASS: wrote ${output}`);
