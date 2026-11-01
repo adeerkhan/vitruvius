@@ -10,10 +10,10 @@ argument-hint: "<pdf, arXiv/DOI, GitHub repo, or project page> [--voice <path>]"
 allowed-tools: Write Edit Bash Read
 license: MIT
 metadata:
-  version: "0.5.0"
+  version: "0.6.0"
 
 ---
-<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=9f6dfe9e116c4633fe6063ec93888786f42a860864763e0ca495ac6c5a513c19 -->
+<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=01d7593b4a329eb1d46dbdab9297bc3c1b4b67d31e8070ea1d800ad7a55ac396 -->
 
 # Research to Post
 
@@ -28,7 +28,8 @@ calls a social-media API, and never scrapes X.
 
 Before writing, state: the source (PDF path/URL, arXiv/DOI, GitHub repo, project
 page, or "own idea"), the audience (curious engineers, not specialists), and the
-voice (default: plain and direct). Ask ONE clarifying question only if the
+voice (default: plain and direct). Ask for the user's own reaction in one line.
+If they have none, say so and continue. Ask ONE clarifying question only if the
 source is too vague, then proceed.
 
 ## Workflow
@@ -57,7 +58,13 @@ Save the draft to `outputs/<slug>-post.md` and the card to
    - a before/after,
    - "the fix is not what you think."
    If you cannot state it in one sentence, you have not found it yet.
-3. **Write 2–3 hooks in plain language.**
+3. **Pick a lens before writing.** Offer 2–3 candidate angles, each with the
+   source line it comes from. The user picks one, or says "no real connection"
+   and you write a question/opinion post instead. Record the chosen lens in the
+   markdown. Do not write the posts yet. The lens is one bounded call or one
+   user choice; it is not a separate app and it is not Jev.
+4. **Write 2–3 hooks in plain language.** Use the user's own thought and the
+   chosen lens.
    - Post 1: the question or surprise. No link.
    - Post 2: the twist, the cost, or the "wait, why?"
    - Post 3: the source link plus a closing hook. If you write 2 posts, the link
@@ -66,14 +73,19 @@ Save the draft to `outputs/<slug>-post.md` and the card to
    "state-of-the-art" unless the source says it and it matters. Use the words a
    smart friend would use at lunch.
    Use `references/post-hooks.md` for shapes.
-4. **Make it creative, not technical.** A good hook can be a question, a
-   contradiction, a small story, or a "what if." See
+5. **Keep the pieces separate.** In the markdown, keep the source, the user's
+   thought, the chosen lens, the model draft, and the final wording as separate
+   sections. The card shows only the posts, the one image, and the source link.
+6. **Make it creative, not technical.** A good hook can be a question, a
+   contradiction, a small story, or a "what if" question. See
    `references/post-hooks.md` for examples. The reader should feel curious, not
    lectured.
-5. **Self-check** against `references/post-checklist.md`: 2–3 posts, plain
+7. **Self-check** against `references/post-checklist.md`: 2–3 posts, plain
    language, each post a hook, first post has no link, last post has the source
-   link, no ledger, no verification, one best image if the source has one.
-6. **Render the card.** Build the simple JSON in `references/post-card.md` and
+   link, the chosen lens is recorded, the user's thought is quoted not
+   paraphrased, no ledger, no verification, one best image if the source has
+   one.
+8. **Render the card.** Build the simple JSON in `references/post-card.md` and
    run:
 
    ```bash
@@ -85,7 +97,7 @@ Save the draft to `outputs/<slug>-post.md` and the card to
    The card shows the posts first, with a Copy button on each and a Copy all
    posts button, then the one best source image, then the source link. Nothing
    else.
-7. **Deliver.** Give the user the 2–3 ready-to-paste posts, the card path, and
+9. **Deliver.** Give the user the 2–3 ready-to-paste posts, the card path, and
    the source link.
 
 ## Hard Boundaries
@@ -109,12 +121,15 @@ Save the draft to `outputs/<slug>-post.md` and the card to
 | "Technical detail shows expertise." | Plain language travels. Jargon is a door closed. |
 | "The first post can carry the link." | The first post earns the click; the last post gives the link. |
 | "A summary paragraph is a hook." | A hook opens a gap; a summary closes it. Cut the resolution. |
+| "The model can pick the angle and write in one pass." | Decide the lens first. A writer that ranks its own angle is the failure x-brief avoids. |
+| "The user's thought can be paraphrased into the draft." | Quote it, or leave it out. Never rewrite the user's words as if they were the model's. |
 
 ## Output
 
-`outputs/<slug>-post.md` with the 2–3 posts and the source link.
-`outputs/<slug>-post.html` is the simple copy-first card. No sidecar, no ledger,
-no verification. The image lives at `outputs/<slug>-media.png`.
+`outputs/<slug>-post.md` with the source, the user's thought (quoted), the chosen
+lens, the 2–3 posts, and the source link. `outputs/<slug>-post.html` is the
+simple copy-first card. No sidecar, no ledger, no verification. The image lives
+at `outputs/<slug>-media.png`.
 
 ## Scope and Boundaries
 

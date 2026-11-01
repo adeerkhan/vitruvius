@@ -202,8 +202,10 @@ Markdown first (`pdftotext -layout`), extracts the figures with `pdfimages`, and
 picks the one that carries the hook; a GitHub repo or project page supplies its
 best screenshot, GIF, or video. The card is the posts, Copy and Copy all posts
 buttons, the one best image, and the source link: no claim ledger and no
-verification section. It drafts and previews; it never posts, schedules, scrapes
-X, or calls a platform API, and it does not promise virality.
+verification section. Before writing, it asks for your own reaction and offers
+2–3 lenses; the markdown keeps the source, your thought, the lens, the draft, and
+the final wording separate. It drafts and previews; it never posts, schedules,
+scrapes X, or calls a platform API, and it does not promise virality.
 
 ## Grounding: keeping a report about your problem
 

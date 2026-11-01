@@ -18,6 +18,10 @@ const script = join(skillDir, "scripts", "render-post-card.mjs");
 // --- the simple shape -------------------------------------------------------
 assert.match(text, /2[–-]3 short, catchy hooks/i, "the skill must ask for 2-3 catchy hooks");
 assert.match(text, /Plain language/i, "the skill must ask for plain language");
+assert.match(text, /Pick a lens before writing/i, "the skill must decide the angle before drafting");
+assert.match(text, /no real connection/i, "the lens step must allow no connection");
+assert.match(text, /user's own thought/i, "the user's thought must be a separate slot");
+assert.match(text, /Keep the pieces separate/i, "source, thought, lens, draft, and final wording must stay separate");
 assert.match(text, /It never posts, never\s+calls a social-media API, and never scrapes X/i, "the draft must never be posted or scraped");
 assert.match(text, /No claim ledger/i, "the skill must explicitly drop the claim ledger");
 assert.match(text, /no verification section/i, "the skill must explicitly drop the verification section");

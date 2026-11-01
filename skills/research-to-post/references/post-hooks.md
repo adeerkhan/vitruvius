@@ -3,6 +3,20 @@
 A hook makes someone stop and ask a question. It does not explain the paper. It
 opens a gap the source can close.
 
+## Lenses
+
+A lens is the angle you choose before writing. Offer 2–3, each tied to a line in
+the source:
+
+- the surprising result,
+- the cost or trade-off,
+- the "everyone assumes X" contradiction,
+- the builder's takeaway,
+- the question the source answers.
+
+The user picks one, or says "no real connection" and you write a question or
+opinion post instead. Do not write before the lens is chosen.
+
 ## The 2–3 post shape
 
 - **Post 1 — the question or surprise.** No link. Do not resolve it.

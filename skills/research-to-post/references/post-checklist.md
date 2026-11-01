@@ -7,6 +7,10 @@ Run before delivery. Keep it short.
 - [ ] Post 1 has no link.
 - [ ] The last post has the source link.
 - [ ] Each post fits the character limit.
+- [ ] A lens is chosen and recorded; if there is no real connection, the post says so.
+- [ ] The user's own thought is quoted verbatim, or marked "none supplied".
+- [ ] The source, the thought, the lens, the draft, and the final wording are
+      separate sections in the markdown.
 - [ ] Plain language. No equations, no jargon dump, no paper-abstract voice.
 - [ ] The hook is a question, a surprise, a contradiction, or a before/after.
 - [ ] One best source image (optional): it carries the hook, with `alt`,

@@ -3,6 +3,8 @@
 The card is a simple copy-first page: the 2–3 posts, a Copy button on each, a
 Copy all posts button, the source link, and the single best source image. No
 ledger, no verification section, no media gallery.
+The card does not show the lens or your thought. They stay in the markdown so the
+card remains copy-first.
 
 ## Input JSON
 
