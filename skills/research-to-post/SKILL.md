@@ -10,10 +10,10 @@ argument-hint: "<pdf, arXiv/DOI, GitHub repo, or project page> [--voice <path>]"
 allowed-tools: Write Edit Bash Read
 license: MIT
 metadata:
-  version: "0.6.0"
+  version: "0.7.0"
 
 ---
-<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=01d7593b4a329eb1d46dbdab9297bc3c1b4b67d31e8070ea1d800ad7a55ac396 -->
+<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=2279b0bd40dad14d4b06af2627afdb94d61fdaa7ef15d88bf6a5a2e8fb90437a -->
 
 # Research to Post
 
@@ -72,6 +72,9 @@ Save the draft to `outputs/<slug>-post.md` and the card to
    Short sentences. No equations. No "we propose a novel framework." No
    "state-of-the-art" unless the source says it and it matters. Use the words a
    smart friend would use at lunch.
+   Emojis: use 🌐 next to a repo/link in the last post, 📰 for a research paper.
+   Other emojis are optional: at most one emoji per post, only when it fits the tone.
+   No emoji spam, and never an emoji instead of a word.
    Use `references/post-hooks.md` for shapes.
 5. **Keep the pieces separate.** In the markdown, keep the source, the user's
    thought, the chosen lens, the model draft, and the final wording as separate

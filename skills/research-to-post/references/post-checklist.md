@@ -5,7 +5,8 @@ Run before delivery. Keep it short.
 - [ ] 2 or 3 posts. Not 4+.
 - [ ] Each post is a hook, not a summary.
 - [ ] Post 1 has no link.
-- [ ] The last post has the source link.
+- [ ] The last post has the source link, with 🌐 for a repo/link or 📰 for a paper.
+- [ ] At most one emoji per post; no emoji spam.
 - [ ] Each post fits the character limit.
 - [ ] A lens is chosen and recorded; if there is no real connection, the post says so.
 - [ ] The user's own thought is quoted verbatim, or marked "none supplied".

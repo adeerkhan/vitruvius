@@ -37,6 +37,13 @@ opinion post instead. Do not write before the lens is chosen.
 | The cost | "The result is better. The catch is [cost]." |
 | The question the paper answers | "Why does [weird thing] happen? This paper has an answer." |
 
+## Emojis
+
+- 🌐 next to a repo or link in the last post.
+- 📰 for a research paper.
+- Other emojis are optional: at most one per post, only when it fits the tone.
+- No emoji spam, and never an emoji instead of a word.
+
 ## Rules
 
 - One idea per post.

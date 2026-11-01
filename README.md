@@ -204,7 +204,8 @@ best screenshot, GIF, or video. The card is the posts, Copy and Copy all posts
 buttons, the one best image, and the source link: no claim ledger and no
 verification section. Before writing, it asks for your own reaction and offers
 2–3 lenses; the markdown keeps the source, your thought, the lens, the draft, and
-the final wording separate. It drafts and previews; it never posts, schedules,
+the final wording separate. The link post uses 🌐 for a repo or link and 📰 for a
+research paper; other emojis are optional and at most one per post. It drafts and previews; it never posts, schedules,
 scrapes X, or calls a platform API, and it does not promise virality.
 
 ## Grounding: keeping a report about your problem

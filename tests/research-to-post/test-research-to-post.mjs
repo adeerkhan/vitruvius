@@ -32,6 +32,9 @@ assert.match(text, /By design\. The source\s+link is\s+the provenance\./i, "the 
 assert.match(text, /Never more|4\+ post|4\+ post threads/i, "the skill must refuse 4+ post threads");
 assert.match(text, /Post 1: the question or surprise\. No link\./i, "post 1 must be a hook with no link");
 assert.match(text, /Post 3: the source link plus a closing hook/i, "the last post must carry the link");
+assert.match(text, /🌐/, "the skill must use the link emoji for repos and links");
+assert.match(text, /📰/, "the skill must use the paper emoji for papers");
+assert.match(text, /at most one emoji per post/i, "emoji use must be restrained");
 
 // --- reading the source -----------------------------------------------------
 assert.match(text, /pdftotext -layout/i, "the PDF must be converted to Markdown first");

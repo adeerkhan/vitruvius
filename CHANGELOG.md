@@ -8,6 +8,7 @@ All notable changes to Vitruvius are documented here. The format follows
 
 - feat(research-to-post): add the best source image to the 2-3 hook copy-first card
 - feat(research-to-post): choose a lens and keep the user's own thought before drafting
+- feat(research-to-post): add emoji conventions for links and papers
 
 ## [0.5.1] - 2026-10-12
 
