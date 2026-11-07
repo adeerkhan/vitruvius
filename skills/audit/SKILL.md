@@ -11,10 +11,10 @@ argument-hint: "<what to audit>"
 allowed-tools: Write Edit Bash Read
 license: MIT
 metadata:
-  version: "0.1.1"
+  version: "0.1.2"
 
 ---
-<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=fe7753477500f28f85e7fec0e8229ec5dc6a20d5ba5e6be6615a4b7bbb7942a3 -->
+<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=fcecb76083d67587a67bbb56a5b83a8529fa16e3e97d20fc41723f2b420465ed -->
 
 # Engineering Audit
 
@@ -42,8 +42,14 @@ See `references/input-gate.md`.
    - the claim (with its source location)
    - the actual behavior (with its location)
    - match / mismatch / missing / ambiguous
+   Confirm each mismatch against the implementation itself before reporting
+   it: a claim-level disagreement the code resolves is not a finding.
 4. **Call out** — missing code or provisions, mismatched defaults, ambiguous
-   parameters, claims that outrun the evidence, and reproduction risks.
+   parameters, claims that outrun the evidence, and reproduction risks. When
+   a baseline exists, label a mismatch already present in it as pre-existing,
+   not introduced by the change under audit. Zero mismatches is a valid
+   report: state what was checked and found consistent — never invent a
+   blocker to look thorough.
 5. **Save one audit report** to `outputs/<slug>-audit.md`, ending with a
    **Sources** section (paper + repo URL, spec + section, standard + edition).
 
