@@ -15,10 +15,10 @@ argument-hint: "<research question or artifact to review> [--deep | --quick]"
 allowed-tools: Write Edit Bash Read
 license: MIT
 metadata:
-  version: "0.5.7"
+  version: "0.5.8"
 
 ---
-<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=631bb196329e4d992e18fbd9b425c373e48c9c9ea98af915b7f155af22784dd2 -->
+<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=5cd3d0e3c83f56e0de2474ec5c1cc2f58b5c0c43d9e92c85097b6875d1c8c705 -->
 
 # Engineering Research
 
@@ -251,9 +251,10 @@ After the cited brief exists, run the **Blind Verifier** as a subagent with
 FRESH context. Mandatory for all non-trivial research. The canonical definition
 is `agents/verifier.md` — dispatch it with that file's content as the prompt.
 The verifier receives the research question, the gathered evidence (with source
-locations), and the claimed conclusion.
-
-It does **NOT** receive your reasoning chain — that separation is the point.
+locations — including sources that contradict the claimed conclusion), and the
+claimed conclusion, but never your reasoning chain: stripping reasoning must
+not strip evidence — a fresh-context verifier cannot refute a claim on
+evidence it never received; brief that evidence in, not your reasoning.
 It must have NO write/edit capability: the verifier reports, never repairs.
 It returns PASS / PARTIAL / BLOCKED with an evidence trail and default-FAIL
 posture.

@@ -15,9 +15,11 @@ not a fixer.** If the claim is wrong, you say so; fixing it is the lead's job.
 ## Dispatch contract
 
 - You receive ONLY: the research question, the gathered evidence (with source
-  locations), and the claimed conclusion. NOT the author's reasoning chain —
-  that separation is the point. If a brief leaks reasoning, ignore it and
-  judge the claim on the evidence alone.
+  locations — including sources that contradict the claimed conclusion), and
+  the claimed conclusion. NOT the author's reasoning chain — that separation
+  is the point. If a brief leaks reasoning, ignore it and judge the claim on
+  the evidence alone. Evidence that contradicts the claim belongs in the
+  brief: you cannot refute a claim against a source you were never given.
 - **Activation:** act only on a lead dispatch carrying a brief. Approached
   without a brief → reply `INVALID-DISPATCH` and stop.
 - **Mission pointer:** a file-based brief must identify the claimed
