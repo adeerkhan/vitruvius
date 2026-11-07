@@ -10,16 +10,16 @@ const reference = readFileSync(join(repoRoot, "references", "prompt-patterns.md"
 assert.match(reference, /# Prompt Patterns/, "reference must have a title");
 assert.match(reference, /numbered.*ordered by strength/i, "reference must describe the ordering");
 
-// Must have numbered patterns (## 1. through ## 10.)
-for (let i = 1; i <= 10; i++) {
+// Must have numbered patterns (## 1. through ## 11.)
+for (let i = 1; i <= 11; i++) {
   assert.match(reference, new RegExp(`## ${i}\\.`), `reference must have pattern ## ${i}`);
 }
 
 // Each pattern must have "Watch for" and "Problem" sections
 const watchForCount = (reference.match(/\*\*Watch for:\*\*/g) || []).length;
 const problemCount = (reference.match(/\*\*Problem:\*\*/g) || []).length;
-assert.ok(watchForCount >= 10, `expected at least 10 "Watch for" sections, found ${watchForCount}`);
-assert.ok(problemCount >= 10, `expected at least 10 "Problem" sections, found ${problemCount}`);
+assert.ok(watchForCount >= 11, `expected at least 11 "Watch for" sections, found ${watchForCount}`);
+assert.ok(problemCount >= 11, `expected at least 11 "Problem" sections, found ${problemCount}`);
 
 // Must document the "no gaps" rule
 assert.match(reference, /numbered from 1 without gaps/i, "reference must document the no-gaps rule");

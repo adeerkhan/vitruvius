@@ -107,3 +107,18 @@ dictate" — without naming the specific standard, code, or authority.
 
 **Problem:** Inferred attribution hides the source of the requirement. Name
 the specific section, clause, or document that supports the claim.
+
+---
+
+## 11. Unvalidated Example
+
+**Watch for:** an example block in a prompt that shows a call, a field list,
+or an API shape — check it against the current API or schema it targets.
+
+**Problem:** An example that outlived its API teaches the model an interface
+that no longer exists, and the model improvises the rest: a workflow prompt
+that showed a removed field and no script shape had a live run invent a
+`parallel()` function nobody had defined. Validate every example mechanically
+against the contract it demonstrates, or delete it — an unvalidated example
+is worse than none, because it fails at run time, far from the prompt that
+caused it.
