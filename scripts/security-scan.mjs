@@ -77,7 +77,9 @@ export const WAIVERS = [
   },
 ];
 
-const SECRET_PATTERNS = [
+// Named export so scripts/staged-secret-scan.mjs matches the SAME patterns
+// against staged added lines. One definition: a fix here reaches both scans.
+export const SECRET_PATTERNS = [
   /sk-[a-zA-Z0-9]{48}/,            // OpenAI keys
   /AKIA[0-9A-Z]{16}/,               // AWS access keys
   /ghp_[a-zA-Z0-9]{36}/,            // GitHub personal tokens

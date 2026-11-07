@@ -1,0 +1,15 @@
+#!/bin/sh
+# pre-commit — staged-content secret scan; the mechanical half of the
+# never-commit-secrets rule (AGENTS.md, Commit rule).
+#
+# Install once per clone:
+#   git config core.hooksPath .githooks
+#
+# Output carries file NAMES only, never the matched line: a hook's stdout
+# lands in the terminal and in every agent tool log, and the earlier
+# printing-grep form echoed the credential it existed to flag (src-02 #718).
+#
+# Like commit-msg, this hook is opt-in per clone; the suite
+# tests/engineering-research/test-staged-secret-scan.mjs is what keeps the
+# rule honest for anyone who has not enabled it.
+exec node "$(git rev-parse --show-toplevel)/scripts/staged-secret-scan.mjs"

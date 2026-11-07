@@ -150,6 +150,11 @@ export const REGISTRY = {
   "review-item-contract.mjs": { kind: "test" },
   "verdict-gate-contract.mjs": { kind: "test" },
   "verdict-gate.mjs": { kind: "test" },
+  // Checked by .githooks/pre-commit (opt-in per clone, same install as
+  // commit-msg) and by tests/engineering-research/test-staged-secret-scan.mjs,
+  // which is what makes the never-commit-secrets rule survive a fresh clone:
+  // a committed hook is not run by anyone who has not enabled it.
+  "staged-secret-scan.mjs": { kind: "test" },
 };
 
 const VALID_KINDS = new Set(["chain", "npm", "test", "manual"]);
