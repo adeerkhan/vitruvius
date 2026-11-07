@@ -292,18 +292,41 @@ export function partitionFindings(findings, waivers = WAIVERS) {
   return { blocking, allowed, invalid, stale };
 }
 
+/**
+ * A scan that read nothing must not pass.
+ *
+ * walkFiles returning zero files — a renamed skills/ directory, a broken
+ * checkout, an emptied runtime list — used to fall through to
+ * "PASS: No security issues found": a green run over nothing. src-02's
+ * quality gate (#694) refuses the same state with exit 2 rather than counting
+ * it clean ("a browser error page can otherwise look like a successful
+ * accessibility scan"). Unusable is not clean. Exit codes: 1 = blocking
+ * findings, 2 = unusable scan.
+ *
+ * @param {number} skillsScanned files the skills walk returned
+ * @param {number} runtimeScanned entries in the runtime-script list
+ */
+export function assertUsableScan(skillsScanned, runtimeScanned) {
+  if (!Number.isInteger(skillsScanned) || skillsScanned < 1) {
+    throw new Error(
+      `the skills walk returned ${skillsScanned} file(s); refusing to report a clean scan over nothing`,
+    );
+  }
+  if (!Number.isInteger(runtimeScanned) || runtimeScanned < 1) {
+    throw new Error(
+      `the runtime-script list holds ${runtimeScanned} entry(ies); refusing to report a clean scan over nothing`,
+    );
+  }
+}
+
 // Run scan. Guarded so a test can import partitionFindings/formatFinding above
 // without triggering the scan and its process.exit. Same entry-point guard as
 // scripts/margin-earnedness-check.mjs:150.
 if (process.argv[1] && process.argv[1].endsWith("security-scan.mjs")) {
   console.log("Scanning skills and shipped proposal/eval/ledger runtime scripts for security issues...\n");
 
-  const allProblems = [];
-  for (const file of walkFiles(SKILLS_DIR, { extensions: [".mjs", ".js", ".py", ".sh", ".ps1"] })) {
-    allProblems.push(...scanFile(file));
-    allProblems.push(...scanPersonalPaths(file));
-  }
-  for (const runtimeFile of [
+  const skillFiles = walkFiles(SKILLS_DIR, { extensions: [".mjs", ".js", ".py", ".sh", ".ps1"] });
+  const runtimeFiles = [
     join(SCRIPTS_DIR, 'extract-document.mjs'),
     join(SCRIPTS_DIR, 'extract-pdf.mjs'),
     join(SCRIPTS_DIR, 'verifier-parser.mjs'),
@@ -314,7 +337,26 @@ if (process.argv[1] && process.argv[1].endsWith("security-scan.mjs")) {
     join(SCRIPTS_DIR, 'goal-check-contract.mjs'),
     join(SCRIPTS_DIR, 'artifact-closure.mjs'),
     join(SCRIPTS_DIR, 'field-pilot-contract.mjs'),
-  ]) {
+  ];
+
+  // Before any file is read: an empty walk fails here as unusable (exit 2),
+  // not later as a clean scan.
+  try {
+    assertUsableScan(skillFiles.length, runtimeFiles.length);
+  } catch (error) {
+    console.error(`FAIL: ${error.message}`);
+    console.error(
+      "An empty walk is a broken layout, not a clean tree — fix the layout before trusting a green run.",
+    );
+    process.exit(2);
+  }
+
+  const allProblems = [];
+  for (const file of skillFiles) {
+    allProblems.push(...scanFile(file));
+    allProblems.push(...scanPersonalPaths(file));
+  }
+  for (const runtimeFile of runtimeFiles) {
     allProblems.push(...scanFile(runtimeFile));
     allProblems.push(...scanPersonalPaths(runtimeFile));
   }
