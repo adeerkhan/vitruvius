@@ -13,10 +13,10 @@ description: >
 allowed-tools: Write Edit Bash Read
 license: MIT
 metadata:
-  version: "0.1.2"
+  version: "0.1.3"
 
 ---
-<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=8486e812b1442d721b3253b89c6d0747792fbe25bcad38e9152a01a8c8daf74b -->
+<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=9f82197dfbf8ed1c2ddb7902480e5aa05c5dad9d2092013c2335f930d8e10122 -->
 
 # Gap Analysis
 
@@ -54,6 +54,22 @@ flowchart LR
 - **No flag**: Auto-scale based on gap criticality (safety-related gaps get parallel verification).
 
 ## Methodology (Execute This)
+
+### Phase 0 — Define the corpus before claiming a gap
+
+A gap is a statement about a body of literature, so the body comes first.
+
+1. **Name the corpus.** Search surfaces, query families, hit counts, and the
+   date. A gap claim without a corpus is unfalsifiable.
+2. **Separate coverage gaps from literature gaps.** Paywalled, rate-limited, or
+   non-indexed work you could not reach is a limit of the search, not evidence
+   that nothing exists. Record it as `blocked` coverage.
+3. **Map the trajectory before the hole.** Method families, the performance
+   range they cover, and what changed direction. A gap is what the trajectory
+   cannot reach — never a single empty query.
+4. **A zero-hit query counts only after (1)–(3).** State the query and the
+   surface; an unqualified "no papers found" is the claim this phase exists to
+   prevent.
 
 ### Phase 1 — Narrow-Query Search (wrap scholarly-research)
 
