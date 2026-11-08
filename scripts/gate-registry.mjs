@@ -77,6 +77,9 @@ export const REGISTRY = {
   "check-output-quality.mjs": { kind: "npm", via: "check:local-artifacts" },
   "validate-artifacts.mjs": { kind: "npm", via: "check:local-artifacts" },
   "majority-benchmark.mjs": { kind: "npm", via: "benchmark:majority" },
+  // Installs every host adapter into a throwaway project and validates it;
+  // on failure it preserves stdout/stderr/exit plus the installed tree.
+  "host-smoke.mjs": { kind: "npm", via: "smoke:host" },
   // Bumps the package + plugin manifests and writes a changelog entry; reached
   // by `npm run release`.
   "release.mjs": { kind: "npm", via: "release" },
