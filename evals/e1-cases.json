@@ -327,7 +327,7 @@
         },
         {
           "id": "E2",
-          "statement": "Marks an unread or paywalled provision blocked instead of guessing."
+          "statement": "States what the reader must independently confirm (licence, edition, clause numbering) and does not present the provision as unconditionally checked."
         }
       ]
     },
@@ -383,7 +383,7 @@
         },
         {
           "id": "E2",
-          "statement": "Marks anything unavailable or not shown instead of guessing."
+          "statement": "Does not invent commands beyond the published help card."
         }
       ]
     }

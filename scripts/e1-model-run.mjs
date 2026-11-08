@@ -100,46 +100,63 @@ function validateRecord(run, cases, repoRoot) {
     }
   }
 
-  const grade = run.grade ?? {};
-  if (!["PASS", "PARTIAL", "FAIL"].includes(grade.status)) {
-    problems.push(`${where}: grade.status must be PASS, PARTIAL, or FAIL`);
+  const expectations = c.expectations ?? [];
+  problems.push(...checkGradeBlock(run.grade, "grade", expectations, where));
+  problems.push(...checkGradeBlock(run.blind_grade, "blind_grade", expectations, where));
+  if (!/^ses_/.test(String(run.blind_grade?.session_id ?? ""))) {
+    problems.push(`${where}: blind_grade.session_id missing — an independent grade needs a fresh session`);
   }
-  const graded = grade.expectations ?? [];
-  const expected = (c.expectations ?? []).map((e) => e.id);
-  if (graded.length !== expected.length) {
-    problems.push(`${where}: grades ${graded.length} expectation(s), case has ${expected.length}`);
-  }
-  const seen = new Set();
-  for (const g of graded) {
-    if (seen.has(g?.id)) problems.push(`${where}: duplicate graded id ${g?.id}`);
-    seen.add(g?.id);
-    const exp = (c.expectations ?? []).find((e) => e.id === g?.id);
-    if (!exp) {
-      problems.push(`${where}: grade for unknown expectation ${g?.id}`);
-      continue;
-    }
-    if (g.statement !== exp.statement) problems.push(`${where}: expectation ${g.id} statement differs from the case`);
-    if (typeof g.passed !== "boolean") problems.push(`${where}: expectation ${g.id} passed is not boolean`);
-    if (typeof g.evidence !== "string" || g.evidence.trim() === "") {
-      problems.push(`${where}: expectation ${g.id} has no evidence`);
-    }
-  }
-  for (const id of expected) {
-    if (!seen.has(id)) problems.push(`${where}: expectation ${id} is ungraded`);
-  }
+  if (typeof run.note === "string" && run.note.trim() === "") problems.push(`${where}: note is empty`);
 
-  const passed = graded.filter((g) => g.passed === true).length;
-  if (grade.status === "PASS" && passed !== expected.length) {
-    problems.push(`${where}: PASS with ${passed}/${expected.length} passed`);
+  const lead = new Map((run.grade?.expectations ?? []).map((g) => [g.id, g.passed]));
+  const blind = new Map((run.blind_grade?.expectations ?? []).map((g) => [g.id, g.passed]));
+  const disagreed = [...lead.entries()].filter(([id, passed]) => blind.get(id) !== passed).map(([id]) => id);
+  const expectedAgreement = disagreed.length === 0 ? "agree" : "disagree";
+  if (run.agreement !== expectedAgreement) {
+    problems.push(
+      `${where}: agreement "${run.agreement}" does not match the grades (${expectedAgreement}${disagreed.length ? `: ${disagreed.join(", ")}` : ""})`,
+    );
   }
-  if (grade.status === "FAIL" && passed !== 0) {
-    problems.push(`${where}: FAIL with ${passed} passed`);
-  }
-  if (grade.status === "PARTIAL" && (passed === 0 || passed === expected.length)) {
-    problems.push(`${where}: PARTIAL must be mixed (${passed}/${expected.length} passed)`);
+  if (disagreed.length > 0 && (typeof run.disagreement_note !== "string" || run.disagreement_note.trim() === "")) {
+    problems.push(`${where}: a disagreement needs a note naming ${disagreed.join(", ")}`);
   }
 
   return { problems };
+}
+
+function checkGradeBlock(block, label, expectations, where) {
+  const problems = [];
+  if (!["PASS", "PARTIAL", "FAIL"].includes(block?.status)) {
+    problems.push(`${where}: ${label}.status must be PASS, PARTIAL, or FAIL`);
+  }
+  const graded = block?.expectations ?? [];
+  const expected = expectations.map((e) => e.id);
+  if (graded.length !== expected.length) {
+    problems.push(`${where}: ${label} grades ${graded.length} expectation(s), case has ${expected.length}`);
+  }
+  const seen = new Set();
+  for (const g of graded) {
+    if (seen.has(g?.id)) problems.push(`${where}: ${label} has duplicate graded id ${g?.id}`);
+    seen.add(g?.id);
+    const exp = expectations.find((e) => e.id === g?.id);
+    if (!exp) {
+      problems.push(`${where}: ${label} grades unknown expectation ${g?.id}`);
+      continue;
+    }
+    if (g.statement !== exp.statement) problems.push(`${where}: ${label} expectation ${g.id} statement differs from the case`);
+    if (typeof g.passed !== "boolean") problems.push(`${where}: ${label} expectation ${g.id} passed is not boolean`);
+    if (typeof g.evidence !== "string" || g.evidence.trim() === "") {
+      problems.push(`${where}: ${label} expectation ${g.id} has no evidence`);
+    }
+  }
+  for (const id of expected) if (!seen.has(id)) problems.push(`${where}: ${label} leaves ${id} ungraded`);
+  const passed = graded.filter((g) => g.passed === true).length;
+  if (block?.status === "PASS" && passed !== expected.length) problems.push(`${where}: ${label} PASS with ${passed}/${expected.length} passed`);
+  if (block?.status === "FAIL" && passed !== 0) problems.push(`${where}: ${label} FAIL with ${passed} passed`);
+  if (block?.status === "PARTIAL" && (passed === 0 || passed === expected.length)) {
+    problems.push(`${where}: ${label} PARTIAL must be mixed (${passed}/${expected.length} passed)`);
+  }
+  return problems;
 }
 
 /**

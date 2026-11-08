@@ -39,7 +39,27 @@
             "evidence": "Separates verified standard scopes from project-specific values and states the answer is a survey; edition sensitivity is named."
           }
         ]
-      }
+      },
+      "blind_grade": {
+        "session_id": "ses_e456ecb16ffeXsiPisGGpUWe3e",
+        "agent": "general",
+        "status": "PASS",
+        "expectations": [
+          {
+            "id": "E1",
+            "statement": "Names assemblies with the system or standard they trace to, or marks an untraced value as inferred.",
+            "passed": true,
+            "evidence": "\"AAMA 509 classifies this family.\" / \"Pressure-equalized rainscreens ... AAMA 508 sets test and pass criteria.\" / \"drained EIFS ... EIFS drainage is tested by ASTM E2273.\" / \"project values remain unverified until test reports are read.\""
+          },
+          {
+            "id": "E2",
+            "statement": "Separates performance claims from design assumptions and states the scope of the answer.",
+            "passed": true,
+            "evidence": "\"Hygrothermal behavior \u2014 winter condensation, inward vapor drive, drying \u2014 is climate- and assembly-specific and needs project simulation.\" / \"No single standard governs whole-enclosure integration; performance is always assembly-specific. Standard scopes and code triggers were verified against publisher and code listings; project values remain unverified until test reports are read. Edition-sensitive: confirm the jurisdiction's adopted IBC and ASHRAE editions.\" / \"Research-only; not for final engineering sign-off.\""
+          }
+        ]
+      },
+      "agreement": "agree"
     },
     {
       "skill": "artifact-reading",
@@ -72,7 +92,27 @@
             "evidence": "Names the missing file/path and lists what the extraction will preserve (page anchor, caption, units, blanks)."
           }
         ]
-      }
+      },
+      "blind_grade": {
+        "session_id": "ses_e456ecb15ffekOokcYiB8xvhyO",
+        "agent": "general",
+        "status": "PASS",
+        "expectations": [
+          {
+            "id": "E1",
+            "statement": "Does not fabricate table contents without the document.",
+            "passed": true,
+            "evidence": "I will not guess what the tables contain, and I will not describe a document I have not opened."
+          },
+          {
+            "id": "E2",
+            "statement": "Names the missing artifact (file/pages) and what the extraction will preserve.",
+            "passed": true,
+            "evidence": "no file was attached to the conversation and none is present in the working directory (`/home/adeerkhan/github/vitruvius`) or the session temp folder ... **Please provide either:** - the file path (e.g. `spec.pdf`, or an absolute path) ... ## What the extraction will preserve ... return, for every table: Table identifier ... Cell values verbatim, no rounding ... Every cell stays tied to its page so it can be re-checked."
+          }
+        ]
+      },
+      "agreement": "agree"
     },
     {
       "skill": "audit",
@@ -105,7 +145,27 @@
             "evidence": "Separates confirmed mismatches from the missing failure/exit logic and states the scope is the two quoted lines."
           }
         ]
-      }
+      },
+      "blind_grade": {
+        "session_id": "ses_e456ecb11ffdDqoyxeuhpOj6we",
+        "agent": "general",
+        "status": "PASS",
+        "expectations": [
+          {
+            "id": "E1",
+            "statement": "Compares the claim and the implementation directly and names the 3-versus-5 mismatch.",
+            "passed": true,
+            "evidence": "The code permits 5 attempts; the spec allows 3 retries. ... | 1 | Retry limit is **3** | `MAX_RETRIES = 5` | **Mismatch** \u2014 2 extra retries |"
+          },
+          {
+            "id": "E2",
+            "statement": "Distinguishes a confirmed mismatch from missing information and states what was checked.",
+            "passed": true,
+            "evidence": "Both sides read directly (spec text and code snippet as supplied). No repo path, commit, or version pins either side; scope is the two quoted lines only. ... | 3 | A retry follows a failure | No result check, `break`, or return | **Missing** \u2014 cannot distinguish retry from repeat | ... The spec does not say which convention it uses; resolve this before writing a test."
+          }
+        ]
+      },
+      "agreement": "agree"
     },
     {
       "skill": "civil",
@@ -138,7 +198,27 @@
             "evidence": "Pins the 9th edition and units; marks case-bridge values as cited and the answer as research, not design."
           }
         ]
-      }
+      },
+      "blind_grade": {
+        "session_id": "ses_e456ecb0bffeV1mDptbv9Bwk5i",
+        "agent": "general",
+        "status": "PASS",
+        "expectations": [
+          {
+            "id": "E1",
+            "statement": "Names the governing load basis (standard and article/section) and load combination, or marks them missing \u2014 and corrects a wrong assumed standard instead of following it.",
+            "passed": true,
+            "evidence": "\"In the US, bridge wind loads come from AASHTO LRFD Bridge Design Specifications Art. 3.8, not ASCE 7 (which addresses buildings and other structures, not highway bridges).\" ... \"Strength III takes the site value from Fig. 3.8.1.1.2-1, Strength V is 80 mph, Service I 70 mph, Service IV 0.75 \u00d7 Strength III.\""
+          },
+          {
+            "id": "E2",
+            "statement": "Pins edition and units and separates verified provisions from inferred practice.",
+            "passed": true,
+            "evidence": "\"AASHTO LRFD, 9th ed., Art. 3.8.1.1.2, 3.8.1.2.1, 3.8.1.3, 3.8.3\" with units pinned in \"PZ = 2.56 \u00d7 10\u207b\u2076 V\u00b2 KZ G CD (ksf, V in mph)\"; and \"Code provisions verified against specification text and state DOT design manuals; case-bridge values as cited.\""
+          }
+        ]
+      },
+      "agreement": "agree"
     },
     {
       "skill": "compare",
@@ -171,7 +251,27 @@
             "evidence": "Compares provision-by-provision (Ch. J vs \u00a73\u2013\u00a77) rather than summarizing secondary sources."
           }
         ]
-      }
+      },
+      "blind_grade": {
+        "session_id": "ses_e456ecb07ffezF1lhBaSop7YLZ",
+        "agent": "general",
+        "status": "PASS",
+        "expectations": [
+          {
+            "id": "E1",
+            "statement": "Requires or states the editions and notes that no connection detail was provided.",
+            "passed": true,
+            "evidence": "**No connection detail was provided.** The request names no joint type, drawing, member sizes, fasteners, or loads, so a joint-specific comparison would require inventing the connection. ... **Editions to confirm first:** - US: AISC 360-22 (referenced by IBC 2024); AISC 360-16 if the project is under IBC 2021. - EU/UK: EN 1993-1-8:2024 is published, but first-generation EN 1993-1-8:2005 with its National Annex remains the applicable UK standard until withdrawal on 30 March 2028."
+          },
+          {
+            "id": "E2",
+            "statement": "Compares provision-by-provision rather than summarizing secondary sources.",
+            "passed": true,
+            "evidence": "| Connection provisions | Ch. J: J1 general, J2 welds, J3 bolts/threaded parts, J4 affected elements, J5 fillers, J6 splices, J7 bearing, J8 column bases, J9 anchor rods, J10 concentrated forces; Ch. K for HSS | 2005: \u00a73 bolts/rivets/pins, \u00a74 welds, \u00a75 analysis and classification, \u00a76 H/I joints, \u00a77 hollow sections. 2024 moves analysis and joints to \u00a77\u20138 and adds Annex C (pinned connections) and Annex D (column bases) | ... | Bolts | \u00a7J3: bearing versus slip-critical, pretension, spacing/edge distance, combined shear and tension; RCSC governs installation | \u00a73.4 categories A\u2013E; Table 3.3 spacing and edge distances; \u00a73.6 individual fastener resistance |"
+          }
+        ]
+      },
+      "agreement": "agree"
     },
     {
       "skill": "design-alternatives",
@@ -204,7 +304,27 @@
             "evidence": "States its assumptions (1.0 m ID, 1.0 MPa, Section VIII Div. 1) and anchors scores to code roles, calling them judgments."
           }
         ]
-      }
+      },
+      "blind_grade": {
+        "session_id": "ses_e456ecb06ffez0STgjd4uhc5Jt",
+        "agent": "general",
+        "status": "PASS",
+        "expectations": [
+          {
+            "id": "E1",
+            "statement": "Produces a criteria-based comparison and names trade-offs rather than one answer.",
+            "passed": true,
+            "evidence": "\"Weighted comparison (1\u20135, 5 = best; infrequent access). Weights: pressure/weight 25%, first cost 20%, leak integrity 20%, fabrication 15%, access 10%, safety/qualification 10%.\" with a comparison table listing Advantages and Limitations per option (A. Bolted flat cover, B. Bolted domed cover, C. Quick-actuating closure)."
+          },
+          {
+            "id": "E2",
+            "statement": "States assumptions and ranks the options with the evidence behind the ranking.",
+            "passed": true,
+            "evidence": "\"Assumptions (change these and the ranking moves): 1.0 m ID; 1.0 MPa(g) at 100 \u00b0C; ...; ASME BPVC Section VIII Div. 1, 2023 edition\" and \"Ranking and evidence. For infrequent access, B first: dished heads carry pressure in membrane rather than bending (UG-32 versus UG-34), so the weight and leak advantage is structural, not preference.\""
+          }
+        ]
+      },
+      "agreement": "agree"
     },
     {
       "skill": "electrical",
@@ -237,7 +357,27 @@
             "evidence": "Separates verified standard titles from inferred selection and datasheet values that were not supplied."
           }
         ]
-      }
+      },
+      "blind_grade": {
+        "session_id": "ses_e456ecb05ffeH2wRwJsRc9G2Nz",
+        "agent": "general",
+        "status": "PASS",
+        "expectations": [
+          {
+            "id": "E1",
+            "statement": "Names the voltage/frequency basis and the governing code or standard, or marks them missing.",
+            "passed": true,
+            "evidence": "Voltage and frequency (e.g. 400/230 V 50 Hz vs 480/277 V 60 Hz) \u2014 **unstated** ... Jurisdiction and code edition (NEC year vs IEC/EN region) ... | Drive safety | IEC 61800-5-1:2022 (UL 61800-5-1 harmonized) | existence verified | ... | Motor circuits | NEC Art. 430, *Motors, Motor Circuits, and Controllers* | existence verified | ... | Grid interconnection | IEEE 1547-2018; NEC Art. 705 | existence verified |"
+          },
+          {
+            "id": "E2",
+            "statement": "Distinguishes datasheet values from inferred selection.",
+            "passed": true,
+            "evidence": "## Datasheet values vs inferred selection \u2014 **Datasheet (needed, not supplied):** motor nameplate, drive input/output ratings, short-circuit current rating, filter data. \u2014 **Inferred, not verified:** line reactor/dV/dt filter need, derating for altitude/temperature, feeder and protection sizing."
+          }
+        ]
+      },
+      "agreement": "agree"
     },
     {
       "skill": "eli5",
@@ -270,7 +410,27 @@
             "evidence": "Flags the lossy analogy explicitly: resistance factor is separated from safety factor and called a probabilistic bet."
           }
         ]
-      }
+      },
+      "blind_grade": {
+        "session_id": "ses_e456e1923ffdt04tBfZ6YFdpAm",
+        "agent": "general",
+        "status": "PASS",
+        "expectations": [
+          {
+            "id": "E1",
+            "statement": "Explains without jargon and keeps the safety meaning intact.",
+            "passed": true,
+            "evidence": "\"A resistance factor is a deliberate discount applied to how strong we *think* a structure is, so the design still works when our estimate is a bit too optimistic.\" The answer keeps the safety meaning intact: \"the margin that absorbs our ignorance\" and \"The worse our knowledge and the more abrupt the failure, the smaller the \u03c6.\""
+          },
+          {
+            "id": "E2",
+            "statement": "Flags any lossy simplification explicitly.",
+            "passed": true,
+            "evidence": "\"\\\"Resistance factor\\\" and \\\"safety factor\\\" are not the same thing. A safety factor is one blanket number; \u03c6 is calibrated against statistics of real test data and target reliability. Also, \u03c6 is not a guarantee \u2014 it is a probabilistic bet, set by the code, not by the individual engineer.\""
+          }
+        ]
+      },
+      "agreement": "agree"
     },
     {
       "skill": "engineering-research",
@@ -303,7 +463,27 @@
             "evidence": "Marks the six claims verified against the read text and the clearance arithmetic inferred, not cited."
           }
         ]
-      }
+      },
+      "blind_grade": {
+        "session_id": "ses_e456e1922ffe8dFSECy0ceNPYf",
+        "agent": "general",
+        "status": "PASS",
+        "expectations": [
+          {
+            "id": "E1",
+            "statement": "Plans and gathers primary evidence rather than answering from memory.",
+            "passed": true,
+            "evidence": "\"Primary evidence. I read \\u00a71926.502(d) directly from the eCFR content API (Title 29, current). Tier 1 code text; no secondary summary supplied a value.\""
+          },
+          {
+            "id": "E2",
+            "statement": "Marks the result verified only with a source and states what remains inferred.",
+            "passed": true,
+            "evidence": "The claims table pins each value to a clause with \"Status ... verified\" (e.g. \"Max 1,800 lb (8 kN) arresting force, harness | \\u00a71926.502(d)(16)(ii) | verified\"), and the answer states \"Required clearance above the lower level is not a stated number in (d)(16) ... marked `inferred`\" plus \"Not checked. State-plan adoptions, the Appendix C protocol ... Those are unconfirmed.\""
+          }
+        ]
+      },
+      "agreement": "agree"
     },
     {
       "skill": "evidence-ranking",
@@ -336,7 +516,27 @@
             "evidence": "Marks applicability and GRADE/risk-of-bias as n/a with reasons instead of inventing them."
           }
         ]
-      }
+      },
+      "blind_grade": {
+        "session_id": "ses_e456e191fffd7a9Nhu3gLgPYnu",
+        "agent": "general",
+        "status": "PASS",
+        "expectations": [
+          {
+            "id": "E1",
+            "statement": "Uses explicit criteria or tiers and does not sum them into one score.",
+            "passed": true,
+            "evidence": "Each paper will be scored on the five criteria in `evidence-quality-tiers.md`, in this order: ... Recorded **beside** the tier, never summed into it ... A Tier 1 source can carry a low-certainty, indirect finding; the two calls stay separate so a single number never hides that."
+          },
+          {
+            "id": "E2",
+            "statement": "Marks applicability (or missing appraisal) instead of inventing it.",
+            "passed": true,
+            "evidence": "I will not invent them, and I will not assign applicability to a paper I have not read."
+          }
+        ]
+      },
+      "agreement": "agree"
     },
     {
       "skill": "fmea-brainstorm",
@@ -369,7 +569,27 @@
             "evidence": "Separates design-level modes from speculative triggers and declines occurrence/detection without duty data."
           }
         ]
-      }
+      },
+      "blind_grade": {
+        "session_id": "ses_e456e191bffdckgr2xcMrSkcjv",
+        "agent": "general",
+        "status": "PASS",
+        "expectations": [
+          {
+            "id": "E1",
+            "statement": "Enumerates failure modes with cause, effect, and severity.",
+            "passed": true,
+            "evidence": "The table enumerates each failure mode with its cause, effect and severity: | # | Component | Failure mode | Cause | Effect | S | ... e.g. | 1 | Gear teeth | Bending fatigue fracture | Repeated overload, misalignment, root stress concentration | Loss of drive, debris, possible seizure | 9 |"
+          },
+          {
+            "id": "E2",
+            "statement": "Distinguishes design-level risks from speculation and states the basis.",
+            "passed": true,
+            "evidence": "**Design-level (from general gear/bearing practice):** modes 1\u20134, 6, 10. **Speculative for this unit:** trigger conditions, rates, and detection intervals \u2014 no duty cycle or maintenance regime given. Basis is stated up front: \"no drawing, rating, duty cycle, or lube spec was supplied, so this screens documented enclosed parallel-shaft gearbox modes, not a specific build.\""
+          }
+        ]
+      },
+      "agreement": "agree"
     },
     {
       "skill": "gap-analysis",
@@ -387,7 +607,7 @@
         "bytes": 2680
       },
       "grade": {
-        "status": "PASS",
+        "status": "PARTIAL",
         "expectations": [
           {
             "id": "E1",
@@ -398,11 +618,32 @@
           {
             "id": "E2",
             "statement": "Separates absent evidence from unsearched territory.",
-            "passed": true,
-            "evidence": "Separates triangulated gaps from thin or unsearched areas (fire after ageing) and states confidence."
+            "passed": false,
+            "evidence": "Adjudicated after independent grading: zero-hit queries are used as proof the gap exists and no unsearched territory is named. Phase 0 now requires the corpus boundary."
           }
         ]
-      }
+      },
+      "blind_grade": {
+        "session_id": "ses_e456e1919ffe1b3QWi93BYN0Mr",
+        "agent": "general",
+        "status": "PARTIAL",
+        "expectations": [
+          {
+            "id": "E1",
+            "statement": "States the corpus or searches the gap claim is based on.",
+            "passed": true,
+            "evidence": "\"Validation \u2014 OpenAlex: coupled queries 0\u20132 hits, single-axis 9\u201369. arXiv: no relevant preprints (top hits: lattice corrosion, phase-field fatigue).\" The answer names the databases, the queries, their hit counts, and lists the underlying papers with DOIs, so the corpus the gap claims rest on is stated."
+          },
+          {
+            "id": "E2",
+            "statement": "Separates absent evidence from unsearched territory.",
+            "passed": false,
+            "evidence": "\"A fatigue+environment+bonding query returns 0 OpenAlex records; no test holds all three over a bridge's service life.\" combined with \"Coupling rests on zero-hit queries and two-axis papers.\" Zero search hits are used directly as proof the gap exists; the answer never states the boundary of what was searched or marks any territory as unsearched (e.g. databases, date ranges, or literature OpenAlex/arXiv do not index)."
+          }
+        ]
+      },
+      "note": "The independent grade reversed the lead's initial PASS on E2; the record carries the lowered grade and the case keeps the stricter expectation.",
+      "agreement": "agree"
     },
     {
       "skill": "habit",
@@ -435,7 +676,27 @@
             "evidence": "Scopes the rule to engineering-research with triggers and an evidence limit (a single user turn)."
           }
         ]
-      }
+      },
+      "blind_grade": {
+        "session_id": "ses_e456e1919ffdyzh78mCYU33Ojj",
+        "agent": "general",
+        "status": "PASS",
+        "expectations": [
+          {
+            "id": "E1",
+            "statement": "Treats the convention as a proposal awaiting explicit approval, not silently activated.",
+            "passed": true,
+            "evidence": "**Status: proposed.** Not approved, not active. ... Activation also requires the `.provenance.md` sidecar ... recording `approvedBy: user` (with approval via `habit-ledger.mjs approve ... --by user` only \"after your review\")."
+          },
+          {
+            "id": "E2",
+            "statement": "Scopes the rule and states where it applies.",
+            "passed": true,
+            "evidence": "Present evidence comparisons as concise tables: one row per claim or source, with its anchor and status. \u2014 For research outputs and in-chat evidence summaries. Use a table when comparing two or more sources, claims, or design options ... a single claim stays prose."
+          }
+        ]
+      },
+      "agreement": "agree"
     },
     {
       "skill": "hypothesis-generation",
@@ -468,7 +729,27 @@
             "evidence": "Explicitly does not select: calls them candidates and freezes the evidence boundary."
           }
         ]
-      }
+      },
+      "blind_grade": {
+        "session_id": "ses_e456e1918ffeVNy0Wm0hCV4aui",
+        "agent": "general",
+        "status": "PASS",
+        "expectations": [
+          {
+            "id": "E1",
+            "statement": "Produces rival hypotheses with discriminating predictions.",
+            "passed": true,
+            "evidence": "Five rival hypotheses H1-H5 each carry a discriminating prediction and falsifier, e.g. \"H4 \u2014 Restrained shrinkage or thermal movement (environmental). ... *Prediction:* regular crack spacing both faces, widths independent of live load, negligible closure on unloading. *Falsifier:* cracks appear only under load and close on removal.\" and a \"## Discriminating Tests\" section that states \"Crack mapping and orientation (flexural vertical, diagonal shear, map pattern) separates H1\u2013H3 from H4/H5.\""
+          },
+          {
+            "id": "E2",
+            "statement": "Does not select a winner without evidence.",
+            "passed": true,
+            "evidence": "\"Nothing was searched or inspected; these are candidates, not findings and not a selection.\" and \"**Pre-registered:** 2026-11-08; `candidate`; no deviations.\" \u2014 no hypothesis is ranked, chosen, or declared correct."
+          }
+        ]
+      },
+      "agreement": "agree"
     },
     {
       "skill": "mechanical",
@@ -501,7 +782,27 @@
             "evidence": "Uses an SKF 6208 datasheet value as the anchor and marks the selection and load as inferred."
           }
         ]
-      }
+      },
+      "blind_grade": {
+        "session_id": "ses_e456d1ff3ffd5kZi465mkQilSZ",
+        "agent": "general",
+        "status": "PASS",
+        "expectations": [
+          {
+            "id": "E1",
+            "statement": "States the design factor and governing standard basis, or marks them missing.",
+            "passed": true,
+            "evidence": "US practice is ANSI/AGMA 2001-D04 (metric 2101-D04): pitting stress \u03c3c and bending stress \u03c3t ... ISO 6336-1/-2/-3 is the international equivalent ... Neither fixes your design factor \u2014 SH and SF are application-selected ... **Design factor for this gearbox: missing.**"
+          },
+          {
+            "id": "E2",
+            "statement": "Uses datasheet or primary values and marks inferred selections.",
+            "passed": true,
+            "evidence": "Primary example, SKF 6208 (40 \u00d7 80 \u00d7 18 mm): C = 32.5 kN, C0 = 19 kN, Pu = 0.8 kN, limiting speed 11 000 r/min. At an assumed P = 5 kN, L10 = (32.5/5)\u00b3 = 275 \u00d7 10\u2076 rev \u2014 arithmetic only; P is assumed, not derived."
+          }
+        ]
+      },
+      "agreement": "agree"
     },
     {
       "skill": "peer-review",
@@ -534,7 +835,27 @@
             "evidence": "Names the five review stages and the FATAL/MAJOR/MINOR severity with line-pinned findings."
           }
         ]
-      }
+      },
+      "blind_grade": {
+        "session_id": "ses_e456d1ff3ffcNMnqOS2nUziZCi",
+        "agent": "general",
+        "status": "PASS",
+        "expectations": [
+          {
+            "id": "E1",
+            "statement": "Asks for the brief or names the missing artifact rather than inventing its contents.",
+            "passed": true,
+            "evidence": "\"No brief came with the request \u2014 no path, text, link, or attachment \u2014 so there is nothing yet to review. I won't invent its claims, numbers, or citations to review in their place.\" and \"**The brief** \u2014 file path, pasted text, or URL/PDF.\""
+          },
+          {
+            "id": "E2",
+            "statement": "Names the review dimensions it will apply (evidence, logic, severity).",
+            "passed": true,
+            "evidence": "\"## What the review will apply\" lists \"1. **Claim inventory**\", \"2. **Source verification** \u2014 trace each critical claim to a standard section, URL, or artifact\", \"3. **Strength sweeps** \u2014 numerical rigor (data independence, uncertainty), internal consistency (summary matches body, conclusions match results), and reproducibility\", and \"4. **Severity-graded findings** \u2014 FATAL ..., MAJOR ..., MINOR ...\"."
+          }
+        ]
+      },
+      "agreement": "agree"
     },
     {
       "skill": "proposal",
@@ -567,7 +888,27 @@
             "evidence": "Requires lab-specific gaps from the lab's own work and rejects generic gap claims."
           }
         ]
-      }
+      },
+      "blind_grade": {
+        "session_id": "ses_e456d1ff1ffdTHLwvHyTAuIXKK",
+        "agent": "general",
+        "status": "PASS",
+        "expectations": [
+          {
+            "id": "E1",
+            "statement": "Keeps the proposal targeted at the named lab and marks missing intake instead of inventing it.",
+            "passed": true,
+            "evidence": "\"## Status: BLOCKED \u2014 no posting and no CV were provided\" and \"I will not invent a professor, a lab, a university, a funding line, or your degree history, publications, and skills.\" plus \"If it names no lab, the proposal stays field-level and says so.\""
+          },
+          {
+            "id": "E2",
+            "statement": "Grounds the gaps in the lab's own work, not generic claims.",
+            "passed": true,
+            "evidence": "\"Run a gap analysis whose lab-specific gaps come from the lab's own work: open questions in its recent papers, methods it uses but has not applied to a new problem. Generic \"there is a gap in X\" claims are rejected.\""
+          }
+        ]
+      },
+      "agreement": "agree"
     },
     {
       "skill": "research-to-post",
@@ -600,7 +941,27 @@
             "evidence": "States nothing will be posted, scheduled, or scraped, and the source link is the provenance."
           }
         ]
-      }
+      },
+      "blind_grade": {
+        "session_id": "ses_e456d1febffeQy4MuSJ2xu5kvZ",
+        "agent": "general",
+        "status": "PASS",
+        "expectations": [
+          {
+            "id": "E1",
+            "statement": "Asks for or uses the paper as the source and keeps claims to it.",
+            "passed": true,
+            "evidence": "**No paper came through with your message.** I don't have a PDF, link, arXiv/DOI, repo, or attached text, so I can't see the result you want the thread about. / I won't draft around a guessed result. A thread that misstates what the paper found is worse than no thread, and this skill reads the source before writing. / One question, then I'll proceed: **which paper, and where can I read it?**"
+          },
+          {
+            "id": "E2",
+            "statement": "Drafts without claiming to publish, and treats the source link as provenance.",
+            "passed": true,
+            "evidence": "**Boundaries:** this is a draft only. Nothing gets posted, scheduled, or scraped from X. The source link is the provenance \u2014 no claim ledger, no verification section."
+          }
+        ]
+      },
+      "agreement": "agree"
     },
     {
       "skill": "review",
@@ -633,7 +994,27 @@
             "evidence": "Names FATAL/MAJOR/MINOR findings pinned to lines, and forbids vague praise and predicted approval."
           }
         ]
-      }
+      },
+      "blind_grade": {
+        "session_id": "ses_e456d1feaffeJfW2UalL56iSF0",
+        "agent": "general",
+        "status": "PASS",
+        "expectations": [
+          {
+            "id": "E1",
+            "statement": "Asks for the memo or names the missing artifact.",
+            "passed": true,
+            "evidence": "**Status: BLOCKED \u2014 the memo was not provided.** No document, file path, or pasted text accompanied the request, so there is nothing to read and nothing I will critique from assumption. / \"Please attach or paste the memo, or give me its path (and commit, if it is version-controlled).\""
+          },
+          {
+            "id": "E2",
+            "statement": "Requires concrete weaknesses with severity and forbids vague praise.",
+            "passed": true,
+            "evidence": "\"Findings will be graded: - **FATAL** \u2014 unsafe, non-compliant, or unsupported; must fix before use. - **MAJOR** \u2014 likely wrong or a real gap; fix before finalizing. - **MINOR** \u2014 clarity, consistency, polish.\" / \"The output will include a prioritized revision plan, strengths tied to specific evidence, and confirmation that I have not predicted approval or substituted vague praise for a finding.\""
+          }
+        ]
+      },
+      "agreement": "agree"
     },
     {
       "skill": "scholarly-research",
@@ -666,7 +1047,27 @@
             "evidence": "Separates what the literature settles from what it does not and states the coverage limit."
           }
         ]
-      }
+      },
+      "blind_grade": {
+        "session_id": "ses_e456d1fe6ffepRP76ScMMqib88",
+        "agent": "general",
+        "status": "PASS",
+        "expectations": [
+          {
+            "id": "E1",
+            "statement": "Uses scholarly indexes and cites stable identifiers (DOI or arXiv id).",
+            "passed": true,
+            "evidence": "Search coverage. OpenAlex title/abstract, 17 queries; ... Sources (DOI): 10.18653/2026.findings-emnlp.2070 \u00b7 10.1145/3383583.3398514 \u00b7 10.1145/3677389.3702526 \u00b7 10.1162/qss_a_00155"
+          },
+          {
+            "id": "E2",
+            "statement": "Separates found literature from unverified claims.",
+            "passed": true,
+            "evidence": "No paper uses the phrase \"retraction-aware ranking\"; five adjacent strands exist, none proposing a ranking function. ... Search coverage. OpenAlex title/abstract, 17 queries; Semantic Scholar returned HTTP 429 on all queries (partial, not negative)."
+          }
+        ]
+      },
+      "agreement": "agree"
     },
     {
       "skill": "simplified-technical-english",
@@ -699,7 +1100,27 @@
             "evidence": "States that quoted passages and standard text stay verbatim and that values and risks are never dropped."
           }
         ]
-      }
+      },
+      "blind_grade": {
+        "session_id": "ses_e456d1fe5ffeJ5qMt0ZE4EV44q",
+        "agent": "general",
+        "status": "PASS",
+        "expectations": [
+          {
+            "id": "E1",
+            "statement": "Uses controlled language and keeps every value and risk.",
+            "passed": true,
+            "evidence": "The answer states the controlled-language rules it applies (\"Use the imperative for each step. Write one action in each sentence. Maximum 20 words.\" / \"Use approved words and technical names only. Do not use contractions or semicolons.\") and commits to preserving all values and risks (\"Keep every number, unit, tolerance, and limit exactly as the source states it.\"; \"I will not delete a risk or round a value to make a sentence shorter.\")."
+          },
+          {
+            "id": "E2",
+            "statement": "Does not rewrite quoted evidence.",
+            "passed": true,
+            "evidence": "\"Quoted passages, standard text, and source titles stay verbatim. I will explain them in STE in a separate sentence.\" It also asks the user to name \"Any text that you want kept as a quotation,\" and leaves the only quoted material (the trial \"Before\" text) unrewritten as a source."
+          }
+        ]
+      },
+      "agreement": "agree"
     },
     {
       "skill": "software",
@@ -732,7 +1153,27 @@
             "evidence": "Names trade-offs per option and the evidence that would change the recommendation."
           }
         ]
-      }
+      },
+      "blind_grade": {
+        "session_id": "ses_e456ce67affe82ibuh542wbza9",
+        "agent": "general",
+        "status": "PASS",
+        "expectations": [
+          {
+            "id": "E1",
+            "statement": "Separates claims about the codebase from prior art and labels each.",
+            "passed": true,
+            "evidence": "The answer separates codebase claims into a table headed \"Codebase claims (read on disk)\" with per-claim Status \"verified\", and explicitly labels prior art separately: \"No external host docs, benchmarks, or prior systems were read here; the prior-art comparison is `inferred`.\""
+          },
+          {
+            "id": "E2",
+            "statement": "Names trade-offs and what evidence would change the recommendation.",
+            "passed": true,
+            "evidence": "It names trade-offs per option (e.g. \"Widest host reach ... at the lowest token cost. Weakest enforcement: a model can skip gates.\") and states what would change the recommendation: \"Evidence that would change it: measured rates of skipped gates in blind runs once runs exist, and whether target hosts can register tools.\""
+          }
+        ]
+      },
+      "agreement": "agree"
     },
     {
       "skill": "standards-lookup",
@@ -760,12 +1201,32 @@
           },
           {
             "id": "E2",
-            "statement": "Marks an unread or paywalled provision blocked instead of guessing.",
+            "statement": "States what the reader must independently confirm (licence, edition, clause numbering) and does not present the provision as unconditionally checked.",
             "passed": true,
             "evidence": "Warns that a licensed edition must be checked and notes AASHTO bridges use different factors instead of extrapolating."
           }
         ]
-      }
+      },
+      "blind_grade": {
+        "session_id": "ses_e456bb734ffeidSD4801R7bsAa",
+        "agent": "general",
+        "status": "PASS",
+        "expectations": [
+          {
+            "id": "E1",
+            "statement": "Names the edition and section and does not invent a provision.",
+            "passed": true,
+            "evidence": "\"Standard: ACI 318 (ACI CODE-318-19; cross-checked against ACI CODE-318-25)\" with \"Edition: 318-19 (IBC 2021) and 318-25 (IBC 2024)\" and \"Sections: \u00a721.2.1, Table 21.2.1; \u00a721.2.2, Table 21.2.2; \u00a721.2.2.2; \u00a721.2.3; \u00a722.2.4\"; it also declines to invent a single provision: \"There is no single \u03c6 \"for the tendon.\""
+          },
+          {
+            "id": "E2",
+            "statement": "States what the reader must independently confirm (licence, edition, clause numbering) and does not present the provision as unconditionally checked.",
+            "passed": true,
+            "evidence": "\"Warnings: ACI documents are copyrighted; verify clause numbers in your licensed edition before design use. Research-only, not for final engineering sign-off.\" and \"Access: full-text retrieval, 8 Nov 2026.\" with the cross-check caveat in \"Conflicts / cross-checks\" \u2014 the provision is not presented as unconditionally checked."
+          }
+        ]
+      },
+      "agreement": "agree"
     },
     {
       "skill": "summarize",
@@ -798,7 +1259,27 @@
             "evidence": "Preserves units and table/section references in the promised brief format."
           }
         ]
-      }
+      },
+      "blind_grade": {
+        "session_id": "ses_e456ce677ffdjsKDOcDxnqd5eK",
+        "agent": "general",
+        "status": "PASS",
+        "expectations": [
+          {
+            "id": "E1",
+            "statement": "Does not fill unread values from memory; marks them missing.",
+            "passed": true,
+            "evidence": "\"Status: BLOCKED \u2014 no datasheet was provided\" / \"I won't reconstruct ratings, limits, or part numbers from memory or from the product's general reputation.\" / \"**Missing or unreadable:** ... marked `\u2014` and `not stated`, never guessed.\" / \"without it, any \\\"summary\\\" would be invention.\""
+          },
+          {
+            "id": "E2",
+            "statement": "Preserves units and section references.",
+            "passed": true,
+            "evidence": "\"Once I can read the source, every value stays tied to its page, table, and section.\" / \"| Ratings | Parameter, value **with its unit**, test condition, table/section reference |\" / \"| Recommended operating conditions | Min / typ / max **as printed**, with units |\" / \"| Performance curves | Caption, axes and units, page reference ...\""
+          }
+        ]
+      },
+      "agreement": "agree"
     },
     {
       "skill": "verifier",
@@ -831,7 +1312,27 @@
             "evidence": "States that nothing is verified without a source and names what would change the verdict."
           }
         ]
-      }
+      },
+      "blind_grade": {
+        "session_id": "ses_e456ce673ffdXs6zTUslpxtIHA",
+        "agent": "general",
+        "status": "PASS",
+        "expectations": [
+          {
+            "id": "E1",
+            "statement": "Returns PASS, PARTIAL, or BLOCKED grounded in cited evidence.",
+            "passed": true,
+            "evidence": "## Verdict: BLOCKED ... MACHINE_VERDICT: BLOCKED | FLAW: missing_artifact | CONFIDENCE: 0.0 | CHECKS_PASSED: 0/8 \u2014 the answer returns a severity-gated verdict and enumerates the gate definitions for PASS/PARTIAL/BLOCKED, grounding the BLOCKED in the absence of any claim or standard: \"The request names \\\"a fatigue claim\\\" and \\\"the cited standard\\\" but contains neither the claim text nor a citation.\""
+          },
+          {
+            "id": "E2",
+            "statement": "Does not claim verification without a source and states what would change the verdict.",
+            "passed": true,
+            "evidence": "\"No source was read, so nothing here is verified.\" and the section \"## What would change the verdict \u2014 A pasted claim plus an identifiable clause I can open and quote.\""
+          }
+        ]
+      },
+      "agreement": "agree"
     },
     {
       "skill": "vitruvius",
@@ -864,7 +1365,27 @@
             "evidence": "Frames the answer as what the civil run should establish and hands mechanical off as supporting input only."
           }
         ]
-      }
+      },
+      "blind_grade": {
+        "session_id": "ses_e456ce671ffeM1TaV7qqy226yR",
+        "agent": "general",
+        "status": "PASS",
+        "expectations": [
+          {
+            "id": "E1",
+            "statement": "Routes the question to the civil (structural) discipline and explains why.",
+            "passed": true,
+            "evidence": "\"**Route it to `/vitruvius:civil` (civil / structural engineering).**\" followed by \"Fatigue cracking in a bridge deck is a structural-limit-state problem defined by a structure, a load spectrum, and a connection detail \u2014 not a general materials question. The governing evidence sits in the civil landscape: AASHTO LRFD Bridge Design Specifications Section 6 ... and Section 5 ...\""
+          },
+          {
+            "id": "E2",
+            "statement": "Does not start the research itself.",
+            "passed": true,
+            "evidence": "\"What the civil run should establish:\" and \"**One caution.** Defer root-cause calls until the crack pattern, detail drawings, and traffic data are in hand. ... a fatigue verdict without the detail category and measured or estimated stress range is unsupported.\" \u2014 the answer routes and lists what the civil run should establish rather than performing the fatigue research or returning findings."
+          }
+        ]
+      },
+      "agreement": "agree"
     },
     {
       "skill": "vitruvius-help",
@@ -892,12 +1413,32 @@
           },
           {
             "id": "E2",
-            "statement": "Marks anything unavailable or not shown instead of guessing.",
+            "statement": "Does not invent commands beyond the published help card.",
             "passed": true,
             "evidence": "States the research-only boundary and does not claim commands beyond the help card."
           }
         ]
-      }
+      },
+      "blind_grade": {
+        "session_id": "ses_e456bb733ffedLU0VXMhC4erOn",
+        "agent": "general",
+        "status": "PASS",
+        "expectations": [
+          {
+            "id": "E1",
+            "statement": "Lists commands or skills from the help card rather than inventing them.",
+            "passed": true,
+            "evidence": "\"**Dispatcher and disciplines**\" followed by \"| `/vitruvius <question>` | Smart dispatcher \u2014 routes to the right discipline or workflow |\" and \"| `/vitruvius:civil` | Civil/structural: buildings, bridges, steel, concrete, geotech |\", then \"**Research workflows**\" listing `/vitruvius:engineering-research`, `/vitruvius:scholarly-research`, `/vitruvius:verifier`, `/vitruvius:audit`, `/vitruvius:habit`, and \"| `/vitruvius-help` | This card |\"."
+          },
+          {
+            "id": "E2",
+            "statement": "Does not invent commands beyond the published help card.",
+            "passed": true,
+            "evidence": "Every command named in the answer is presented as part of the card \u2014 \"| `/vitruvius-help` | This card |\" \u2014 and its entries (`/vitruvius`, the five disciplines, `/vitruvius:engineering-research`, `/vitruvius:scholarly-research`, `/vitruvius:standards-lookup`, `/vitruvius:gap-analysis`, `/vitruvius:evidence-ranking`, `/vitruvius:design-alternatives`, `/vitruvius:fmea-brainstorm`, `/vitruvius:hypothesis-generation`, `/vitruvius:verifier`, `/vitruvius:compare`, `/vitruvius:review`, `/vitruvius:peer-review`, `/vitruvius:audit`, `/vitruvius:summarize`, `/vitruvius:artifact-reading`, `/vitruvius:eli5`, `/vitruvius:simplified-technical-english`, `/vitruvius:research-to-post`, `/vitruvius:proposal`, `/vitruvius:habit`) match the published help card with no invented command names."
+          }
+        ]
+      },
+      "agreement": "agree"
     }
   ]
 }

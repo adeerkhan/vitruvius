@@ -49,6 +49,15 @@ function fixture({ output = "The audit found a 3-versus-5 mismatch.\n", gradeOve
       ],
       ...gradeOverrides,
     },
+    blind_grade: {
+      session_id: "ses_fixtureblind00000000000000",
+      status: "PASS",
+      expectations: [
+        { id: "E1", statement: "Names the mismatch.", passed: true, evidence: "The audit says 3 vs 5." },
+        { id: "E2", statement: "States what was checked.", passed: true, evidence: "It names the code comparison." },
+      ],
+    },
+    agreement: "agree",
     ...runOverrides,
   };
   return { dir, runs: { schema: "vitruvius-e1-runs.v1", runs: [run] } };
@@ -100,7 +109,7 @@ function run(overrides, mutate) {
 {
   const result = run({}, (r) => { r.grade.expectations.pop(); });
   assert.ok(result.problems.some((p) => /grades 1 expectation\(s\), case has 2/.test(p)));
-  assert.ok(result.problems.some((p) => /E2 is ungraded/.test(p)));
+  assert.ok(result.problems.some((p) => /leaves E2 ungraded/.test(p)));
 }
 
 // --- 7. A prompt that differs from the case is refused -------------------
@@ -130,6 +139,33 @@ function run(overrides, mutate) {
     }
   });
   assert.ok(Array.isArray(result.problems));
+}
+
+// --- 8b. A missing independent grade is refused -------------------------
+{
+  const result = run({}, (r) => { delete r.blind_grade; });
+  assert.ok(result.problems.some((p) => /blind_grade\.status|blind_grade\.session_id/.test(p)));
+}
+
+// --- 9b. Agreement must match the two grades ----------------------------
+{
+  const result = run({}, (r) => {
+    r.blind_grade.expectations[0].passed = false;
+    r.blind_grade.status = "PARTIAL";
+  });
+  assert.ok(result.problems.some((p) => /agreement "agree" does not match/.test(p)));
+  assert.ok(result.problems.some((p) => /needs a note/.test(p)));
+}
+
+// --- 9c. A recorded disagreement with a note is valid -------------------
+{
+  const result = run({}, (r) => {
+    r.blind_grade.expectations[0].passed = false;
+    r.blind_grade.status = "PARTIAL";
+    r.agreement = "disagree";
+    r.disagreement_note = "E1";
+  });
+  assert.deepEqual(result.problems, [], `a documented disagreement must validate:\n${result.problems.join("\n")}`);
 }
 
 // --- 10. The checked-in state is coherent --------------------------------
