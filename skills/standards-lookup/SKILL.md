@@ -4,7 +4,8 @@ description: >
   Find, retrieve, and cite engineering standards provisions reproducibly.
   Use when a claim, design check, or research question requires a specific
   provision from AISC, ACI, ASCE, IEEE, NFPA, ASME, AASTO, Eurocode, IBC, or
-  other engineering standard. Selects the authoritative standard, locates the
+  other engineering standard. Examples: ACI 318 strength-reduction factors,
+  ASCE 7 load combinations, AISC 360 bolt shear values. Selects the authoritative standard, locates the
   section, resolves conflicts between overlapping standards, and returns the
   provision with enough provenance that another engineer can verify it. Use
   when locating and citing a provision is the job — judging whether a
@@ -13,7 +14,7 @@ description: >
 argument-hint: "<standard or topic to look up>"
 license: MIT
 metadata:
-  version: "0.1.1"
+  version: "0.1.2"
 ---
 <!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=a6ac9fe52d3a5932b64aeb8630734ad9d70d06b016f45990075213ea0e08718e -->
 

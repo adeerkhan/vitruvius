@@ -4,13 +4,14 @@ description: >
   Generate and compare engineering design alternatives for a given problem.
   Use when the user asks "what are my options", "compare approaches",
   "which solution is better", or needs structured trade-off analysis of 3+
-  engineering approaches. Produces a comparison matrix with scored criteria.
+  engineering approaches — e.g. a pressure-vessel closure, a gearbox layout,
+  a manufacturing process. Produces a comparison matrix with scored criteria.
   Do NOT use for single-solution design requests or routine calculations.
 argument-hint: "<problem statement with constraints>"
 allowed-tools: Write Edit Bash Read
 license: MIT
 metadata:
-  version: "0.1.2"
+  version: "0.1.3"
 
 ---
 <!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=2e46c8c4601f96e95aac4ed3f5b135e6adfb6e569c050c9165b4590af911a985 -->

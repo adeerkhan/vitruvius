@@ -3,7 +3,8 @@ name: gap-analysis
 description: >
   Identify and validate engineering literature gaps using scholarly triangulation.
   Use when the user invokes /gap-analysis, asks to find research gaps in an
-  engineering field, or when a discipline skill hits an evidence dead-end (no
+  engineering field (e.g. FRP-to-concrete bonding in civil structures, fatigue
+  life, a material system), or when a discipline skill hits an evidence dead-end (no
   code provision, paper, or dataset addresses the question). Wraps the
   scholarly-research skill for source discovery and adds gap-specific
   methodology: narrow-query hit thresholds, cross-source triangulation, and
@@ -12,7 +13,7 @@ description: >
 allowed-tools: Write Edit Bash Read
 license: MIT
 metadata:
-  version: "0.1.1"
+  version: "0.1.2"
 
 ---
 <!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=8486e812b1442d721b3253b89c6d0747792fbe25bcad38e9152a01a8c8daf74b -->
