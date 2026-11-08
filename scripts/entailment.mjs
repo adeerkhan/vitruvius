@@ -99,7 +99,7 @@ const IDENTIFIER_SHAPE = /^[A-Za-z][A-Za-z0-9]*(?:[._-][A-Za-z0-9]+)+$/;
  * artifact the record declares, so compiling once per call instead of three times
  * is the difference that matters at that count.
  */
-export function declaresIdentifier(lineText, identifier) {
+function declaresIdentifier(lineText, identifier) {
   if (typeof lineText !== "string" || !identifier || !IDENTIFIER_SHAPE.test(identifier)) return false;
   const name = escapeName(identifier);
   return new RegExp(

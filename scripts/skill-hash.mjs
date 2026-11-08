@@ -14,7 +14,7 @@ import { createHash } from "node:crypto";
 
 export const HEADER_PREFIX = "<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=";
 export const HEADER_SUFFIX = " -->";
-export const FRONTMATTER = /^---\r?\n[\s\S]*?\r?\n---\r?\n/;
+const FRONTMATTER = /^---\r?\n[\s\S]*?\r?\n---\r?\n/;
 
 export function computeHash(body) {
   return createHash("sha256").update(body, "utf8").digest("hex");
@@ -24,11 +24,11 @@ export function makeHeader(hash) {
   return `${HEADER_PREFIX}${hash}${HEADER_SUFFIX}`;
 }
 
-export function isHeaderLine(line) {
+function isHeaderLine(line) {
   return line.startsWith(HEADER_PREFIX) && line.trimEnd().endsWith(HEADER_SUFFIX);
 }
 
-export function headerHash(line) {
+function headerHash(line) {
   return line.slice(HEADER_PREFIX.length, line.trimEnd().length - HEADER_SUFFIX.length);
 }
 

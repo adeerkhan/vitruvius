@@ -32,12 +32,12 @@ const REPO_ROOT = resolve(__dirname, "..");
 
 export const RECORD_SCHEMA = "vitruvius-baseline.v1";
 export const CASES_SCHEMA = "vitruvius-baseline-cases.v1";
-export const CONDITIONS = ["with-vitruvius", "baseline"];
-export const CITATION_STATUSES = ["read", "recalled", "fabricated"];
+const CONDITIONS = ["with-vitruvius", "baseline"];
+const CITATION_STATUSES = ["read", "recalled", "fabricated"];
 export const COMPLETION_STATUSES = ["complete", "partial", "blocked"];
 // Whether the run was isolated from the Vitruvius skills/rules/tools. A baseline
 // that shared the host's context is not a clean baseline and is flagged.
-export const CONTEXTS = ["isolated", "shared-harness", "unknown"];
+const CONTEXTS = ["isolated", "shared-harness", "unknown"];
 const SHA256 = /^[0-9a-f]{64}$/;
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
