@@ -175,6 +175,57 @@ try {
     if (heldChild && heldChild.exitCode === null) heldChild.kill();
   }
 
+  // --- A process killed while holding the lock leaves it in place ----------
+  // The prelocked case above writes the lock file by hand. This one acquires it
+  // in a real child process and kills that process with SIGKILL — no exit
+  // handler, no finally block. src-02 #750: an injected exception does not
+  // exercise process termination, and the stale-lock path is exactly the one a
+  // crash produces.
+  {
+    const killedDir = join(tempRoot, "killed-lock-runs");
+    mkdirSync(killedDir, { recursive: true });
+    const killedLockPath = join(killedDir, ".log-run.lock");
+    const holderScript = join(tempRoot, "hold-lock.mjs");
+    // Acquires the lock the way the logger does: exclusive create.
+    writeFileSync(
+      holderScript,
+      [
+        'import { openSync } from "node:fs";',
+        'openSync(process.argv[2], "wx");',
+        'console.log("held");',
+        "setInterval(() => {}, 1000);",
+      ].join("\n"),
+    );
+
+    const holder = spawn(process.execPath, [holderScript, killedLockPath], {
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+    let timer;
+    await new Promise((resolveHeld, rejectHeld) => {
+      timer = setTimeout(() => rejectHeld(new Error("lock holder never reported held")), 5000);
+      let out = "";
+      holder.stdout.setEncoding("utf-8");
+      holder.stdout.on("data", (chunk) => {
+        out += chunk;
+        if (out.includes("held")) resolveHeld();
+      });
+      holder.on("error", rejectHeld);
+    }).finally(() => clearTimeout(timer));
+
+    holder.kill("SIGKILL");
+    await new Promise((resolveClose) => holder.on("close", resolveClose));
+    assert.ok(existsSync(killedLockPath), "SIGKILL must leave the lock behind — no handler runs");
+
+    const blocked = run([], JSON.stringify({ skill: "test" }), killedDir);
+    assert.notEqual(blocked.status, 0, "a stale lock must fail the write closed");
+    assert.match(blocked.stderr, /busy|locked/i);
+
+    rmSync(killedLockPath, { force: true });
+    const recovered = run([], JSON.stringify({ skill: "test" }), killedDir);
+    assert.equal(recovered.status, 0, "an operator-removed lock must let the next write proceed");
+    assert.equal(entries(killedDir).length, 1);
+  }
+
   const concurrentDir = join(tempRoot, "concurrent-runs");
   const concurrentId = "22222222-2222-4222-8222-222222222222";
   const concurrent = await Promise.all(Array.from({ length: 8 }, () => spawnRun(
