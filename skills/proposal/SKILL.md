@@ -13,10 +13,10 @@ argument-hint: "[--posting <path>] [--cv <path>] [--statement <path>] [--sample 
 allowed-tools: Write Edit Bash Read
 license: MIT
 metadata:
-  version: "0.1.12"
+  version: "0.1.13"
 
 ---
-<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=41af538c8fa01bd51c09ca41daafc4d56a1c41335d3df2313b555fb20d083ad5 -->
+<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=20955dfbc3db02bee153fe327a65a9034d689636e2da95d7661c7a51925dfc21 -->
 
 # Research Proposal Generator
 
@@ -121,6 +121,16 @@ node skills/proposal/scripts/research-professor.mjs <slug>
   - "[professor] recent papers 2024 2025 2026"
   - "[lab name] projects"
   - Fetches lab website if found
+- **Publication-corpus review** (when the ask names a lab, PI, author, or
+  institution). Resolve the identity first — professor profile, lab page,
+  institutional listing — before synthesizing anything. Then collect the
+  reachable publication list (titles, years, venues, DOIs/URLs) and record
+  every unreachable item as a gap rather than guessing. Map 3–5 research
+  trajectories across that corpus and name the 3–5 papers that most changed
+  its direction, ranked by contrastive originality, methodological strength,
+  and relation to prior art — never by author prestige alone. This mode is for
+  identity-anchored reviews; a topic review with no named author or lab
+  belongs in `/gap-analysis`.
 - LLM saves structured research to `professor-research.json`:
   ```json
   {
