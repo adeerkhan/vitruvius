@@ -401,7 +401,12 @@ if (mustNotFireCases.length > 0) {
 
 function persistMisses(path, label, misses, scoreText) {
   const missBody = misses.length ? `${misses.join("\n")}\n` : "";
-  const header = `# ${label}, last run ${new Date().toISOString().split("T")[0]}: ${scoreText}`;
+  // No timestamp in the header. e1-misses.txt is TRACKED, and the commit rule
+  // forbids staging the routing artifacts — so a dated header rewrote a tracked
+  // file on the first run of every day, leaving the tree dirty and the artifact
+  // in permanent conflict with the rule. Content-only headers make shouldWrite
+  // mean what it says: the file changes only when a miss changes.
+  const header = `# ${label}: ${scoreText}`;
   let shouldWrite = true;
   try {
     const stat = lstatSync(path);
