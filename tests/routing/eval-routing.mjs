@@ -191,6 +191,8 @@ let baselineRoutingCases = [
   { id: "extract-spec-pdf-tables", prompt: "extract the tables from this 80-page specification PDF", skill: "artifact-reading" },
   { id: "scholar-retraction-aware", prompt: "find prior academic work on retraction-aware paper ranking", skill: "scholarly-research" },
   { id: "verifier-weld-size", prompt: "check my claimed weld size against the code requirement", skill: "verifier" },
+  { id: "verify-pasted-claim", prompt: "is this right? my claim is pasted below: the weld capacity is 12 kN per mm", skill: "verifier" },
+  { id: "audit-pasted-diff", prompt: "audit the code I pasted below against the spec it claims to implement", skill: "audit" },
   { id: "civil-wind-loading", prompt: "research wind loading on long-span bridges for my survey", skill: "civil" },
   { id: "mechanical-bearing-selection", prompt: "research bearing selection and power transmission for my gearbox design", skill: "mechanical" },
   { id: "motor-drives-grid", prompt: "research motor drives and power systems for this grid-tied installation", skill: "electrical" },

@@ -11,12 +11,14 @@ description: >
   when the user asks "is this right", "check this claim/calculation", or
   wants a verdict on a specific number — locating a provision without
   judging it is standards-lookup, weighing design options is
-  design-alternatives.
+  design-alternatives. The claim, calculation, or evidence may be pasted
+  inline: a pasted artifact is still a verification request.
+
 argument-hint: "<claim or calculation> [--direct | --blind]"
 allowed-tools: Read Grep Glob Bash
 license: MIT
 metadata:
-  version: "0.3.3"
+  version: "0.3.4"
 
 ---
 <!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=cc84cc494c553a0653c6a4223db6170e812f99abaa50e105b7e52acc44dd4c9f -->

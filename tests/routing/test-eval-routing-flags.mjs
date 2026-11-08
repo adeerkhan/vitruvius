@@ -110,9 +110,10 @@ function run(...args) {
   assert.match(list.stdout, /^verifier-flexural-strength\tbaseline$/m, "a baseline id must be listed");
   assert.match(list.stdout, /^verifier-missing-verdict\t/m, "an e1 case id must be listed");
   assert.match(list.stdout, /^ste-not-for-generic-editing\t/m, "a must-not-fire id must be listed");
+  assert.match(list.stdout, /^audit-pasted-diff\t/m, "a pasted-artifact id must be listed");
   assert.ok(!list.stdout.includes("Check 1"), "--list must exit before any check runs");
   const ids = list.stdout.trim().split("\n");
-  assert.equal(ids.length, 36, `expected 22 baseline + 4 e1 + 10 must-not-fire ids, got ${ids.length}`);
+  assert.equal(ids.length, 38, `expected 24 baseline + 4 e1 + 10 must-not-fire ids, got ${ids.length}`);
   assert.equal(new Set(ids.map((line) => line.split("\t")[0])).size, ids.length, "ids must be unique");
 }
 

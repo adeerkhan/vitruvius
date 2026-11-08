@@ -6,12 +6,13 @@ description: >
   standard-vs-as-built. Use when the user asks to audit, check consistency,
   find mismatches, or confirm that what was claimed matches what was actually
   done. Flags omissions, mismatches, ambiguous defaults, and reproduction
-  risks.
+  risks. The code, spec, or diff may be pasted inline: an inline pasted
+  artifact is still an audit request.
 argument-hint: "<what to audit>"
 allowed-tools: Write Edit Bash Read
 license: MIT
 metadata:
-  version: "0.1.2"
+  version: "0.1.3"
 
 ---
 <!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=fcecb76083d67587a67bbb56a5b83a8529fa16e3e97d20fc41723f2b420465ed -->
