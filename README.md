@@ -285,7 +285,7 @@ End-to-end workflows for specific tasks:
 
 | Command | What it does |
 |---------|--------------|
-| `/proposal` | Intended targeted Ph.D./Masters proposal workflow; local text intake is executable, PDF extraction uses optional tooling, and URL/image inputs require explicit recorded fetch/transcription |
+| `/proposal` | Intended targeted Ph.D./Masters proposal workflow; local text intake is executable, PDF extraction uses optional tooling, URL/image inputs require explicit recorded fetch/transcription, and a named lab gets its publication corpus reviewed by trajectory rather than author prestige |
 
 ## Choose Your Starting Point
 
@@ -327,7 +327,7 @@ End-to-end workflows for specific tasks:
 | `/scholarly-research "topic"` | Academic literature evidence layer (OpenAlex, arXiv, Semantic Scholar) with routing modes, code prior art, and page-anchored PDF reading; synthesis goes to `/engineering-research` |
 | `/standards-lookup AISC 360` | Looks up AISC 360 provisions by section |
 | `/habit` | Extracts explicit research preferences for validation and human approval |
-| `/proposal --posting X --cv Y` | Intended PhD-proposal workflow; local text intake is executable, PDF extraction uses optional tooling, and URL/image inputs require explicit recorded fetch/transcription |
+| `/proposal --posting X --cv Y` | Intended PhD-proposal workflow; local text intake is executable, PDF extraction uses optional tooling, URL/image inputs require explicit recorded fetch/transcription, and a named lab gets its publication corpus reviewed by trajectory |
 
 ## Installation
 
