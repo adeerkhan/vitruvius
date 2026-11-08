@@ -63,7 +63,7 @@ export const disciplines = [
   },
   {
     name: "civil",
-    version: "0.1.0",
+    version: "0.1.1",
     title: "Civil / Structural Engineering Research",
     description: [
       "Civil and structural engineering research. Use when the user invokes",
@@ -89,8 +89,10 @@ export const disciplines = [
       "- **Code provisions:** verify the standard exists, read the actual provision,",
       "  and cite section + edition. Do not summarize a provision from memory or a",
       "  title.",
-      "- **Loads:** every load must state its basis (ASCE 7 chapter, code section)",
-      "  and combination; units and direction must be explicit.",
+      "- **Loads:** every load must state its basis and combination with the",
+      "  governing standard and section — ASCE 7 for buildings, AASHTO LRFD for",
+      "  bridges (wind: Art. 3.8). Do not assume ASCE 7 governs a bridge; units",
+      "  and direction must be explicit.",
       "- **Sign conventions:** compression vs tension, moment direction, global vs",
       "  local axes.",
       "- **Material properties:** trace to a named grade + governing spec (e.g. Gr.",

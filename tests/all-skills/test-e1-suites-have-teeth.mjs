@@ -36,7 +36,10 @@ const CASES = [
     // "every load must state its basis" plus "combination" in the next clause,
     // which the regex still matched — the mutation landed but the rule did not.
     rule: "every load must state its basis and combination",
-    find: /every load must state its basis \(ASCE 7 chapter, code section\)\s*\n\s*and combination; units and direction must be explicit\./,
+    // The rule now names the governing standard (ASCE 7 for buildings, AASHTO
+    // for bridges), so the mutation weakens the whole clause rather than the
+    // old ASCE-only wording.
+    find: /every load must state its basis and combination with the\s*\n\s*governing standard and section[^.]*\./,
     replace: "state loads as convenient.",
   },
   {

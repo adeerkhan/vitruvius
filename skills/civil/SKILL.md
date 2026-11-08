@@ -11,10 +11,10 @@ argument-hint: "<research question> [--deep | --quick]"
 allowed-tools: Write Edit Bash
 license: MIT
 metadata:
-  version: "0.1.0"
+  version: "0.1.1"
 
 ---
-<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=2f36664be35f51a287af2ba0fb0b8573631d4bfcf827c2ce4c528b0ae1fe9771 -->
+<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=c782646707e95f4fcf53d068fef47b5b263ffd9f08bd973b58a59e6a2e095732 -->
 
 # Civil / Structural Engineering Research
 
@@ -39,8 +39,10 @@ domain payload. Do not restate the research loop here.
 - **Code provisions:** verify the standard exists, read the actual provision,
   and cite section + edition. Do not summarize a provision from memory or a
   title.
-- **Loads:** every load must state its basis (ASCE 7 chapter, code section)
-  and combination; units and direction must be explicit.
+- **Loads:** every load must state its basis and combination with the
+  governing standard and section — ASCE 7 for buildings, AASHTO LRFD for
+  bridges (wind: Art. 3.8). Do not assume ASCE 7 governs a bridge; units
+  and direction must be explicit.
 - **Sign conventions:** compression vs tension, moment direction, global vs
   local axes.
 - **Material properties:** trace to a named grade + governing spec (e.g. Gr.
