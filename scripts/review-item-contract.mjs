@@ -28,6 +28,7 @@ import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { hasOnlyKeys } from "./schema.mjs";
 
 const ROOT_KEYS = ["schema", "items"];
 
@@ -60,18 +61,10 @@ const FLAW_TOKENS = new Set([
   "misquote",
 ]);
 
+// Local policy: this validator stops adding detail once any error exists, so
+// the shared check's result is combined with the current error list.
 function exactKeys(value, allowed, label, errors) {
-  if (!value || typeof value !== "object" || Array.isArray(value)) {
-    errors.push(`${label} must be an object`);
-    return false;
-  }
-  for (const key of Object.keys(value)) {
-    if (!allowed.includes(key)) errors.push(`${label} has unknown field: ${key}`);
-  }
-  for (const key of allowed) {
-    if (!(key in value)) errors.push(`${label} is missing field: ${key}`);
-  }
-  return errors.length === 0;
+  return hasOnlyKeys(value, allowed, label, errors, { requireAll: true }) && errors.length === 0;
 }
 
 function isText(value) {

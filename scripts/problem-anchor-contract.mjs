@@ -19,6 +19,7 @@ import { isAbsolute, dirname, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { governanceMismatch, unsupportedTokens } from "./entailment.mjs";
 import { isInside, isNonEmptyString as isText, isSafeRelativePath } from "./path-safety.mjs";
+import { exactKeys } from "./schema.mjs";
 
 const SCHEMA = "vitruvius-problem-anchor.v1";
 const SHA256_PATTERN = /^[0-9a-f]{64}$/;
@@ -83,27 +84,6 @@ function isObject(value) {
 
 function isIdentifier(value) {
   return typeof value === "string" && IDENTIFIER_PATTERN.test(value);
-}
-
-function exactKeys(value, allowed, label, errors, optional = []) {
-  if (!isObject(value)) {
-    errors.push(`${label} must be an object`);
-    return false;
-  }
-  let ok = true;
-  for (const key of Object.keys(value)) {
-    if (!allowed.includes(key)) {
-      errors.push(`${label}.${key} is not allowed`);
-      ok = false;
-    }
-  }
-  for (const key of allowed) {
-    if (optional.includes(key)) continue;
-    if (Object.prototype.hasOwnProperty.call(value, key)) continue;
-    errors.push(`${label} is missing ${key}`);
-    ok = false;
-  }
-  return ok;
 }
 
 function normalize(value) {

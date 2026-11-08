@@ -3,6 +3,7 @@ import { existsSync, lstatSync, readFileSync, readdirSync, realpathSync } from "
 import { basename, dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { canonicalPath, isInside as isInsideShared, isNonEmptyString, isSafeRelativePath, resolveRealFile } from "./path-safety.mjs";
+import { hasOnlyKeys } from "./schema.mjs";
 
 const CASE_SCHEMA = "vitruvius-c1.v1";
 const RESULT_SCHEMA = "vitruvius-c1-results.v1";
@@ -12,7 +13,7 @@ const SHA256_PATTERN = /^[0-9a-f]{64}$/;
 
 /**
  * Fail-closed on unknown keys, from ref/autoprompt-skill's run manifest, which
- * calls exactKeys() with the allowed set before it looks at a single value.
+ * calls hasOnlyKeys() with the allowed set before it looks at a single value.
  * evidence.v1 and the field-pilot record already do this in their own
  * validators; this contract did not, so a misspelled or invented key on a
  * results manifest was accepted and then ignored — a `review_status` typo
@@ -20,17 +21,6 @@ const SHA256_PATTERN = /^[0-9a-f]{64}$/;
  * copies into one shared helper is a separate change; what matters here is that
  * this contract refuses a key it does not understand.
  */
-function exactKeys(value, allowed, label, errors) {
-  if (!value || typeof value !== "object" || Array.isArray(value)) {
-    errors.push(`${label} must be an object`);
-    return false;
-  }
-  for (const key of Object.keys(value)) {
-    if (!allowed.includes(key)) errors.push(`${label} has unknown field: ${key}`);
-  }
-  return true;
-}
-
 const MANIFEST_KEYS = ["schema", "suite_id", "suite_path", "suite_sha256", "suite_bytes", "reviewer_agent", "reviewer_session_id", "runs", "summary"];
 const RUN_KEYS = ["run_id", "case_id", "session_id", "agent", "fresh", "model", "cost_usd", "cost_status", "research_status", "final", "provenance", "grade"];
 const ARTIFACT_KEYS = ["path", "sha256", "bytes"];
@@ -191,7 +181,7 @@ export function validateFixedCase(suite, { repoRoot }) {
 }
 
 function validateArtifact(record, label, root, errors) {
-  if (!exactKeys(record, ARTIFACT_KEYS, label, errors)) return null;
+  if (!hasOnlyKeys(record, ARTIFACT_KEYS, label, errors)) return null;
   if (!isSafeRegularFile(root, record.path)) {
     errors.push(`${label} must be a confined regular file`);
     return null;
@@ -249,7 +239,7 @@ function readClaimCounts(text, label) {
 }
 
 function validateGrade(grade, expectedIds, label, errors) {
-  if (!exactKeys(grade, GRADE_KEYS, `${label} grade`, errors)) return;
+  if (!hasOnlyKeys(grade, GRADE_KEYS, `${label} grade`, errors)) return;
   if (!GRADE_STATUSES.has(grade.status)) {
     errors.push(`${label} grade status must be PASS, PARTIAL, or BLOCKED`);
     return;
@@ -260,7 +250,7 @@ function validateGrade(grade, expectedIds, label, errors) {
   }
   const actualIds = new Set();
   for (const expectation of grade.expectations) {
-    if (!exactKeys(expectation, EXPECTATION_KEYS, `${label} grade expectation`, errors) || !isNonEmptyString(expectation.id) || typeof expectation.passed !== "boolean" || !isNonEmptyString(expectation.evidence)) {
+    if (!hasOnlyKeys(expectation, EXPECTATION_KEYS, `${label} grade expectation`, errors) || !isNonEmptyString(expectation.id) || typeof expectation.passed !== "boolean" || !isNonEmptyString(expectation.evidence)) {
       errors.push(`${label} has an invalid expectation grade`);
       continue;
     }
@@ -277,7 +267,7 @@ export function validateRunManifest(manifest, { repoRoot, artifactRoot = repoRoo
   const errors = [];
   const root = resolve(repoRoot);
   const artifactBase = resolve(artifactRoot);
-  if (!exactKeys(manifest, MANIFEST_KEYS, "manifest", errors)) {
+  if (!hasOnlyKeys(manifest, MANIFEST_KEYS, "manifest", errors)) {
     return { valid: false, errors, caseCount: 0 };
   }
   if (manifest.schema !== RESULT_SCHEMA) errors.push(`schema must be ${RESULT_SCHEMA}`);
@@ -316,7 +306,7 @@ export function validateRunManifest(manifest, { repoRoot, artifactRoot = repoRoo
   const sessionIds = new Set();
   for (const [index, run] of (Array.isArray(manifest.runs) ? manifest.runs : []).entries()) {
     const label = `runs[${index}]`;
-    if (!exactKeys(run, RUN_KEYS, label, errors) || !isNonEmptyString(run.run_id) || runByIdHasDuplicate(runIds, run.run_id)) {
+    if (!hasOnlyKeys(run, RUN_KEYS, label, errors) || !isNonEmptyString(run.run_id) || runByIdHasDuplicate(runIds, run.run_id)) {
       errors.push(`${label} requires a unique run_id`);
       continue;
     }
@@ -394,7 +384,7 @@ export function validateRunManifest(manifest, { repoRoot, artifactRoot = repoRoo
   if (sessionIds.has(manifest.reviewer_session_id)) errors.push("reviewer session must be distinct from run sessions");
   if (sessionIds.size !== cases.length) errors.push("each suite case requires a distinct fresh subagent session");
   const summary = manifest.summary;
-  if (!exactKeys(summary, SUMMARY_KEYS, "summary", errors)) {
+  if (!hasOnlyKeys(summary, SUMMARY_KEYS, "summary", errors)) {
     errors.push("summary must be an object");
   } else {
     if (summary.cases !== cases.length) errors.push("summary.cases does not match the suite");

@@ -118,6 +118,10 @@ export const REGISTRY = {
   // that used to each carry their own copy.
   "fs-walk.mjs": { kind: "test" },
   "yaml-frontmatter.mjs": { kind: "test" },
+  // The one definition of exact-key membership, imported by eight contract
+  // validators that each carried their own copy (one had already diverged).
+  // Pinned by tests/engineering-research/test-schema.mjs.
+  "schema.mjs": { kind: "test" },
   // The single content-addressing definition, imported by the payload-manifest
   // CLI and the discipline generator so the two cannot hash differently.
   "skill-hash.mjs": { kind: "test" },

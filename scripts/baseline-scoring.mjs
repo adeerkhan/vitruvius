@@ -25,6 +25,7 @@ import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { isNonEmptyString as isText, resolveRealFile } from "./path-safety.mjs";
 import { walkFiles } from "./fs-walk.mjs";
+import { hasOnlyKeys } from "./schema.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, "..");
@@ -46,18 +47,6 @@ const ANSWER_KEYS = ["path", "sha256", "bytes"];
 const CITATION_KEYS = ["locator", "status", "supported", "artifact"];
 const METRIC_KEYS = ["wall_time_minutes", "wall_time_status", "cost_usd", "cost_status", "notes"];
 
-const isObject = (v) => v !== null && typeof v === "object" && !Array.isArray(v);
-
-function exactKeys(value, allowed, label, errors) {
-  if (!isObject(value)) {
-    errors.push(`${label} must be an object`);
-    return false;
-  }
-  for (const key of Object.keys(value)) {
-    if (!allowed.includes(key)) errors.push(`${label} has unknown field: ${key}`);
-  }
-  return true;
-}
 
 function validateDate(value, label, errors) {
   if (!isText(value) || !ISO_DATE.test(value) || Number.isNaN(new Date(`${value}T00:00:00Z`).getTime())) {
@@ -66,7 +55,7 @@ function validateDate(value, label, errors) {
 }
 
 function validateArtifact(artifact, root, label, errors) {
-  if (!exactKeys(artifact, ANSWER_KEYS, label, errors)) return;
+  if (!hasOnlyKeys(artifact, ANSWER_KEYS, label, errors)) return;
   if (!isText(artifact.path)) {
     errors.push(`${label}.path must be a repository-relative path`);
   } else {
@@ -87,7 +76,7 @@ function validateArtifact(artifact, root, label, errors) {
 
 export function validateCaseSet(caseSet) {
   const errors = [];
-  if (!exactKeys(caseSet, ["schema", "id", "_comment", "cases"], "cases", errors)) return errors;
+  if (!hasOnlyKeys(caseSet, ["schema", "id", "_comment", "cases"], "cases", errors)) return errors;
   if (caseSet.schema !== CASES_SCHEMA) errors.push(`cases.schema must be ${CASES_SCHEMA}`);
   if (!Array.isArray(caseSet.cases) || caseSet.cases.length === 0) {
     errors.push("cases.cases must be a non-empty array");
@@ -96,7 +85,7 @@ export function validateCaseSet(caseSet) {
   const seen = new Set();
   caseSet.cases.forEach((c, i) => {
     const label = `cases[${i}]`;
-    if (!exactKeys(c, CASE_KEYS, label, errors)) return;
+    if (!hasOnlyKeys(c, CASE_KEYS, label, errors)) return;
     if (!isText(c.id)) errors.push(`${label}.id must be non-empty`);
     else if (seen.has(c.id)) errors.push(`${label}.id duplicate: ${c.id}`);
     else seen.add(c.id);
@@ -117,7 +106,7 @@ export function validateCaseSet(caseSet) {
 
 export function validateRecord(record, { root = REPO_ROOT, caseIds } = {}) {
   const errors = [];
-  if (!exactKeys(record, RECORD_KEYS, "record", errors)) return errors;
+  if (!hasOnlyKeys(record, RECORD_KEYS, "record", errors)) return errors;
   if (record.schema !== RECORD_SCHEMA) errors.push(`record.schema must be ${RECORD_SCHEMA}`);
   if (!isText(record.case_id) || (caseIds && !caseIds.has(record.case_id))) {
     errors.push(`record.case_id must be a known case id`);
@@ -137,7 +126,7 @@ export function validateRecord(record, { root = REPO_ROOT, caseIds } = {}) {
   } else {
     record.citations.forEach((cite, i) => {
       const label = `record.citations[${i}]`;
-      if (!exactKeys(cite, CITATION_KEYS, label, errors)) return;
+      if (!hasOnlyKeys(cite, CITATION_KEYS, label, errors)) return;
       if (!isText(cite.locator)) errors.push(`${label}.locator must be non-empty`);
       if (!CITATION_STATUSES.includes(cite.status)) {
         errors.push(`${label}.status must be one of ${CITATION_STATUSES.join(", ")}`);
@@ -160,7 +149,7 @@ export function validateRecord(record, { root = REPO_ROOT, caseIds } = {}) {
     });
   }
 
-  exactKeys(record.metrics, METRIC_KEYS, "record.metrics", errors);
+  hasOnlyKeys(record.metrics, METRIC_KEYS, "record.metrics", errors);
   return errors;
 }
 

@@ -13,6 +13,7 @@ import { fileURLToPath } from "node:url";
 import { validateGoalCheck } from "./goal-check-contract.mjs";
 import { parseMachineVerdict } from "./verifier-parser.mjs";
 import { isNonEmptyString as isText, resolveRealFile } from "./path-safety.mjs";
+import { hasOnlyKeys } from "./schema.mjs";
 
 const SCHEMA = "vitruvius-field-pilot.v1";
 const SHA256_PATTERN = /^[0-9a-f]{64}$/;
@@ -34,15 +35,6 @@ function isMainModule() {
 
 function isObject(value) {
   return value !== null && typeof value === "object" && !Array.isArray(value);
-}
-
-function exactKeys(value, allowed, label, errors) {
-  if (!isObject(value)) {
-    errors.push(`${label} must be an object`);
-    return false;
-  }
-  for (const key of Object.keys(value)) if (!allowed.includes(key)) errors.push(`${label} has unknown field: ${key}`);
-  return true;
 }
 
 function physicalKey(repoRoot, value) {
@@ -88,7 +80,7 @@ function validateDate(value, label, errors) {
 }
 
 function validateArtifact(artifact, repoRoot, label, errors) {
-  if (!exactKeys(artifact, ARTIFACT_KEYS, label, errors)) return null;
+  if (!hasOnlyKeys(artifact, ARTIFACT_KEYS, label, errors)) return null;
   const path = resolveFile(repoRoot, artifact.path, `${label}.path`, errors);
   if (!SHA256_PATTERN.test(artifact.sha256)) errors.push(`${label}.sha256 must be 64 lowercase hex characters`);
   if (!Number.isInteger(artifact.bytes) || artifact.bytes < 1) errors.push(`${label}.bytes must be a positive integer`);
@@ -114,7 +106,7 @@ function parseVerifierReport(text) {
 
 function validateSource(source, index, repoRoot, errors) {
   const label = `sources[${index}]`;
-  if (!exactKeys(source, SOURCE_KEYS, label, errors)) return "invalid";
+  if (!hasOnlyKeys(source, SOURCE_KEYS, label, errors)) return "invalid";
   if (!/^SRC-[A-Z0-9-]+$/.test(source.id)) errors.push(`${label}.id must use a SRC- identifier`);
   if (!isText(source.kind) || !isText(source.locator)) errors.push(`${label} requires kind and locator`);
   validateDate(source.accessed_on, `${label}.accessed_on`, errors);
@@ -135,7 +127,7 @@ function validateSource(source, index, repoRoot, errors) {
 export function validateFieldPilot(record, { repoRoot } = {}) {
   const errors = [];
   if (!repoRoot) return { valid: false, errors: ["repoRoot is required"], sourceCount: 0 };
-  if (!exactKeys(record, TOP_KEYS, "pilot", errors)) return { valid: false, errors, sourceCount: 0 };
+  if (!hasOnlyKeys(record, TOP_KEYS, "pilot", errors)) return { valid: false, errors, sourceCount: 0 };
   if (record.schema !== SCHEMA) errors.push(`schema must be ${SCHEMA}`);
   if (typeof record.pilot_id !== "string" || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(record.pilot_id)) errors.push("pilot_id must be a lowercase hyphenated slug");
   if (!isText(record.question) || !isText(record.host) || !isText(record.model) || !isText(record.session_id)) errors.push("question, host, model, and session_id must be non-empty");
@@ -198,7 +190,7 @@ export function validateFieldPilot(record, { repoRoot } = {}) {
   if (verifierReport?.valid && record.completion === "complete" && verifierReport.verdict !== "PASS") errors.push("complete pilot requires verifier verdict PASS");
   if (verifierReport?.verdict === "BLOCKED" && record.completion !== "blocked") errors.push("BLOCKED verifier requires a blocked pilot completion");
 
-  if (!exactKeys(record.metrics, METRIC_KEYS, "metrics", errors)) {
+  if (!hasOnlyKeys(record.metrics, METRIC_KEYS, "metrics", errors)) {
     // Continue with the remaining top-level checks so the report is complete.
   } else {
     const metrics = record.metrics;

@@ -16,6 +16,7 @@ import { readFileSync, realpathSync } from "node:fs";
 import { dirname, isAbsolute, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { isInside, isNonEmptyString as isText, resolveRealFile } from "./path-safety.mjs";
+import { hasOnlyKeys } from "./schema.mjs";
 
 const SCHEMA = "vitruvius-goal-check.v2";
 const REQUIREMENTS_SCHEMA = "vitruvius-goal-requirements.v1";
@@ -46,23 +47,8 @@ function isMainModule() {
   }
 }
 
-function isObject(value) {
-  return value !== null && typeof value === "object" && !Array.isArray(value);
-}
-
 function isIdentifier(value) {
   return typeof value === "string" && /^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(value);
-}
-
-function exactKeys(value, allowed, label, errors) {
-  if (!isObject(value)) {
-    errors.push(`${label} must be an object`);
-    return false;
-  }
-  for (const key of Object.keys(value)) {
-    if (!allowed.includes(key)) errors.push(`${label} has unknown field: ${key}`);
-  }
-  return true;
 }
 
 
@@ -128,7 +114,7 @@ function validateRequirementList(requirements, label, errors) {
   const ids = new Set();
   requirements.forEach((requirement, index) => {
     const itemLabel = `${label}[${index}]`;
-    if (!exactKeys(requirement, ["id", "text"], itemLabel, errors)) return;
+    if (!hasOnlyKeys(requirement, ["id", "text"], itemLabel, errors)) return;
     if (!isIdentifier(requirement.id)) errors.push(`${itemLabel}.id must be a stable identifier`);
     if (!isText(requirement.text)) errors.push(`${itemLabel}.text must be non-empty`);
     if (ids.has(requirement.id)) errors.push(`${itemLabel}.id is duplicated`);
@@ -151,7 +137,7 @@ function validateRequirementsManifest(reference, repoRoot, question, errors) {
     errors.push(`requirements_manifest could not be parsed: ${error.message}`);
     return null;
   }
-  if (!exactKeys(manifest, ["schema", "question_sha256", "requirements", "scope"], "requirements_manifest", errors)) return null;
+  if (!hasOnlyKeys(manifest, ["schema", "question_sha256", "requirements", "scope"], "requirements_manifest", errors)) return null;
   if (manifest.schema !== REQUIREMENTS_SCHEMA) errors.push(`requirements_manifest schema must be ${REQUIREMENTS_SCHEMA}`);
   const questionHash = isText(question) ? createHash("sha256").update(question, "utf8").digest("hex") : null;
   if (!questionHash || manifest.question_sha256 !== questionHash) errors.push("requirements_manifest question_sha256 does not match the original question");
@@ -176,7 +162,7 @@ function validateEvidenceArray(evidence, label, errors) {
 }
 
 function validateCheck(check, label, finalText, errors) {
-  if (!exactKeys(check, ["id", "item", "status", "evidence", "required_fix"], label, errors)) return;
+  if (!hasOnlyKeys(check, ["id", "item", "status", "evidence", "required_fix"], label, errors)) return;
   if (!isIdentifier(check.id)) errors.push(`${label}.id must be a stable identifier`);
   if (!isText(check.item)) errors.push(`${label}.item must be non-empty`);
   if (!CHECK_STATUSES.has(check.status)) {
@@ -205,7 +191,7 @@ function validateGates(gates, errors) {
   gates.forEach((gate, index) => {
     const rubric = GATE_RUBRIC[index];
     const label = `gates[${index}]`;
-    if (!exactKeys(gate, ["id", "item", "status", "evidence", "required_fix"], label, errors)) return;
+    if (!hasOnlyKeys(gate, ["id", "item", "status", "evidence", "required_fix"], label, errors)) return;
     if (gate.id !== rubric.id) errors.push(`${label}.id must be ${rubric.id}`);
     if (gate.item !== rubric.item) errors.push(`${label}.item must be the canonical ${rubric.id} definition from the contract`);
     if (!CHECK_STATUSES.has(gate.status)) {
@@ -224,7 +210,7 @@ function validateGates(gates, errors) {
 }
 
 function validateFinding(finding, label, finalText, errors) {
-  if (!exactKeys(finding, ["id", "severity", "status", "summary", "evidence", "required_fix", "justification", "unblock_path"], label, errors)) return;
+  if (!hasOnlyKeys(finding, ["id", "severity", "status", "summary", "evidence", "required_fix", "justification", "unblock_path"], label, errors)) return;
   if (!isIdentifier(finding.id)) errors.push(`${label}.id must be a stable identifier`);
   if (!isText(finding.severity)) errors.push(`${label}.severity must be non-empty`);
   if (!FINDING_STATUSES.has(finding.status)) {
@@ -281,7 +267,7 @@ function validateProvenanceBinding(provenancePath, finalPath, errors) {
 }
 
 function validateFileBinding(value, repoRoot, label, errors) {
-  if (!exactKeys(value, FINAL_KEYS, label, errors)) return null;
+  if (!hasOnlyKeys(value, FINAL_KEYS, label, errors)) return null;
   const path = resolveRepoFile(repoRoot, value.path, `${label}.path`, errors);
   if (path) {
     const bytes = readFileSync(path);
@@ -300,7 +286,7 @@ function validateFinal(final, repoRoot, errors) {
 export function validateGoalCheck(record, { repoRoot, recordPath } = {}) {
   const errors = [];
   if (!repoRoot) return { valid: false, promotable: false, verdict: record?.verdict, derived: { scope: "gap", prompt: "gap", gates: "G1:gap,G2:gap,G3:gap", flaws: 0, resolved: 0, unresolved: 0, ran: false }, errors: ["repoRoot is required"] };
-  if (exactKeys(record, RECORD_KEYS, "record", errors)) {
+  if (hasOnlyKeys(record, RECORD_KEYS, "record", errors)) {
     if (record.schema !== SCHEMA) errors.push(`schema must be ${SCHEMA}`);
     if (!isText(record.question)) errors.push("question must be non-empty");
     const inlineRequirementIds = validateRequirements(record.requirements, errors);

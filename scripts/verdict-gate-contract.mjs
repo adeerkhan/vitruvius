@@ -27,6 +27,7 @@
 import { readFileSync, realpathSync } from "node:fs";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { hasOnlyKeys } from "./schema.mjs";
 
 const SCHEMA = "vitruvius-verdict-gate.v1";
 const SHA256 = /^[0-9a-f]{64}$/;
@@ -76,20 +77,6 @@ function isText(v) {
   return typeof v === "string" && v.trim() !== "";
 }
 
-function exactKeys(value, allowed, label, errors) {
-  if (!isObject(value)) {
-    errors.push(`${label} must be an object`);
-    return false;
-  }
-  for (const key of Object.keys(value)) {
-    if (!allowed.includes(key)) errors.push(`${label} has unknown field: ${key}`);
-  }
-  for (const key of allowed) {
-    if (!(key in value)) errors.push(`${label} is missing field: ${key}`);
-  }
-  return true;
-}
-
 function validateItems(value, errors) {
   if (!Array.isArray(value)) {
     errors.push("items must be an array of strings (review-item.v1 ids or target refs)");
@@ -103,7 +90,7 @@ function validateItems(value, errors) {
 }
 
 function validateProtocol(value, errors) {
-  exactKeys(value, PROTOCOL_KEYS, "protocol", errors);
+  hasOnlyKeys(value, PROTOCOL_KEYS, "protocol", errors, { requireAll: true });
   if (value) {
     if (!isText(value.revision)) errors.push("protocol.revision must be a non-empty revision");
     if (typeof value.sha256 !== "string" || !SHA256.test(value.sha256)) errors.push("protocol.sha256 must be 64 lowercase hex characters");
@@ -111,7 +98,7 @@ function validateProtocol(value, errors) {
 }
 
 function validateContext(value, errors) {
-  exactKeys(value, CONTEXT_KEYS, "context", errors);
+  hasOnlyKeys(value, CONTEXT_KEYS, "context", errors, { requireAll: true });
   for (const key of CONTEXT_KEYS) {
     if (value && value[key] !== null && typeof value[key] !== "boolean") {
       errors.push(`context.${key} must be boolean or null`);
@@ -127,7 +114,7 @@ function validateChecks(value, errors) {
   const ids = new Set();
   for (const [i, check] of value.entries()) {
     const label = `checks[${i}]`;
-    if (!exactKeys(check, CHECK_KEYS, label, errors)) continue;
+    if (!hasOnlyKeys(check, CHECK_KEYS, label, errors, { requireAll: true })) continue;
     if (!isText(check.id)) errors.push(`${label}.id must be a non-empty identifier`);
     else if (ids.has(check.id)) errors.push(`${label}.id is duplicated: ${check.id}`);
     if (!isText(check.gate)) errors.push(`${label}.gate must name a target gate (G1/G2/G3 or equivalent)`);
@@ -157,7 +144,7 @@ function validateGates(value, checks, errors) {
   for (const gateId of Object.keys(value)) {
     const g = value[gateId];
     const label = `gates.${gateId}`;
-    exactKeys(g, GATE_KEYS, label, errors);
+    hasOnlyKeys(g, GATE_KEYS, label, errors, { requireAll: true });
     if (!GATE_STATUSES.has(g.status)) errors.push(`${label}.status must be pass | fail | undetermined`);
     for (const listName of ["failure_reasons", "unresolved_reasons"]) {
       if (!Array.isArray(g[listName])) {
@@ -206,7 +193,7 @@ function validateGates(value, checks, errors) {
 function validateRecord(record) {
   const errors = [];
   const rootKeys = [...RECORD_KEYS];
-  if (!exactKeys(record, rootKeys, "record", errors)) return { valid: false, errors, gates: 0, checks: 0 };
+  if (!hasOnlyKeys(record, rootKeys, "record", errors, { requireAll: true })) return { valid: false, errors, gates: 0, checks: 0 };
 
   if (record.schema !== SCHEMA) errors.push(`record.schema must be ${SCHEMA} (got ${JSON.stringify(record.schema)})`);
 
