@@ -27,6 +27,23 @@ node tests/routing/eval-routing.mjs
 The routing test reports the existing baseline separately from E1 top-k and
 owner-negative results. Model calls are never made by these checks.
 
+### Two artifacts, two questions
+
+`catalog.json` and the run layer answer different questions and both stay:
+
+- **`catalog.json` (deterministic pilot)** — trigger routing (`top_k`,
+  owner-negative prompts) plus a marker a fixture-backed test must print. It
+  runs in `npm test` and never calls a model.
+- **`e1-cases.json` + `e1-runs/` (behavioral run layer)** — a blind dispatch
+  prompt per skill, a recorded answer with its hash, a lead grade, and an
+  independent blind grade. It is evidence about model behavior, validated
+  fail-closed by `scripts/e1-model-run.mjs`; it never runs in `npm test`.
+
+A skill can appear in both for different reasons, so deleting one file because
+the other exists would remove a question, not a duplicate. The model-run count
+in `skills/e1-suite-manifest.json` is derived from `e1-runs/manifest.json`, not
+from either case file: designing a case is not running it.
+
 ## C1 pilot
 
 `cases/local-evidence-suite.json` defines three local-only cases:
