@@ -39,12 +39,19 @@ function agentAdapterContent(role, canonical) {
     : role;
   const tools = parseToolsList(frontmatter.tools);
   const readOnly = !tools.includes("Write") && !tools.includes("Edit");
-  return [
+  const frontmatterLines = [
     "---",
     `description: Vitruvius ${name} role (${purpose}). Canonical definition: agents/${name}.md - Read it and follow it exactly.`,
     "mode: subagent",
-    readOnly ? "tools:\n  write: false\n  edit: false" : "tools:",
-    "---",
+  ];
+  // Read-only roles deny write/edit explicitly. A role with full tools emits
+  // NO tools key: an empty `tools:` parses as null, and the OpenCode host
+  // rejects null ("Expected object | undefined") — the adapter then fails to
+  // load, so the role is silently missing at run time.
+  if (readOnly) frontmatterLines.push("tools:\n  write: false\n  edit: false");
+  frontmatterLines.push("---");
+  return [
+    ...frontmatterLines,
     "",
     `1. Read the file agents/${name}.md from the repo root and follow it exactly.`,
     `2. If that file is missing, refuse the task and report BLOCKED: role definition agents/${name}.md not found - do not improvise the role.`,
