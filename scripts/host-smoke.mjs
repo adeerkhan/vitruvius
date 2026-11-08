@@ -103,7 +103,66 @@ function preserveBundle() {
   console.log(`\nFailure bundle preserved: ${bundleDir}`);
 }
 
+function validateJsonTree(root) {
+  const files = walk(root, (f) => f.endsWith(".json"));
+  for (const file of files) JSON.parse(readFileSync(file, "utf8"));
+  return `${files.length} json file(s) parsed`;
+}
+
+function validateSyntaxTree(root) {
+  const files = walk(root, (f) => f.endsWith(".mjs"));
+  for (const file of files) {
+    const check = spawnSync(process.execPath, ["--check", file], { encoding: "utf8" });
+    if (check.status !== 0) throw new Error(`${relative(root, file)}: ${(check.stderr ?? "").split("\n")[0]}`);
+  }
+  return `${files.length} module(s) passed node --check`;
+}
+
+function validateFrontmatterTree(root) {
+  const files = walk(root, (f) => f.endsWith(".md"));
+  let checked = 0;
+  for (const file of files) {
+    const lines = readFileSync(file, "utf8").split("\n");
+    if (lines[0] !== "---") continue;
+    const close = lines.slice(1, 60).indexOf("---");
+    if (close === -1) throw new Error(`${relative(root, file)}: frontmatter never closes`);
+    // A `key:` with nothing after it is YAML null unless the NEXT line is an
+    // indented block. The adapter bug this catches rendered `tools:` alone:
+    // valid-looking to a delimiter check, rejected by the host as null.
+    for (let i = 1; i <= close; i++) {
+      const match = /^([A-Za-z0-9_-]+):\s*$/.exec(lines[i]);
+      if (!match) continue;
+      const next = lines[i + 1] ?? "";
+      if (next.startsWith(" ") || next.startsWith("\t")) continue; // nested block
+      throw new Error(`${relative(root, file)}: frontmatter key "${match[1]}" has a null value`);
+    }
+    checked++;
+  }
+  return `${checked} frontmatter block(s) valid`;
+}
+
+function runValidation(root) {
+  return (
+    runStep("json", () => validateJsonTree(root)) &&
+    runStep("syntax", () => validateSyntaxTree(root)) &&
+    runStep("frontmatter", () => validateFrontmatterTree(root))
+  );
+}
+
 function main() {
+  const replay = opt("replay", null);
+  if (replay) {
+    const installed = join(resolve(replay), "installed");
+    if (!existsSync(installed)) {
+      console.error(`replay: ${installed} does not exist — not a preserved bundle`);
+      return 2;
+    }
+    console.log(`host-smoke: replaying ${installed}`);
+    const ok = runValidation(installed);
+    console.log(ok ? "\nPASS: the preserved tree validates" : "\nFAIL: the preserved tree still fails");
+    return ok ? 0 : 1;
+  }
+
   console.log(`host-smoke: installing into ${target}`);
   const install = spawnSync(process.execPath, [INSTALLER, "--target", target, "--all"], {
     cwd: REPO_ROOT,
@@ -116,32 +175,7 @@ function main() {
     return 1;
   }
 
-  const ok =
-    runStep("json", () => {
-      const files = walk(target, (f) => f.endsWith(".json"));
-      for (const file of files) JSON.parse(readFileSync(file, "utf8"));
-      return `${files.length} json file(s) parsed`;
-    }) &&
-    runStep("syntax", () => {
-      const files = walk(target, (f) => f.endsWith(".mjs"));
-      for (const file of files) {
-        const check = spawnSync(process.execPath, ["--check", file], { encoding: "utf8" });
-        if (check.status !== 0) throw new Error(`${relative(target, file)}: ${(check.stderr ?? "").split("\n")[0]}`);
-      }
-      return `${files.length} module(s) passed node --check`;
-    }) &&
-    runStep("frontmatter", () => {
-      const files = walk(target, (f) => f.endsWith(".md"));
-      let checked = 0;
-      for (const file of files) {
-        const lines = readFileSync(file, "utf8").split("\n");
-        if (lines[0] !== "---") continue;
-        const close = lines.slice(1, 60).indexOf("---");
-        if (close === -1) throw new Error(`${relative(target, file)}: frontmatter never closes`);
-        checked++;
-      }
-      return `${checked} frontmatter block(s) closed`;
-    });
+  const ok = runValidation(target);
 
   if (!ok) {
     preserveBundle();
