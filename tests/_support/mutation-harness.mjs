@@ -50,10 +50,15 @@ const DEFAULT_FILES = ["evals/catalog.json"];
 
 // Isolated git identity: the seeded commit must not inherit the user's config
 // (signing, hooksPath) or the harness would depend on the developer's machine.
+// Windows has no /dev/null; NUL is the equivalent. A literal /dev/null is a
+// relative path there, so git would read the repo for config and the harness
+// would stop being hermetic.
+const NULL_DEVICE = process.platform === "win32" ? "NUL" : "/dev/null";
+
 const GIT_ENV = {
   ...process.env,
-  GIT_CONFIG_GLOBAL: "/dev/null",
-  GIT_CONFIG_SYSTEM: "/dev/null",
+  GIT_CONFIG_GLOBAL: NULL_DEVICE,
+  GIT_CONFIG_SYSTEM: NULL_DEVICE,
   GIT_AUTHOR_NAME: "Mutation Harness",
   GIT_AUTHOR_EMAIL: "mutation-harness@example.invalid",
   GIT_COMMITTER_NAME: "Mutation Harness",

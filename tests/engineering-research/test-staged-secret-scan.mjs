@@ -29,10 +29,14 @@ const scanner = join(repoRoot, "scripts", "staged-secret-scan.mjs");
 const SENTINEL = "FAKE_SENTINEL_FOR_TEST_ONLY_4b8d2f1a";
 const CREDENTIAL_KEY = ["API", "PASSWORD"].join("_");
 
+// Windows has no /dev/null; NUL is the equivalent (a literal /dev/null is a
+// relative path there and would stop the fixture from being hermetic).
+const NULL_DEVICE = process.platform === "win32" ? "NUL" : "/dev/null";
+
 const GIT_ENV = {
   ...process.env,
-  GIT_CONFIG_GLOBAL: "/dev/null",
-  GIT_CONFIG_SYSTEM: "/dev/null",
+  GIT_CONFIG_GLOBAL: NULL_DEVICE,
+  GIT_CONFIG_SYSTEM: NULL_DEVICE,
   GIT_AUTHOR_NAME: "Staged Secret Scan Test",
   GIT_AUTHOR_EMAIL: "staged-secret-scan@example.invalid",
   GIT_COMMITTER_NAME: "Staged Secret Scan Test",
