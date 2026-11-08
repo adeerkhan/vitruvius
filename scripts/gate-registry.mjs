@@ -87,6 +87,9 @@ export const REGISTRY = {
   // could have lost its suite with a green build. It is a reporter only under
   // --report, which exists so a human can inspect state without the gate firing.
   "e1-coverage.mjs": { kind: "chain" },
+  // The E1 model-run record layer: validates every record (prompt hash, output
+  // hash/bytes, session, graded evidence) and derives the manifest count.
+  "e1-model-run.mjs": { kind: "chain" },
   "skill-payload-manifest.mjs": { kind: "test" },
   "generate-skill-diagram.mjs": { kind: "test" },
   "run-isolated-tests.mjs": { kind: "test" },

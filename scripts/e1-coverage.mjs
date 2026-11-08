@@ -91,6 +91,29 @@ if (floor === null) {
       );
     }
   }
+  // The model-run count is derived from recorded evidence now, not hand-set.
+  // A recorded number that disagrees with evals/e1-runs/manifest.json is exactly
+  // the "cannot be contradicted" failure this gate exists to prevent.
+  const runsPath = join(REPO_ROOT, "evals", "e1-runs", "manifest.json");
+  let derivedRuns = null;
+  try {
+    const runsDoc = JSON.parse(readFileSync(runsPath, "utf8"));
+    derivedRuns = Array.isArray(runsDoc?.runs) ? runsDoc.runs.length : null;
+  } catch {
+    derivedRuns = null;
+  }
+  if (derivedRuns === null) {
+    problems.push(
+      "evals/e1-runs/manifest.json is missing or unreadable, so model_run_recorded cannot be checked against evidence.",
+    );
+  } else if (floor.model_run_recorded !== derivedRuns) {
+    problems.push(
+      `skills/e1-suite-manifest.json records model_run_recorded: ${floor.model_run_recorded}, but ` +
+        `evals/e1-runs/manifest.json holds ${derivedRuns} record(s). The number is derived from records now — ` +
+        `update it in the same commit that adds or removes a record.`,
+    );
+  }
+
   const stale = (floor.must_have_suite ?? []).filter((n) => !report.find((r) => r.skill === n));
   for (const n of stale) {
     problems.push(`${n} is in the manifest but is not a skill in skills/; remove the stale entry.`);
@@ -103,7 +126,7 @@ const result = {
     count: floor?.model_run_recorded ?? null,
     // Deliberately not computed here. Stating it as a machine number would let
     // a reader assume something verifies it.
-    note: "not machine-countable; requires a blind model run per skill. Tracked by hand in skills/e1-suite-manifest.json.",
+    note: "derived from evals/e1-runs/manifest.json; each record has a hashed answer and graded evidence, checked by scripts/e1-model-run.mjs.",
   },
   teeth: {
     harness: "tests/all-skills/test-e1-suites-have-teeth.mjs",
@@ -127,7 +150,7 @@ if (process.argv.includes("--json")) {
 function printReport() {
   console.log(`E1 SUITE FLOOR (machine-checked, gated): ${covered.length}/${report.length} skills have a tests/<skill>/ suite`);
   console.log(`E1 MODEL-RUN CATALOG:                    ${floor?.model_run_recorded ?? "unknown"}/${report.length} skills have a blind model-run record`);
-  console.log("  (not machine-countable — needs a model run per skill; tracked by hand in skills/e1-suite-manifest.json)");
+  console.log("  (derived from evals/e1-runs/manifest.json — a record is a hashed blind answer plus graded evidence)");
   console.log("E1 TEETH:                                 proven by tests/all-skills/test-e1-suites-have-teeth.mjs\n");
   for (const r of report) {
     console.log(`  ${r.covered ? "OK  " : "GAP "} ${r.skill}${r.suite_files ? ` (${r.suite_files} file${r.suite_files === 1 ? "" : "s"})` : ""}`);

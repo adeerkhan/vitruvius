@@ -179,7 +179,22 @@ const run = (dir) => {
   }
 }
 
+// --- 7. A wholesale directory ignore is caught -----------------------------
+// The `evals/` incident: new pilot files could not be committed while older
+// ones stayed tracked. The probe fails closed on the directory, not the file.
+{
+  const dir = makeRepo(["evals/"]);
+  try {
+    const r = run(dir);
+    assert.equal(r.status, 1, `a wholesale evals/ ignore must fail the gate:\n${r.out}`);
+    assert.match(r.out, /evals\/ is ignored wholesale/, "must name the wholesale ignore");
+  } finally {
+    removeTempDir(dir);
+  }
+}
+
 console.log(
   "PASS: a test hidden by .gitignore fails the gate, an untracked suite fails it, an unwired " +
-    "suite fails it, a declared diagnostic exception is honoured, and this repository passes its own check",
+    "suite fails it, a wholesale directory ignore fails it, a declared diagnostic exception is " +
+    "honoured, and this repository passes its own check",
 );

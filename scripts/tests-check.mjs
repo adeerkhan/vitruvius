@@ -121,6 +121,20 @@ for (const abs of walkFiles(TESTS_DIR)) {
   }
 }
 
+// A wholesale directory ignore is the `tests/*` incident one directory over.
+// `evals/` was ignored, so every new E1 case and record was uncommittable while
+// all 29 older evals files stayed tracked and invisible to the rule. Probe the
+// directories whose new files must stay committable; generated subpaths are
+// ignored narrowly instead.
+for (const dir of ["tests", "evals"]) {
+  if (sh("git", ["check-ignore", "-q", `${dir}/__unignored-probe__.md`]) !== null) {
+    problems.push(
+      `${dir}/ is ignored wholesale by .gitignore, so a new file there cannot be committed while ` +
+        `tracked ones stay invisible to the rule. Ignore the generated subpaths instead.`,
+    );
+  }
+}
+
 const asJson = process.argv.includes("--json");
 if (asJson) {
   console.log(JSON.stringify({ problems, tests: walkFiles(TESTS_DIR).length }, null, 2));

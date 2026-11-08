@@ -25,7 +25,13 @@ tasks/benchmark/*results*/
 !tasks/benchmark/controls/results/
 !tasks/benchmark/controls/results/*.md
 tasks/benchmark/results/.err-*.log4
-evals/
+# Only the downloaded source dumps under the baseline pilot are local-only.
+# A wholesale `evals/` rule is the tests/* incident one directory over: it
+# hides every NEW pilot file while every older one stays tracked.
+evals/baseline/results/*/*/sources/
+# A local-only baseline trial (answers, plan, 41MB of downloaded sources);
+# published pilot cases stay tracked file by file.
+evals/baseline/results/civil-aci-cover/
 
 # Routing-eval diagnostics, rewritten on every `npm test`. e1-misses.txt stays
 # tracked on purpose: it is the regression record of which prompts failed to

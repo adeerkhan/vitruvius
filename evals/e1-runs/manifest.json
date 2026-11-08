@@ -1,0 +1,11 @@
+{
+  "schema": "vitruvius-e1-runs.v1",
+  "note": [
+    "Recorded blind model runs for the E1 case catalog. Each record pins the case",
+    "prompt (and its hash), the fresh subagent session, the output answer file with",
+    "its hash and byte count, and an expectation grade with written evidence.",
+    "Validated fail-closed by scripts/e1-model-run.mjs; the manifest count in",
+    "skills/e1-suite-manifest.json is derived from this file's records."
+  ],
+  "runs": []
+}

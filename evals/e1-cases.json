@@ -1,0 +1,229 @@
+{
+  "schema": "vitruvius-e1-cases.v1",
+  "note": [
+    "The E1 model-run case catalog: one blind dispatch per skill, with behavioral",
+    "expectations a reader can grade from the answer alone. This is separate from",
+    "evals/catalog.json (the deterministic fixture pilot) on purpose: a case is what",
+    "gets run blind, and a record (evals/e1-runs/manifest.json) is the evidence that",
+    "it was. The manifest's model_run_recorded count is derived from records, not",
+    "from this file — designing a case is not running it."
+  ],
+  "cases": [
+    {
+      "skill": "architectural",
+      "prompt": "Research facade and enclosure systems for my building science survey",
+      "expectations": [
+        { "id": "E1", "statement": "Names assemblies with the system or standard they trace to, or marks an untraced value as inferred." },
+        { "id": "E2", "statement": "Separates performance claims from design assumptions and states the scope of the answer." }
+      ]
+    },
+    {
+      "skill": "artifact-reading",
+      "prompt": "Extract the tables from this 80-page specification PDF",
+      "expectations": [
+        { "id": "E1", "statement": "Does not fabricate table contents without the document." },
+        { "id": "E2", "statement": "Names the missing artifact (file/pages) and what the extraction will preserve." }
+      ]
+    },
+    {
+      "skill": "audit",
+      "prompt": "Audit this against its spec. Spec: 'retry up to 3 times'. Code: const MAX_RETRIES = 5; for (let i = 0; i < MAX_RETRIES; i++) { attempt(); }",
+      "expectations": [
+        { "id": "E1", "statement": "Compares the claim and the implementation directly and names the 3-versus-5 mismatch." },
+        { "id": "E2", "statement": "Distinguishes a confirmed mismatch from missing information and states what was checked." }
+      ]
+    },
+    {
+      "skill": "civil",
+      "prompt": "Research wind loading on long-span bridges for my survey",
+      "expectations": [
+        { "id": "E1", "statement": "States the load basis (ASCE 7 chapter/section) and combination, or marks them missing." },
+        { "id": "E2", "statement": "Pins edition and units and separates verified provisions from inferred practice." }
+      ]
+    },
+    {
+      "skill": "compare",
+      "prompt": "Compare what Eurocode and AISC say about this connection",
+      "expectations": [
+        { "id": "E1", "statement": "Requires or states the editions and notes that no connection detail was provided." },
+        { "id": "E2", "statement": "Compares provision-by-provision rather than summarizing secondary sources." }
+      ]
+    },
+    {
+      "skill": "design-alternatives",
+      "prompt": "Compare three design alternatives for this pressure vessel closure",
+      "expectations": [
+        { "id": "E1", "statement": "Produces a criteria-based comparison and names trade-offs rather than one answer." },
+        { "id": "E2", "statement": "States assumptions and ranks the options with the evidence behind the ranking." }
+      ]
+    },
+    {
+      "skill": "electrical",
+      "prompt": "Research motor drives and power systems for this grid-tied installation",
+      "expectations": [
+        { "id": "E1", "statement": "Names the voltage/frequency basis and the governing code or standard, or marks them missing." },
+        { "id": "E2", "statement": "Distinguishes datasheet values from inferred selection." }
+      ]
+    },
+    {
+      "skill": "eli5",
+      "prompt": "Explain what a resistance factor is in simple terms",
+      "expectations": [
+        { "id": "E1", "statement": "Explains without jargon and keeps the safety meaning intact." },
+        { "id": "E2", "statement": "Flags any lossy simplification explicitly." }
+      ]
+    },
+    {
+      "skill": "engineering-research",
+      "prompt": "Use the engineering research method to discover, read, synthesize, and verify primary evidence for an engineering question",
+      "expectations": [
+        { "id": "E1", "statement": "Plans and gathers primary evidence rather than answering from memory." },
+        { "id": "E2", "statement": "Marks the result verified only with a source and states what remains inferred." }
+      ]
+    },
+    {
+      "skill": "evidence-ranking",
+      "prompt": "Rank these five papers by evidence quality for my fatigue question",
+      "expectations": [
+        { "id": "E1", "statement": "Uses explicit criteria or tiers and does not sum them into one score." },
+        { "id": "E2", "statement": "Marks applicability (or missing appraisal) instead of inventing it." }
+      ]
+    },
+    {
+      "skill": "fmea-brainstorm",
+      "prompt": "What failure modes could go wrong in this gearbox assembly",
+      "expectations": [
+        { "id": "E1", "statement": "Enumerates failure modes with cause, effect, and severity." },
+        { "id": "E2", "statement": "Distinguishes design-level risks from speculation and states the basis." }
+      ]
+    },
+    {
+      "skill": "gap-analysis",
+      "prompt": "Find research gaps in FRP bonding literature for civil structures",
+      "expectations": [
+        { "id": "E1", "statement": "States the corpus or searches the gap claim is based on." },
+        { "id": "E2", "statement": "Separates absent evidence from unsearched territory." }
+      ]
+    },
+    {
+      "skill": "habit",
+      "prompt": "Capture a standing research convention for future runs: use concise evidence tables",
+      "expectations": [
+        { "id": "E1", "statement": "Treats the convention as a proposal awaiting explicit approval, not silently activated." },
+        { "id": "E2", "statement": "Scopes the rule and states where it applies." }
+      ]
+    },
+    {
+      "skill": "hypothesis-generation",
+      "prompt": "Formulate testable hypotheses for why this beam cracked",
+      "expectations": [
+        { "id": "E1", "statement": "Produces rival hypotheses with discriminating predictions." },
+        { "id": "E2", "statement": "Does not select a winner without evidence." }
+      ]
+    },
+    {
+      "skill": "mechanical",
+      "prompt": "Research bearing selection and power transmission for my gearbox design",
+      "expectations": [
+        { "id": "E1", "statement": "States the design factor and governing standard basis, or marks them missing." },
+        { "id": "E2", "statement": "Uses datasheet or primary values and marks inferred selections." }
+      ]
+    },
+    {
+      "skill": "peer-review",
+      "prompt": "Peer review my research brief before I submit it",
+      "expectations": [
+        { "id": "E1", "statement": "Asks for the brief or names the missing artifact rather than inventing its contents." },
+        { "id": "E2", "statement": "Names the review dimensions it will apply (evidence, logic, severity)." }
+      ]
+    },
+    {
+      "skill": "proposal",
+      "prompt": "Turn this position posting and CV into a targeted PhD research proposal",
+      "expectations": [
+        { "id": "E1", "statement": "Keeps the proposal targeted at the named lab and marks missing intake instead of inventing it." },
+        { "id": "E2", "statement": "Grounds the gaps in the lab's own work, not generic claims." }
+      ]
+    },
+    {
+      "skill": "research-to-post",
+      "prompt": "Write a twitter thread about this paper's result",
+      "expectations": [
+        { "id": "E1", "statement": "Asks for or uses the paper as the source and keeps claims to it." },
+        { "id": "E2", "statement": "Drafts without claiming to publish, and treats the source link as provenance." }
+      ]
+    },
+    {
+      "skill": "review",
+      "prompt": "Review this design memo for weaknesses",
+      "expectations": [
+        { "id": "E1", "statement": "Asks for the memo or names the missing artifact." },
+        { "id": "E2", "statement": "Requires concrete weaknesses with severity and forbids vague praise." }
+      ]
+    },
+    {
+      "skill": "scholarly-research",
+      "prompt": "Find prior academic work on retraction-aware paper ranking",
+      "expectations": [
+        { "id": "E1", "statement": "Uses scholarly indexes and cites stable identifiers (DOI or arXiv id)." },
+        { "id": "E2", "statement": "Separates found literature from unverified claims." }
+      ]
+    },
+    {
+      "skill": "simplified-technical-english",
+      "prompt": "Rewrite this procedure in simplified technical english controlled language",
+      "expectations": [
+        { "id": "E1", "statement": "Uses controlled language and keeps every value and risk." },
+        { "id": "E2", "statement": "Does not rewrite quoted evidence." }
+      ]
+    },
+    {
+      "skill": "software",
+      "prompt": "Investigate the technical landscape and architecture options for this software system",
+      "expectations": [
+        { "id": "E1", "statement": "Separates claims about the codebase from prior art and labels each." },
+        { "id": "E2", "statement": "Names trade-offs and what evidence would change the recommendation." }
+      ]
+    },
+    {
+      "skill": "standards-lookup",
+      "prompt": "What does ACI 318 say about the reduction factor for post-tensioned tendons",
+      "expectations": [
+        { "id": "E1", "statement": "Names the edition and section and does not invent a provision." },
+        { "id": "E2", "statement": "Marks an unread or paywalled provision blocked instead of guessing." }
+      ]
+    },
+    {
+      "skill": "summarize",
+      "prompt": "Summarize this datasheet into a digestible brief",
+      "expectations": [
+        { "id": "E1", "statement": "Does not fill unread values from memory; marks them missing." },
+        { "id": "E2", "statement": "Preserves units and section references." }
+      ]
+    },
+    {
+      "skill": "verifier",
+      "prompt": "Verify a fatigue claim against the cited standard and return a severity-gated verdict",
+      "expectations": [
+        { "id": "E1", "statement": "Returns PASS, PARTIAL, or BLOCKED grounded in cited evidence." },
+        { "id": "E2", "statement": "Does not claim verification without a source and states what would change the verdict." }
+      ]
+    },
+    {
+      "skill": "vitruvius",
+      "prompt": "A bridge deck shows fatigue cracking — which discipline should handle this?",
+      "expectations": [
+        { "id": "E1", "statement": "Routes the question to the civil (structural) discipline and explains why." },
+        { "id": "E2", "statement": "Does not start the research itself." }
+      ]
+    },
+    {
+      "skill": "vitruvius-help",
+      "prompt": "What commands does Vitruvius have?",
+      "expectations": [
+        { "id": "E1", "statement": "Lists commands or skills from the help card rather than inventing them." },
+        { "id": "E2", "statement": "Marks anything unavailable or not shown instead of guessing." }
+      ]
+    }
+  ]
+}
