@@ -1,11 +1,11 @@
 import { strict as assert } from "node:assert";
 import { createHash } from "node:crypto";
-import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { tmpdir } from "node:os";
 import { validateFieldPilot } from "../../scripts/field-pilot-contract.mjs";
+import { makeTempDir, removeTempDir } from "../_support/temp-dir.mjs";
 
-const root = mkdtempSync(join(tmpdir(), "vitruvius-field-pilot-"));
+const root = makeTempDir("vitruvius-field-pilot-");
 
 function write(relativePath, text) {
   const path = join(root, relativePath);
@@ -216,5 +216,5 @@ try {
 
   console.log("PASS: field-pilot contract binds sources, artifacts, GOAL-CHECK, and honest outcome metrics");
 } finally {
-  rmSync(root, { recursive: true, force: true });
+  removeTempDir(root);
 }

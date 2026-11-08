@@ -1,15 +1,15 @@
 import { strict as assert } from "node:assert";
 import { createHash } from "node:crypto";
-import { closeSync, cpSync, existsSync, mkdirSync, mkdtempSync, openSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { closeSync, cpSync, existsSync, mkdirSync, openSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
-import { tmpdir } from "node:os";
 import { spawn, spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import { makeTempDir, removeTempDir } from "../_support/temp-dir.mjs";
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const logger = join(repoRoot, "scripts", "log-run.mjs");
 const skillLogger = join(repoRoot, "skills", "engineering-research", "scripts", "log-run.mjs");
-const tempRoot = mkdtempSync(join(tmpdir(), "vitruvius-run-ledger-"));
+const tempRoot = makeTempDir("vitruvius-run-ledger-");
 let dispatchRoot = null;
 const runsDir = join(tempRoot, "runs");
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -207,7 +207,7 @@ try {
   // ledger entry; the completion entry turns them into measured wall_ms and a
   // Step-1 freeze gate. Freeze paths resolve against VITRUVIUS_PROJECT_ROOT,
   // so these tests pin a temp project root and never touch the repository.
-  dispatchRoot = mkdtempSync(join(tmpdir(), "vitruvius-run-dispatch-"));
+  dispatchRoot = makeTempDir("vitruvius-run-dispatch-");
   const dispatchRuns = join(dispatchRoot, "runs");
   const dispatchId = "33333333-3333-4333-8333-333333333333";
   const runDispatch = (args, input = "") => spawnSync(process.execPath, [logger, ...args], {
@@ -402,8 +402,8 @@ try {
   assert.notEqual(unknown.status, 0);
   assert.match(unknown.stderr, /unknown option/i);
 } finally {
-  rmSync(tempRoot, { recursive: true, force: true });
-  if (dispatchRoot) rmSync(dispatchRoot, { recursive: true, force: true });
+  removeTempDir(tempRoot);
+  if (dispatchRoot) removeTempDir(dispatchRoot);
 }
 
 console.log("PASS: run.v1 JSONL logger, validation, duplicate refusal, and isolation");

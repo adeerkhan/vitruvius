@@ -1,11 +1,11 @@
 import { strict as assert } from "node:assert";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import { mkdirSync, readdirSync, readFileSync, symlinkSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 import { validateProblemAnchor } from "../../scripts/problem-anchor-contract.mjs";
+import { makeTempDir, removeTempDir } from "../_support/temp-dir.mjs";
 
 const repoRoot = join(fileURLToPath(new URL("../..", import.meta.url)));
 const validator = join(repoRoot, "scripts", "problem-anchor-contract.mjs");
@@ -57,7 +57,7 @@ assert.match(writer, /changes/i, "writer requires a changes field per finding");
 assert.match(writer, /path:line/, "writer requires anchors for repo claims");
 assert.match(goalChecker, /problem-anchor record path/i, "goal-checker reads the problem-anchor record");
 
-const root = mkdtempSync(join(tmpdir(), "vitruvius-problem-anchor-"));
+const root = makeTempDir("vitruvius-problem-anchor-");
 
 function write(relativePath, text) {
   const path = join(root, relativePath);
@@ -823,7 +823,7 @@ try {
   );
 
   // --- M3 regression: a link inside the root must not reach outside it
-  const outside = mkdtempSync(join(tmpdir(), "vitruvius-pa-outside-"));
+  const outside = makeTempDir("vitruvius-pa-outside-");
   let linkCreated = false;
   try {
     writeFileSync(join(outside, "secret.ts"), "export const outside = true;\n");
@@ -868,7 +868,7 @@ try {
       console.log("  (skipped link-escape case: no symlink/junction privilege on this host)");
     }
   } finally {
-    rmSync(outside, { recursive: true, force: true });
+    removeTempDir(outside);
   }
 
   // --- CLI surface ---
@@ -896,5 +896,5 @@ try {
 
   console.log("PASS: problem-anchor contract binds findings to artifacts, decisions, and negative coverage");
 } finally {
-  rmSync(root, { recursive: true, force: true });
+  removeTempDir(root);
 }

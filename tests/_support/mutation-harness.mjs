@@ -17,12 +17,12 @@
 // pristine copy: a failed baseline is reported as BROKEN BASELINE and the
 // mutation is never scored.
 
-import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { createHash } from "node:crypto";
-import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
+import { makeTempDir, removeTempDir } from "../_support/temp-dir.mjs";
 
 const DEFAULT_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
@@ -61,7 +61,7 @@ const GIT_ENV = {
 };
 
 function copyRepo(sourceRoot, entries) {
-  const root = mkdtempSync(join(tmpdir(), "vitruvius-mutation-"));
+  const root = makeTempDir("vitruvius-mutation-");
   for (const entry of entries) {
     const from = join(sourceRoot, entry);
     if (!existsSync(from)) continue;
@@ -89,7 +89,7 @@ export function copyRepository(sourceRoot = DEFAULT_ROOT, entries = [...DEFAULT_
 /** Delete a copy created by copyRepository; returns whether it is gone. */
 export function removeRepository(root) {
   try {
-    rmSync(root, { recursive: true, force: true });
+    removeTempDir(root);
     return !existsSync(root);
   } catch {
     return false;
@@ -252,7 +252,7 @@ export function runMutationHarness({
     return report;
   } finally {
     try {
-      rmSync(root, { recursive: true, force: true });
+      removeTempDir(root);
       report.workspaceRemoved = !existsSync(root);
     } catch {
       report.workspaceRemoved = false;

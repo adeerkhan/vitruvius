@@ -1,15 +1,15 @@
 import { strict as assert } from "node:assert";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { validateLedger } from "../../scripts/rejected-change-ledger.mjs";
+import { makeTempDir, removeTempDir } from "../_support/temp-dir.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const script = join(root, "scripts", "rejected-change-ledger.mjs");
 const ledgerPath = join(root, "notes", "rejected-changes.md");
-const temp = mkdtempSync(join(tmpdir(), "vitruvius-rejected-"));
+const temp = makeTempDir("vitruvius-rejected-");
 
 const run = (args) => spawnSync(process.execPath, [script, ...args], { cwd: root, encoding: "utf8" });
 const base = readFileSync(ledgerPath, "utf8");
@@ -75,5 +75,5 @@ try {
 
   console.log("PASS: rejected-change ledger is append-only and refuses malformed or out-of-order rows");
 } finally {
-  rmSync(temp, { recursive: true, force: true });
+  removeTempDir(temp);
 }

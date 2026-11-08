@@ -1,15 +1,15 @@
 import { strict as assert } from "node:assert";
 import { spawnSync } from "node:child_process";
-import { writeFileSync, mkdtempSync, rmSync } from "node:fs";
+import { writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 import { dirname } from "node:path";
+import { makeTempDir, removeTempDir } from "../_support/temp-dir.mjs";
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const script = join(repoRoot, "scripts", "citation-audit.mjs");
 
-const tmpDir = mkdtempSync(join(tmpdir(), "citation-audit-"));
+const tmpDir = makeTempDir("citation-audit-");
 const draftPath = join(tmpDir, "draft.md");
 
 // Draft with orphan citation and orphan source
@@ -44,6 +44,6 @@ assert.ok(report.orphanSources.includes(2), "should detect orphan source 2");
 // Should detect unsourced factual claim
 assert.ok(report.unsourcedClaims.length > 0, "should detect unsourced claims");
 
-rmSync(tmpDir, { recursive: true, force: true });
+removeTempDir(tmpDir);
 
 console.log("PASS: citation audit detects orphan citations, orphan sources, and unsourced claims");

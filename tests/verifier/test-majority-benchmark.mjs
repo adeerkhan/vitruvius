@@ -1,14 +1,14 @@
 import { strict as assert } from "node:assert";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { scoreMajority } from "../../scripts/benchmark-scoring.mjs";
+import { makeTempDir, removeTempDir } from "../_support/temp-dir.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const CLI = join(root, "scripts", "majority-benchmark.mjs");
-const temp = mkdtempSync(join(tmpdir(), "vitruvius-majority-"));
+const temp = makeTempDir("vitruvius-majority-");
 const casesDir = join(temp, "cases");
 
 function writeCase(name, verdict, flaw) {
@@ -75,5 +75,5 @@ try {
 
   console.log("PASS: majority benchmark aggregates runs, reports variance, and gates false approvals");
 } finally {
-  rmSync(temp, { recursive: true, force: true });
+  removeTempDir(temp);
 }

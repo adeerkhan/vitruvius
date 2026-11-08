@@ -1,17 +1,17 @@
 import { strict as assert } from "node:assert";
 import { createHash } from "node:crypto";
-import { existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { tmpdir } from "node:os";
 import { validateGoalCheck } from "../../scripts/goal-check-contract.mjs";
+import { makeTempDir, removeTempDir } from "../_support/temp-dir.mjs";
 
 const repoRoot = join(fileURLToPath(new URL("../..", import.meta.url)));
 const method = readFileSync(join(repoRoot, "skills", "engineering-research", "SKILL.md"), "utf8");
 assert.match(method, /\*\*Final artifact:\*\*/);
 assert.match(method, /\*\*GOAL-CHECK:\*\*/);
 
-const root = mkdtempSync(join(tmpdir(), "vitruvius-goal-check-"));
+const root = makeTempDir("vitruvius-goal-check-");
 
 function write(relativePath, text) {
   const path = join(root, relativePath);
@@ -341,5 +341,5 @@ try {
 
   console.log("PASS: goal-check contract enforces three non-averaged gates, non-empty evidence, bounded attempts, and artifact binding");
 } finally {
-  rmSync(root, { recursive: true, force: true });
+  removeTempDir(root);
 }

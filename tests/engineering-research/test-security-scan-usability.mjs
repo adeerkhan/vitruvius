@@ -13,13 +13,13 @@
  */
 
 import { strict as assert } from "node:assert";
-import { copyFileSync, mkdirSync, mkdtempSync, rmSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { copyFileSync, mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 import { assertUsableScan } from "../../scripts/security-scan.mjs";
+import { makeTempDir, removeTempDir } from "../_support/temp-dir.mjs";
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const scanner = join(repoRoot, "scripts", "security-scan.mjs");
@@ -44,7 +44,7 @@ try {
 
   // --- 2. The CLI wiring: a copy with no skills tree exits 2, not PASS ----
   {
-    const dir = mkdtempSync(join(tmpdir(), "vitruvius-security-scan-empty-"));
+    const dir = makeTempDir("vitruvius-security-scan-empty-");
     sandboxes.push(dir);
     // Only the scanner and its one import: no skills/ tree, none of the ten
     // runtime scripts. The guard must fire before any of them is read.
@@ -71,5 +71,5 @@ try {
 
   console.log("PASS: security-scan refuses an empty walk (exit 2) and the real tree still passes");
 } finally {
-  for (const dir of sandboxes) rmSync(dir, { recursive: true, force: true });
+  for (const dir of sandboxes) removeTempDir(dir);
 }

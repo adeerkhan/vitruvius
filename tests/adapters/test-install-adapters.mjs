@@ -12,14 +12,14 @@
  */
 
 import { strict as assert } from "node:assert";
-import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { hosts } from "../../installer/contract.mjs";
 import { renderAdapters } from "../../installer/render.mjs";
 import { walkFiles } from "../../scripts/fs-walk.mjs";
+import { makeTempDir, removeTempDir } from "../_support/temp-dir.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const installer = join(root, "installer", "install.mjs");
@@ -47,8 +47,8 @@ function assertTreeCopied(from, to, label) {
   }
 }
 
-const temp = mkdtempSync(join(tmpdir(), "vitruvius-install-"));
-const reference = mkdtempSync(join(tmpdir(), "vitruvius-render-"));
+const temp = makeTempDir("vitruvius-install-");
+const reference = makeTempDir("vitruvius-render-");
 try {
   // 1. Every authored source named by the install map exists in the repository.
   for (const host of hosts) {
@@ -86,7 +86,7 @@ try {
   );
 
   // 6. `--host` installs only the named host.
-  const subset = mkdtempSync(join(tmpdir(), "vitruvius-install-one-"));
+  const subset = makeTempDir("vitruvius-install-one-");
   try {
     const one = run(["--target", subset, "--host", "opencode"]);
     assert.equal(one.status, 0, one.stderr);
@@ -95,7 +95,7 @@ try {
     assert.ok(existsSync(join(subset, ".opencode", "plugins", "vitruvius.mjs")), "--host opencode installs the plugin");
     assert.ok(!existsSync(join(subset, ".cursor")), "--host opencode must not install .cursor");
   } finally {
-    rmSync(subset, { recursive: true, force: true });
+    removeTempDir(subset);
   }
 
   // 7. An unknown host is a hard error, not a silent no-op.
@@ -105,7 +105,7 @@ try {
 
   // 8. `--global` copies the skills bundle and ruleset into each harness's
   // global config root, honoring the host's env override.
-  const fakeHome = mkdtempSync(join(tmpdir(), "vitruvius-home-"));
+  const fakeHome = makeTempDir("vitruvius-home-");
   try {
     const env = {
       ...process.env,
@@ -154,13 +154,13 @@ try {
     assert.notEqual(bad.status, 0, "a project-only host must fail in --global mode");
     assert.match(`${bad.stdout}\n${bad.stderr}`, /Unknown global host/);
   } finally {
-    rmSync(fakeHome, { recursive: true, force: true });
+    removeTempDir(fakeHome);
   }
 
   console.log(
     `PASS: ${hosts.length} host(s) install byte-exactly into a target project from authored sources + the contract`,
   );
 } finally {
-  rmSync(temp, { recursive: true, force: true });
-  rmSync(reference, { recursive: true, force: true });
+  removeTempDir(temp);
+  removeTempDir(reference);
 }

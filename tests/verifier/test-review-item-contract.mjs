@@ -1,21 +1,21 @@
 import { strict as assert } from "node:assert";
-import { writeFileSync, unlinkSync, mkdtempSync, rmSync } from "node:fs";
+import { writeFileSync, unlinkSync } from "node:fs";
 import { join } from "node:path";
-import { tmpdir } from "node:os";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { dirname } from "node:path";
+import { makeTempDir, removeTempDir } from "../_support/temp-dir.mjs";
 
 const root = dirname(dirname(dirname(fileURLToPath(import.meta.url))));
 const script = join(root, "scripts", "review-item-contract.mjs");
 const NODE = process.execPath;
 
 function run(record) {
-  const dir = mkdtempSync(join(tmpdir(), "vitruvius-ri-"));
+  const dir = makeTempDir("vitruvius-ri-");
   const path = join(dir, "record.json");
   writeFileSync(path, JSON.stringify(record));
   const r = spawnSync(NODE, [script, path, "--strict"], { encoding: "utf8" });
-  rmSync(dir, { recursive: true, force: true });
+  removeTempDir(dir);
   return r;
 }
 

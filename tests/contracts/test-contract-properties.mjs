@@ -17,9 +17,8 @@
  */
 import { strict as assert } from "node:assert";
 import { createHash } from "node:crypto";
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 
 import { unsupportedTokens } from "../../scripts/entailment.mjs";
@@ -27,11 +26,12 @@ import { validateProblemAnchor } from "../../scripts/problem-anchor-contract.mjs
 import { validateGoalCheck } from "../../scripts/goal-check-contract.mjs";
 import { validateFieldPilot } from "../../scripts/field-pilot-contract.mjs";
 import { validateArtifactClosure } from "../../scripts/artifact-closure.mjs";
+import { makeTempDir, removeTempDir } from "../_support/temp-dir.mjs";
 
 const repoRoot = join(fileURLToPath(new URL("../..", import.meta.url)));
 void repoRoot;
 
-const root = mkdtempSync(join(tmpdir(), "vitruvius-contract-props-"));
+const root = makeTempDir("vitruvius-contract-props-");
 let failures = 0;
 let passes = 0;
 
@@ -485,7 +485,7 @@ console.log("\nP5 — one well-formed addition is additive; one ill-formed addit
 
 console.log("\nP6 — an anchor reached through a link out of the root is refused (the M3 class)");
 {
-  const outside = mkdtempSync(join(tmpdir(), "vitruvius-props-outside-"));
+  const outside = makeTempDir("vitruvius-props-outside-");
   let linked = false;
   try {
     const secret = "export const secret = 1;\n";
@@ -522,7 +522,7 @@ console.log("\nP6 — an anchor reached through a link out of the root is refuse
       console.log("  SKIP  link-escape property (no symlink/junction privilege on this host)");
     }
   } finally {
-    rmSync(outside, { recursive: true, force: true });
+    removeTempDir(outside);
   }
 }
 
@@ -597,4 +597,4 @@ console.log("\nP9 — artifact closure is monotonic");
 
 assert.ok(failures === 0, `${failures} of ${failures + passes} property checks failed`);
 console.log(`\nPASS: ${passes} property checks hold across the entailment proxy and four contracts`);
-rmSync(root, { recursive: true, force: true });
+removeTempDir(root);

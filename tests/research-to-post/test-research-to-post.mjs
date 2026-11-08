@@ -1,8 +1,9 @@
 import { strict as assert } from "node:assert";
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
+import { makeTempDir, removeTempDir } from "../_support/temp-dir.mjs";
 
 // research-to-post — behavioural.
 //
@@ -54,8 +55,8 @@ assert.match(text, /research-only, not for final engineering sign-off/i, "the S7
 assert.match(text, /## Common Rationalizations/, "the mandatory gate must carry the rationalization table");
 
 // --- fixtures ---------------------------------------------------------------
-const temp = mkdtempSync(join(repoRoot, ".rtp-test-"));
-process.on("exit", () => rmSync(temp, { recursive: true, force: true }));
+const temp = makeTempDir(".rtp-test-");
+process.on("exit", () => removeTempDir(temp));
 
 const mediaId = `rtp-test-${process.pid}`;
 const mediaPath = `outputs/.${mediaId}.png`;

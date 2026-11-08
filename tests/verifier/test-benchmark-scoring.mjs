@@ -1,10 +1,10 @@
 import { strict as assert } from "node:assert";
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
-import { tmpdir } from "node:os";
 import { scoreBenchmark } from "../../scripts/benchmark-scoring.mjs";
+import { makeTempDir, removeTempDir } from "../_support/temp-dir.mjs";
 
 function makeCase(name, verdict, flaw = "none") {
   return `# ${name}\n\n## Research Question\n\nDoes the claim follow?\n\n## Evidence Items\n\n- E1: stated fixture evidence\n\n## Claimed Conclusion\n\nThe fixture conclusion follows.\n\n**Ground-truth verdict:** ${verdict}\n**Flaw type:** ${flaw}\n`;
@@ -17,7 +17,7 @@ function makeResult(verdict, flaw = "none") {
 const tempRoots = [];
 
 function fixture() {
-  const root = mkdtempSync(join(tmpdir(), "vitruvius-benchmark-"));
+  const root = makeTempDir("vitruvius-benchmark-");
   tempRoots.push(root);
   const casesDir = join(root, "cases", "software");
   const resultsDir = join(root, "results");
@@ -140,7 +140,7 @@ function fixture() {
   assert.equal(report.summary.scored, 0);
 }
 
-for (const root of tempRoots) rmSync(root, { recursive: true, force: true });
+for (const root of tempRoots) removeTempDir(root);
 {
   const { casesDir, resultsDir } = fixture();
   const casePath = join(casesDir, "token-01.md");
@@ -237,5 +237,5 @@ for (const root of tempRoots) rmSync(root, { recursive: true, force: true });
   assert.match(report.errors.join("\\n"), /NESTED RESULT|UNKNOWN RESULT/);
 }
 
-for (const root of tempRoots) rmSync(root, { recursive: true, force: true });
+for (const root of tempRoots) removeTempDir(root);
 console.log("PASS: benchmark scoring classification and integrity contracts");

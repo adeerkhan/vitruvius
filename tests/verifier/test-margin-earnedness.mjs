@@ -1,15 +1,15 @@
 import { strict as assert } from "node:assert";
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, writeFileSync, rmSync, readFileSync } from "node:fs";
+import { writeFileSync, readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
-import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 
 import { checkResultFile } from "../../scripts/margin-earnedness-check.mjs";
+import { makeTempDir, removeTempDir } from "../_support/temp-dir.mjs";
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const script = join(repoRoot, "scripts", "margin-earnedness-check.mjs");
-const tmp = mkdtempSync(join(tmpdir(), "margin-earnedness-"));
+const tmp = makeTempDir("margin-earnedness-");
 
 function result(body) {
   const p = join(tmp, `case-${Math.random().toString(36).slice(2)}-result.md`);
@@ -164,6 +164,6 @@ assert.match(
   "agents/verifier.md must still state the rule this check enforces",
 );
 
-rmSync(tmp, { recursive: true, force: true });
+removeTempDir(tmp);
 
 console.log("PASS: margin-earnedness gate catches a sub-cap PASS verdict and is documented in the verifier role");

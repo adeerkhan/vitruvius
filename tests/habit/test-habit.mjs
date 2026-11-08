@@ -9,20 +9,20 @@
  * Exit 1 on any failure.
  */
 
-import { readFileSync, existsSync, mkdtempSync, rmSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { readFileSync, existsSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { check, hasS7Boundary, lineCountUnder } from "../_contract/contract.mjs";
 import { readYamlFrontmatter } from "../../scripts/yaml-frontmatter.mjs";
 import { renderAdapters } from "../../installer/render.mjs";
+import { makeTempDir, removeTempDir } from "../_support/temp-dir.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = join(__dirname, "..", "..");
 const ROLE = join(REPO_ROOT, "agents", "habit.md");
 // The adapter is generated at install time; render it into a temp target.
-const ADAPTER_TEMP = mkdtempSync(join(tmpdir(), "vitruvius-habit-"));
-process.on("exit", () => rmSync(ADAPTER_TEMP, { recursive: true, force: true }));
+const ADAPTER_TEMP = makeTempDir("vitruvius-habit-");
+process.on("exit", () => removeTempDir(ADAPTER_TEMP));
 renderAdapters({ targetRoot: ADAPTER_TEMP, hostIds: ["opencode"] });
 const ADAPTER = join(ADAPTER_TEMP, ".opencode", "agent", "habit.md");
 const SKILL = join(REPO_ROOT, "skills", "habit", "SKILL.md");

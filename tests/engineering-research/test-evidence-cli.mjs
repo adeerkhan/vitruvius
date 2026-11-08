@@ -1,12 +1,12 @@
 import { strict as assert } from "node:assert";
 import { createHash } from "node:crypto";
-import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
-import { tmpdir } from "node:os";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 import { validateEvidenceLedger } from "../../skills/engineering-research/scripts/evidence-ledger.mjs";
+import { makeTempDir, removeTempDir } from "../_support/temp-dir.mjs";
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const rootScript = join(repoRoot, "scripts", "record-evidence.mjs");
@@ -14,7 +14,7 @@ const rootValidator = join(repoRoot, "scripts", "validate-evidence.mjs");
 const skillScript = join(repoRoot, "skills", "engineering-research", "scripts", "record-evidence.mjs");
 const skillValidator = join(repoRoot, "skills", "engineering-research", "scripts", "validate-evidence.mjs");
 const skillModule = join(repoRoot, "skills", "engineering-research", "scripts", "evidence-ledger.mjs");
-const tempRoot = mkdtempSync(join(tmpdir(), "vitruvius-evidence-"));
+const tempRoot = makeTempDir("vitruvius-evidence-");
 const runsDir = join(tempRoot, "runs");
 const repoSourcePath = "evals/fixtures/c1/supported-evidence/requirement.md";
 const repoSourceHash = createHash("sha256").update(readFileSync(join(repoRoot, repoSourcePath))).digest("hex");
@@ -198,7 +198,7 @@ try {
   assert.equal(compatibility.status, 0, compatibility.stderr);
   assert.equal(existsSync(outputPath(compatibilityId, join(compatibilityRoot, ".runs"))), true);
 } finally {
-  rmSync(tempRoot, { recursive: true, force: true });
+  removeTempDir(tempRoot);
 }
 
 console.log("PASS: Q1 evidence ledger binds to L1, writes atomically, refuses overwrite/lock/malformed input, and preserves portability");

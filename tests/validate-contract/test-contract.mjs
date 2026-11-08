@@ -6,13 +6,13 @@
  * fixtures that exercise specific checks.
  */
 
-import { readFileSync, existsSync, readdirSync, statSync, mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
+import { readFileSync, existsSync, readdirSync, statSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
 import { join, dirname } from "node:path";
-import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
 import { check } from "../_contract/contract.mjs";
 import { readYamlFrontmatter } from "../../scripts/yaml-frontmatter.mjs";
+import { makeTempDir, removeTempDir } from "../_support/temp-dir.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = join(__dirname, "..", "..");
@@ -120,7 +120,7 @@ console.log("\n[Test] A frontmatter value opening with a YAML indicator is refus
   // rule can actually fail, so a green run is meaningful. Strict YAML parsers
   // (PyYAML, psych) reject a plain scalar starting with ` @ % * , and a
   // one-line `|`/`>` header — this line-based parser would accept both.
-  const temp = mkdtempSync(join(tmpdir(), "vitruvius-indicator-"));
+  const temp = makeTempDir("vitruvius-indicator-");
   const skills = join(temp, "skills");
   const writeSkill = (name, descriptionLine) => {
     const dir = join(skills, name);
@@ -163,7 +163,7 @@ console.log("\n[Test] A frontmatter value opening with a YAML indicator is refus
     const goodQuoted = runValidator();
     check(goodQuoted.status === 0, "a quoted value starting with a backtick is accepted");
   } finally {
-    rmSync(temp, { recursive: true, force: true });
+    removeTempDir(temp);
   }
 }
 

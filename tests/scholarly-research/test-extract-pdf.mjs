@@ -6,8 +6,9 @@
  * line reconstruction, page-marker stamping, hashing, and fail-closed errors.
  */
 
-import { mkdtempSync, rmSync, writeFileSync, existsSync, readFileSync } from 'node:fs';
+import { rmSync, writeFileSync, existsSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
+import { makeTempDir, removeTempDir } from "../_support/temp-dir.mjs";
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { check } from '../_contract/contract.mjs';
@@ -81,7 +82,7 @@ try {
 }
 check(missing, 'extractPdf fails closed on a missing file');
 
-const dir = mkdtempSync(join(tmpdir(), 'vitruvius-pdf-test-'));
+const dir = makeTempDir('vitruvius-pdf-test-');
 const textPath = join(dir, 'note.txt');
 writeFileSync(textPath, 'hello');
 let notPdf = false;
@@ -297,6 +298,6 @@ async function raceGiveUp(promise, ms = 3000) {
   check(rejected !== null && /404/.test(rejected.message), 'a non-OK response still throws with its status');
 }
 
-rmSync(dir, { recursive: true, force: true });
+removeTempDir(dir);
 
 console.log('\nPASS: scholarly-research PDF extraction');

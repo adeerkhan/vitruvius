@@ -1,10 +1,10 @@
 import { strict as assert } from "node:assert";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { DEFAULT_SKIP, walkFiles } from "../../scripts/fs-walk.mjs";
+import { makeTempDir, removeTempDir } from "../_support/temp-dir.mjs";
 
 // fs-walk — behavioural.
 //
@@ -14,8 +14,8 @@ import { DEFAULT_SKIP, walkFiles } from "../../scripts/fs-walk.mjs";
 // throw) for a tree that isn't there. Each assertion below is a property one of
 // the callers depends on, which is exactly why a single definition matters.
 
-const root = mkdtempSync(join(tmpdir(), "vitruvius-fs-walk-"));
-process.on("exit", () => rmSync(root, { recursive: true, force: true }));
+const root = makeTempDir("vitruvius-fs-walk-");
+process.on("exit", () => removeTempDir(root));
 
 mkdirSync(join(root, "sub"), { recursive: true });
 mkdirSync(join(root, "node_modules"), { recursive: true });

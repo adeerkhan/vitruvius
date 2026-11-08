@@ -1,14 +1,14 @@
 import { strict as assert } from "node:assert";
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, readFileSync, rmSync, unlinkSync, writeFileSync } from "node:fs";
+import { readFileSync, unlinkSync, writeFileSync } from "node:fs";
 import { join, dirname } from "node:path";
-import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 import { writeJsonAtomic } from "../../scripts/habit-ledger.mjs";
+import { makeTempDir, removeTempDir } from "../_support/temp-dir.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const cli = join(root, "scripts", "habit-ledger.mjs");
-const temp = mkdtempSync(join(tmpdir(), "vitruvius-habit-cli-"));
+const temp = makeTempDir("vitruvius-habit-cli-");
 const ledgerPath = join(temp, "ledger.json");
 const storePath = join(temp, "active.json");
 const at = "2026-09-24T11:00:00.000Z";
@@ -126,5 +126,5 @@ function run(args) {
   assert.throws(() => writeJsonAtomic(join(temp, "AGENTS.md"), {}), /AGENTS\.md/);
 }
 
-rmSync(temp, { recursive: true, force: true });
+removeTempDir(temp);
 console.log("PASS: Habit file-based lifecycle CLI and AGENTS.md refusal");

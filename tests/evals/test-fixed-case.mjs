@@ -1,11 +1,11 @@
 import { strict as assert } from "node:assert";
 import { createHash } from "node:crypto";
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
-import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 
 import { validateFixedCase, validateRunManifest } from "../../scripts/fixed-case.mjs";
+import { withTempDir } from "../_support/temp-dir.mjs";
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const suitePath = join(repoRoot, "evals", "cases", "local-evidence-suite.json");
@@ -31,8 +31,7 @@ assert.match(
   /fixture_tree_sha256 does not match/i,
 );
 
-const artifactRoot = mkdtempSync(join(tmpdir(), "vitruvius-c1-"));
-try {
+withTempDir("vitruvius-c1-", (artifactRoot) => {
   const runs = suite.cases.map((fixedCase, index) => {
     const runId = `run-${index + 1}`;
     const runDir = join(artifactRoot, fixedCase.id);
@@ -225,8 +224,6 @@ try {
     assert.equal(report.valid, false);
     assert.match(report.errors.join("\\n"), /manifest must be an object|has unknown field/);
   }
-} finally {
-  rmSync(artifactRoot, { recursive: true, force: true });
-}
+});
 
 console.log("PASS: C1 fixed-case suite validates isolated run evidence and refuses incomplete records");

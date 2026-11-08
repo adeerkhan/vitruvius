@@ -11,11 +11,11 @@
  */
 import { strict as assert } from "node:assert";
 import { createHash } from "node:crypto";
-import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 import { validateProblemAnchor } from "../../scripts/problem-anchor-contract.mjs";
+import { makeTempDir, removeTempDir } from "../_support/temp-dir.mjs";
 
 const repoRoot = join(fileURLToPath(new URL("../..", import.meta.url)));
 const excerpt = readFileSync(join(repoRoot, "tests", "engineering-research", "fixtures", "audit-excerpts.md"), "utf8");
@@ -30,7 +30,7 @@ assert.match(excerpt, /Very high \| Medium/,
 assert.match(excerpt, /RoomProfile\.usabilityProfile/,
   "fixture must retain the recommendation to rebuild an existing module, or it no longer reproduces defect 2");
 
-const root = mkdtempSync(join(tmpdir(), "vitruvius-audit-regression-"));
+const root = makeTempDir("vitruvius-audit-regression-");
 cpSync(join(repoRoot, "tests", "engineering-research", "fixtures", "audit-excerpts.md"), join(root, "audit.md"), {
   recursive: false,
 });
@@ -158,5 +158,5 @@ try {
     "PASS: the real audit fails the problem-anchor contract for the right reasons, and the same findings pass once grounded",
   );
 } finally {
-  rmSync(root, { recursive: true, force: true });
+  removeTempDir(root);
 }

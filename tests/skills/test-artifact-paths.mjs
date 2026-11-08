@@ -5,15 +5,15 @@
  * the guard can fail on a drifted path and on a generic basename.
  */
 import { strict as assert } from "node:assert";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import { makeTempDir, removeTempDir } from "../_support/temp-dir.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const validator = join(root, "scripts", "validate-artifact-paths.mjs");
-const temp = mkdtempSync(join(tmpdir(), "vitruvius-artifact-paths-"));
+const temp = makeTempDir("vitruvius-artifact-paths-");
 
 function run(artifactRoot) {
   return spawnSync(process.execPath, [validator], {
@@ -56,5 +56,5 @@ try {
 
   console.log("PASS: artifact-path guard accepts canonical paths and refuses drift and generic names");
 } finally {
-  rmSync(temp, { recursive: true, force: true });
+  removeTempDir(temp);
 }

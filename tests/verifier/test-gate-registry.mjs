@@ -1,10 +1,10 @@
 import { strict as assert } from "node:assert";
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } from "node:fs";
+import { mkdirSync, writeFileSync, readFileSync, rmSync } from "node:fs";
 import { join, dirname } from "node:path";
-import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 
 import { audit, REGISTRY } from "../../scripts/gate-registry.mjs";
+import { makeTempDir } from "../_support/temp-dir.mjs";
 
 // The gate registry's job is to fail when a gate is added and never wired. If
 // the failure modes do not actually fire, the registry is decoration. Each case
@@ -16,7 +16,7 @@ import { audit, REGISTRY } from "../../scripts/gate-registry.mjs";
 
 /** Build a minimal repo fixture. `scripts` maps filename -> source. */
 function fixture(scripts, { chain = [], npm = {}, tests = {} } = {}) {
-  const root = mkdtempSync(join(tmpdir(), "gate-registry-"));
+  const root = makeTempDir("gate-registry-");
   mkdirSync(join(root, "scripts"));
   mkdirSync(join(root, "tests"));
   for (const [name, src] of Object.entries(scripts)) {

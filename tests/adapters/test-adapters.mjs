@@ -14,17 +14,17 @@
  */
 
 import { strict as assert } from "node:assert";
-import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { commands, hosts } from "../../installer/contract.mjs";
 import { renderAdapters } from "../../installer/render.mjs";
 import { parseFrontmatterObject } from "../../scripts/yaml-frontmatter.mjs";
+import { makeTempDir, removeTempDir } from "../_support/temp-dir.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
-const temp = mkdtempSync(join(tmpdir(), "vitruvius-generate-"));
-process.on("exit", () => rmSync(temp, { recursive: true, force: true }));
+const temp = makeTempDir("vitruvius-generate-");
+process.on("exit", () => removeTempDir(temp));
 
 const written = renderAdapters({ targetRoot: temp });
 const contractNames = new Set(commands.map((command) => command.name));

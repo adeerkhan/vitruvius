@@ -1,8 +1,8 @@
 import { strict as assert } from "node:assert";
 import { spawnSync, execFileSync } from "node:child_process";
-import { mkdtempSync, writeFileSync, rmSync, mkdirSync, readFileSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { writeFileSync, rmSync, mkdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { makeTempDir, removeTempDir } from "../_support/temp-dir.mjs";
 
 // tests-check.mjs — the gate that stops .gitignore from hiding a test.
 //
@@ -33,7 +33,7 @@ const GIT = (args, cwd) =>
  * NEXT test someone wrote.
  */
 function makeRepo(gitignoreLines) {
-  const dir = mkdtempSync(join(tmpdir(), "vitruvius-testscheck-"));
+  const dir = makeTempDir("vitruvius-testscheck-");
   GIT(["init", "-q"], dir);
   GIT(["config", "user.email", "t@example.com"], dir);
   GIT(["config", "user.name", "t"], dir);
@@ -78,7 +78,7 @@ const run = (dir) => {
     assert.equal(r.status, 0, `a repo with nothing ignored must pass:\n${r.out}`);
     assert.match(r.out, /PASS/, "and must say so");
   } finally {
-    rmSync(dir, { recursive: true, force: true });
+    removeTempDir(dir);
   }
 }
 
@@ -98,7 +98,7 @@ const run = (dir) => {
     assert.match(r.out, /does not exist for/, "must say why an ignored test is a real problem");
     assert.match(r.out, /brand-new\.test\.mjs/, "must name the file that is hidden");
   } finally {
-    rmSync(dir, { recursive: true, force: true });
+    removeTempDir(dir);
   }
 }
 
@@ -113,7 +113,7 @@ const run = (dir) => {
     assert.equal(r.status, 1, "a newly added test must be caught while older ones are fine");
     assert.match(r.out, /brand-new\.test\.mjs/, "must name the new file specifically");
   } finally {
-    rmSync(dir, { recursive: true, force: true });
+    removeTempDir(dir);
   }
 }
 
@@ -126,7 +126,7 @@ const run = (dir) => {
     assert.equal(r.status, 1, "an untracked suite must fail — that is what a fresh clone would miss");
     assert.match(r.out, /not tracked by git/, "must distinguish this from the ignored case");
   } finally {
-    rmSync(dir, { recursive: true, force: true });
+    removeTempDir(dir);
   }
 }
 
@@ -142,7 +142,7 @@ const run = (dir) => {
     const r = run(dir);
     assert.equal(r.status, 0, `the declared exception must be honoured:\n${r.out}`);
   } finally {
-    rmSync(dir, { recursive: true, force: true });
+    removeTempDir(dir);
   }
 }
 
@@ -175,7 +175,7 @@ const run = (dir) => {
     assert.match(r.out, /no npm script runs it/, "must explain that nothing invokes it");
     assert.match(r.out, /unwired\.test\.mjs/, "must name the unwired suite");
   } finally {
-    rmSync(dir, { recursive: true, force: true });
+    removeTempDir(dir);
   }
 }
 

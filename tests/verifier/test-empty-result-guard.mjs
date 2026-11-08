@@ -1,13 +1,13 @@
 import { strict as assert } from "node:assert";
-import { mkdtempSync, writeFileSync, rmSync, readFileSync } from "node:fs";
+import { writeFileSync, readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
-import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 
 import { scoreCase } from "../../scripts/benchmark-scoring.mjs";
+import { makeTempDir, removeTempDir } from "../_support/temp-dir.mjs";
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
-const tmp = mkdtempSync(join(tmpdir(), "empty-result-guard-"));
+const tmp = makeTempDir("empty-result-guard-");
 
 const caseFile = join(tmp, "demo-case.md");
 writeFileSync(
@@ -72,7 +72,7 @@ const good = scoreCase(caseFile, goodResult);
 assert.ok(!good.error, `a valid verdict must score, got: ${good.error}`);
 assert.ok(good.correct, "a BLOCKED verdict against BLOCKED ground truth is correct");
 
-rmSync(tmp, { recursive: true, force: true });
+removeTempDir(tmp);
 
 // --- The runner must not truncate the tracked result path speculatively ----
 const runner = readFileSync(join(repoRoot, "tasks", "benchmark", "run-opencode.sh"), "utf8");

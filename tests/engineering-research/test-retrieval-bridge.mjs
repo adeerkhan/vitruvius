@@ -1,11 +1,11 @@
 import { strict as assert } from "node:assert";
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } from "node:fs";
+import { mkdirSync, writeFileSync, readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
-import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 
 import { parseArgs, exactSearch, directRead, main } from "../../scripts/retrieval-bridge.mjs";
+import { makeTempDir, removeTempDir } from "../_support/temp-dir.mjs";
 
 // retrieval-bridge — behavioral.
 //
@@ -60,7 +60,7 @@ for (const [name, fn] of Object.entries(steps)) {
 // --- Step 2: exact search actually searches --------------------------------
 // A fixture tree, so the result does not depend on what this repo happens to
 // contain today.
-const tmp = mkdtempSync(join(tmpdir(), "retrieval-bridge-"));
+const tmp = makeTempDir("retrieval-bridge-");
 const fixture = join(tmp, "proj");
 mkdirSync(join(fixture, "src"), { recursive: true });
 mkdirSync(join(fixture, "node_modules", "junk"), { recursive: true });
@@ -111,7 +111,7 @@ try {
     "a query with no match must return nothing rather than inventing hits",
   );
 } finally {
-  rmSync(tmp, { recursive: true, force: true });
+  removeTempDir(tmp);
 }
 
 // --- Step 3: direct read actually reads -----------------------------------

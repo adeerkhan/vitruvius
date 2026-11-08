@@ -1,13 +1,13 @@
 import { strict as assert } from "node:assert";
-import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { tmpdir } from "node:os";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import { makeTempDir, removeTempDir } from "../_support/temp-dir.mjs";
 
 const repoRoot = join(fileURLToPath(new URL("../..", import.meta.url)));
 const validator = join(repoRoot, "scripts", "validate-artifacts.mjs");
-const root = mkdtempSync(join(tmpdir(), "vitruvius-validate-artifacts-"));
+const root = makeTempDir("vitruvius-validate-artifacts-");
 const outputs = join(root, "outputs");
 mkdirSync(outputs, { recursive: true });
 
@@ -95,7 +95,7 @@ try {
 
   console.log("PASS: provenance shape is byte-pinned, goal-checked, and label-bounded");
 } finally {
-  rmSync(root, { recursive: true, force: true });
+  removeTempDir(root);
 }
 
 function runAfter(text) {

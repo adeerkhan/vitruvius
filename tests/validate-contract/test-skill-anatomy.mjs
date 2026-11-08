@@ -6,15 +6,15 @@
  * meaningful. VITRUVIUS_SKILLS_DIR points the validator at a temp tree.
  */
 import { strict as assert } from "node:assert";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import { makeTempDir, removeTempDir } from "../_support/temp-dir.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const validator = join(root, "scripts", "validate-contract.mjs");
-const temp = mkdtempSync(join(tmpdir(), "vitruvius-anatomy-"));
+const temp = makeTempDir("vitruvius-anatomy-");
 const skills = join(temp, "skills");
 
 function write(relativePath, text) {
@@ -67,5 +67,5 @@ try {
 
   console.log("PASS: skill-anatomy layout and description-trigger checks fail on bad fixtures");
 } finally {
-  rmSync(temp, { recursive: true, force: true });
+  removeTempDir(temp);
 }

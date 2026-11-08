@@ -1,10 +1,10 @@
 import { strict as assert } from "node:assert";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { runMutationHarness } from "./mutation-harness.mjs";
+import { makeTempDir, removeTempDir } from "../_support/temp-dir.mjs";
 
 // Tests for the mutation harness helper. The harnesses prove suites can fail;
 // this proves the harness itself classifies outcomes correctly. A harness that
@@ -14,7 +14,7 @@ import { runMutationHarness } from "./mutation-harness.mjs";
 // land (broken), and a suite that fails before any mutation (broken baseline).
 
 const here = dirname(fileURLToPath(import.meta.url));
-const fixture = mkdtempSync(join(tmpdir(), "vitruvius-mutation-helper-"));
+const fixture = makeTempDir("vitruvius-mutation-helper-");
 
 const GUARDED = `import { readFileSync } from "node:fs";
 const rule = readFileSync(new URL("./rule.txt", import.meta.url), "utf8");
@@ -90,5 +90,5 @@ try {
     "PASS: mutation harness detects real regressions, rejects vacuous suites, broken mutations, and broken baselines",
   );
 } finally {
-  rmSync(fixture, { recursive: true, force: true });
+  removeTempDir(fixture);
 }

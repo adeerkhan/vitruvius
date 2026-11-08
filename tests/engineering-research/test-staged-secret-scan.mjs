@@ -15,11 +15,11 @@
  */
 
 import { strict as assert } from "node:assert";
-import { existsSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { existsSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import { makeTempDir, removeTempDir } from "../_support/temp-dir.mjs";
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const scanner = join(repoRoot, "scripts", "staged-secret-scan.mjs");
@@ -41,7 +41,7 @@ const GIT_ENV = {
 
 const sandboxes = [];
 function sandbox() {
-  const dir = mkdtempSync(join(tmpdir(), "vitruvius-staged-secret-"));
+  const dir = makeTempDir("vitruvius-staged-secret-");
   sandboxes.push(dir);
   git(dir, "init", "-q");
   return dir;
@@ -117,7 +117,7 @@ try {
 
   // --- 5. Unusable (not a git repo) is exit 2, not a quiet pass ----------
   {
-    const dir = mkdtempSync(join(tmpdir(), "vitruvius-staged-secret-nogit-"));
+    const dir = makeTempDir("vitruvius-staged-secret-nogit-");
     sandboxes.push(dir);
     const run = runScanner(dir);
     assert.equal(run.status, 2, `expected exit 2 (unusable), got ${run.status}:\n${run.stdout}\n${run.stderr}`);
@@ -148,5 +148,5 @@ try {
 
   console.log("PASS: staged secret scan names files without echoing values, and is wired");
 } finally {
-  for (const dir of sandboxes) rmSync(dir, { recursive: true, force: true });
+  for (const dir of sandboxes) removeTempDir(dir);
 }

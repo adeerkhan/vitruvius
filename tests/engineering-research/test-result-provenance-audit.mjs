@@ -1,15 +1,15 @@
 import { strict as assert } from "node:assert";
 import { spawnSync } from "node:child_process";
-import { writeFileSync, mkdtempSync, rmSync } from "node:fs";
+import { writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 import { dirname } from "node:path";
+import { makeTempDir, removeTempDir } from "../_support/temp-dir.mjs";
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const script = join(repoRoot, "scripts", "result-provenance-audit.mjs");
 
-const tmpDir = mkdtempSync(join(tmpdir(), "result-provenance-audit-"));
+const tmpDir = makeTempDir("result-provenance-audit-");
 const draftPath = join(tmpDir, "draft.md");
 
 // Draft with sourced and unsourced quantitative claims
@@ -44,6 +44,6 @@ assert.ok(report.summary.unsourced >= 2, `should detect at least 2 unsourced cla
 // Should detect sourced claims (accuracy and latency have citations)
 assert.ok(report.summary.sourced >= 2, `should detect at least 2 sourced claims, got ${report.summary.sourced}`);
 
-rmSync(tmpDir, { recursive: true, force: true });
+removeTempDir(tmpDir);
 
 console.log("PASS: result provenance audit detects sourced and unsourced quantitative claims");

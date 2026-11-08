@@ -1,10 +1,10 @@
 import { strict as assert } from "node:assert";
 import { createHash } from "node:crypto";
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { join, dirname } from "node:path";
-import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
+import { makeTempDir, removeTempDir } from "../_support/temp-dir.mjs";
 import {
   CASES_SCHEMA,
   RECORD_SCHEMA,
@@ -48,7 +48,7 @@ assert.deepEqual(validateCaseSet(onDisk), [], "evals/baseline/cases.json must sa
 assert.equal(onDisk.cases.length, 10, "the case set is the fixed ten questions");
 
 // --- 2. The record contract is fail-closed ----------------------------------
-const dir = mkdtempSync(join(tmpdir(), "vitruvius-baseline-"));
+const dir = makeTempDir("vitruvius-baseline-");
 writeFileSync(join(dir, "answer.md"), "# Answer\n\nRFC 9110 says a 404 is heuristically cacheable.\n", "utf8");
 writeFileSync(join(dir, "source.txt"), "RFC 9110 section 15.5.5\n", "utf8");
 
@@ -139,7 +139,7 @@ assert.ok(
 );
 console.log("  compare: pairs cleanly, a missing condition is an error, and a shared-harness baseline warns");
 
-rmSync(dir, { recursive: true, force: true });
+removeTempDir(dir);
 
 // --- 5. The CLI drives the whole comparison end to end ----------------------
 // Fixtures live under outputs/ (gitignored) so artifact paths are

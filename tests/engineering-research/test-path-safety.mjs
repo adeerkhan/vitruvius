@@ -1,8 +1,8 @@
 import { strict as assert } from "node:assert";
-import { mkdtempSync, mkdirSync, writeFileSync, symlinkSync, rmSync, readFileSync, realpathSync, lstatSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { mkdirSync, writeFileSync, symlinkSync, rmSync, readFileSync, realpathSync, lstatSync } from "node:fs";
 import { dirname, isAbsolute, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { makeTempDir, removeTempDir } from "../_support/temp-dir.mjs";
 
 import {
   canonicalPath,
@@ -112,7 +112,7 @@ assert.equal(isInside(root, root, { allowRoot: false }) === false, true);
 // A path can be lexically inside the root and still point outside it through a
 // symlink. That is the M3 case in the problem-anchor suite, and it is the
 // reason this function exists separately from isInside.
-const tmp = mkdtempSync(join(tmpdir(), "vitruvius-pathsafety-"));
+const tmp = makeTempDir("vitruvius-pathsafety-");
 try {
   const realRoot = realpathSync(tmp);
   const insideDir = join(realRoot, "solver");
@@ -171,7 +171,7 @@ try {
   // used to carry: a symlink out of the root is refused as `escapes-root` even
   // though its own path is lexically inside. The old code reported it as a
   // missing file, which sent an operator looking for the wrong problem.
-  const outside = mkdtempSync(join(tmpdir(), "vitruvius-pathsafety-outside-"));
+  const outside = makeTempDir("vitruvius-pathsafety-outside-");
   try {
     writeFileSync(join(outside, "secret.ts"), "export const secret = true;\n");
     try {
@@ -192,7 +192,7 @@ try {
     }
   } finally {
     rmSync(join(insideDir, "escape.ts"), { force: true });
-    rmSync(outside, { recursive: true, force: true });
+    removeTempDir(outside);
   }
 
   // `ok` carries both spellings: the path a caller should read, and the resolved
@@ -258,7 +258,7 @@ try {
     "a target that vanishes between resolve and stat is not-a-file",
   );
 } finally {
-  rmSync(tmp, { recursive: true, force: true });
+  removeTempDir(tmp);
 }
 
 // --- 5c. The contracts delegate instead of re-implementing -----------------

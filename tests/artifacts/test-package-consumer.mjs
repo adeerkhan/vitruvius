@@ -1,13 +1,13 @@
 import { strict as assert } from "node:assert";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import { makeTempDir, removeTempDir } from "../_support/temp-dir.mjs";
 
 const root = join(fileURLToPath(new URL("../..", import.meta.url)));
 const pkgName = JSON.parse(readFileSync(join(root, "package.json"), "utf8")).name;
-const temp = mkdtempSync(join(tmpdir(), "vitruvius-consumer-"));
+const temp = makeTempDir("vitruvius-consumer-");
 
 const npm = process.platform === "win32" ? "npm.cmd" : "npm";
 const npmCli = process.env.npm_execpath;
@@ -174,5 +174,5 @@ console.log("ok:" + names.length);
       `exposes ${bins.length} validator bins, and its re-export shims resolve inside the install`,
   );
 } finally {
-  rmSync(temp, { recursive: true, force: true });
+  removeTempDir(temp);
 }

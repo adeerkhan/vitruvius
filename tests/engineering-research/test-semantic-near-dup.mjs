@@ -1,16 +1,16 @@
 import { strict as assert } from "node:assert";
 import { spawnSync } from "node:child_process";
-import { writeFileSync, mkdtempSync, rmSync } from "node:fs";
+import { writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 import { dirname } from "node:path";
+import { makeTempDir, removeTempDir } from "../_support/temp-dir.mjs";
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const script = join(repoRoot, "scripts", "semantic-near-dup.mjs");
 
 // Create a temporary evidence ledger
-const tmpDir = mkdtempSync(join(tmpdir(), "semantic-near-dup-"));
+const tmpDir = makeTempDir("semantic-near-dup-");
 const ledgerPath = join(tmpDir, "ledger.json");
 
 const ledger = {
@@ -71,6 +71,6 @@ const falseMerge = proposals.find(
 );
 assert.strictEqual(falseMerge, undefined, "should not merge different types");
 
-rmSync(tmpDir, { recursive: true, force: true });
+removeTempDir(tmpDir);
 
 console.log("PASS: semantic near-duplicate matching proposes correct merges");

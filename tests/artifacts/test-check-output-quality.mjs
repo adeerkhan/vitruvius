@@ -1,13 +1,13 @@
 import { strict as assert } from "node:assert";
-import { mkdtempSync, mkdirSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { tmpdir } from "node:os";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import { makeTempDir, removeTempDir } from "../_support/temp-dir.mjs";
 
 const repoRoot = join(fileURLToPath(new URL("../..", import.meta.url)));
 const validator = join(repoRoot, "scripts", "check-output-quality.mjs");
-const root = mkdtempSync(join(tmpdir(), "vitruvius-output-quality-"));
+const root = makeTempDir("vitruvius-output-quality-");
 
 function write(relativePath, text) {
   const path = join(root, relativePath);
@@ -45,7 +45,7 @@ try {
 
   // --- final deliverables must be grounded in the artifact they study ---
   // A fresh root: the fixtures above are intentionally broken at this point.
-  const finalRoot = mkdtempSync(join(tmpdir(), "vitruvius-output-final-"));
+  const finalRoot = makeTempDir("vitruvius-output-final-");
   const writeFinal = (name, text) => {
     mkdirSync(join(finalRoot, name, ".."), { recursive: true });
     writeFileSync(join(finalRoot, name), text);
@@ -161,8 +161,8 @@ try {
   writeFinal(".drafts/scratch.md", "no anchors, no sections\n");
   assert.equal(runFinal().status, 0, "dot-directory working files are exempt");
 
-  rmSync(finalRoot, { recursive: true, force: true });
+  removeTempDir(finalRoot);
   console.log("PASS: output-quality checks cover citations, machine markers, and final-deliverable grounding");
 } finally {
-  rmSync(root, { recursive: true, force: true });
+  removeTempDir(root);
 }

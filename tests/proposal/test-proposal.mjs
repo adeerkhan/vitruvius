@@ -1,13 +1,13 @@
 import { strict as assert } from "node:assert";
 import { createHash } from "node:crypto";
-import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
-import { tmpdir } from "node:os";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import { makeTempDir, removeTempDir } from "../_support/temp-dir.mjs";
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
-const tempRoot = mkdtempSync(join(tmpdir(), "vitruvius-proposal-"));
+const tempRoot = makeTempDir("vitruvius-proposal-");
 const env = { ...process.env, VITRUVIUS_PROJECT_ROOT: tempRoot };
 
 function run(script, args = []) {
@@ -507,7 +507,7 @@ try {
   assert.ok(packageJson.files.includes("scripts/verifier-parser.mjs"));
   assert.equal(packageJson.optionalDependencies["pdf-parse"], "^1.1.1");
 } finally {
-  rmSync(tempRoot, { recursive: true, force: true });
+  removeTempDir(tempRoot);
 }
 
 console.log("PASS: proposal intake, provenance, fail-closed binder, and packaging");
