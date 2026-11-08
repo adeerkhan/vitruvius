@@ -40,6 +40,11 @@ function makeRepo(gitignoreLines) {
   mkdirSync(join(dir, "tests", "unit"), { recursive: true });
   mkdirSync(join(dir, "scripts"), { recursive: true });
   writeFileSync(join(dir, "scripts", "tests-check.mjs"), readFileSync(new URL("../../scripts/tests-check.mjs", import.meta.url)));
+  // tests-check.mjs imports the shared walker. The fixture originally copied
+  // only the script, so the suite has been failing on a missing import since
+  // the walker was extracted — and nobody noticed, because this file was not
+  // wired into any npm script.
+  writeFileSync(join(dir, "scripts", "fs-walk.mjs"), readFileSync(new URL("../../scripts/fs-walk.mjs", import.meta.url)));
   writeFileSync(join(dir, "tests", "unit", "a.test.mjs"), "export const a = 1;\n");
   // Commit the suite before any ignore rule exists — this is the "predates the
   // rule" state that made the original bug invisible.
