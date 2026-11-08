@@ -447,9 +447,11 @@ if (filtered) {
     `positive ${e1Report.hits}/${e1PositiveCases.length}; owner-negative ${negativeHits}/${e1Cases.length}`,
   );
 
-  // Baseline floor (2026-09 first measured run: 12/16). Raise only with a
-  // recorded better run and sharpened descriptions — never lower.
-  const floor = 0.75;
+  // Baseline floor. Raised from 0.75 to 0.95 on 2026-11-08 with a recorded
+  // 28/28 run after the description work (the rule: raise only with a recorded
+  // better run — never lower). A floor pinned to today's measurement is what
+  // makes drift fail the build instead of accumulating quietly.
+  const floor = 0.95;
   if (baselineReport.hits / routingCases.length < floor) {
     console.log(`  FAIL: baseline rank-1 ${(baselineReport.hits / routingCases.length * 100).toFixed(0)}% < ${floor * 100}% floor`);
     failed++;
