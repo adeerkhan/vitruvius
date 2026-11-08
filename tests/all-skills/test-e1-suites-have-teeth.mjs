@@ -1,13 +1,10 @@
-import { readFileSync } from "node:fs";
-import { spawnSync } from "node:child_process";
-import { createHash } from "node:crypto";
-import { join, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
-import { writeDurable, installRestoreGuard } from "../_support/file-mutation.mjs";
+import { join } from "node:path";
 
-// Mutation harness for the eleven E1 behavioural suites added 2026-09-28.
+import { runMutationHarness } from "../_support/mutation-harness.mjs";
+
+// Mutation harness for the E1 behavioural suites.
 //
-// A behavioural suite that cannot fail is decoration. These eleven assert rules
+// A behavioural suite that cannot fail is decoration. These suites assert rules
 // by matching prose in a SKILL.md, which is exactly the kind of assertion that
 // silently stops asserting anything: the file is reworded, the regex no longer
 // matches, and the suite goes green without ever checking the thing it claims
@@ -21,8 +18,10 @@ import { writeDurable, installRestoreGuard } from "../_support/file-mutation.mjs
 // the four earlier suites. Same invariants, and the same one that bit this repo
 // before: a mutation which silently fails to land is a HARNESS BUG and fails the
 // run, never a pass.
-
-const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
+//
+// Each mutation runs against a throwaway COPY of the repository (see
+// tests/_support/mutation-harness.mjs), so the tracked tree is never touched:
+// no restore step, no lock retry, and no commit-before-gate constraint.
 
 /**
  * find  — a regex matching the exact prose in the SKILL.md
@@ -266,108 +265,14 @@ const CASES = [
   },
 ];
 
-/**
- * Every SKILL.md carries a content-addressed header (sha256 of its body), checked
- * by tests/engineering-research/test-skill-payload-manifest.mjs. Mutating a body
- * invalidates that header, so the file is rewritten with a freshly computed one —
- * otherwise this harness leaves the repo in a state that legitimately fails the
- * manifest test, and a reader has to work out which of the two broke.
- *
- * This was not hypothetical: an early run left skills/review/SKILL.md mutated
- * and git checkout was needed to recover it.
- */
-function rewriteWithFreshHash(path, content) {
-  const match = /<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=([0-9a-f]{64}) -->/.exec(content);
-  if (!match) return content; // No header to refresh; leave as-is.
-  const [, oldHash] = match;
-  const bodyStart = content.indexOf("-->", match.index) + 3;
-  const body = content.slice(bodyStart);
-  const newHash = createHash("sha256").update(body).digest("hex");
-  return content.replace(oldHash, newHash);
-}
-
-let allDetected = true;
-const notDetected = [];
-const brokenHarness = [];
-
-// Durable writes (atomic replace + retry + verify) live in the shared helper so
-// the four mutation harnesses cannot each get lock recovery subtly wrong.
-
-// Snapshot keys are absolute (REPO_ROOT-prefixed) so they work from any cwd.
-// The per-case loop looks up by RELATIVE path, so keep a map for that too.
-const snapshots = new Map();
-for (const c of CASES) {
-  const file = join(REPO_ROOT, "skills", c.skill, "SKILL.md");
-  if (!snapshots.has(file)) snapshots.set(file, readFileSync(file, "utf8"));
-}
-const originalFor = (relativePath) => snapshots.get(join(REPO_ROOT, relativePath));
-
-// Restore on exit (and Ctrl-C) so a failed run never leaves a weakened skill
-// behind: a dirty skills/ tree breaks the payload manifest and ships the defect.
-installRestoreGuard(snapshots, { label: "skill file" });
-
-for (const c of CASES) {
-  const relFile = join("skills", c.skill, "SKILL.md");
-  const file = join(REPO_ROOT, relFile);
-  const test = join("tests", c.skill, `test-${c.skill}.mjs`);
-  const original = originalFor(relFile);
-  const afterReplace = original.replace(c.find, c.replace);
-  const mutated = rewriteWithFreshHash(relFile, afterReplace);
-
-  // A mutation that does not land is a broken harness, not a pass. This exact
-  // failure mode made a mutation harness report success while asserting nothing.
-  if (afterReplace === original) {
-    console.log(`  BROKEN HARNESS: ${c.skill} — "${c.rule}" did not match anything in ${relFile}`);
-    allDetected = false;
-    brokenHarness.push(`${c.skill}: ${c.rule}`);
-    continue;
-  }
-
-  let status;
-  let output = "";
-  try {
-    writeDurable(file, mutated);
-    const run = spawnSync("node", [test], { encoding: "utf8", cwd: REPO_ROOT });
-    status = run.status;
-    output = `${run.stdout ?? ""}${run.stderr ?? ""}`;
-  } finally {
-    writeDurable(file, original);
-  }
-
-  if (status === 0) {
-    console.log(`  NOT DETECTED: ${c.skill} — "${c.rule}" removed, suite still passed`);
-    allDetected = false;
-    notDetected.push(`${c.skill}: ${c.rule}`);
-  } else {
-    // Name the assertion that caught it, so the proof is legible rather than a
-    // bare "detected".
-    const caught = /AssertionError.*?: (.*)/.exec(output);
-    console.log(`  detected: ${c.skill} — "${c.rule}"`);
-    if (caught) console.log(`             caught by: ${caught[1].slice(0, 100)}`);
-  }
-}
-
-// The harness must leave the tree byte-identical to what git has checked in.
-// Compared against git, not an in-memory copy, because the copy is what we just
-// wrote — comparing it to itself would pass vacuously.
-const g = spawnSync("git", ["status", "--porcelain", "--", ...[...snapshots.keys()]], {
-  encoding: "utf8",
-  cwd: REPO_ROOT,
+const report = runMutationHarness({
+  label: `E1 behavioural suites (${new Set(CASES.map((c) => c.skill)).size} suites)`,
+  cases: CASES.map((c) => ({
+    name: `${c.skill} — "${c.rule}"`,
+    file: join("skills", c.skill, "SKILL.md"),
+    test: join("tests", c.skill, `test-${c.skill}.mjs`),
+    mutate: (original) => original.replace(c.find, c.replace),
+  })),
 });
-const dirty = (g.stdout ?? "").trim();
-if (dirty.length > 0) {
-  console.log(`\n  DIRTY AFTER RESTORE — the harness must leave the tree clean:\n${dirty}`);
-  allDetected = false;
-} else {
-  console.log("  tree clean after all mutations restored");
-}
 
-console.log(
-  allDetected
-    ? `\nPASS: all ${CASES.length} E1 behavioural assertions fail when their rule is removed ` +
-        `(${new Set(CASES.map((c) => c.skill)).size} suites), and the tree is left clean`
-    : "\nFAIL: at least one assertion is vacuous, the harness is broken, or the tree was left dirty" +
-        (notDetected.length ? `\n  vacuous: ${notDetected.join("; ")}` : "") +
-        (brokenHarness.length ? `\n  broken harness: ${brokenHarness.join("; ")}` : ""),
-);
-process.exit(allDetected ? 0 : 1);
+process.exit(report.ok ? 0 : 1);

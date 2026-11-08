@@ -3,6 +3,7 @@ import { readdirSync, readFileSync, existsSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createHash } from "node:crypto";
+import { spawnSync } from "node:child_process";
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const skillsDir = join(repoRoot, "skills");
@@ -72,8 +73,27 @@ assert.match(reference, /## Header Format/, "reference must document the header 
 assert.match(reference, /## Computing the Hash/, "reference must document how to compute the hash");
 assert.match(reference, /## Verifying the Hash/, "reference must document how to verify the hash");
 
-// --- The script exists ---
+// --- The shipped CLI runs and verifies every skill -----------------------
+// The loop above reimplements the hash check; that proves the algorithm, not
+// the artifact authors actually run. Execute the CLI itself. Until this
+// existed, the script was "covered" only by an existsSync assertion and a
+// comment in another harness — the gate registry called that out as
+// mentioned-only, which is the distinction it exists to enforce.
 
-assert.ok(existsSync(join(repoRoot, "scripts", "skill-payload-manifest.mjs")), "skill-payload-manifest.mjs must exist");
+const verify = spawnSync(
+  process.execPath,
+  [join(repoRoot, "scripts", "skill-payload-manifest.mjs"), "--verify"],
+  { encoding: "utf8", cwd: repoRoot },
+);
+assert.strictEqual(
+  verify.status,
+  0,
+  `skill-payload-manifest.mjs --verify must pass:\n${verify.stdout}\n${verify.stderr}`,
+);
+assert.match(
+  verify.stdout,
+  new RegExp(`^${skills.length} pass, 0 fail, ${skills.length} total$`, "m"),
+  `the CLI must verify all ${skills.length} skills with no failures:\n${verify.stdout}`,
+);
 
-console.log(`PASS: ${verified} skills have content-addressed headers that match their payloads`);
+console.log(`PASS: ${verified} skills have content-addressed headers that match their payloads, and the CLI agrees`);

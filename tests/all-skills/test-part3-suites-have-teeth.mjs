@@ -1,14 +1,13 @@
-import { readFileSync } from "node:fs";
-import { spawnSync } from "node:child_process";
-import { join, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
-import { writeDurable, installRestoreGuard } from "../_support/file-mutation.mjs";
+import { runMutationHarness } from "../_support/mutation-harness.mjs";
 
 // Mutation harness: prove each of the four Part 3 suites can actually fail.
 // A behavioural suite that cannot fail is decoration, so each case below
 // weakens one real rule and asserts the corresponding suite goes red.
-
-const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
+//
+// The mutation runs against a throwaway COPY of the repository (see
+// tests/_support/mutation-harness.mjs), so the tracked tree is never touched:
+// there is no restore step to get wrong, and an uncommitted edit to a mutated
+// file no longer fails the harness by design.
 
 const CASES = [
   {
@@ -41,65 +40,14 @@ const CASES = [
   },
 ];
 
-// Snapshot every touched file up front, and restore it on exit (and Ctrl-C):
-// an interrupted run must not leave a checked-in SKILL.md mutated, which then
-// fails the payload-manifest test on the NEXT run with no obvious cause.
-const snapshots = new Map();
-for (const c of CASES) {
-  const abs = join(REPO_ROOT, c.file);
-  if (!snapshots.has(abs)) snapshots.set(abs, readFileSync(abs, "utf8"));
-}
-installRestoreGuard(snapshots, { label: "skill or reference file" });
-
-let allDetected = true;
-
-for (const c of CASES) {
-  const abs = join(REPO_ROOT, c.file);
-  const original = snapshots.get(abs);
-  const mutated = original.replace(c.find, c.replace);
-
-  if (mutated === original) {
-    console.log(`  BROKEN HARNESS: ${c.name} — the pattern did not match, nothing was mutated`);
-    allDetected = false;
-    continue;
-  }
-
-  let status;
-  try {
-    writeDurable(abs, mutated);
-    const run = spawnSync("node", [c.test], { encoding: "utf8", cwd: REPO_ROOT });
-    status = run.status;
-  } finally {
-    writeDurable(abs, original);
-  }
-
-  if (status === 0) {
-    console.log(`  NOT DETECTED: ${c.name} — suite still passed`);
-    allDetected = false;
-  } else {
-    console.log(`  detected: ${c.name}`);
-  }
-}
-
-// A mutation harness that leaves the repo dirty is worse than no harness, so
-// prove the tree is byte-identical to what git has checked in. Compared against
-// git rather than an in-memory copy, because the copy is what we just wrote —
-// comparing it to itself would pass vacuously.
-const status = spawnSync("git", ["status", "--porcelain", "--", ...CASES.map((c) => c.file)], {
-  encoding: "utf8",
-  cwd: REPO_ROOT,
+const report = runMutationHarness({
+  label: "Part 3 behavioural suites (compare, summarize, audit, standards-lookup)",
+  cases: CASES.map((c) => ({
+    name: c.name,
+    file: c.file,
+    test: c.test,
+    mutate: (original) => original.replace(c.find, c.replace),
+  })),
 });
-const dirtyFiles = (status.stdout ?? "").trim();
-if (dirtyFiles.length > 0) {
-  console.log(`\n  DIRTY AFTER RESTORE — the harness must leave the tree clean:\n${dirtyFiles}`);
-  allDetected = false;
-} else {
-  console.log("  tree clean after all mutations restored");
-}
 
-console.log(
-  allDetected
-    ? "\nPASS: all four behavioural suites fail when their rule is removed, and the tree is left clean"
-    : "\nFAIL: at least one suite is vacuous, or the harness left the tree dirty",
-);
-process.exit(allDetected ? 0 : 1);
+process.exit(report.ok ? 0 : 1);

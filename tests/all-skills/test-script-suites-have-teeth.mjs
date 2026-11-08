@@ -1,16 +1,10 @@
-import { readFileSync } from "node:fs";
-import { spawnSync } from "node:child_process";
-import { createHash } from "node:crypto";
-import { join, dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
-import { writeDurable, installRestoreGuard } from "../_support/file-mutation.mjs";
+import { runMutationHarness } from "../_support/mutation-harness.mjs";
 
-// Teeth for the two script-level suites repaired on 2026-09-28:
-// tests/engineering-research/test-retrieval-bridge.mjs and
-// tests/engineering-research/test-isolated-tests.mjs.
+// Teeth for the script-level suites: each case below removes one real rule and
+// requires the corresponding suite to notice.
 //
 // The E1 harness (test-e1-suites-have-teeth.mjs) mutates skills/<skill>/SKILL.md.
-// These two suites cover scripts/, so that harness cannot host them — and before
+// These suites cover scripts/, so that harness cannot host them — and before
 // this, neither had a teeth check at all. test-retrieval-bridge.mjs in
 // particular read the script's SOURCE and asserted it contained the words
 // "semantic recall", "exact search", "direct read", so it passed against a
@@ -18,24 +12,11 @@ import { writeDurable, installRestoreGuard } from "../_support/file-mutation.mjs
 //
 // A mutation that does not land is a BROKEN HARNESS failure, never a pass.
 //
-// Restore is retried and swept from an exit hook, because a failed restore here
-// leaves a real script broken in the working tree. That is not hypothetical: an
-// earlier scratch version of this check left retrieval-bridge.mjs with its
-// --max-results parsing gutted, and the defect was found by reading the file
+// Every mutation runs against a throwaway COPY of the repository (see
+// tests/_support/mutation-harness.mjs). The tracked tree is never touched, so
+// a failed restore can no longer leave a real script broken in the working
+// tree — the defect this harness previously found by reading the file
 // afterwards rather than by the check reporting it.
-
-// fileURLToPath, not URL.pathname: on Windows the latter yields "/C:/Users/…",
-// which string-concatenates into "C:\C:\Users\…".
-const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
-const abs = (rel) => join(REPO_ROOT, rel);
-
-function rewriteWithFreshHash(path, content) {
-  const match = /<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=([0-9a-f]{64}) -->/.exec(content);
-  if (!match) return content;
-  const [, oldHash] = match;
-  const body = content.slice(content.indexOf("-->", match.index) + 3);
-  return content.replace(oldHash, createHash("sha256").update(body).digest("hex"));
-}
 
 const CASES = [
   {
@@ -358,80 +339,14 @@ const CASES = [
   },
 ];
 
-// Durable writes (atomic replace + retry + verify) live in the shared helper.
-const snapshots = new Map();
-for (const c of CASES) {
-  const a = abs(c.file);
-  if (!snapshots.has(a)) snapshots.set(a, readFileSync(a, "utf8"));
-}
-const originalFor = (rel) => snapshots.get(abs(rel));
-
-// Restore on exit (and Ctrl-C): a failed restore here leaves a real script
-// broken in the working tree, which is exactly the defect this harness found by
-// reading the file afterwards rather than by the check reporting it.
-installRestoreGuard(snapshots, { label: "script or manifest" });
-
-let allDetected = true;
-const vacuous = [];
-const broken = [];
-
-for (const c of CASES) {
-  const relFile = c.file;
-  const a = abs(relFile);
-  const original = originalFor(relFile);
-  const afterReplace = original.replace(c.find, c.replace);
-
-  if (afterReplace === original) {
-    console.log(`  BROKEN HARNESS: ${c.file} — "${c.rule}" did not match`);
-    allDetected = false;
-    broken.push(`${c.file}: ${c.rule}`);
-    continue;
-  }
-
-  let status;
-  let output = "";
-  try {
-    writeDurable(a, rewriteWithFreshHash(relFile, afterReplace));
-    const run = spawnSync("node", [c.test], { encoding: "utf8", cwd: REPO_ROOT });
-    status = run.status;
-    output = `${run.stdout ?? ""}${run.stderr ?? ""}`;
-  } finally {
-    writeDurable(a, original);
-  }
-
-  if (status === 0) {
-    console.log(`  NOT DETECTED: ${c.file} — "${c.rule}" removed, suite still passed`);
-    allDetected = false;
-    vacuous.push(`${c.file}: ${c.rule}`);
-  } else {
-    const caught = /AssertionError.*?: (.*)/.exec(output);
-    console.log(`  detected: ${c.file} — "${c.rule}"`);
-    if (caught) console.log(`             caught by: ${caught[1].slice(0, 100)}`);
-  }
-}
-
-// The restore must leave each file byte-identical to what it was at snapshot
-// time. Compared against the snapshot, not git, because these scripts have
-// legitimate uncommitted fixes in flight.
-const stillDirty = [...snapshots].filter(([f, before]) => {
-  try {
-    return readFileSync(f, "utf8") !== before;
-  } catch {
-    return true;
-  }
+const report = runMutationHarness({
+  label: "script-level suites (retrieval, isolated tests, walk, contracts, manifests, PDF/SSRF, ledger, commit rule)",
+  cases: CASES.map((c) => ({
+    name: `${c.file} — "${c.rule}"`,
+    file: c.file,
+    test: c.test,
+    mutate: (original) => original.replace(c.find, c.replace),
+  })),
 });
-if (stillDirty.length > 0) {
-  console.log(`\n  DIRTY AFTER RESTORE — ${stillDirty.map(([f]) => f).join(", ")}`);
-  allDetected = false;
-} else {
-  console.log("  all mutated scripts restored byte-for-byte");
-}
 
-console.log(
-  allDetected
-    ? `\nPASS: all ${CASES.length} script-level assertions fail when their rule is removed, and every file is restored`
-    : "\nFAIL: a script-level assertion is vacuous, the harness is broken, or a file was left dirty" +
-        (vacuous.length ? `\n  vacuous: ${vacuous.join("; ")}` : "") +
-        (broken.length ? `\n  broken harness: ${broken.join("; ")}` : ""),
-);
-process.exit(allDetected ? 0 : 1);
+process.exit(report.ok ? 0 : 1);
