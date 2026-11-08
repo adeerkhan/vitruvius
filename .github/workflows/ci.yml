@@ -26,3 +26,35 @@ jobs:
 
       - name: Run all tests
         run: npm test
+
+  windows:
+    # The portability tier, not the full suite: path handling, the hermetic git
+    # fixtures, the copy-based mutation harness, and the host smoke. These are
+    # the parts that broke or could break on Windows (a literal /dev/null in a
+    # git config, executable bits, cpSync paths). Widen this job only with a
+    # real Windows failure to justify each addition.
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "22"
+
+      - name: Portability tier
+        shell: bash
+        run: |
+          node scripts/validate-contract.mjs
+          node scripts/generate-discipline-skills.mjs --check
+          node tests/_contract/test-check.mjs
+          node tests/_support/test-temp-dir.mjs
+          node scripts/e1-model-run.mjs
+          node tests/engineering-research/test-staged-secret-scan.mjs
+          node tests/engineering-research/test-commit-message-check.mjs
+          node tests/all-skills/test-part3-suites-have-teeth.mjs
+          node tests/ci/test-host-smoke.mjs
+          node scripts/host-smoke.mjs
