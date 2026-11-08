@@ -43,6 +43,25 @@ Review), update the plan before moving to the next phase:
 This keeps the plan synchronized with reality so that an interrupted run
 can resume from disk without losing state.
 
+## Keep Moving
+
+A phase boundary is not a stopping point.
+
+- Do not end a turn with a message that only announces the next step. Start
+  the next tool call in the same turn.
+- Do not ask for confirmation before continuing unless the user asked to
+  review the plan. A plan summary is not a request to proceed; the input
+  gate's one clarifying question is the only expected pause.
+- If a tool call fails, fix it and continue in the same turn: report the
+  failure with the fix, not as a stopping point.
+- Stop only for a real blocker (missing input, unreachable source, a gate the
+  user must clear) or when the artifact is delivered; name the blocker and
+  what would clear it.
+
+This is measured, not stylistic: src-05's literature-review prompt added the
+rule after a live run wrote its plan and ended the turn announcing the next
+step.
+
 ## Overwrite Guard
 
 Before writing a plan to `outputs/.plans/<slug>.md`, check whether a file
