@@ -1,6 +1,6 @@
 import { strict as assert } from "node:assert";
 import { spawnSync } from "node:child_process";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, statSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -275,12 +275,24 @@ for (const subject of [
   }
 
   // The hook must pass --staged. If it is edited to drop the flag, this fails.
-  const hook = readFileSync(join(repoRoot, ".githooks", "commit-msg"), "utf8");
+  const hookPath = join(repoRoot, ".githooks", "commit-msg");
+  const hook = readFileSync(hookPath, "utf8");
   assert.match(
     hook,
     /--file "\$1" --staged/,
     "the commit-msg hook must pass --staged, or N7 is unenforced on every real commit",
   );
+  // A hook without an executable bit in the index is never run by git on a
+  // POSIX checkout. This file shipped 100644 for months: `git config
+  // core.hooksPath .githooks` was documented, the hook was present, and it
+  // still never ran on a fresh clone. The executable bit is the feature.
+  if (process.platform !== "win32") {
+    assert.notEqual(
+      statSync(hookPath).mode & 0o111,
+      0,
+      "the commit-msg hook must be executable, or git will not run it on a fresh clone",
+    );
+  }
 }
 
 // --- 10. N7 does not fire for files that are not a SKILL.md ---------------

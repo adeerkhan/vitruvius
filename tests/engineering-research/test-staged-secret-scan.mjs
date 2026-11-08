@@ -137,7 +137,13 @@ try {
     assert.ok(existsSync(hook), ".githooks/pre-commit must exist");
     const hookText = readFileSync(hook, "utf8");
     assert.match(hookText, /staged-secret-scan\.mjs/, "the hook must invoke the scanner");
-    assert.notEqual(statSync(hook).mode & 0o111, 0, "the hook must be executable or git will not run it");
+    if (process.platform !== "win32") {
+      assert.notEqual(
+        statSync(hook).mode & 0o111,
+        0,
+        "the hook must be executable or git will not run it",
+      );
+    }
   }
 
   console.log("PASS: staged secret scan names files without echoing values, and is wired");
