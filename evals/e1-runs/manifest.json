@@ -7,5 +7,897 @@
     "Validated fail-closed by scripts/e1-model-run.mjs; the manifest count in",
     "skills/e1-suite-manifest.json is derived from this file's records."
   ],
-  "runs": []
+  "runs": [
+    {
+      "skill": "architectural",
+      "run_id": "e1-architectural-1",
+      "date": "2026-11-08",
+      "fresh": true,
+      "agent": "general",
+      "session_id": "ses_e458eb09fffe4F43ICl57y2Yja",
+      "model": "not exposed by subagent harness",
+      "prompt": "Research facade and enclosure systems for my building science survey",
+      "prompt_sha256": "e362de510da4f730d73ea6271fc6cb6053314b0a9ebe6781327d0935326cbacd",
+      "output": {
+        "path": "evals/e1-runs/out/architectural.md",
+        "sha256": "846158765a1e2bfb680efb63f1c14078c3616fa844b20d39a6a3a4719cdd2a24",
+        "bytes": 2181
+      },
+      "grade": {
+        "status": "PASS",
+        "expectations": [
+          {
+            "id": "E1",
+            "statement": "Names assemblies with the system or standard they trace to, or marks an untraced value as inferred.",
+            "passed": true,
+            "evidence": "Names AAMA 508/509, ASTM E2273 and ASTM E2357/E331 as the traces for each assembly family; project values are called out as needing test reports."
+          },
+          {
+            "id": "E2",
+            "statement": "Separates performance claims from design assumptions and states the scope of the answer.",
+            "passed": true,
+            "evidence": "Separates verified standard scopes from project-specific values and states the answer is a survey; edition sensitivity is named."
+          }
+        ]
+      }
+    },
+    {
+      "skill": "artifact-reading",
+      "run_id": "e1-artifact-reading-1",
+      "date": "2026-11-08",
+      "fresh": true,
+      "agent": "general",
+      "session_id": "ses_e458eb09dffe3iCBfUdwDVJHy9",
+      "model": "not exposed by subagent harness",
+      "prompt": "Extract the tables from this 80-page specification PDF",
+      "prompt_sha256": "e914d87925007435cf4f8a15a54dc6a9c9385dc187d1e4e37f6e86119b3517da",
+      "output": {
+        "path": "evals/e1-runs/out/artifact-reading.md",
+        "sha256": "0227dfb9eb4dc7e1d45fbbfaac33cee9ad77871ab5a3aa19507ec7b6753ca108",
+        "bytes": 1861
+      },
+      "grade": {
+        "status": "PASS",
+        "expectations": [
+          {
+            "id": "E1",
+            "statement": "Does not fabricate table contents without the document.",
+            "passed": true,
+            "evidence": "Reports BLOCKED and refuses to describe tables it has not opened."
+          },
+          {
+            "id": "E2",
+            "statement": "Names the missing artifact (file/pages) and what the extraction will preserve.",
+            "passed": true,
+            "evidence": "Names the missing file/path and lists what the extraction will preserve (page anchor, caption, units, blanks)."
+          }
+        ]
+      }
+    },
+    {
+      "skill": "audit",
+      "run_id": "e1-audit-1",
+      "date": "2026-11-08",
+      "fresh": true,
+      "agent": "general",
+      "session_id": "ses_e458eb097ffddyO8b793mUkW2l",
+      "model": "not exposed by subagent harness",
+      "prompt": "Audit this against its spec. Spec: 'retry up to 3 times'. Code: const MAX_RETRIES = 5; for (let i = 0; i < MAX_RETRIES; i++) { attempt(); }",
+      "prompt_sha256": "6b4263752a9282d44237a270d71b42c549ee4219b05d31b17908b749a68c5ce5",
+      "output": {
+        "path": "evals/e1-runs/out/audit.md",
+        "sha256": "abd34761e5e603938c946be6623f6f4ba4f21633c57cdadace2a493919b86834",
+        "bytes": 2010
+      },
+      "grade": {
+        "status": "PASS",
+        "expectations": [
+          {
+            "id": "E1",
+            "statement": "Compares the claim and the implementation directly and names the 3-versus-5 mismatch.",
+            "passed": true,
+            "evidence": "States MISMATCH and pins 3 retries in the spec against MAX_RETRIES = 5 in the code."
+          },
+          {
+            "id": "E2",
+            "statement": "Distinguishes a confirmed mismatch from missing information and states what was checked.",
+            "passed": true,
+            "evidence": "Separates confirmed mismatches from the missing failure/exit logic and states the scope is the two quoted lines."
+          }
+        ]
+      }
+    },
+    {
+      "skill": "civil",
+      "run_id": "e1-civil-1",
+      "date": "2026-11-08",
+      "fresh": true,
+      "agent": "general",
+      "session_id": "ses_e458eb08fffefVR9qDbCNI5hED",
+      "model": "not exposed by subagent harness",
+      "prompt": "Research wind loading on long-span bridges for my survey",
+      "prompt_sha256": "8dfbbcdf93fb95cad4128f9a03ef1a502b120b6b8a6ea32f095933056fa17852",
+      "output": {
+        "path": "evals/e1-runs/out/civil.md",
+        "sha256": "fac896c8b7ad118cddaa60565e40902b3daa9df30ffe7d073418a0ebd8511b0d",
+        "bytes": 2392
+      },
+      "grade": {
+        "status": "PASS",
+        "expectations": [
+          {
+            "id": "E1",
+            "statement": "Names the governing load basis (standard and article/section) and load combination, or marks them missing \u2014 and corrects a wrong assumed standard instead of following it.",
+            "passed": true,
+            "evidence": "Names AASHTO LRFD Art. 3.8 as the governing basis and corrects that ASCE 7 does not cover highway bridges."
+          },
+          {
+            "id": "E2",
+            "statement": "Pins edition and units and separates verified provisions from inferred practice.",
+            "passed": true,
+            "evidence": "Pins the 9th edition and units; marks case-bridge values as cited and the answer as research, not design."
+          }
+        ]
+      }
+    },
+    {
+      "skill": "compare",
+      "run_id": "e1-compare-1",
+      "date": "2026-11-08",
+      "fresh": true,
+      "agent": "general",
+      "session_id": "ses_e458eb08bffetB92jWRF7jfmKW",
+      "model": "not exposed by subagent harness",
+      "prompt": "Compare what Eurocode and AISC say about this connection",
+      "prompt_sha256": "5920e867d67cf1da2d2c040a2074fe895250f31d8f44c5a8684b2754750ff680",
+      "output": {
+        "path": "evals/e1-runs/out/compare.md",
+        "sha256": "2423eadab702469470dac28a8e3a121739d3fc8f58b332d5441b1785edbaf7cb",
+        "bytes": 2209
+      },
+      "grade": {
+        "status": "PASS",
+        "expectations": [
+          {
+            "id": "E1",
+            "statement": "Requires or states the editions and notes that no connection detail was provided.",
+            "passed": true,
+            "evidence": "Requires editions (AISC 360-22, EN 1993-1-8) and states no connection detail was provided."
+          },
+          {
+            "id": "E2",
+            "statement": "Compares provision-by-provision rather than summarizing secondary sources.",
+            "passed": true,
+            "evidence": "Compares provision-by-provision (Ch. J vs \u00a73\u2013\u00a77) rather than summarizing secondary sources."
+          }
+        ]
+      }
+    },
+    {
+      "skill": "design-alternatives",
+      "run_id": "e1-design-alternatives-1",
+      "date": "2026-11-08",
+      "fresh": true,
+      "agent": "general",
+      "session_id": "ses_e458eb08affeiUQ6dddVirRhhf",
+      "model": "not exposed by subagent harness",
+      "prompt": "Compare three design alternatives for this pressure vessel closure",
+      "prompt_sha256": "f177eee498092814ded3bd254816ec5664fdab5ca414dfebcd9a528cb08adcbc",
+      "output": {
+        "path": "evals/e1-runs/out/design-alternatives.md",
+        "sha256": "9c82939b7a84df9d12de06721729ef81a507f6e95d25acd8a590f3705d559a50",
+        "bytes": 2217
+      },
+      "grade": {
+        "status": "PASS",
+        "expectations": [
+          {
+            "id": "E1",
+            "statement": "Produces a criteria-based comparison and names trade-offs rather than one answer.",
+            "passed": true,
+            "evidence": "Produces a weighted criteria table across three options and shows the ranking reverses when the access weight changes."
+          },
+          {
+            "id": "E2",
+            "statement": "States assumptions and ranks the options with the evidence behind the ranking.",
+            "passed": true,
+            "evidence": "States its assumptions (1.0 m ID, 1.0 MPa, Section VIII Div. 1) and anchors scores to code roles, calling them judgments."
+          }
+        ]
+      }
+    },
+    {
+      "skill": "electrical",
+      "run_id": "e1-electrical-1",
+      "date": "2026-11-08",
+      "fresh": true,
+      "agent": "general",
+      "session_id": "ses_e458eb089ffeFbU4pAlHS5dKpy",
+      "model": "not exposed by subagent harness",
+      "prompt": "Research motor drives and power systems for this grid-tied installation",
+      "prompt_sha256": "54382750121c80ac089245ebdffebd6ab910acd012062351b653669806b26b03",
+      "output": {
+        "path": "evals/e1-runs/out/electrical.md",
+        "sha256": "77bf05014cae2b43df3be3bcf75e69fc6d1c2f3157195b4689547c313521b0bf",
+        "bytes": 2249
+      },
+      "grade": {
+        "status": "PASS",
+        "expectations": [
+          {
+            "id": "E1",
+            "statement": "Names the voltage/frequency basis and the governing code or standard, or marks them missing.",
+            "passed": true,
+            "evidence": "Names NEC 430, IEEE 1547/519 and IEC 61800 as the governing basis and marks them unread, with voltage/frequency unstated."
+          },
+          {
+            "id": "E2",
+            "statement": "Distinguishes datasheet values from inferred selection.",
+            "passed": true,
+            "evidence": "Separates verified standard titles from inferred selection and datasheet values that were not supplied."
+          }
+        ]
+      }
+    },
+    {
+      "skill": "eli5",
+      "run_id": "e1-eli5-1",
+      "date": "2026-11-08",
+      "fresh": true,
+      "agent": "general",
+      "session_id": "ses_e458d3a86ffd0uC7IVu040MHGM",
+      "model": "not exposed by subagent harness",
+      "prompt": "Explain what a resistance factor is in simple terms",
+      "prompt_sha256": "1281210a6b92189adf245e73cfec4183a895fa19a21a67449c11d4f681c6364e",
+      "output": {
+        "path": "evals/e1-runs/out/eli5.md",
+        "sha256": "a7311a02e57ea5bfd7de642061873374ea249f438be30924d2abf591eabf296e",
+        "bytes": 2188
+      },
+      "grade": {
+        "status": "PASS",
+        "expectations": [
+          {
+            "id": "E1",
+            "statement": "Explains without jargon and keeps the safety meaning intact.",
+            "passed": true,
+            "evidence": "Explains the resistance factor as a calibrated discount with a concrete example and keeps the safety meaning."
+          },
+          {
+            "id": "E2",
+            "statement": "Flags any lossy simplification explicitly.",
+            "passed": true,
+            "evidence": "Flags the lossy analogy explicitly: resistance factor is separated from safety factor and called a probabilistic bet."
+          }
+        ]
+      }
+    },
+    {
+      "skill": "engineering-research",
+      "run_id": "e1-engineering-research-1",
+      "date": "2026-11-08",
+      "fresh": true,
+      "agent": "general",
+      "session_id": "ses_e458d3a7effeljP8tsaSjXw11j",
+      "model": "not exposed by subagent harness",
+      "prompt": "Use the engineering research method to discover, read, synthesize, and verify primary evidence for an engineering question",
+      "prompt_sha256": "c3de84baf444761e94c3842794e054f1974d46b0de7b1692e6f5d9fe2e430988",
+      "output": {
+        "path": "evals/e1-runs/out/engineering-research.md",
+        "sha256": "5475d1830473f45ab66e37b128326de41fb50e6b86ce613b958d3b12af1c24f1",
+        "bytes": 2109
+      },
+      "grade": {
+        "status": "PASS",
+        "expectations": [
+          {
+            "id": "E1",
+            "statement": "Plans and gathers primary evidence rather than answering from memory.",
+            "passed": true,
+            "evidence": "Runs the loop on a concrete question, reads the eCFR text directly, and pins six claims to \u00a71926.502(d)."
+          },
+          {
+            "id": "E2",
+            "statement": "Marks the result verified only with a source and states what remains inferred.",
+            "passed": true,
+            "evidence": "Marks the six claims verified against the read text and the clearance arithmetic inferred, not cited."
+          }
+        ]
+      }
+    },
+    {
+      "skill": "evidence-ranking",
+      "run_id": "e1-evidence-ranking-1",
+      "date": "2026-11-08",
+      "fresh": true,
+      "agent": "general",
+      "session_id": "ses_e458d3a74ffdI80BIQkQ1KttyQ",
+      "model": "not exposed by subagent harness",
+      "prompt": "Rank these five papers by evidence quality for my fatigue question",
+      "prompt_sha256": "0ab24e60650774d248a21910a97287338d4d5f4294ea2a4b2270e08a958e6bbb",
+      "output": {
+        "path": "evals/e1-runs/out/evidence-ranking.md",
+        "sha256": "87426e4d315086f0017ffeddc5fe34cec27a8ba3e28ed29064c6823248c33b96",
+        "bytes": 2070
+      },
+      "grade": {
+        "status": "PASS",
+        "expectations": [
+          {
+            "id": "E1",
+            "statement": "Uses explicit criteria or tiers and does not sum them into one score.",
+            "passed": true,
+            "evidence": "Refuses to rank unread papers and states the five-criterion tier frame without summing criteria into one score."
+          },
+          {
+            "id": "E2",
+            "statement": "Marks applicability (or missing appraisal) instead of inventing it.",
+            "passed": true,
+            "evidence": "Marks applicability and GRADE/risk-of-bias as n/a with reasons instead of inventing them."
+          }
+        ]
+      }
+    },
+    {
+      "skill": "fmea-brainstorm",
+      "run_id": "e1-fmea-brainstorm-1",
+      "date": "2026-11-08",
+      "fresh": true,
+      "agent": "general",
+      "session_id": "ses_e458d3a70ffdM2P9SS6LE8pfkU",
+      "model": "not exposed by subagent harness",
+      "prompt": "What failure modes could go wrong in this gearbox assembly",
+      "prompt_sha256": "9ea89ca8f886deee8bf6e9e4be0cdda4b0648a40a8ab7bd016bcbafd32299f8a",
+      "output": {
+        "path": "evals/e1-runs/out/fmea-brainstorm.md",
+        "sha256": "caf7e616806b7ce3c579274a14a553f55ae3a2cfc39fa9acba8dc37315bb44d7",
+        "bytes": 2095
+      },
+      "grade": {
+        "status": "PASS",
+        "expectations": [
+          {
+            "id": "E1",
+            "statement": "Enumerates failure modes with cause, effect, and severity.",
+            "passed": true,
+            "evidence": "Tabulates ten modes with cause, effect and severity, and names the basis as documented enclosed gearbox modes."
+          },
+          {
+            "id": "E2",
+            "statement": "Distinguishes design-level risks from speculation and states the basis.",
+            "passed": true,
+            "evidence": "Separates design-level modes from speculative triggers and declines occurrence/detection without duty data."
+          }
+        ]
+      }
+    },
+    {
+      "skill": "gap-analysis",
+      "run_id": "e1-gap-analysis-1",
+      "date": "2026-11-08",
+      "fresh": true,
+      "agent": "general",
+      "session_id": "ses_e458d3a6cffeOZAXTvWDXZHvXj",
+      "model": "not exposed by subagent harness",
+      "prompt": "Find research gaps in FRP bonding literature for civil structures",
+      "prompt_sha256": "297f87580d4cbaa698021dd7c6a1a095677ef552e61453a6f6585ad8102ce8aa",
+      "output": {
+        "path": "evals/e1-runs/out/gap-analysis.md",
+        "sha256": "8c4f0874e0f10e4ee06f15043a6ff1f67e88ec9edd1c24ad4e038ebfc0ab2908",
+        "bytes": 2680
+      },
+      "grade": {
+        "status": "PASS",
+        "expectations": [
+          {
+            "id": "E1",
+            "statement": "States the corpus or searches the gap claim is based on.",
+            "passed": true,
+            "evidence": "States the search corpus (OpenAlex queries, arXiv) behind the four gaps and their hit counts."
+          },
+          {
+            "id": "E2",
+            "statement": "Separates absent evidence from unsearched territory.",
+            "passed": true,
+            "evidence": "Separates triangulated gaps from thin or unsearched areas (fire after ageing) and states confidence."
+          }
+        ]
+      }
+    },
+    {
+      "skill": "habit",
+      "run_id": "e1-habit-1",
+      "date": "2026-11-08",
+      "fresh": true,
+      "agent": "general",
+      "session_id": "ses_e458d3a66ffe5JmFuJLFgqmv7i",
+      "model": "not exposed by subagent harness",
+      "prompt": "Capture a standing research convention for future runs: use concise evidence tables",
+      "prompt_sha256": "f34a70d589467b4b176530dc2564bfed6144aae7c85a596ef5c725b3b8ebe681",
+      "output": {
+        "path": "evals/e1-runs/out/habit.md",
+        "sha256": "178e2978ff1544c566405114aa5ee8a9e906348496d3734e595f621f77ec3606",
+        "bytes": 2403
+      },
+      "grade": {
+        "status": "PASS",
+        "expectations": [
+          {
+            "id": "E1",
+            "statement": "Treats the convention as a proposal awaiting explicit approval, not silently activated.",
+            "passed": true,
+            "evidence": "Presents the convention as status proposed/not active and requires explicit approval and activation steps."
+          },
+          {
+            "id": "E2",
+            "statement": "Scopes the rule and states where it applies.",
+            "passed": true,
+            "evidence": "Scopes the rule to engineering-research with triggers and an evidence limit (a single user turn)."
+          }
+        ]
+      }
+    },
+    {
+      "skill": "hypothesis-generation",
+      "run_id": "e1-hypothesis-generation-1",
+      "date": "2026-11-08",
+      "fresh": true,
+      "agent": "general",
+      "session_id": "ses_e458d3a4bffeEFnie2f321l27i",
+      "model": "not exposed by subagent harness",
+      "prompt": "Formulate testable hypotheses for why this beam cracked",
+      "prompt_sha256": "8160e88a0fb55ad5447b638d82c0ecb872fd6b193a28473bed73c0cd51504955",
+      "output": {
+        "path": "evals/e1-runs/out/hypothesis-generation.md",
+        "sha256": "78b00e9fc044ead522ad87896bc5d2651b234d28c2ee85ce61e315c114eb0959",
+        "bytes": 2770
+      },
+      "grade": {
+        "status": "PASS",
+        "expectations": [
+          {
+            "id": "E1",
+            "statement": "Produces rival hypotheses with discriminating predictions.",
+            "passed": true,
+            "evidence": "Produces five rival hypotheses with predictions, falsifiers, contrasts and discriminating tests."
+          },
+          {
+            "id": "E2",
+            "statement": "Does not select a winner without evidence.",
+            "passed": true,
+            "evidence": "Explicitly does not select: calls them candidates and freezes the evidence boundary."
+          }
+        ]
+      }
+    },
+    {
+      "skill": "mechanical",
+      "run_id": "e1-mechanical-1",
+      "date": "2026-11-08",
+      "fresh": true,
+      "agent": "general",
+      "session_id": "ses_e4588ab9effdiuZ1uRccRqXbGN",
+      "model": "not exposed by subagent harness",
+      "prompt": "Research bearing selection and power transmission for my gearbox design",
+      "prompt_sha256": "dad25d9186966f842ea98f0cd30b167ffb73c98433d6177c89f4f38cd5888cef",
+      "output": {
+        "path": "evals/e1-runs/out/mechanical.md",
+        "sha256": "a8c553ad2fc06965410b954a1b1995dbd3e033113cbf10c87ecdfd2de69d5bd7",
+        "bytes": 1977
+      },
+      "grade": {
+        "status": "PASS",
+        "expectations": [
+          {
+            "id": "E1",
+            "statement": "States the design factor and governing standard basis, or marks them missing.",
+            "passed": true,
+            "evidence": "Names AGMA 2001-D04/ISO 6336 as the rating basis and marks the design factor missing."
+          },
+          {
+            "id": "E2",
+            "statement": "Uses datasheet or primary values and marks inferred selections.",
+            "passed": true,
+            "evidence": "Uses an SKF 6208 datasheet value as the anchor and marks the selection and load as inferred."
+          }
+        ]
+      }
+    },
+    {
+      "skill": "peer-review",
+      "run_id": "e1-peer-review-1",
+      "date": "2026-11-08",
+      "fresh": true,
+      "agent": "general",
+      "session_id": "ses_e4588ab98ffdTpT5zyCEkhCbK0",
+      "model": "not exposed by subagent harness",
+      "prompt": "Peer review my research brief before I submit it",
+      "prompt_sha256": "bd7203ff2c2eb09198cc0cdbe79c847a57d0d0a990a15f3fcdacf8ba1620101c",
+      "output": {
+        "path": "evals/e1-runs/out/peer-review.md",
+        "sha256": "d616440b55e06bc8a82d0a09e3ec8ee485ffda3929be707873b6fcd23f1f5793",
+        "bytes": 2269
+      },
+      "grade": {
+        "status": "PASS",
+        "expectations": [
+          {
+            "id": "E1",
+            "statement": "Asks for the brief or names the missing artifact rather than inventing its contents.",
+            "passed": true,
+            "evidence": "Refuses to invent the brief and asks for a path/text/URL plus the governing standard."
+          },
+          {
+            "id": "E2",
+            "statement": "Names the review dimensions it will apply (evidence, logic, severity).",
+            "passed": true,
+            "evidence": "Names the five review stages and the FATAL/MAJOR/MINOR severity with line-pinned findings."
+          }
+        ]
+      }
+    },
+    {
+      "skill": "proposal",
+      "run_id": "e1-proposal-1",
+      "date": "2026-11-08",
+      "fresh": true,
+      "agent": "general",
+      "session_id": "ses_e4588ab8fffdsDacQBPT5UcllT",
+      "model": "not exposed by subagent harness",
+      "prompt": "Turn this position posting and CV into a targeted PhD research proposal",
+      "prompt_sha256": "b814c72d24929de288fd8c059a57c95a58129f75a7011f2378dbdbd241dc1454",
+      "output": {
+        "path": "evals/e1-runs/out/proposal.md",
+        "sha256": "8d104ed3a525038ba955f4d1f2bc6c12684ccc8d40cc87974c1fa591c5513840",
+        "bytes": 2085
+      },
+      "grade": {
+        "status": "PASS",
+        "expectations": [
+          {
+            "id": "E1",
+            "statement": "Keeps the proposal targeted at the named lab and marks missing intake instead of inventing it.",
+            "passed": true,
+            "evidence": "Reports BLOCKED and refuses to invent a professor, lab, or CV; names the required intake files."
+          },
+          {
+            "id": "E2",
+            "statement": "Grounds the gaps in the lab's own work, not generic claims.",
+            "passed": true,
+            "evidence": "Requires lab-specific gaps from the lab's own work and rejects generic gap claims."
+          }
+        ]
+      }
+    },
+    {
+      "skill": "research-to-post",
+      "run_id": "e1-research-to-post-1",
+      "date": "2026-11-08",
+      "fresh": true,
+      "agent": "general",
+      "session_id": "ses_e4588ab8cffeLJneVHofBCofGc",
+      "model": "not exposed by subagent harness",
+      "prompt": "Write a twitter thread about this paper's result",
+      "prompt_sha256": "e29858949cb5cbcacfe5378e40e5b5110a12f7f36b06ac261da06a2cbe2685ae",
+      "output": {
+        "path": "evals/e1-runs/out/research-to-post.md",
+        "sha256": "988adf720f28426f21fd7ec59594275bf4a25989c09ae6b67375eed2ec962509",
+        "bytes": 1740
+      },
+      "grade": {
+        "status": "PASS",
+        "expectations": [
+          {
+            "id": "E1",
+            "statement": "Asks for or uses the paper as the source and keeps claims to it.",
+            "passed": true,
+            "evidence": "Refuses to draft without the paper and asks for a PDF, DOI/arXiv id, or pasted abstract."
+          },
+          {
+            "id": "E2",
+            "statement": "Drafts without claiming to publish, and treats the source link as provenance.",
+            "passed": true,
+            "evidence": "States nothing will be posted, scheduled, or scraped, and the source link is the provenance."
+          }
+        ]
+      }
+    },
+    {
+      "skill": "review",
+      "run_id": "e1-review-1",
+      "date": "2026-11-08",
+      "fresh": true,
+      "agent": "general",
+      "session_id": "ses_e4588ab8affeRfq0pPmcybrlTw",
+      "model": "not exposed by subagent harness",
+      "prompt": "Review this design memo for weaknesses",
+      "prompt_sha256": "d14a209fcd17bc01123ec0d66f7fa709dde8ce79b58338d510e3116c653fe1b5",
+      "output": {
+        "path": "evals/e1-runs/out/review.md",
+        "sha256": "612f4a0d925b1a49de08480910bd38c071a23e1b178739de9b025e1c93546401",
+        "bytes": 1628
+      },
+      "grade": {
+        "status": "PASS",
+        "expectations": [
+          {
+            "id": "E1",
+            "statement": "Asks for the memo or names the missing artifact.",
+            "passed": true,
+            "evidence": "Reports BLOCKED and asks for the memo or its path."
+          },
+          {
+            "id": "E2",
+            "statement": "Requires concrete weaknesses with severity and forbids vague praise.",
+            "passed": true,
+            "evidence": "Names FATAL/MAJOR/MINOR findings pinned to lines, and forbids vague praise and predicted approval."
+          }
+        ]
+      }
+    },
+    {
+      "skill": "scholarly-research",
+      "run_id": "e1-scholarly-research-1",
+      "date": "2026-11-08",
+      "fresh": true,
+      "agent": "general",
+      "session_id": "ses_e4588ab89ffe1aTM7ibiZz5xZ3",
+      "model": "not exposed by subagent harness",
+      "prompt": "Find prior academic work on retraction-aware paper ranking",
+      "prompt_sha256": "999d10efd40cfc01b97dc763dd62263f3eba2d47c2be6e2c82fbfd29885ad325",
+      "output": {
+        "path": "evals/e1-runs/out/scholarly-research.md",
+        "sha256": "16630a6bf3f18538aa3397498c1cf3982ea5327e2eb92271fb496e67cfcd96f8",
+        "bytes": 2449
+      },
+      "grade": {
+        "status": "PASS",
+        "expectations": [
+          {
+            "id": "E1",
+            "statement": "Uses scholarly indexes and cites stable identifiers (DOI or arXiv id).",
+            "passed": true,
+            "evidence": "Uses OpenAlex and arXiv, reports the Semantic Scholar 429 as partial, and cites eight DOIs."
+          },
+          {
+            "id": "E2",
+            "statement": "Separates found literature from unverified claims.",
+            "passed": true,
+            "evidence": "Separates what the literature settles from what it does not and states the coverage limit."
+          }
+        ]
+      }
+    },
+    {
+      "skill": "simplified-technical-english",
+      "run_id": "e1-simplified-technical-english-1",
+      "date": "2026-11-08",
+      "fresh": true,
+      "agent": "general",
+      "session_id": "ses_e4588ab88ffezCzNPRLVgSfSRQ",
+      "model": "not exposed by subagent harness",
+      "prompt": "Rewrite this procedure in simplified technical english controlled language",
+      "prompt_sha256": "d708eb9e2bc3e00786133c1bda42620d44d51cde7150a365143b3ce313c92f37",
+      "output": {
+        "path": "evals/e1-runs/out/simplified-technical-english.md",
+        "sha256": "62af3b672a14009eff3bc280789d7d383a909378b34d1dd59ceb07bf2ee0b8ca",
+        "bytes": 1662
+      },
+      "grade": {
+        "status": "PASS",
+        "expectations": [
+          {
+            "id": "E1",
+            "statement": "Uses controlled language and keeps every value and risk.",
+            "passed": true,
+            "evidence": "States the STE sentence and structure rules; its example keeps the CAUTION and the valve instruction."
+          },
+          {
+            "id": "E2",
+            "statement": "Does not rewrite quoted evidence.",
+            "passed": true,
+            "evidence": "States that quoted passages and standard text stay verbatim and that values and risks are never dropped."
+          }
+        ]
+      }
+    },
+    {
+      "skill": "software",
+      "run_id": "e1-software-1",
+      "date": "2026-11-08",
+      "fresh": true,
+      "agent": "general",
+      "session_id": "ses_e45885c0effdVG4KvYa9T2ZQ73",
+      "model": "not exposed by subagent harness",
+      "prompt": "Investigate the technical landscape and architecture options for this software system",
+      "prompt_sha256": "12318f76efc8d98e28f5edd89e05587cce7a8bde9487744660c74e2f52dffd7d",
+      "output": {
+        "path": "evals/e1-runs/out/software.md",
+        "sha256": "8d53270504eb3bff826916d96e269eb76b0967b3dcb18b0aa2ea8498418fdb3c",
+        "bytes": 2313
+      },
+      "grade": {
+        "status": "PASS",
+        "expectations": [
+          {
+            "id": "E1",
+            "statement": "Separates claims about the codebase from prior art and labels each.",
+            "passed": true,
+            "evidence": "Separates five codebase claims with path:line anchors from the inferred prior-art options."
+          },
+          {
+            "id": "E2",
+            "statement": "Names trade-offs and what evidence would change the recommendation.",
+            "passed": true,
+            "evidence": "Names trade-offs per option and the evidence that would change the recommendation."
+          }
+        ]
+      }
+    },
+    {
+      "skill": "standards-lookup",
+      "run_id": "e1-standards-lookup-1",
+      "date": "2026-11-08",
+      "fresh": true,
+      "agent": "general",
+      "session_id": "ses_e45885c0affe05Fs8tDK3MGULa",
+      "model": "not exposed by subagent harness",
+      "prompt": "What does ACI 318 say about the reduction factor for post-tensioned tendons",
+      "prompt_sha256": "505c1b543727b22726b0d6ba374c29f0f3f5281fd15936c965fbb084a2d4740c",
+      "output": {
+        "path": "evals/e1-runs/out/standards-lookup.md",
+        "sha256": "e83912227fd58cb92270fcf2f2ad09806517a73364c4e552d005f15b3121a939",
+        "bytes": 1997
+      },
+      "grade": {
+        "status": "PASS",
+        "expectations": [
+          {
+            "id": "E1",
+            "statement": "Names the edition and section and does not invent a provision.",
+            "passed": true,
+            "evidence": "Names ACI 318-19 and 318-25 with the governing sections and tables, and refuses to collapse them into one factor."
+          },
+          {
+            "id": "E2",
+            "statement": "Marks an unread or paywalled provision blocked instead of guessing.",
+            "passed": true,
+            "evidence": "Warns that a licensed edition must be checked and notes AASHTO bridges use different factors instead of extrapolating."
+          }
+        ]
+      }
+    },
+    {
+      "skill": "summarize",
+      "run_id": "e1-summarize-1",
+      "date": "2026-11-08",
+      "fresh": true,
+      "agent": "general",
+      "session_id": "ses_e45885c01ffek7unjjNU4WeUaD",
+      "model": "not exposed by subagent harness",
+      "prompt": "Summarize this datasheet into a digestible brief",
+      "prompt_sha256": "a1a27dc474eec21c83409e7b94944ddd4434e28f61a574cdd450621a8d773789",
+      "output": {
+        "path": "evals/e1-runs/out/summarize.md",
+        "sha256": "d20cf9f2b93b43c260887fe6484459e79751505adc02469d6131cc84836acfae",
+        "bytes": 2044
+      },
+      "grade": {
+        "status": "PASS",
+        "expectations": [
+          {
+            "id": "E1",
+            "statement": "Does not fill unread values from memory; marks them missing.",
+            "passed": true,
+            "evidence": "Refuses to reconstruct ratings from memory and marks unread values as not stated."
+          },
+          {
+            "id": "E2",
+            "statement": "Preserves units and section references.",
+            "passed": true,
+            "evidence": "Preserves units and table/section references in the promised brief format."
+          }
+        ]
+      }
+    },
+    {
+      "skill": "verifier",
+      "run_id": "e1-verifier-1",
+      "date": "2026-11-08",
+      "fresh": true,
+      "agent": "general",
+      "session_id": "ses_e45885c00ffeG5Z5CYSzMMSZWH",
+      "model": "not exposed by subagent harness",
+      "prompt": "Verify a fatigue claim against the cited standard and return a severity-gated verdict",
+      "prompt_sha256": "8cac82d1ae2d01f65d63da5374d6abc8b5f6a5fb86c0bfb2e04aa9a7a044c673",
+      "output": {
+        "path": "evals/e1-runs/out/verifier.md",
+        "sha256": "857617af0ce5a3968e8a5a31ffc90eb558c5e3b6db625753588ad63344afe4e1",
+        "bytes": 1886
+      },
+      "grade": {
+        "status": "PASS",
+        "expectations": [
+          {
+            "id": "E1",
+            "statement": "Returns PASS, PARTIAL, or BLOCKED grounded in cited evidence.",
+            "passed": true,
+            "evidence": "Returns BLOCKED with a machine verdict, confidence, and the eight-check gate."
+          },
+          {
+            "id": "E2",
+            "statement": "Does not claim verification without a source and states what would change the verdict.",
+            "passed": true,
+            "evidence": "States that nothing is verified without a source and names what would change the verdict."
+          }
+        ]
+      }
+    },
+    {
+      "skill": "vitruvius",
+      "run_id": "e1-vitruvius-1",
+      "date": "2026-11-08",
+      "fresh": true,
+      "agent": "general",
+      "session_id": "ses_e45885bffffecdMejB4Ml9Dpo4",
+      "model": "not exposed by subagent harness",
+      "prompt": "A bridge deck shows fatigue cracking \u2014 which discipline should handle this?",
+      "prompt_sha256": "1149a1e09f886d63b99dd672b471cdf2e7ec72704e6d6aeace40c6a448eac880",
+      "output": {
+        "path": "evals/e1-runs/out/vitruvius.md",
+        "sha256": "369b060d89afb4859a105d90ce8267bfb3aa9e65fce2cd13a689a928cd2b58f7",
+        "bytes": 2373
+      },
+      "grade": {
+        "status": "PASS",
+        "expectations": [
+          {
+            "id": "E1",
+            "statement": "Routes the question to the civil (structural) discipline and explains why.",
+            "passed": true,
+            "evidence": "Routes to civil/structural and explains the structural basis (AASHTO fatigue provisions, detail categories)."
+          },
+          {
+            "id": "E2",
+            "statement": "Does not start the research itself.",
+            "passed": true,
+            "evidence": "Frames the answer as what the civil run should establish and hands mechanical off as supporting input only."
+          }
+        ]
+      }
+    },
+    {
+      "skill": "vitruvius-help",
+      "run_id": "e1-vitruvius-help-1",
+      "date": "2026-11-08",
+      "fresh": true,
+      "agent": "general",
+      "session_id": "ses_e45885bfeffeXDAnD4ox6muY9d",
+      "model": "not exposed by subagent harness",
+      "prompt": "What commands does Vitruvius have?",
+      "prompt_sha256": "a94d36d1e8a9cd6adc3b07aba9c8aef633c618788001f433d01bbe1fb54b3627",
+      "output": {
+        "path": "evals/e1-runs/out/vitruvius-help.md",
+        "sha256": "2ec145054cf7f204101bc7bc7e6445ee5f132fee188aa20a4a755eff214b42e8",
+        "bytes": 2565
+      },
+      "grade": {
+        "status": "PASS",
+        "expectations": [
+          {
+            "id": "E1",
+            "statement": "Lists commands or skills from the help card rather than inventing them.",
+            "passed": true,
+            "evidence": "Lists the dispatcher, five disciplines and twelve workflows without inventing commands."
+          },
+          {
+            "id": "E2",
+            "statement": "Marks anything unavailable or not shown instead of guessing.",
+            "passed": true,
+            "evidence": "States the research-only boundary and does not claim commands beyond the help card."
+          }
+        ]
+      }
+    }
+  ]
 }
