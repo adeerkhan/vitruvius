@@ -19,7 +19,7 @@
 //
 // Usage: node scripts/tests-check.mjs [--json]
 
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join, dirname, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
@@ -38,6 +38,18 @@ const TESTS_DIR = join(REPO_ROOT, "tests");
  * vanishes from the repository.
  */
 const ALLOWED_IGNORED = new Set(["tests/routing/last-misses.txt"]);
+
+/**
+ * Suite-shaped files knowingly left unwired, each with a reason below.
+ *
+ * Empty on purpose: every `test-*.mjs` under tests/ is in an npm script. A
+ * suite that exists, passes, and runs nowhere is the same defect as one hidden
+ * by .gitignore — it reads as coverage and is not. test-trust-boundary.mjs and
+ * test-research-to-post.mjs both passed for months while nothing ran them.
+ */
+const ALLOWED_UNWIRED = new Set([]);
+
+const SUITE_SHAPE = /(^|\/)test-[^/]+\.mjs$|\.test\.mjs$/;
 
 const problems = [];
 
@@ -87,6 +99,28 @@ for (const abs of walkFiles(TESTS_DIR)) {
   }
 }
 
+// The other mirror image: a suite-shaped file that exists and passes but is
+// run by no npm script. Coverage that nothing invokes is not coverage.
+let scripts = {};
+try {
+  scripts = JSON.parse(readFileSync(join(REPO_ROOT, "package.json"), "utf8")).scripts ?? {};
+} catch {
+  problems.push("package.json is unreadable; every suite-shaped file must be reachable from an npm script");
+}
+const wiring = Object.values(scripts).join("\n");
+for (const abs of walkFiles(TESTS_DIR)) {
+  const rel = relative(REPO_ROOT, abs).replaceAll("\\", "/");
+  if (!SUITE_SHAPE.test(rel)) continue;
+  if (ALLOWED_UNWIRED.has(rel)) continue;
+  if (!wiring.includes(rel)) {
+    problems.push(
+      `${rel} is suite-shaped but no npm script runs it. A suite nothing invokes is coverage that ` +
+        `does not exist — wire it into the test chain, or declare it in ALLOWED_UNWIRED in ` +
+        `scripts/tests-check.mjs with a reason.`,
+    );
+  }
+}
+
 const asJson = process.argv.includes("--json");
 if (asJson) {
   console.log(JSON.stringify({ problems, tests: walkFiles(TESTS_DIR).length }, null, 2));
@@ -96,7 +130,8 @@ if (asJson) {
 } else {
   const count = walkFiles(TESTS_DIR).length;
   console.log(
-    `PASS: all ${count} file(s) under tests/ are visible to git (${ALLOWED_IGNORED.size} declared diagnostic exception)`,
+    `PASS: all ${count} file(s) under tests/ are visible to git (${ALLOWED_IGNORED.size} declared ` +
+      `diagnostic exception), and every suite-shaped file is run by an npm script`,
   );
 }
 

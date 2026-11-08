@@ -46,6 +46,12 @@ function makeRepo(gitignoreLines) {
   // wired into any npm script.
   writeFileSync(join(dir, "scripts", "fs-walk.mjs"), readFileSync(new URL("../../scripts/fs-walk.mjs", import.meta.url)));
   writeFileSync(join(dir, "tests", "unit", "a.test.mjs"), "export const a = 1;\n");
+  // The gate now also requires every suite-shaped file to be run by an npm
+  // script, so the fixture carries the same wiring a real repo does.
+  writeFileSync(
+    join(dir, "package.json"),
+    JSON.stringify({ scripts: { test: "node tests/unit/a.test.mjs" } }, null, 2),
+  );
   // Commit the suite before any ignore rule exists — this is the "predates the
   // rule" state that made the original bug invisible.
   GIT(["add", "-A"], dir);
@@ -155,7 +161,25 @@ const run = (dir) => {
   );
 }
 
+// --- 6. A suite-shaped file that no npm script runs is caught -------------
+// The state that hid test-trust-boundary.mjs and test-research-to-post.mjs:
+// tracked, passing, and invoked by nothing.
+{
+  const dir = makeRepo([]);
+  try {
+    writeFileSync(join(dir, "tests", "unit", "unwired.test.mjs"), "export const d = 4;\n");
+    GIT(["add", "tests/unit/unwired.test.mjs"], dir);
+    GIT(["commit", "-qm", "add an unwired suite"], dir);
+    const r = run(dir);
+    assert.equal(r.status, 1, `an unwired suite must fail the gate:\n${r.out}`);
+    assert.match(r.out, /no npm script runs it/, "must explain that nothing invokes it");
+    assert.match(r.out, /unwired\.test\.mjs/, "must name the unwired suite");
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+}
+
 console.log(
-  "PASS: a test hidden by .gitignore fails the gate, an untracked suite fails it, a " +
-    "declared diagnostic exception is honoured, and this repository passes its own check",
+  "PASS: a test hidden by .gitignore fails the gate, an untracked suite fails it, an unwired " +
+    "suite fails it, a declared diagnostic exception is honoured, and this repository passes its own check",
 );
